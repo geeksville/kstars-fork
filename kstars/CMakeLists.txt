@@ -435,10 +435,12 @@ kde4_add_executable(kstars ${kstars_SRCS})
 
 target_link_libraries(kstars
     ${KDE4_KDECORE_LIBS}
-	${KDE4_KNEWSTUFF3_LIBS}
-	${KDE4_KIO_LIBS}
-	htmesh
-	${ZLIB_LIBRARIES}
+        ${KDE4_KNEWSTUFF3_LIBS}
+        ${KDE4_KIO_LIBS}
+    ${QT_QTDECLARATIVE_LIBRARY}
+    kdeclarative
+        htmesh
+        ${ZLIB_LIBRARIES}
         )
 
 if(NOT WIN32)
