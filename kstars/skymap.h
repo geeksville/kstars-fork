@@ -24,6 +24,7 @@
 #include <QGraphicsView>
 #include <QPixmap>
 #include <QTime>
+#include <QDeclarativeView>
 
 
 #include "skyobjects/skypoint.h"
@@ -33,7 +34,14 @@
 #include "skymapqdraw.h"
 #include "printing/legend.h"
 
+#include "skyguides/guidesdocument.h"
+#include "skyguides/guide.h"
+#include "skyguides/skyguidesspace.h"
+#include "skyguides/skyguides.h"
+
 #include <config-kstars.h>
+
+using namespace SkyGuidesSpace;
 
 class QPainter;
 class QPaintDevice;
@@ -643,8 +651,13 @@ private:
     InfoBoxWidget* m_objBox;
     InfoBoxes*     m_iboxes;
 
+    QDeclarativeView *qmlview;
+    GuidesDocument *guideslist;
+    SkyGuides *skyguides;
+
     // legend
     bool m_previewLegend;
+
     Legend m_legend;
 
     bool m_objPointingMode;

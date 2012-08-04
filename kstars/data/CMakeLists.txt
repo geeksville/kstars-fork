@@ -59,7 +59,7 @@ install( FILES kstars.png geomap.png
 	wzstars.png wzgeo.png wzscope.png wzdownload.png chart.colors
         classic.colors moonless-night.colors night.colors 
 	tips TZrules.dat valaav.txt advinterface.dat satellites.dat
-	histogram.png noimage.png glossary.xml defaultflag.gif
+        histogram.png noimage.png glossary.xml defaultflag.gif skyguides.xml
 	DESTINATION  ${DATA_INSTALL_DIR}/kstars 
 )
 

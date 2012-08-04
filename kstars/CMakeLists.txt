@@ -1,6 +1,7 @@
 add_subdirectory( data ) 
 add_subdirectory( icons )
 add_subdirectory( htmesh ) 
+add_subdirectory( skyguides )
 
 Find_package(ZLIB REQUIRED)
 
@@ -101,7 +102,6 @@ set(libkstarstools_SRCS
 	tools/eqplotwidget.cpp
 	tools/jmoontool.cpp
 	tools/ksconjunct.cpp
-	tools/lcgenerator.cpp
 	tools/modcalcangdist.cpp
 	tools/modcalcapcoord.cpp
 	tools/modcalcaltaz.cpp
@@ -166,7 +166,6 @@ kde4_add_ui_files(libkstarstools_SRCS
 	tools/argwaitforkey.ui
 	tools/argzoom.ui
 	tools/conjunctions.ui
-	tools/lcgenerator.ui
 	tools/modcalcangdist.ui
 	tools/modcalcapcoord.ui
 	tools/modcalcaltaz.ui
@@ -406,11 +405,26 @@ set(printingui_SRCS
     printing/pwizwelcome.ui
 )
 
+set(skyguides_SRCS
+    skyguides/guide.cpp
+    skyguides/slide.cpp
+    skyguides/guidesdocument.cpp
+    skyguides/author.cpp
+    skyguides/link.cpp
+    skyguides/image.cpp
+    skyguides/skyguides.cpp
+    skyguides/guideslistmodel.cpp
+    skyguides/slideslistmodel.cpp
+    skyguides/imageslistmodel.cpp
+    
+)
+
+
 set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
 	${libkstarswidgets_SRCS} ${libkstarscomponents_SRCS} ${libkstarstools_SRCS} 
 	${kstars_extra_SRCS}  ${kstars_gl_SRCS} ${kstars_projection_SRCS} ${xplanet_SRCS}
 	${kstars_options_SRCS} ${kstars_skyobjects_SRCS} ${kstars_dialogs_SRCS} ${oal_SRCS}
-        ${printing_SRCS}
+        ${printing_SRCS} ${skyguides_SRCS}
 )
 
 qt4_add_dbus_adaptor(kstars_SRCS org.kde.kstars.xml kstars.h KStars)

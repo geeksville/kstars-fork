@@ -1,9 +1,9 @@
 /***************************************************************************
-                   deepstardata.h  -  K Desktop Planetarium
+                          slide.cpp  -  K Desktop Planetarium
                              -------------------
-    begin                : Tue 5 Aug 2008
-    copyright            : (C) 2008 by Akarsh Simha
-    email                : akarshsimha@gmail.com
+    begin                : Mon Oct 10 2011
+    copyright            : (C) 2011 by Łukasz Jaśkiewicz
+    email                : lucas.jaskiewicz@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -15,23 +15,23 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef DEEPSTARDATA_H
-#define DEEPSTARDATA_H
+#include "slide.h"
 
-#include <QtGlobal>
+using namespace SkyGuidesSpace;
 
-/**
- *@short  Structure that holds star data for really faint stars
- *@author Akarsh Simha
- *@version 1.0
- */
-struct deepStarData {
-    qint32 RA;
-    qint32 Dec;
-    qint16 dRA;
-    qint16 dDec;
-    qint16 B;
-    qint16 V;
-};
+Slide::~Slide()
+{
+    qDeleteAll(m_Images);
+    qDeleteAll(m_Links);
+}
 
-#endif
+void Slide::setSlide(const QString &title, const QString &subtitle, const QString &text, SkyPoint centerPoint,
+                     const QList<Image *> &images, const QList<Link *> &links)
+{
+    m_Title = title;
+    m_Subtitle = subtitle;
+    m_Text = text;
+    m_CenterPoint = centerPoint;
+    m_Images = images;
+    m_Links = links;
+}

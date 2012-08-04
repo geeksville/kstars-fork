@@ -1,9 +1,9 @@
 /***************************************************************************
-                   deepstardata.h  -  K Desktop Planetarium
+                          image.h  -  K Desktop Planetarium
                              -------------------
-    begin                : Tue 5 Aug 2008
-    copyright            : (C) 2008 by Akarsh Simha
-    email                : akarshsimha@gmail.com
+    begin                : Sun Oct 9 2011
+    copyright            : (C) 2011 by Łukasz Jaśkiewicz
+    email                : lucas.jaskiewicz@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -15,23 +15,32 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef DEEPSTARDATA_H
-#define DEEPSTARDATA_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
-#include <QtGlobal>
+#include "skyguidesspace.h"
 
-/**
- *@short  Structure that holds star data for really faint stars
- *@author Akarsh Simha
- *@version 1.0
- */
-struct deepStarData {
-    qint32 RA;
-    qint32 Dec;
-    qint16 dRA;
-    qint16 dDec;
-    qint16 B;
-    qint16 V;
+#include <QString>
+
+class SkyGuidesSpace::Image
+{
+public:
+    Image(const QString &title, const QString &description, const QString &url)
+    {
+        setImage(title, description, url);
+    }
+
+    QString title() const { return m_Title; }
+    QString description() const { return m_Description; }
+    QString url() const { return m_Url; }
+
+    void setImage(const QString &title, const QString &description, const QString &url);
+
+    QString m_Url;
+private:
+    QString m_Title;
+    QString m_Description;
+
 };
 
-#endif
+#endif // IMAGE_H

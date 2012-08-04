@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kstars-skyguide version= "0.1">
+<guides>
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>	
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>	
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>	
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>	
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>
+	
+	<guide>
+		<title>Guide title</title>
+	      <authors>
+		<author>
+		  <name>name</name> 
+		  <surname>surname</surname>
+		  <email>author@email.com</email>
+		  <www>www.author.com</www>
+		</author>
+	      </authors>
+		
+		<thumbnailImage>/home/rmr/images.jpeg</thumbnailImage>
+		
+		<description>Guide description</description>
+		
+		<creationDate>Creation date</creationDate>
+		<slides>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+			<slide>
+				<title>Slide title</title>
+				<centerPoint>Coordinates that will be set when slide is 		active</centerPoint>
+				<text>Slide text</text>
+				<images>
+					<image>
+						<url>/home/rmr/images.jpeg</url>
+						<description>Image description</description>
+					</image>
+				</images>
+				<links>
+				  <link url="/home/rmr/snapshot1.png"> </link>
+				</links>
+			</slide>
+		</slides>
+		
+	</guide>
+</guides>
+</kstars-skyguide>
+
+
+
+
+
+
+
+
+
+
+

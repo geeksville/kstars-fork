@@ -19,6 +19,7 @@
 #include <windows.h>
 #endif
 #include "skymap.h"
+#include "skyguides/guidesdocument.h"
 
 #include <math.h>
 
@@ -248,6 +249,9 @@ SkyMap::SkyMap() :
 #else
     m_iboxes = new InfoBoxes( m_SkyMapDraw );
 #endif
+
+
+  skyguides = new SkyGuides(m_SkyMapDraw);
 
     m_iboxes->setVisible( Options::showInfoBoxes() );
     m_iboxes->addInfoBox(m_timeBox);
