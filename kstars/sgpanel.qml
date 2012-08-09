@@ -8,28 +8,23 @@ Rectangle {
     color: "#000000"
     opacity: 0.6
 
+    property int slidesOpacity: 0
+    property int guidesOpacity: 1
+
     Component {
         id: feeddelegate
         
-        
-
         Item {
             id: delegate
             height: column.height + 40
             width: delegate.ListView.view.width
-            
-            
 
             MouseArea {
                 anchors.fill: parent
                 onClicked:{
-                    console.log("item clicked is ")
-                    console.log(index);
-                    categories.guidesClicked(index);
-                    categories.opacity=0;
-                    slidesView.opacity=1;
-                    backbutton.opacity=1;
-                    addnewguides.opacity=0;
+                    guidesView.guidesClicked(index);
+                    window.guidesOpacity=0;
+                    window.slidesOpacity=1;
                 }
             }
 
@@ -45,7 +40,6 @@ Rectangle {
                     source: model.thumbimage
                 }
 
-
                 Column {
                     id: column
                     x: 20; y: 20
@@ -57,9 +51,10 @@ Rectangle {
                         font { bold: true; family: "Helvetica"; pointSize: 10 }
                     }
 
+
+
                 }
             }
-
 
             Rectangle {
                 width: parent.width; height: 2; color: "#000000"
@@ -75,82 +70,118 @@ Rectangle {
 
         Item {
             id: sdelegate
-            height: scolumn.height +10
+            height: scolumn.childrenRect.height
             width: sdelegate.ListView.view.width
 
             Column{
                 id:scolumn
-                width: parent.width-40;
+                //width: parent.width-40;
+                anchors.left: parent.left
+                anchors.right: parent.right
                 
                 Text {
                     id: description
                     text: model.title
                 }
 
-                Rectangle {
-                    id:viewimages
-                    height: 20
-                    width: 70
-                    color: "#000000"
+                //                Rectangle {
+                //                    id:viewimages
+                //                    height: 20
+                //                    width: 70
+                //                    color: "#000000"
 
-                    Text {
-                        id: backtext
-                        text: "View Images"
-                        color: "#ffffff"
-                    }
+                //                    Text {
+                //                        id: backtext
+                //                        text: "View Images"
+                //                        color: "#ffffff"
+                //                    }
 
-                    MouseArea {
-                        id:view
-                        anchors.fill: parent
-                        onClicked: {
-                            slidesView.viewImagesClicked(index);
-                        }
-                    }
+                //                    MouseArea {
+                //                        id:view
+                //                        anchors.fill: parent
+                //                        onClicked: {
+                //                            slidesView.viewImagesClicked(index);
+                //                        }
+                //                    }
 
+                //                }
+                ListView {
+                    id:inner
+                    model: model1
+                    delegate: delegate2
+                    contentHeight: contentItem.childrenRect.height
+                    height: childrenRect.height
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    clip: true
                 }
-
-
             }
 
             Rectangle {
                 width: parent.width; height: 2; color: "#000000"
                 anchors.bottom: slidesdelegate.bottom
             }
-
         }
     }
 
+
     ListModel {
-             id: appModel
-             ListElement { name: "Music"; icon: "/home/rmr/images.jpeg" }
-             ListElement { name: "Movies"; icon: "/home/rmr/images.jpeg" }
-             ListElement { name: "Camera"; icon: "/home/rmr/images.jpeg" }
-             ListElement { name: "Calendar"; icon: "/home/rmr/images.jpeg" }
-             ListElement { name: "Messaging"; icon: "/home/rmr/images.jpeg" }
-             ListElement { name: "Todo List"; icon: "/home/rmr/images.jpeg" }
-             ListElement { name: "Contacts"; icon: "/home/rmr/images.jpeg" }
-         }
+        id:model1
+
+        ListElement {
+            name: "/home/rmr/images.jpeg"
+        }
+        ListElement {
+            name: "/home/rmr/images.jpeg"
+        }
+        ListElement {
+            name: "/home/rmr/images.jpeg"
+        }
+    }
 
     Component {
-             id: appDelegate
+        id: delegate2
 
-             Item {
-                 width: 100; height: 100
+        Item {
+            width: 100
+            height: col2.childrenRect.height
 
-                 Image {
-                     id: myIcon
-                     y: 20; anchors.horizontalCenter: parent.horizontalCenter
-                     source: icon
-                 }
-                 Text {
-                     anchors { top: myIcon.bottom; horizontalCenter: parent.horizontalCenter }
-                     text: name
-                 }
-             }
-         }
+            MouseArea {
+                id:mclick
+                anchors.fill: parent
+                onClicked: {
+                    console.log("hai....")
+                    //guidesView.addNewGuidesClicked()
+                           // slidesView.viewImagesClicked(index);
+                    guidesView.viewImagesClicked(parent.index,index);
+                }
+            }
+
+            Column {
+                id: col2
+                anchors.left: parent.left
+                anchors.right: parent.right
+//                Text {
+//                    id: name1
+//                    text: name
+//                }
+                Image {
+                    id: iname
+                    width: 50
+                    height: 50
+                    source: name
+
+
+                    }
+                }
+
+            }
+        }
+
+
     ListView {
 
-        id: categories
+        id: guidesView
         objectName: "guidesList"
         y:40
         width: parent.width
@@ -158,9 +189,26 @@ Rectangle {
         model: feedModel
         delegate: feeddelegate
         clip: true
-        opacity: 1
+        opacity: window.guidesOpacity;
         
         signal guidesClicked(int index);
+        signal addNewGuidesClicked();
+        signal viewImagesClicked(int pindex,int index);
+
+    }
+
+    ListView {
+
+        id: slidesView
+        objectName: "slideslist"
+        y:50
+        height: parent.height-50
+        width: parent.width
+        model: slidesmodel
+        delegate: slidesdelegate
+        clip: true
+        opacity: window.slidesOpacity
+        signal backButtonClicked();
 
     }
 
@@ -173,7 +221,7 @@ Rectangle {
         color: "#000000"
         x:10
         y:10
-        opacity: 0
+        opacity: window.slidesOpacity
 
         Text {
             id: backtext
@@ -186,22 +234,23 @@ Rectangle {
             anchors.fill: parent
             onClicked: {
                 slidesView.backButtonClicked();
-                slidesView.opacity=0;
-                categories.opacity=1;
-                backbutton.opacity=0;
-                addnewguides.opacity=1;
+                window.guidesOpacity=1;
+                window.slidesOpacity=0;
             }
         }
     }
 
     Rectangle {
         id:addnewguides
+        objectName: "newbutton"
         height: 20
         width: 40
         color: "#000000"
         x:10
         y:10
-        opacity: 1
+        opacity: window.guidesOpacity
+
+
 
         Text {
             id: addnew
@@ -213,27 +262,12 @@ Rectangle {
             id:addnewbutton
             anchors.fill: parent
             onClicked: {
-
+                guidesView.addNewGuidesClicked();
             }
         }
     }
 
-    ListView {
 
-        id: slidesView
-        objectName: "slideslist"
-
-        y:50
-        height: parent.height-50
-        width: parent.width
-        model: slidesmodel
-        delegate: slidesdelegate
-        clip: true
-        opacity: 0
-
-        signal backButtonClicked();
-        signal viewImagesClicked(int sindex);
-    }
 }
 
 

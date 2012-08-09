@@ -15,15 +15,8 @@ SkyGuides::SkyGuides(QWidget *parent) : QObject(parent)
 
     guidesdocument = new GuidesDocument();
 
-    guideslocations.append("/home/rmr/kstars/kstars/data/skyguides.xml");
-    for(int i=0;i<guideslocations.count();i++)
-    {
-        guidesdocument->readBegin(guideslocations[i]);
-        allguideslist.append(guidesdocument->m_Guides);
-
-    }
- //   guidesdocument->readBegin("/home/rmr/kstars/kstars/data/skyguides.xml");
-    guides = new GuidesListModel(allguideslist);
+    guidesdocument->readBegin("/home/rmr/kstars/kstars/data/skyguides.xml");
+    guides = new GuidesListModel(guidesdocument->m_Guides);
 
     qmlview = new QDeclarativeView(parent);
     imageview = new QDeclarativeView(parent);
@@ -34,33 +27,33 @@ SkyGuides::SkyGuides(QWidget *parent) : QObject(parent)
 
 
     ct = qmlview->rootContext();
-    ct->setContextProperty("pheight",parent->height());
-    ct->setContextProperty("pwidth",parent->width());
 
-    qmlview->setSource(QUrl("/home/rmr/Documents/untitled6/untitled6.qml"));
-    imageview->setSource(QUrl("/home/rmr/Documents/untitled8/untitled8.qml"));
+    qmlview->setSource(QUrl("/home/rmr/kstars/kstars/sgpanel.qml"));
+    imageview->setSource(QUrl("/home/rmr/kstars/kstars/imagepanel.qml"));
 
     imageview->hide();
-    qDebug()<<"hai"<<KStandardDirs::locate("appdata","skyguides/sgpanel1.qml");
-    //qDebug()<<"hai"<<KStandardDirs::locate("data","kstars/data/sgpanel1.qml");
-    //qDebug()<<"hai"<<KStandardDirs::locate("appdata","skyguides.xml");
+    //qDebug()<<"hai"<<KStandardDirs::locate("appdata","kstars/skyguides/sgpanel1.qml");
 
-
-    //qmlview->setSource(KStandardDirs::locate("appdata","skyguides/sgpanel1.qml"));
     baseObject = qobject_cast<QObject *> (qmlview->rootObject());
+    baseObject2 = qobject_cast<QObject *> (imageview->rootObject());
 
     guidesListObj = baseObject->findChild<QObject *>("guidesList");
     connect(guidesListObj, SIGNAL(guidesClicked(int)), this, SLOT(onguidesClicked(int)));
     connect(guidesListObj,SIGNAL(addNewGuidesClicked()),this,SLOT(onAddNewGuidesClicked()));
+    connect(guidesListObj, SIGNAL(viewImagesClicked(int,int)), this, SLOT(onViewImagesClicked(int,int)));
+
     slidesListObj = baseObject->findChild<QObject *>("slidesList");
     connect(slidesListObj, SIGNAL(backButtonClicked(int)), this, SLOT(onBackButtonClicked(int)));
-    connect(guidesListObj, SIGNAL(viewImagesClicked(int,int)), this, SLOT(onViewImagesClicked(int,int)));
+
+    closeButtonObj = baseObject2->findChild<QObject *>("closebutton");
+    connect(closeButtonObj, SIGNAL(closeButtonClicked()), this, SLOT(onCloseButtonClicked()));
+
 }
 
 void SkyGuides::onguidesClicked(int index)
 {
 
-    slides = new SlidesListModel(allguideslist);
+    slides = new SlidesListModel(guidesdocument->m_Guides);
     slides->currentIndex = (guides->rowCount()-1)-index;
     ctxt->setContextProperty("slidesmodel",slides);
 
@@ -73,14 +66,14 @@ void SkyGuides::onBackButtonClicked()
 
 void SkyGuides::onViewImagesClicked(int slideindex,int imageindex)
 {
-    qDebug()<<"index = "<<slideindex;
-
     imageview->show();
-    imageview->move(500,500);
-
-
-
+    imageview->move(500,200);
 }
+void SkyGuides::onCloseButtonClicked()
+{
+    imageview->close();
+}
+
 void SkyGuides::onAddNewGuidesClicked()
 {
     newguidesloc = KFileDialog::getOpenUrl( QDir::homePath(), "*.xml" );
@@ -155,7 +148,6 @@ void SkyGuides::reload()
     ctxt = qmlview->rootContext();
     ctxt->setContextProperty("feedModel",guides);
     ctxt->setContextProperty("slidesmodel",guides);
-
 
     qmlview->show();
 }

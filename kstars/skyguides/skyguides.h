@@ -20,7 +20,6 @@ class SkyGuidesSpace::SkyGuides : public QObject
 public:
     SkyGuides(QWidget* parent=0);
     GuidesDocument* guidesdocument;
-    GuidesDocument* guidesdocument1;
     GuidesListModel *guides ;
     SlidesListModel *slides;
     void reload();
@@ -31,17 +30,17 @@ public slots:
     void onBackButtonClicked();
     void onViewImagesClicked(int slideIndex,int imageIndex);
     void onAddNewGuidesClicked();
+    void onCloseButtonClicked();
+
 
 private:
-    QObject *baseObject,*guidesListObj,*slidesListObj;
+    QObject *baseObject,*guidesListObj,*slidesListObj,*closeButtonObj,*baseObject2;
     QDeclarativeView *qmlview;
     QDeclarativeView *imageview;
     QDeclarativeContext *ctxt;
     QDeclarativeContext *ct;
-    QStringList lst;
     KUrl newguidesloc;
     QFile newguides;
-    QList<QString> guideslocations;
     QList<Guide*> allguideslist;
     QTextStream out;
 

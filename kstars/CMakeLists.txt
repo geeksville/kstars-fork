@@ -86,6 +86,7 @@ include_directories(
     ${kstars_SOURCE_DIR}/kstars/tools 
     ${kstars_SOURCE_DIR}/kstars/skyobjects
     ${kstars_SOURCE_DIR}/kstars/skycomponents
+    ${kstars_SOURCE_DIR}/kstars/skyguides
 #    ${CMAKE_SOURCE_DIR}/kstars/kstars/htmesh 
 #	${CMAKE_SOURCE_DIR}/libkdeedu/extdate 
 	${ZLIB_INCLUDE_DIR}
