@@ -5,6 +5,8 @@
 #include <QStringList>
 #include <QDebug>
 #include <QFile>
+#include <QList>
+#include <QTextStream>
 
 #include <KUrl>
 #include <KFileDialog>
@@ -17,25 +19,30 @@ class SkyGuidesSpace::SkyGuides : public QObject
 
 public:
     SkyGuides(QWidget* parent=0);
-    GuidesDocument* guideslist;
+    GuidesDocument* guidesdocument;
+    GuidesDocument* guidesdocument1;
     GuidesListModel *guides ;
     SlidesListModel *slides;
-    void addNewGuides(QString &newgloc);
+    void reload();
+    void deleteall();
 
 public slots:
     void onguidesClicked(int index);
     void onBackButtonClicked();
-    void onViewImagesClicked(int slideIndex);
-    void onAddNewClicked();
+    void onViewImagesClicked(int slideIndex,int imageIndex);
+    void onAddNewGuidesClicked();
 
 private:
     QObject *baseObject,*guidesListObj,*slidesListObj;
     QDeclarativeView *qmlview;
     QDeclarativeView *imageview;
     QDeclarativeContext *ctxt;
+    QDeclarativeContext *ct;
     QStringList lst;
     KUrl newguidesloc;
     QFile newguides;
-
+    QList<QString> guideslocations;
+    QList<Guide*> allguideslist;
+    QTextStream out;
 
 };

@@ -42,7 +42,8 @@ GuidesDocument::~GuidesDocument()
 
 void GuidesDocument::readBegin(const QString &contents)
 {
-    if(m_Reader) {
+    if(m_Reader)
+    {
         delete m_Reader;
     }
 
@@ -71,18 +72,24 @@ void GuidesDocument::readBegin(const QString &contents)
 
 bool GuidesDocument::isError() const
 {
-    if(m_Reader) {
+    if(m_Reader)
+    {
         return m_Reader->hasError();
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
 
 QXmlStreamReader::Error GuidesDocument::error() const
 {
-    if(m_Reader) {
+    if(m_Reader)
+    {
         return m_Reader->error();
-    } else {
+    }
+    else
+    {
         return QXmlStreamReader::NoError;
     }
 }
@@ -91,21 +98,28 @@ QString GuidesDocument::errorString() const
 {
     if(m_Reader) {
         return m_Reader->errorString();
-    } else {
+    }
+    else
+    {
         return QString();
     }
 }
 
 void GuidesDocument::readGuides()
 {
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
-        if(m_Reader->isStartElement()) {
+        if(m_Reader->isStartElement())
+        {
 
-            if(m_Reader->name() == "guide") {
+            if(m_Reader->name() == "guide")
+            {
                 m_Guides.append(readGuide());
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -119,29 +133,45 @@ Guide* GuidesDocument::readGuide()
     QList<Slide*> slides;
     QString date;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())
             break;
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "title") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "title")
+            {
                 title = m_Reader->readElementText();
-            }else if(m_Reader->name() == "description") {
+            }
+            else if(m_Reader->name() == "description")
+            {
                 description = m_Reader->readElementText();
-            }else if(m_Reader->name() == "authors") {
+            }
+            else if(m_Reader->name() == "authors")
+            {
                 authors = readAuthors();
-            }else if(m_Reader->name() == "thumbnailImage") {
+            }
+            else if(m_Reader->name() == "thumbnailImage")
+            {
                 thumbnailImage = m_Reader->readElementText();
-            }else if(m_Reader->name() == "language") {
+            }
+            else if(m_Reader->name() == "language")
+            {
                 language = m_Reader->readElementText();
-            }else if(m_Reader->name() == "creationDate") {
+            }
+            else if(m_Reader->name() == "creationDate")
+            {
                 date = m_Reader->readElementText();
             }
-             else if(m_Reader->name() == "slides") {
+            else if(m_Reader->name() == "slides")
+            {
                 slides = readSlides();
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -155,7 +185,8 @@ QList<Slide*> GuidesDocument::readSlides()
 
     QList<Slide*> slides;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
 
@@ -163,10 +194,14 @@ QList<Slide*> GuidesDocument::readSlides()
             break;
 
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "slide") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "slide")
+            {
                 slides.append(readSlide());
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -183,26 +218,41 @@ Slide* GuidesDocument::readSlide()
     QList<Image*> images;
     QList<Link*> links;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())
             break;
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "title") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "title")
+            {
                 title = m_Reader->readElementText();
-            } else if(m_Reader->name() == "subtitle") {
+            }
+            else if(m_Reader->name() == "subtitle")
+            {
                 subtitle = m_Reader->readElementText();
-            } else if(m_Reader->name() == "text") {
+            }
+            else if(m_Reader->name() == "text")
+            {
                 text = m_Reader->readElementText();
-            } else if(m_Reader->name() == "centerPoint") {
+            }
+            else if(m_Reader->name() == "centerPoint")
+            {
                 m_Reader->readElementText();
-            } else if(m_Reader->name() == "images") {
+            }
+            else if(m_Reader->name() == "images")
+            {
                 images = readImages();
-            } else if(m_Reader->name() == "links") {
+            }
+            else if(m_Reader->name() == "links")
+            {
                 links = readLinks();
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -216,17 +266,22 @@ QList<Image*> GuidesDocument::readImages()
 
     QList<Image*> images;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())
             break;
 
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "image") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "image")
+            {
                 images.append(readImage());
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -239,21 +294,30 @@ Image* GuidesDocument::readImage()
 {
     QString title, description, url;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())
             break;
 
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "title") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "title")
+            {
                 title = m_Reader->readElementText();
-            } else if(m_Reader->name() == "description") {
+            }
+            else if(m_Reader->name() == "description")
+            {
                 description = m_Reader->readElementText();
-            } else if(m_Reader->name() == "url") {
+            }
+            else if(m_Reader->name() == "url")
+            {
                 url = m_Reader->readElementText();
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -266,17 +330,22 @@ QList<Link*> GuidesDocument::readLinks()
 {
     QList<Link*> links;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())
             break;
 
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "link") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "link")
+            {
                 links.append(readLink());
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -289,20 +358,29 @@ Link* GuidesDocument::readLink()
 {
     QString label, description, url;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())
             break;
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "label") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "label")
+            {
                 label = m_Reader->readElementText();
-            } else if(m_Reader->name() == "description") {
+            }
+            else if(m_Reader->name() == "description")
+            {
                 description = m_Reader->readElementText();
-            } else if(m_Reader->name() == "url") {
+            }
+            else if(m_Reader->name() == "url")
+            {
                 url = m_Reader->readElementText();
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -315,16 +393,21 @@ QList<Author*> GuidesDocument::readAuthors()
 {
     QList<Author*> authors;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())
             break;
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "author") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "author")
+            {
                 authors.append(readAuthor());
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -338,22 +421,33 @@ Author* GuidesDocument::readAuthor()
     QString name, surname;
     QStringList contacts;
 
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())
             break;
 
-        if(m_Reader->isStartElement()) {
-            if(m_Reader->name() == "name") {
+        if(m_Reader->isStartElement())
+        {
+            if(m_Reader->name() == "name")
+            {
                 name = m_Reader->readElementText();
-            } else if(m_Reader->name() == "surname") {
+            }
+            else if(m_Reader->name() == "surname")
+            {
                 surname = m_Reader->readElementText();
-            } else if(m_Reader->name() == "email") {
+            }
+            else if(m_Reader->name() == "email")
+            {
                 contacts.append(m_Reader->readElementText());
-            }else if(m_Reader->name() == "www") {
+            }
+            else if(m_Reader->name() == "www")
+            {
                 contacts.append(m_Reader->readElementText());
-            } else {
+            }
+            else
+            {
                 skipUnknownElement();
             }
         }
@@ -364,7 +458,8 @@ Author* GuidesDocument::readAuthor()
 
 void GuidesDocument::skipUnknownElement()
 {
-    while(!m_Reader->atEnd()) {
+    while(!m_Reader->atEnd())
+    {
         m_Reader->readNext();
 
         if(m_Reader->isEndElement())

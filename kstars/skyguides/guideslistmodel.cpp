@@ -30,11 +30,11 @@ QVariant GuidesListModel::data(const QModelIndex &index, int role) const
 
     if(role==titlerole)
     {
-        return guideslist[index.row()]->m_Slides[0]->m_Images[0]->m_Url;
+        return guideslist[rowCount()-index.row()-1]->title();
     }
     else if(role==thumbimagerole)
     {
-        return guideslist[index.row()]->thumbnailImage();
+        return guideslist[rowCount()-index.row()-1]->thumbnailImage();
 
     }
     else
