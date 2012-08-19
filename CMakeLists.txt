@@ -37,6 +37,10 @@ macro_bool_to_01(OPENGL_FOUND HAVE_OPENGL)
 macro_log_feature(OPENGL_FOUND "OpenGL" "Support for hardware rendering in KStars." "http://www.opengl.org/" FALSE "" "OpenGL rendering is generally faster on hardware with graphics acceleration.")
 add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 
+# QJson is required for the AstroBin API
+macro_optional_find_package(QJSON)
+macro_log_feature( QJSON_FOUND "QJson" "Qt JSON Parser is used for AstroBIN API" "http://qjson.sourceforge.net/" FALSE "" "" )
+
 if (EIGEN2_FOUND)
    include_directories(${CMAKE_CURRENT_BINARY_DIR})
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-kstars.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-kstars.h )

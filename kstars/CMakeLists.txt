@@ -352,6 +352,8 @@ set(kstars_extra_SRCS
 	timezonerule.cpp 
 	thumbnailpicker.cpp thumbnaileditor.cpp binfilehelper.cpp
 	satellitegroup.cpp
+	astrobinimage.cpp astrobinapi.cpp astrobinapixml.cpp astrobinapijson.cpp astrobinsearchresult.cpp
+
 )
 
 set(oal_SRCS
@@ -458,6 +460,10 @@ if( OPENGL_FOUND )
     )
 endif( OPENGL_FOUND )
 
+if( QJSON_FOUND )
+  include_directories(${QJSON_INCLUDE_DIR})
+  target_link_libraries(kstars ${QJSON_LIBRARIES})
+endif( QJSON_FOUND )
 
 install(TARGETS kstars ${INSTALL_TARGETS_DEFAULT_ARGS})
 
