@@ -39,7 +39,7 @@ add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 
 # QJson is required for the AstroBin API
 macro_optional_find_package(QJSON)
-macro_log_feature( QJSON_FOUND "QJson" "Qt JSON Parser is used for AstroBIN API" "http://qjson.sourceforge.net/" FALSE "" "" )
+macro_log_feature( QJSON_FOUND "QJson" "Qt JSON Parser is used to access JSON version of AstroBIN API" "http://qjson.sourceforge.net/" FALSE "" "" )
 
 if (EIGEN2_FOUND)
    include_directories(${CMAKE_CURRENT_BINARY_DIR})

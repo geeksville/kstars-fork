@@ -352,8 +352,6 @@ set(kstars_extra_SRCS
 	timezonerule.cpp 
 	thumbnailpicker.cpp thumbnaileditor.cpp binfilehelper.cpp
 	satellitegroup.cpp
-	astrobinimage.cpp astrobinapi.cpp astrobinapixml.cpp astrobinapijson.cpp astrobinsearchresult.cpp
-
 )
 
 set(oal_SRCS
@@ -407,12 +405,27 @@ set(printingui_SRCS
     printing/pwizwelcome.ui
 )
 
+
+set(astrobinapi_SRCS
+    astrobinapi.cpp
+    astrobinapixml.cpp
+    astrobinimage.cpp
+)
+
+if( QJSON_FOUND )
+    set(astrobinapi_SRCS
+        ${astrobinapi_SRCS}
+        astrobinapijson.cpp
+    )
+endif( QJSON_FOUND )
+
+
 ##set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
 set(kstars_SRCS ${indi_SRCS} ${fits_SRCS} ${ekos_SRCS}
 	${libkstarswidgets_SRCS} ${libkstarscomponents_SRCS} ${libkstarstools_SRCS} 
 	${kstars_extra_SRCS}  ${kstars_gl_SRCS} ${kstars_projection_SRCS} ${xplanet_SRCS}
 	${kstars_options_SRCS} ${kstars_skyobjects_SRCS} ${kstars_dialogs_SRCS} ${oal_SRCS}
-        ${printing_SRCS}
+        ${printing_SRCS} ${astrobinapi_SRCS}
 )
 
 qt4_add_dbus_adaptor(kstars_SRCS org.kde.kstars.xml kstars.h KStars)
@@ -463,6 +476,7 @@ endif( OPENGL_FOUND )
 if( QJSON_FOUND )
   include_directories(${QJSON_INCLUDE_DIR})
   target_link_libraries(kstars ${QJSON_LIBRARIES})
+  add_definitions(-DHAVE_QJSON)
 endif( QJSON_FOUND )
 
 install(TARGETS kstars ${INSTALL_TARGETS_DEFAULT_ARGS})
