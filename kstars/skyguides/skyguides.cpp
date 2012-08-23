@@ -15,7 +15,7 @@ SkyGuides::SkyGuides(QWidget *parent) : QObject(parent)
 
     guidesdocument = new GuidesDocument();
 
-    guidesdocument->readBegin("/home/rmr/kstars/kstars/data/skyguides.xml");
+    guidesdocument->readBegin(KStandardDirs::locate( "appdata" , "skyguides.xml" ));
     guides = new GuidesListModel(guidesdocument->m_Guides);
 
     qmlview = new QDeclarativeView(parent);
@@ -25,14 +25,19 @@ SkyGuides::SkyGuides(QWidget *parent) : QObject(parent)
     ctxt->setContextProperty("feedModel",guides);
     ctxt->setContextProperty("slidesmodel",guides);
 
+    //these are just for testing purposes
+    ctxt->setContextProperty("thumbimage",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+    ctxt->setContextProperty("trial_img1",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+    ctxt->setContextProperty("trial_img2",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+    ctxt->setContextProperty("trial_img3",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+
 
     ct = qmlview->rootContext();
 
-    qmlview->setSource(QUrl("/home/rmr/kstars/kstars/sgpanel.qml"));
-    imageview->setSource(QUrl("/home/rmr/kstars/kstars/imagepanel.qml"));
+    qmlview->setSource(QUrl(KStandardDirs::locate( "appdata" , "sgpanel.qml" )));
+    imageview->setSource(QUrl(KStandardDirs::locate( "appdata" , "imagepanel.qml" )));
 
     imageview->hide();
-    //qDebug()<<"hai"<<KStandardDirs::locate("appdata","kstars/skyguides/sgpanel1.qml");
 
     baseObject = qobject_cast<QObject *> (qmlview->rootObject());
     baseObject2 = qobject_cast<QObject *> (imageview->rootObject());
@@ -83,7 +88,7 @@ void SkyGuides::onAddNewGuidesClicked()
 
     QFile newfile (newguidesloc.path());
     newfile.open(QIODevice::ReadOnly);
-    QFile guidesdocloc ("/home/rmr/kstars/kstars/data/skyguides.xml");
+    QFile guidesdocloc (KStandardDirs::locate( "appdata" , "skyguides.xml" ));
 
     QString line1;
     QString line2;
@@ -141,7 +146,7 @@ void SkyGuides::reload()
         delete slides;
 
     guidesdocument = new GuidesDocument();
-    guidesdocument->readBegin("/home/rmr/kstars/kstars/data/skyguides.xml");
+    guidesdocument->readBegin(KStandardDirs::locate( "appdata" , "skyguides.xml" ));
 
     guides = new GuidesListModel(guidesdocument->m_Guides);
 
