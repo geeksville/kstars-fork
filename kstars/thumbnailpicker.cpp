@@ -37,6 +37,12 @@
 #include "dialogs/detaildialog.h"
 #include "skyobjects/skyobject.h"
 
+
+#include "astrobinapixml.h"
+#include "astrobinimage.h"
+#include "astrobinsearchresult.h"
+#include "QNetworkAccessManager"
+
 ThumbnailPickerUI::ThumbnailPickerUI( QWidget *parent ) : QFrame( parent ) {
     setupUi( this );
 }
@@ -53,6 +59,8 @@ ThumbnailPicker::ThumbnailPicker( SkyObject *o, const QPixmap &current, QWidget 
     setMainWidget( ui );
     setCaption( cap );
     setButtons( KDialog::Ok|KDialog::Cancel );
+
+    astrobinApi = new AstroBinApiXml(new QNetworkAccessManager(), this);
 
     ui->CurrentImage->setPixmap( *Image );
 
@@ -75,42 +83,58 @@ ThumbnailPicker::~ThumbnailPicker() {
     while ( ! PixList.isEmpty() ) delete PixList.takeFirst();
 }
 
+void ThumbnailPicker::slotAstrobinSearchCompleted(bool ok)
+{
+    AstroBinSearchResult result = astrobinApi->getResult();
+
+    foreach(AstroBinImage image, result) {
+        KIO::StoredTransferJob *j = KIO::storedGet( image.downloadThumbnailUrl(), KIO::NoReload, KIO::HideProgressInfo );
+        j->setUiDelegate(0);
+        connect( j, SIGNAL( result(KJob*) ), SLOT( slotJobResult(KJob*) ) );
+    }
+}
+
 //Query online sources for images of the object
 void ThumbnailPicker::slotFillList() {
-    //Preload ImageList with the URLs in the object's ImageList:
-    QStringList ImageList( Object->ImageList() );
+    connect(astrobinApi, SIGNAL(searchFinished(bool)), this, SLOT(slotAstrobinSearchCompleted(bool)));
+    astrobinApi->searchObjectImages(Object->name());
 
-    //Query Google Image Search:
-    KUrl gURL( "http://images.google.com/images" );
-    //Search for the primary name, or longname and primary name
-    QString sName = QString("\"%1\"").arg( Object->name() );
-    if ( Object->longname() != Object->name() ) {
-        sName = QString("\"%1\" ").arg( Object->longname() ) + sName;
-    }
-    gURL.addQueryItem( "q", sName ); //add the Google-image query string
 
-    //Download the google page and parse it for image URLs
-    parseGooglePage( ImageList, gURL.prettyUrl() );
 
-    //Total Number of images to be loaded:
-    int nImages = ImageList.count();
-    if ( nImages ) {
-        ui->SearchProgress->setMinimum( 0 );
-        ui->SearchProgress->setMaximum( nImages-1 );
-        ui->SearchLabel->setText( i18n( "Loading images..." ) );
-    }
+//    //Preload ImageList with the URLs in the object's ImageList:
+//    QStringList ImageList( Object->ImageList() );
 
-    //Add images from the ImageList
-    for ( int i=0; i<ImageList.size(); ++i ) {
-        QString s( ImageList[i] );
-        KUrl u( ImageList[i] );
+//    //Query Google Image Search:
+//    KUrl gURL( "http://images.google.com/images" );
+//    //Search for the primary name, or longname and primary name
+//    QString sName = QString("\"%1\"").arg( Object->name() );
+//    if ( Object->longname() != Object->name() ) {
+//        sName = QString("\"%1\" ").arg( Object->longname() ) + sName;
+//    }
+//    gURL.addQueryItem( "q", sName ); //add the Google-image query string
 
-        if ( u.isValid() ) {
-            KIO::StoredTransferJob *j = KIO::storedGet( u, KIO::NoReload, KIO::HideProgressInfo );
-            j->setUiDelegate(0);
-            connect( j, SIGNAL( result(KJob*) ), SLOT( slotJobResult(KJob*) ) );
-        }
-    }
+//    //Download the google page and parse it for image URLs
+//    parseGooglePage( ImageList, gURL.prettyUrl() );
+
+//    //Total Number of images to be loaded:
+//    int nImages = ImageList.count();
+//    if ( nImages ) {
+//        ui->SearchProgress->setMinimum( 0 );
+//        ui->SearchProgress->setMaximum( nImages-1 );
+//        ui->SearchLabel->setText( i18n( "Loading images..." ) );
+//    }
+
+//    //Add images from the ImageList
+//    for ( int i=0; i<ImageList.size(); ++i ) {
+//        QString s( ImageList[i] );
+//        KUrl u( ImageList[i] );
+
+//        if ( u.isValid() ) {
+//            KIO::StoredTransferJob *j = KIO::storedGet( u, KIO::NoReload, KIO::HideProgressInfo );
+//            j->setUiDelegate(0);
+//            connect( j, SIGNAL( result(KJob*) ), SLOT( slotJobResult(KJob*) ) );
+//        }
+//    }
 }
 
 void ThumbnailPicker::slotJobResult( KJob *job ) {

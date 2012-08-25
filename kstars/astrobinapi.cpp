@@ -20,8 +20,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 
-AstroBinApi::AstroBinApi(QNetworkAccessManager *manager)
-    : m_NetworkManager(manager), m_ResultsLimit(20), m_Offset(0)
+AstroBinApi::AstroBinApi(QNetworkAccessManager *manager, QObject *parent)
+    : QObject(parent), m_NetworkManager(manager), m_ResultsLimit(20), m_Offset(0)
 {
     m_UrlBase = "http://www.astrobin.com/api/v1/";
     m_ApiKey = "ad77ef2a21e5b1bca8ff1d513e4be74746e912dd";

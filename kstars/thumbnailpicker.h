@@ -30,6 +30,7 @@ class QPixmap;
 class QRect;
 class DetailDialog;
 class SkyObject;
+class AstroBinApi;
 
 class ThumbnailPickerUI : public QFrame, public Ui::ThumbnailPicker {
     Q_OBJECT
@@ -57,6 +58,7 @@ private slots:
     void slotUnsetImage();
     void slotSetFromList( int i );
     void slotSetFromURL();
+    void slotAstrobinSearchCompleted(bool ok);
     void slotFillList();
 
     /**Make sure download has finished, then make sure file exists, then add image to list */
@@ -65,6 +67,8 @@ private slots:
 private:
     QPixmap shrinkImage( QPixmap *original, int newSize, bool setImage=false );
     void parseGooglePage( QStringList &ImList, const QString &URL );
+
+    AstroBinApi *astrobinApi;
 
     int SelectedImageIndex;
     double wid, ht;

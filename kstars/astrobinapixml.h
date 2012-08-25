@@ -29,8 +29,8 @@ class AstroBinApiXml : public AstroBinApi
     Q_OBJECT
 
 public:
-    AstroBinApiXml(QNetworkAccessManager *manager)
-        : AstroBinApi(manager)
+    AstroBinApiXml(QNetworkAccessManager *manager, QObject *parent = 0)
+        : AstroBinApi(manager, parent)
     {
         m_UrlApiTypeEnding = "&format=xml";
     }
@@ -43,6 +43,7 @@ private:
     bool readMetadata();
     bool readObjects();
     bool readObject();
+    QStringList readList();
     void skipUnknownElement();
 
     QXmlStreamReader *m_XmlReader;
