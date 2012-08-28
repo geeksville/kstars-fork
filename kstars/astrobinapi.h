@@ -18,10 +18,10 @@
 #ifndef ASTROBINAPI_H
 #define ASTROBINAPI_H
 
+#include "astrobinsearchresult.h"
+
 #include <QString>
 #include <QObject>
-
-#include "astrobinsearchresult.h"
 
 QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;

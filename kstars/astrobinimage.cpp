@@ -24,7 +24,7 @@ QUrl AstroBinImage::downloadUrl() const
 
 QUrl AstroBinImage::downloadResizedUrl() const
 {
-    return QUrl("http://s3.amazonaws.com/astrobin_images/" + fileName() + "_resized" + ".jpg");
+    return QUrl("http://s3.amazonaws.com/astrobin_images/" + fileName() + "_resized" + originalFileExtension());
 }
 
 QUrl AstroBinImage::downloadThumbnailUrl() const

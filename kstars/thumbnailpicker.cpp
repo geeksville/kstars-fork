@@ -88,7 +88,7 @@ void ThumbnailPicker::slotAstrobinSearchCompleted(bool ok)
     AstroBinSearchResult result = astrobinApi->getResult();
 
     foreach(AstroBinImage image, result) {
-        KIO::StoredTransferJob *j = KIO::storedGet( image.downloadThumbnailUrl(), KIO::NoReload, KIO::HideProgressInfo );
+        KIO::StoredTransferJob *j = KIO::storedGet( image.downloadResizedUrl(), KIO::NoReload, KIO::HideProgressInfo );
         j->setUiDelegate(0);
         connect( j, SIGNAL( result(KJob*) ), SLOT( slotJobResult(KJob*) ) );
     }
