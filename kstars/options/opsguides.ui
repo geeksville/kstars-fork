@@ -38,7 +38,11 @@
         <string>Sky culture:</string>
        </property>
        <property name="buddy">
+<<<<<<< HEAD
         <cstring>SkyCulture</cstring>
+=======
+        <cstring>kcfg_SkyCulture</cstring>
+>>>>>>> master
        </property>
       </widget>
      </item>
