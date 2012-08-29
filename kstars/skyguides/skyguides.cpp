@@ -21,18 +21,18 @@ SkyGuides::SkyGuides(QWidget *parent) : QObject(parent)
     qmlview = new QDeclarativeView(parent);
     imageview = new QDeclarativeView(parent);
 
-    ctxt = qmlview->rootContext();
-    ctxt->setContextProperty("feedModel",guides);
-    ctxt->setContextProperty("slidesmodel",guides);
+    ctxt1 = qmlview->rootContext();
+    ctxt2 = imageview->rootContext();
+    ctxt1->setContextProperty("feedModel",guides);
+    ctxt1->setContextProperty("slidesmodel",guides);
 
     //these are just for testing purposes
-    ctxt->setContextProperty("thumbimage",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
-    ctxt->setContextProperty("trial_img1",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
-    ctxt->setContextProperty("trial_img2",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
-    ctxt->setContextProperty("trial_img3",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+    ctxt1->setContextProperty("thumbimage",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+    ctxt1->setContextProperty("trial_img1",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+    ctxt1->setContextProperty("trial_img2",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+    ctxt1->setContextProperty("trial_img3",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
 
-
-    ct = qmlview->rootContext();
+    ctxt2->setContextProperty("trialImage",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
 
     qmlview->setSource(QUrl(KStandardDirs::locate( "appdata" , "sgpanel.qml" )));
     imageview->setSource(QUrl(KStandardDirs::locate( "appdata" , "imagepanel.qml" )));
@@ -60,7 +60,7 @@ void SkyGuides::onguidesClicked(int index)
 
     slides = new SlidesListModel(guidesdocument->m_Guides);
     slides->currentIndex = (guides->rowCount()-1)-index;
-    ctxt->setContextProperty("slidesmodel",slides);
+    ctxt1->setContextProperty("slidesmodel",slides);
 
 }
 
@@ -150,9 +150,9 @@ void SkyGuides::reload()
 
     guides = new GuidesListModel(guidesdocument->m_Guides);
 
-    ctxt = qmlview->rootContext();
-    ctxt->setContextProperty("feedModel",guides);
-    ctxt->setContextProperty("slidesmodel",guides);
+    ctxt1 = qmlview->rootContext();
+    ctxt1->setContextProperty("feedModel",guides);
+    ctxt1->setContextProperty("slidesmodel",guides);
 
     qmlview->show();
 }

@@ -37,7 +37,7 @@ Rectangle {
     Image {
         id: simage
         anchors.centerIn: parent
-        source: "/home/rmr/images.jpeg"
+        source: trialImage
     }
 
 }
