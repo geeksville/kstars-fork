@@ -407,7 +407,6 @@ set(printingui_SRCS
     printing/pwizwelcome.ui
 )
 
-<<<<<<< HEAD
 set(skyguides_SRCS
     skyguides/guide.cpp
     skyguides/slide.cpp
@@ -424,10 +423,6 @@ set(skyguides_SRCS
 
 
 set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
-=======
-##set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
-set(kstars_SRCS ${indi_SRCS} ${fits_SRCS} ${ekos_SRCS}
->>>>>>> master
 	${libkstarswidgets_SRCS} ${libkstarscomponents_SRCS} ${libkstarstools_SRCS} 
 	${kstars_extra_SRCS}  ${kstars_gl_SRCS} ${kstars_projection_SRCS} ${xplanet_SRCS}
 	${kstars_options_SRCS} ${kstars_skyobjects_SRCS} ${kstars_dialogs_SRCS} ${oal_SRCS}
