@@ -10,7 +10,7 @@ Rectangle {
 
     Image {
         id: bg
-        source: "/home/rmr/skyguides_main.png";
+        source: background
 	x:-5
         height :parent.height
         width : parent.width
@@ -41,7 +41,7 @@ Rectangle {
 
     Image {
         id: side
-        source: "/home/rmr/skyguides_side.png"
+        source: sgsideselect
         x:0
         height : 200 * sizefactor;
         width : 40 * sizefactor;

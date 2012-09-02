@@ -60,6 +60,7 @@ install( FILES kstars.png geomap.png
         classic.colors moonless-night.colors night.colors 
         tips TZrules.dat valaav.txt advinterface.dat satellites.dat imagepanel.qml trial_img.jpeg
         histogram.png noimage.png glossary.xml defaultflag.gif skyguides.xml sgpanel.qml
+	skyguides_bg.png skyguides_side.png
 	DESTINATION  ${DATA_INSTALL_DIR}/kstars 
 )
 
