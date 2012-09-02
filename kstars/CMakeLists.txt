@@ -407,15 +407,15 @@ set(printingui_SRCS
 
 
 set(astrobinapi_SRCS
-    astrobinapi.cpp
-    astrobinapixml.cpp
-    astrobinimage.cpp
+    services/astrobin/astrobinapi.cpp
+    services/astrobin/astrobinapixml.cpp
+    services/astrobin/astrobinimage.cpp
 )
 
 if( QJSON_FOUND )
     set(astrobinapi_SRCS
         ${astrobinapi_SRCS}
-        astrobinapijson.cpp
+        services/astrobin/astrobinapijson.cpp
     )
 endif( QJSON_FOUND )
 

@@ -38,9 +38,9 @@
 #include "skyobjects/skyobject.h"
 
 
-#include "astrobinapixml.h"
-#include "astrobinimage.h"
-#include "astrobinsearchresult.h"
+#include "services/astrobin/astrobinapixml.h"
+#include "services/astrobin/astrobinimage.h"
+#include "services/astrobin/astrobinsearchresult.h"
 #include "QNetworkAccessManager"
 
 ThumbnailPickerUI::ThumbnailPickerUI( QWidget *parent ) : QFrame( parent ) {
