@@ -46,6 +46,9 @@
 
 #include "skycomponents/skymapcomposite.h"
 
+#include "skyguides/skyguides.h"
+#include "skyguides/skyguidesspace.h"
+
 // TODO: Remove if debug key binding is removed
 #include "skycomponents/skylabeler.h"
 #include "skycomponents/starcomponent.h"
@@ -63,9 +66,27 @@ void SkyMap::resizeEvent( QResizeEvent * )
     // FIXME: The resize event doesn't pass to children. Any better way of doing this?
     m_SkyMapDraw->resize( size() );
 
+//    qDebug()<<"width = "<<width();
+//    qDebug()<<"height = "<<width();
+
+
     // Resize infoboxes container.
     // FIXME: this is not really pretty. Maybe there are some better way to this???
     m_iboxes->resize( size() );
+
+    skyguides->resize(width(),height());
+}
+
+void SkyGuides::resize(int parentWidth, int parentHeight)
+{
+    qmlview->close();
+
+    //ctxt->setContextProperty("sizefactor",0.5);
+    ctxt->setContextProperty("w",parentWidth * 0.22);
+    ctxt->setContextProperty("h",parentHeight * 0.88);
+
+    qmlview->show();
+
 }
 
 void SkyMap::keyPressEvent( QKeyEvent *e ) {

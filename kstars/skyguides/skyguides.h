@@ -1,4 +1,7 @@
 
+#ifndef SKYGUIDES_H_
+#define SKYGUIDES_H_
+
 #include <QWidget>
 #include <QDeclarativeView>
 #include <QtDeclarative/QDeclarativeContext>
@@ -12,17 +15,19 @@
 #include <KFileDialog>
 
 #include "skyguidesspace.h"
+#include "ksutils.h"
 
 class SkyGuidesSpace::SkyGuides : public QObject
 {
     Q_OBJECT
 
 public:
-    SkyGuides(QWidget* parent=0);
+    SkyGuides(QWidget* parent=0,int parentWidth=0,int parentHeight=0);
     GuidesDocument* guidesdocument;
     GuidesListModel *guides ;
     SlidesListModel *slides;
     void reload();
+    void resize(int,int);
     void deleteall();
 
 public slots:
@@ -37,8 +42,7 @@ private:
     QObject *baseObject,*guidesListObj,*slidesListObj,*closeButtonObj,*baseObject2;
     QDeclarativeView *qmlview;
     QDeclarativeView *imageview;
-    QDeclarativeContext *ctxt1;
-    QDeclarativeContext *ctxt2;
+    QDeclarativeContext *ctxt;
     QDeclarativeContext *ct;
     KUrl newguidesloc;
     QFile newguides;
@@ -46,3 +50,5 @@ private:
     QTextStream out;
 
 };
+
+#endif

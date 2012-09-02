@@ -3,20 +3,74 @@ import QtQuick 1.0
 Rectangle {
     id: window
     objectName: "base"
-    width: 300
-    height: 600
-    color: "#000000"
+    width: w   //300 * sizefactor;
+    height: h  //600 * sizefactor;
+    color: "#00FFFFFF"
     opacity: 0.6
 
+    Image {
+        id: bg
+        source: "/home/rmr/skyguides_main.png";
+	x:-5
+        height :parent.height
+        width : parent.width
+        opacity : guidesOpacity
+    }
+    
+    Rectangle {
+    id: minimize
+    x:window.width - 50;
+    y: 25
+    width: 20   //300 * sizefactor;
+    height: 5  //600 * sizefactor;
+    color: "#ffffff"
+    opacity: guidesOpacity
+    
+    MouseArea
+        {
+         id:minbutton
+         anchors.fill: parent
+         onClicked: {
+             sideopacity =1 ;
+             guidesOpacity = 0;
+         }
+    
+    }
+    }
+      
+
+    Image {
+        id: side
+        source: "/home/rmr/skyguides_side.png"
+        x:0
+        height : 200 * sizefactor;
+        width : 40 * sizefactor;
+        y:(window.height/2)-(side.height/2)
+	
+        opacity: sideopacity
+
+        MouseArea
+        {
+         id:sideselect
+         anchors.fill: parent
+         onClicked: {
+             sideopacity =0 ;
+             guidesOpacity = 1;
+         }
+        }
+    }
+
+    property double sizefactor: (window.width/300);
     property int slidesOpacity: 0
-    property int guidesOpacity: 1
+    property int guidesOpacity: 0
+    property int sideopacity: 1
 
     Component {
         id: feeddelegate
         
         Item {
             id: delegate
-            height: column.height + 40
+            height: column.height + dimage.height
             width: delegate.ListView.view.width
 
             MouseArea {
@@ -35,20 +89,22 @@ Rectangle {
 
                 Image {
                     id: dimage
-                    width: 50
-                    height: 50
-                    source: thumbimage
+                    width: 50 * sizefactor;
+                    height: 50 * sizefactor;
+                    source: model.thumbimage
                 }
 
                 Column {
                     id: column
-                    x: 20; y: 20
+                    x: 20 * sizefactor;
+                    y: 20 * sizefactor;
                     width: parent.width - 40
 
                     Text {
                         id: title
                         text: model.title; width: parent.width; wrapMode: Text.WordWrap
-                        font { bold: true; family: "Helvetica"; pointSize: 10 }
+                        font { bold: true; family: "Helvetica"; pointSize: 10*sizefactor; }
+                         color:"#ffffff"
                     }
 
 
@@ -57,7 +113,10 @@ Rectangle {
             }
 
             Rectangle {
-                width: parent.width; height: 2; color: "#000000"
+                width: parent.width;
+                height: 2 * sizefactor;
+                color: "#ffffff"
+                opacity: 0.4
                 anchors.bottom: feeddelegate.bottom
             }
 
@@ -118,7 +177,9 @@ Rectangle {
             }
 
             Rectangle {
-                width: parent.width; height: 2; color: "#000000"
+                width: parent.width;
+                height: 2 * sizefactor;
+                color: "#000000"
                 anchors.bottom: slidesdelegate.bottom
             }
         }
@@ -129,13 +190,13 @@ Rectangle {
         id:model1
 
         ListElement {
-            name: trial_img1
+            name: "/home/rmr/images.jpeg"
         }
         ListElement {
-            name: trial_img2
+            name: "/home/rmr/images.jpeg"
         }
         ListElement {
-            name: trial_img3
+            name: "/home/rmr/images.jpeg"
         }
     }
 
@@ -143,7 +204,7 @@ Rectangle {
         id: delegate2
 
         Item {
-            width: 100
+            width: 100 * sizefactor;
             height: col2.childrenRect.height
 
             MouseArea {
@@ -167,8 +228,8 @@ Rectangle {
 //                }
                 Image {
                     id: iname
-                    width: 50
-                    height: 50
+                    width: 50 * sizefactor;
+                    height: 50 * sizefactor;
                     source: name
 
 
@@ -183,7 +244,7 @@ Rectangle {
 
         id: guidesView
         objectName: "guidesList"
-        y:40
+        y:40 * sizefactor;
         width: parent.width
         height: parent.height-40
         model: feedModel
@@ -194,6 +255,7 @@ Rectangle {
         signal guidesClicked(int index);
         signal addNewGuidesClicked();
         signal viewImagesClicked(int pindex,int index);
+        signal backButtonClicked();
 
     }
 
@@ -201,14 +263,14 @@ Rectangle {
 
         id: slidesView
         objectName: "slideslist"
-        y:50
+        y:50 * sizefactor;
         height: parent.height-50
         width: parent.width
         model: slidesmodel
         delegate: slidesdelegate
         clip: true
         opacity: window.slidesOpacity
-        signal backButtonClicked();
+
 
     }
 
@@ -216,11 +278,11 @@ Rectangle {
 
     Rectangle {
         id:backbutton
-        height: 20
-        width: 40
+        height: 20 * sizefactor;
+        width: 40 * sizefactor;
         color: "#000000"
-        x:10
-        y:10
+        x:10 * sizefactor;
+        y:10 * sizefactor;
         opacity: window.slidesOpacity
 
         Text {
@@ -233,7 +295,7 @@ Rectangle {
             id:backbuttonclick
             anchors.fill: parent
             onClicked: {
-                slidesView.backButtonClicked();
+                guidesView.backButtonClicked();
                 window.guidesOpacity=1;
                 window.slidesOpacity=0;
             }
@@ -243,19 +305,21 @@ Rectangle {
     Rectangle {
         id:addnewguides
         objectName: "newbutton"
-        height: 20
-        width: 40
-        color: "#000000"
-        x:10
-        y:10
+        height: 20 * sizefactor;
+        width: 40 * sizefactor;
+        color: "#00FFFFFF"
+        x:10 * sizefactor;
+        y:10* sizefactor;
         opacity: window.guidesOpacity
 
 
 
         Text {
             id: addnew
-            text: "New"
+            text: "NEW"
+	    y:10 * sizefactor
             color: "#ffffff"
+	    font { bold: true; family: "Helvetica"; pointSize: 10*sizefactor; }
         }
 
         MouseArea {
