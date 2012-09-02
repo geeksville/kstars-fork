@@ -42,8 +42,8 @@ private:
     QObject *baseObject,*guidesListObj,*slidesListObj,*closeButtonObj,*baseObject2;
     QDeclarativeView *qmlview;
     QDeclarativeView *imageview;
-    QDeclarativeContext *ctxt;
-    QDeclarativeContext *ct;
+    QDeclarativeContext *ctxt1;
+    QDeclarativeContext *ctxt2;
     KUrl newguidesloc;
     QFile newguides;
     QList<Guide*> allguideslist;
