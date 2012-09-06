@@ -754,12 +754,8 @@ double SkyPoint::refractionCorr(double alt) {
     return 1.02 / tan(dms::DegToRad * ( alt + 10.3/(alt + 5.11) )) / 60;
 }
 
-<<<<<<< HEAD
 dms SkyPoint::refract(dms h) {
     const double alt = h.Degrees();
-=======
-double SkyPoint::refract(const double alt) {
->>>>>>> master
     static double corrCrit = SkyPoint::refractionCorr( SkyPoint::altCrit );
 
     if( alt > SkyPoint::altCrit )
