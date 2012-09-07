@@ -342,7 +342,9 @@ private:
     QList<SkyObject*> m_ObservingList, m_SessionList;
     SkyObject *LogObject, *m_CurrentObject;
     bool isModified, bIsLarge, sessionView, dss, singleSelection, showScope, noSelection;
-    QString FileName, CurrentImage, DSSUrl, SDSSUrl, ThumbImage, CurrentImagePath, CurrentTempPath;
+    QString FileName, CurrentImage, ThumbImage, CurrentImagePath, CurrentTempPath;
+    QUrl m_DSSUrl;
+    QUrl m_SDSSUrl;
     char decsgn;
     KStarsDateTime dt;
     GeoLocation *geo;

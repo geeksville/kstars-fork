@@ -73,6 +73,8 @@
 #include "texturemanager.h"
 
 #include "skymapqdraw.h"
+#include "services/dss.h"
+#include "services/sdss.h"
 
 #ifdef HAVE_OPENGL
 #include "skymapgldraw.h"
@@ -431,12 +433,12 @@ void SkyMap::slotCenter() {
 
 void SkyMap::slotDSS() {
     dms ra(0.0), dec(0.0);
-    QString urlstring;
+    QUrl dssUrl;
 
     //ra and dec must be the coordinates at J2000.  If we clicked on an object, just use the object's ra0, dec0 coords
     //if we clicked on empty sky, we need to precess to J2000.
     if ( clickedObject() ) {
-        urlstring = KSUtils::getDSSURL( clickedObject() );
+        dssUrl = DSS::getDSSUrl( clickedObject() );
     } else {
         //move present coords temporarily to ra0,dec0 (needed for precessToAnyEpoch)
         clickedPoint()->setRA0( clickedPoint()->ra().Hours() );
@@ -444,13 +446,13 @@ void SkyMap::slotDSS() {
         clickedPoint()->precessFromAnyEpoch( data->ut().djd(), J2000 );
         ra  = clickedPoint()->ra();
         dec = clickedPoint()->dec();
-        urlstring = KSUtils::getDSSURL( ra, dec ); // Use default size for non-objects
+        dssUrl = DSS::getDSSUrl( ra, dec ); // Use default size for non-objects
         //restore coords from present epoch
-        clickedPoint()->setRA(  clickedPoint()->ra0() );
+        clickedPoint()->setRA( clickedPoint()->ra0() );
         clickedPoint()->setDec( clickedPoint()->dec0() );
     }
 
-    KUrl url ( urlstring );
+    KUrl url ( dssUrl );
 
     KStars* kstars = KStars::Instance();
     if( kstars ) {
@@ -462,38 +464,7 @@ void SkyMap::slotDSS() {
 }
 
 void SkyMap::slotSDSS() {
-    // TODO: Remove code duplication -- we have the same stuff
-    // implemented in ObservingList::setCurrentImage() etc. in
-    // tools/observinglist.cpp; must try to de-duplicate as much as
-    // possible.
-    QString URLprefix( "http://casjobs.sdss.org/ImgCutoutDR6/getjpeg.aspx?" );
-    QString URLsuffix( "&scale=1.0&width=600&height=600&opt=GST&query=SR(10,20)" );
-    dms ra(0.0), dec(0.0);
-    QString RAString, DecString;
-
-    //ra and dec must be the coordinates at J2000.  If we clicked on an object, just use the object's ra0, dec0 coords
-    //if we clicked on empty sky, we need to precess to J2000.
-    if ( clickedObject() ) {
-        ra  = clickedObject()->ra0();
-        dec = clickedObject()->dec0();
-    } else {
-        //move present coords temporarily to ra0,dec0 (needed for precessToAnyEpoch)
-        clickedPoint()->setRA0( clickedPoint()->ra() );
-        clickedPoint()->setDec0( clickedPoint()->dec() );
-        clickedPoint()->precessFromAnyEpoch( data->ut().djd(), J2000 );
-        ra  = clickedPoint()->ra();
-        dec = clickedPoint()->dec();
-
-        //restore coords from present epoch
-        clickedPoint()->setRA(  clickedPoint()->ra0() );
-        clickedPoint()->setDec( clickedPoint()->dec0() );
-    }
-
-    RAString = RAString.sprintf( "ra=%f", ra.Degrees() );
-    DecString = DecString.sprintf( "&dec=%f", dec.Degrees() );
-
-    //concat all the segments into the kview command line:
-    KUrl url (URLprefix + RAString + DecString + URLsuffix);
+    KUrl url( SDSS::getSDSSUrl( clickedPoint() ) );
 
     KStars* kstars = KStars::Instance();
     if( kstars ) {

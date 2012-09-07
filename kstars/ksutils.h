@@ -96,23 +96,6 @@ namespace KSUtils {
     inline Vector2f pointToVec(const QPointF& p) {
         return Vector2f(p.x(),p.y());
     }
-
-    /**
-     *@short Create a URL to obtain a DSS image for a given SkyPoint
-     *@note If SkyPoint is a DeepSkyObject, this method automatically
-     *decides the image size required to fit the object.
-     */
-    QString getDSSURL( const SkyPoint * const p );
-
-    /**
-     *@short Create a URL to obtain a DSS image for a given RA, Dec
-     *@param RA The J2000.0 Right Ascension of the point
-     *@param Dec The J2000.0 Declination of the point
-     *@param width The width of the image in arcminutes
-     *@param height The height of the image in arcminutes
-     *@note This method resets height and width to fall within the range accepted by DSS
-     */
-    QString getDSSURL( const dms &ra, const dms &dec, float width = 0, float height = 0 );
 }
 
 #endif

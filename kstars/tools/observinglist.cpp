@@ -66,6 +66,7 @@
 #include "oal/log.h"
 #include "oal/oal.h"
 #include "oal/execute.h"
+#include "services/dss.h"
 
 #include <config-kstars.h>
 
@@ -1047,9 +1048,9 @@ void ObservingList::slotGetImage( bool _dss ) {
     QFile::remove( KStandardDirs::locateLocal( "appdata", CurrentImage ) );
     KUrl url;
     if( dss ) {
-        url.setUrl( DSSUrl );
+        url.setUrl( m_DSSUrl.toString() );
     } else {
-        url.setUrl( SDSSUrl );
+        url.setUrl( m_SDSSUrl.toString() );
     }
     downloadJob = KIO::copy ( url, KUrl( KStandardDirs::locateLocal( "appdata", CurrentImage ) ) );
     connect ( downloadJob, SIGNAL ( result (KJob *) ), SLOT ( downloadReady() ) );
@@ -1095,7 +1096,7 @@ void ObservingList::setCurrentImage( const SkyObject *o, bool temp  ) {
     }
     CurrentImagePath = KStandardDirs::locateLocal( "appdata" , CurrentImage );
     CurrentTempPath = KStandardDirs::locateLocal( "appdata", "Temp_" + CurrentImage ); // FIXME: Eh? -- asimha
-    DSSUrl = KSUtils::getDSSURL( o );
+    m_DSSUrl = DSS::getDSSUrl( o );
     QString UrlPrefix("http://casjobs.sdss.org/ImgCutoutDR6/getjpeg.aspx?");
     QString UrlSuffix("&scale=1.0&width=600&height=600&opt=GST&query=SR(10,20)");
 
@@ -1103,7 +1104,7 @@ void ObservingList::setCurrentImage( const SkyObject *o, bool temp  ) {
     RA = RA.sprintf( "ra=%f", o->ra0().Degrees() );
     Dec = Dec.sprintf( "&dec=%f", o->dec0().Degrees() );
  
-    SDSSUrl = UrlPrefix + RA + Dec + UrlSuffix;
+    m_SDSSUrl = UrlPrefix + RA + Dec + UrlSuffix;
 }
 
 void ObservingList::slotSaveAllImages() {
@@ -1124,7 +1125,7 @@ void ObservingList::slotSaveAllImages() {
     foreach( SkyObject *o, currList ) {
         setCurrentImage( o );
         QString img( CurrentImagePath  );
-        KUrl url( ( Options::obsListPreferDSS() ) ? DSSUrl : SDSSUrl );
+        KUrl url( ( Options::obsListPreferDSS() ) ? m_DSSUrl : m_SDSSUrl );
         if( ! o->isSolarSystem() )//TODO find a way for adding support for solar system images
             saveImage( url, img );
     }
@@ -1134,7 +1135,7 @@ void ObservingList::saveImage( KUrl url, QString filename ) {
     if( ! QFile::exists( CurrentImagePath  ) && ! QFile::exists( CurrentTempPath ) ) {
         if(  KIO::NetAccess::download( url, filename, mainWidget() ) ) {
             if( QFile( CurrentImagePath ).size() < 13000 ) {//The default image is around 8689 bytes FIXME: This seems to have changed
-                url = KUrl( DSSUrl );
+                url = KUrl( m_DSSUrl );
                 KIO::NetAccess::download( url, filename, mainWidget() );
             }
             saveThumbImage();
