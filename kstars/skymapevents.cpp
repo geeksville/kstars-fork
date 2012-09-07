@@ -82,8 +82,8 @@ void SkyGuides::resize(int parentWidth, int parentHeight)
     qmlview->close();
 
     //ctxt->setContextProperty("sizefactor",0.5);
-    ctxt->setContextProperty("w",parentWidth * 0.22);
-    ctxt->setContextProperty("h",parentHeight * 0.88);
+    ctxt1->setContextProperty("w",parentWidth * 0.22);
+    ctxt1->setContextProperty("h",parentHeight * 0.88);
 
     qmlview->show();
 
