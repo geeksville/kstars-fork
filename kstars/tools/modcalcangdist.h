@@ -19,6 +19,8 @@
 #define MODCALCANGDIST_H_
 
 #include "ui_modcalcangdist.h"
+#include "skyobjects/skypoint.h"
+
 
 class dms;
 class dmsBox;

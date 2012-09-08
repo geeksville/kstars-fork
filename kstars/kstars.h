@@ -19,7 +19,6 @@
 
 #include <QtDBus/QtDBus>
 #include <kxmlguiwindow.h>
-#include <QtDeclarative/QDeclarativeView>
 
 #include <config-kstars.h>
 
@@ -27,7 +26,6 @@
 #include "oal/equipmentwriter.h"
 #include "oal/observeradd.h"
 
-class WIUserSettings;
 // forward declaration is enough. We only need pointers
 class QPalette;
 class KActionMenu;
@@ -44,9 +42,6 @@ class DriverManager;
 
 class AltVsTime;
 class WUTDialog;
-class WIView;
-class WIUserSettings;
-class ObsConditions;
 class AstroCalc;
 class SkyCalendar;
 class ScriptBuilder;
@@ -165,10 +160,6 @@ public:
     void selectNextFov();
 
     void selectPreviousFov();
-
-    void showWIWizard();
-
-    void showWI(ObsConditions *obs);
 
 public Q_SLOTS:
     /**DBUS interface function.
@@ -503,9 +494,6 @@ private slots:
     /** action slot: open What's up tonight dialog */
     void slotWUT();
 
-    /** action slot: open What's Interesting window */
-    void slotWI();
-
     /** action slot: open Sky Calendar tool */
     void slotCalendar();
 
@@ -647,9 +635,6 @@ private:
     Execute *execute;
     AltVsTime *avt;
     WUTDialog *wut;
-    WIView *wi;
-    WIUserSettings *wiWiz;
-    QDockWidget *wiDock;
     SkyCalendar *skycal;
     ScriptBuilder *sb;
     PlanetViewer *pv;

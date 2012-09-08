@@ -30,6 +30,8 @@
 #include "htmesh/HTMesh.h"
 #include "htmesh/MeshIterator.h"
 #include "htmesh/MeshBuffer.h"
+#include "skyobjects/skypoint.h"
+
 
 #include "typedef.h"
 

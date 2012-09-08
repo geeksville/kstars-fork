@@ -27,6 +27,8 @@
 #include "skyobjects/ksplanet.h"
 #include "skyobjects/ksplanetbase.h"
 #include "ksnumbers.h"
+#include "skyobjects/skypoint.h"
+
 
 class SkyObject;
 class KSNumbers;

@@ -18,7 +18,6 @@
 #include "kstars.h"
 
 #include <QApplication>
-#include <QDockWidget>
 
 #include <KGlobal>
 #include <KLocale>
@@ -39,8 +38,6 @@
 #include "dialogs/exportimagedialog.h"
 #include "observinglist.h"
 #include "oal/execute.h"
-#include "whatsinteresting/wiview.h"
-#include "whatsinteresting/wiusersettings.h"
 
 #include "kstarsadaptor.h"
 
@@ -59,8 +56,8 @@ KStars::KStars( bool doSplash, bool clockrun, const QString &startdate )
     : KXmlGuiWindow(), kstarsData(0), skymap(0), TimeStep(0),
       colorActionMenu(0), fovActionMenu(0), findDialog(0),
       imgExportDialog(0), obsList(0), execute(0),
-      avt(0), wut(0), wi(0), wiWiz(0), wiDock(0), skycal(0), sb(0), pv(0),
-      jmt(0), fm(0), astrocalc(0), printingWizard(0), ekosmenu(0),
+      avt(0), wut(0), skycal(0), sb(0), pv(0), jmt(0),
+      fm(0), astrocalc(0), printingWizard(0), ekosmenu(0),
       DialogIsObsolete(false), StartClockRunning( clockrun ),
       StartDateString( startdate )
 {
@@ -321,33 +318,6 @@ void KStars::selectPreviousFov()
     data()->syncFOV();
     syncFOVActions();
     map()->update();
-}
-
-void KStars::showWIWizard()
-{
-    wiDock->setVisible(false);
-    wiWiz->restart();
-    wiWiz->setVisible(true);
-}
-
-void KStars::showWI(ObsConditions *obs)
-{
-    if ( ! wi )
-    {
-        wi = new WIView(0, obs);
-        wiDock = new QDockWidget(this);
-        wiDock->setObjectName("What's Interesting");
-        wiDock->setAllowedAreas(Qt::RightDockWidgetArea);
-        wiDock->setWidget(wi->getWIBaseView());
-        wiDock->setMinimumWidth(wi->getWIBaseView()->width());
-        addDockWidget(Qt::RightDockWidgetArea, wiDock);
-        wiDock->setVisible(true);
-    }
-    else
-    {
-        wi->updateModels(obs);
-        wiDock->setVisible(true);
-    }
 }
 
 void KStars::updateTime( const bool automaticDSTchange ) {

@@ -21,6 +21,8 @@
 #include <QList>
 
 #include "skycomponent.h"
+#include "skyobjects/skypoint.h"
+
 
 class SkyComposite;
 class SkyMap;

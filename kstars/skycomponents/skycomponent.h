@@ -21,6 +21,7 @@
 
 #include <kdebug.h>
 #include "typedef.h"
+#include "skyobjects/skypoint.h"
 
 class QString;
 
