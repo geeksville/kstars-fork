@@ -96,6 +96,19 @@ namespace KSUtils {
     inline Vector2f pointToVec(const QPointF& p) {
         return Vector2f(p.x(),p.y());
     }
+
+    /**
+     *@short Return a string corresponding to an angle specifying direction
+     *
+     * The angle must measure direction from North, towards East. Both
+     * the azimuth and position angle follow this convention, so this
+     * method can be used to return a string corresponding to the
+     * general heading of a given azimuth / position angle.
+     *
+     *@param angle angle as dms (measured from North, towards East)
+     *@return A localized string corresponding to the approximate direction (eg: NNW)
+     */
+    QString toDirectionString( dms angle );
 }
 
 #endif
