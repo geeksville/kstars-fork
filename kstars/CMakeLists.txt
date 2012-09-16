@@ -323,6 +323,7 @@ set(kstars_dialogs_SRCS
   dialogs/locationdialog.cpp
   dialogs/timedialog.cpp
   dialogs/exportimagedialog.cpp
+  dialogs/onlineimagebrowser.cpp
 )
 
 set(kstars_dialogsui_SRCS
@@ -343,6 +344,7 @@ set(kstars_dialogsui_SRCS
   dialogs/wizdownload.ui
   dialogs/newfov.ui
   dialogs/exportimagedialog.ui
+  dialogs/onlineimagebrowser.ui
 )
 
 set(kstars_projection_SRCS
@@ -436,6 +438,7 @@ endif( QJSON_FOUND )
 
 set(services_SRCS
     ${astrobinapi_SRCS}
+    services/gimagessearch.cpp
     services/dss.cpp
     services/sdss.cpp
 )

@@ -59,6 +59,7 @@
 #include "dialogs/finddialog.h"
 #include "tools/altvstime.h"
 #include "tools/wutdialog.h"
+#include "dialogs/onlineimagebrowser.h"
 #include "Options.h"
 #include "imageviewer.h"
 #include "thumbnailpicker.h"
@@ -174,6 +175,8 @@ ObservingList::ObservingList( KStars *_ks )
              this, SLOT( slotDeleteCurrentImage() ) );
     connect( ui->GoogleImage, SIGNAL( clicked() ),
              this, SLOT( slotGoogleImage() ) );
+    connect( ui->OnlineImageBrowser, SIGNAL( clicked() ),
+             this, SLOT ( slotOnlineImageBrowser() ) );
     connect( ui->SetTime, SIGNAL( clicked() ),
              this, SLOT( slotSetTime() ) );
     connect( ui->tabWidget, SIGNAL( currentChanged(int) ),
@@ -184,6 +187,7 @@ ObservingList::ObservingList( KStars *_ks )
              this, SLOT( slotDeleteAllImages() ) );
     connect( ui->OALExport, SIGNAL( clicked() ),
              this, SLOT( slotOALExport() ) );  
+
     //Add icons to Push Buttons
     ui->OpenButton->setIcon( KIcon("document-open") );
     ui->SaveButton->setIcon( KIcon("document-save") );
@@ -1271,6 +1275,15 @@ void ObservingList::slotGoogleImage() {
         }
     }
     delete tp;
+}
+
+void ObservingList::slotOnlineImageBrowser() {
+    QPointer<OnlineImageBrowser> imageBrowser = new OnlineImageBrowser( this );
+    if ( imageBrowser->exec() == QDialog::Accepted ) {
+
+    }
+
+    delete imageBrowser;
 }
 
 void ObservingList::slotDeleteCurrentImage() {

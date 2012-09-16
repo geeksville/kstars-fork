@@ -41,6 +41,8 @@
 #include "services/astrobin/astrobinapixml.h"
 #include "services/astrobin/astrobinimage.h"
 #include "services/astrobin/astrobinsearchresult.h"
+#include "services/gimagessearch.h"
+
 #include "QNetworkAccessManager"
 
 ThumbnailPickerUI::ThumbnailPickerUI( QWidget *parent ) : QFrame( parent ) {
@@ -76,7 +78,10 @@ ThumbnailPicker::ThumbnailPicker( SkyObject *o, const QPixmap &current, QWidget 
     ui->ImageURLBox->lineEdit()->setTrapReturnKey( true );
     ui->EditButton->setEnabled( false );
 
-    slotFillList();
+    GImagesSearch *gImages = new GImagesSearch(new QNetworkAccessManager(), this);
+    gImages->searchObjectImages(o);
+
+    //slotFillList();
 }
 
 ThumbnailPicker::~ThumbnailPicker() {
