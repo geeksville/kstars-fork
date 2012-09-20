@@ -44,13 +44,15 @@ public slots:
     void stopFocus();
     void capture();
 
-    void FocusIn(int ms=1000);
-    void FocusOut(int ms=1000);
+    void FocusIn(int ms=-1);
+    void FocusOut(int ms=-1);
 
     void toggleAutofocus(bool enable);
 
-    void newFITS(IBLOB *bp);
+    void updateImageFilter(int index);
 
+    void newFITS(IBLOB *bp);
+    void processFocusProperties(INumberVectorProperty *nvp);
 private:
 
     void getAbsFocusPosition();
@@ -71,6 +73,8 @@ private:
     double absCurrentPos;
     double pulseStep;
     double absMotionMax, absMotionMin;
+
+    FITSScale filterType;
 
 };
 

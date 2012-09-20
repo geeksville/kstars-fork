@@ -37,6 +37,8 @@ Focus::Focus()
 
     pulseDuration = 1000;
 
+    filterType = FITS_NONE;
+
     connect(startFocusB, SIGNAL(clicked()), this, SLOT(startFocus()));
     connect(stopFocusB, SIGNAL(clicked()), this, SLOT(stopFocus()));
 
@@ -46,6 +48,8 @@ Focus::Focus()
     connect(captureB, SIGNAL(clicked()), this, SLOT(capture()));
 
     connect(AutoModeR, SIGNAL(toggled(bool)), this, SLOT(toggleAutofocus(bool)));
+
+    connect( filterCombo, SIGNAL(activated(int)), this, SLOT(updateImageFilter(int)));
 
     lastFocusDirection = FOCUS_NONE;
 
@@ -85,6 +89,9 @@ void Focus::addFocuser(ISD::GDInterface *newFocuser)
         getAbsFocusPosition();
     }
 
+
+    connect(currentFocuser, SIGNAL(numberUpdated(INumberVectorProperty*)), this, SLOT(processFocusProperties(INumberVectorProperty*)));
+
 }
 
 void Focus::addCCD(ISD::GDInterface *newCCD)
@@ -97,7 +104,7 @@ void Focus::getAbsFocusPosition()
 {
     if (canAbsMove)
     {
-        INumberVectorProperty *absMove = currentFocuser->getBaseDevice()->getNumber("FOCUS_POSITION");
+        INumberVectorProperty *absMove = currentFocuser->getBaseDevice()->getNumber("ABS_FOCUS_POSITION");
         if (absMove)
         {
            pulseStep = absMove->np[0].value;
@@ -163,19 +170,15 @@ void Focus::capture()
     CCDFrameType ccdFrame = FRAME_LIGHT;
     CCDBinType   binType  = QUADRAPLE_BIN;
 
-
-    // TODO: Set bining to 3x3
-    // TODO: Make sure FRAME is LIGHT
-
-   // qDebug() << "Issuing CCD capture command" << endl;
-
     if (currentCCD->isConnected() == false)
     {
         focusProgress->setText(i18n("Error: Lost connection to CCD."));
         return;
     }
 
+
     currentCCD->setCaptureMode(FITS_FOCUS);
+    currentCCD->setCaptureFilter(filterType);
 
     connect(currentCCD, SIGNAL(BLOBUpdated(IBLOB*)), this, SLOT(newFITS(IBLOB*)));
 
@@ -209,13 +212,16 @@ void Focus::FocusIn(int ms)
         return;
     }
 
+    if (ms == -1)
+        ms = stepIN->value();
+
     lastFocusDirection = FOCUS_IN;
 
     currentFocuser->focusIn();
 
     if (canAbsMove)
     {
-        getAbsFocusPosition();
+        //getAbsFocusPosition();
         currentFocuser->absMoveFocuser(pulseStep+ms);
     }
     else
@@ -239,11 +245,14 @@ void Focus::FocusOut(int ms)
 
     lastFocusDirection = FOCUS_OUT;
 
+    if (ms == -1)
+        ms = stepIN->value();
+
     currentFocuser->focusOut();
 
     if (canAbsMove)
     {
-        getAbsFocusPosition();
+        //getAbsFocusPosition();
         currentFocuser->absMoveFocuser(pulseStep-ms);
     }
     else
@@ -283,12 +292,10 @@ void Focus::newFITS(IBLOB *bp)
     }
 
 
-
-    //qDebug() << "Iteration #" << counter ++ << endl;
     //qDebug() << "Pulse Duration: " << pulseDuration << endl;
     //qDebug() << "Current HFR" << currentHFR << " last HFR " << HFR << " diff is " << fabs(currentHFR - HFR) << " tolernace is " << toleranceIN->value() << endl;
 
-    if (!canAbsMove && pulseDuration <= 32 || (canAbsMove && ++absIterations > MAXIMUM_ABS_ITERATIONS))
+    if ( (!canAbsMove && pulseDuration <= 32) || (canAbsMove && ++absIterations > MAXIMUM_ABS_ITERATIONS))
     {
         focusProgress->setText(i18n("Autofocus failed to reach proper focus."));
         stopFocus();
@@ -301,8 +308,6 @@ void Focus::newFITS(IBLOB *bp)
             HFR = currentHFR;
             FocusIn(pulseDuration);
 
-            sleep(delayIN->value());
-            capture();
             //qDebug() << "In Focus NONE and will focus in now " << endl;
             break;
 
@@ -330,9 +335,6 @@ void Focus::newFITS(IBLOB *bp)
                 FocusOut(pulseDuration);
             }
 
-            sleep(delayIN->value());
-            capture();
-
             break;
 
     case FOCUS_OUT:
@@ -340,7 +342,7 @@ void Focus::newFITS(IBLOB *bp)
 
         if (fabs(currentHFR - HFR) < toleranceIN->value())
         {
-            //qDebug() << "currentHFR is HFR, quitting " << endl;
+            //qDebug() << "currentHFR is HFR, quitting  HFR " << HFR << " currentHFR " << currentHFR << endl;
             focusProgress->setText(i18n("Autofocus complete."));
             stopFocus();
             break;
@@ -360,16 +362,69 @@ void Focus::newFITS(IBLOB *bp)
             FocusIn(pulseDuration);
         }
 
-         sleep(delayIN->value());
+        if (canAbsMove == false)
          capture();
         break;
 
     }
 
-    //qDebug() << "########################################" << endl;
     //IDLog("We are reading current HFR: %g", currentHFR);
 
-    HFROut->setText(QString("%1").arg(currentHFR, 0,'g', 3));
+    HFROut->setText(QString::number( currentHFR, 'f', 2 ));
+}
+
+void Focus::processFocusProperties(INumberVectorProperty *nvp)
+{
+
+    if (!strcmp(nvp->name, "ABS_FOCUS_POSITION"))
+    {
+       INumber *pos = IUFindNumber(nvp, "FOCUS_ABSOLUTE_POSITION");
+       if (pos)
+           pulseStep = pos->value;
+
+       if (canAbsMove && (AutoModeR->isChecked() == true) && (startFocusB->isEnabled() == false))
+       {
+           if (nvp->s == IPS_OK)
+               capture();
+           else if (nvp->s == IPS_ALERT)
+           {
+               focusProgress->setText(i18n("Focuser error, check INDI panel."));
+               stopFocus();
+           }
+
+       }
+
+       return;
+    }
+
+    if (!strcmp(nvp->name, "FOCUS_TIMER"))
+    {
+
+        if (canAbsMove == false && (AutoModeR->isChecked() == true) && (startFocusB->isEnabled() == false))
+        {
+            if (nvp->s == IPS_OK)
+                capture();
+            else if (nvp->s == IPS_ALERT)
+            {
+                focusProgress->setText(i18n("Focuser error, check INDI panel."));
+                stopFocus();
+            }
+        }
+
+        return;
+    }
+
+}
+
+void Focus::updateImageFilter(int index)
+{
+    if (index == 0)
+        filterType = FITS_NONE;
+    else if (index == 1)
+        filterType = FITS_LOW_PASS;
+    else if (index == 2)
+        filterType = FITS_EQUALIZE;
+
 }
 
 }

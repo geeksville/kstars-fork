@@ -140,8 +140,8 @@
     </entry>
     <entry name="telescopePort" type="String">
       <label>INDI Telescope port</label>
-      <whatsthis>The port to which the telescope is attached (e.g., /dev/ttyS0)</whatsthis>
-      <default>/dev/ttyS0</default>
+      <whatsthis>The port to which the telescope is attached (e.g., /dev/ttyUSB0)</whatsthis>
+      <default>/dev/ttyUSB0</default>
     </entry>
     <entry name="videoPort" type="String">
       <label>INDI Video port</label>
@@ -1164,6 +1164,23 @@
       <label>Additional padding around DSS Images of deep-sky objects</label>
       <whatsthis>To include parts of the star field, we add some extra padding around DSS images of deep-sky objects. This option configures the total (both sides) padding added to either dimension of the field.</whatsthis>
       <default>10.0</default>
+    </entry>
+  </group>
+  <group name="Ekos">
+    <entry name="TelescopeDriver" type="String">
+      <label>Default telescope driver</label>
+    </entry>
+    <entry name="CCDDriver" type="String">
+      <label>Default CCD driver</label>
+    </entry>
+    <entry name="GuiderDriver" type="String">
+      <label>Default Guider driver</label>
+    </entry>
+    <entry name="FilterDriver" type="String">
+      <label>Default Filter driver</label>
+    </entry>
+    <entry name="FocuserDriver" type="String">
+      <label>Default Focuser driver</label>
     </entry>
   </group>
 
