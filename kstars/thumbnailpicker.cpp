@@ -78,10 +78,10 @@ ThumbnailPicker::ThumbnailPicker( SkyObject *o, const QPixmap &current, QWidget 
     ui->ImageURLBox->lineEdit()->setTrapReturnKey( true );
     ui->EditButton->setEnabled( false );
 
-    GImagesSearch *gImages = new GImagesSearch(new QNetworkAccessManager(), this);
-    gImages->searchObjectImages(o);
+    //GImagesSearch *gImages = new GImagesSearch(new QNetworkAccessManager(), this);
+    //gImages->searchObjectImages(o);
 
-    //slotFillList();
+    slotFillList();
 }
 
 ThumbnailPicker::~ThumbnailPicker() {
@@ -177,7 +177,7 @@ void ThumbnailPicker::slotJobResult( KJob *job ) {
     //Add 50x50 image and URL to listbox
     //ui->ImageList->insertItem( shrinkImage( PixList.last(), 50 ),
     //		cjob->srcURLs().first().prettyUrl() );
-    ui->ImageList->addItem( new QListWidgetItem ( QIcon(shrinkImage( PixList.last(), 50 )), stjob->url().prettyUrl() ));
+    ui->ImageList->addItem( new QListWidgetItem ( QIcon(shrinkImage( PixList.last(), 256 )), QString()));
 }
 
 void ThumbnailPicker::parseGooglePage( QStringList &ImList, const QString &URL ) {

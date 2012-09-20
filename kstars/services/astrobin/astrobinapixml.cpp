@@ -23,6 +23,10 @@
 
 void AstroBinApiXml::replyFinished(QNetworkReply *reply)
 {
+    if(reply->request().originatingObject() != static_cast<QObject*>(this)) {
+        return;
+    }
+
     m_XmlReader = new QXmlStreamReader(reply->readAll());
     bool result = false;
 
@@ -132,9 +136,6 @@ bool AstroBinApiXml::readObject()
 
         if(m_XmlReader->isStartElement()) {
             QStringRef elementName = m_XmlReader->name();
-
-            qDebug() << "qualifiedName(): " << elementName;
-            qDebug() << "name():" << m_XmlReader->name();
 
             if(elementName == "imaging_telescopes") {
                 image.m_ImagingTelescopes = readList();

@@ -69,7 +69,9 @@ void AstroBinApi::astroBinRequestFormatAndSend(const QString &requestStub)
                     + "&api_secret=" + m_ApiSecret
                     + m_UrlApiTypeEnding);
 
-    m_NetworkManager->get(QNetworkRequest(requestUrl));
+    QNetworkRequest request(requestUrl);
+    request.setOriginatingObject(this);
+    m_NetworkManager->get(request);
 }
 
 

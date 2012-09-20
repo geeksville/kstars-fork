@@ -24,6 +24,14 @@
 
 void AstroBinApiJson::replyFinished(QNetworkReply *reply)
 {
+    if(reply->request().originatingObject() != static_cast<QObject*>(this)) {
+        //return;
+        qDebug() << "error\n";
+        return;
+    }
+
+    m_LastSearchResult.clear();
+
     QJson::Parser parser;
     bool ok;
 

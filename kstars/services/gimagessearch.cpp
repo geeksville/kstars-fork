@@ -10,7 +10,6 @@ GImagesSearch::GImagesSearch(QNetworkAccessManager *manager, QObject *parent)
 {
     connect(m_NetworkManager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
-    //connect(m_NetworkManager, )
 }
 
 void GImagesSearch::searchObjectImages(const SkyObject *object)
@@ -22,10 +21,20 @@ void GImagesSearch::searchObjectImages(const SkyObject *object)
         sName = QString("\"%1\" ").arg(object->longname()) + sName;
     }
     requestUrl.addQueryItem("q", sName); //add the Google-image query string
+
+    QNetworkRequest request(requestUrl);
+    request.setOriginatingObject(this);
+    m_NetworkManager->get(request);
 }
 
 void GImagesSearch::replyFinished(QNetworkReply *reply)
 {
+    if(reply->request().originatingObject() != static_cast<QObject*>(this)) {
+        return;
+    }
+
+    m_LastSearchResult.clear();
+
     QString pageData = reply->readAll();
 
     int index = pageData.indexOf("?imgurl=", 0);
@@ -39,7 +48,5 @@ void GImagesSearch::replyFinished(QNetworkReply *reply)
         index = pageData.indexOf("?imgurl=", index);
     }
 
-    foreach(QUrl url, m_LastSearchResult) {
-        qDebug() << url.toString() << "\n";
-    }
+    emit searchFinished(true);
 }

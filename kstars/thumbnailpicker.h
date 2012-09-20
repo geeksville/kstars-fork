@@ -76,7 +76,6 @@ private:
     QPixmap *Image;
     DetailDialog *dd;
     SkyObject *Object;
-    QList<KIO::Job*> JobList;
     QList<QPixmap*> PixList;
     bool bImageFound;
     QRect *ImageRect;

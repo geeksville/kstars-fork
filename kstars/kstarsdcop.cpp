@@ -22,13 +22,10 @@
 #include <QPixmap>
 #include <QKeySequence>
 #include <QPainter>
-//QPRINTER_FOR_NOW
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QSvgGenerator>
 
-//QPRINTER_FOR_NOW
-//#include <kprinter.h>
 #include <kdeprintdialog.h>
 #include <kpushbutton.h>
 #include <klineedit.h>

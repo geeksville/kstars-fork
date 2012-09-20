@@ -1278,7 +1278,7 @@ void ObservingList::slotGoogleImage() {
 }
 
 void ObservingList::slotOnlineImageBrowser() {
-    QPointer<OnlineImageBrowser> imageBrowser = new OnlineImageBrowser( this );
+    QPointer<OnlineImageBrowser> imageBrowser = new OnlineImageBrowser( currentObject(), false, this );
     if ( imageBrowser->exec() == QDialog::Accepted ) {
 
     }
