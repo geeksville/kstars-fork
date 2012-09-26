@@ -19,21 +19,17 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,20">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetDefaultConstraint</enum>
+   </property>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="1">
-      <widget class="QRadioButton" name="astrobinRadioButton">
-       <property name="text">
-        <string>AstroBin.com</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <spacer name="horizontalSpacer">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMinimumSize</enum>
+     </property>
+     <item row="1" column="3">
+      <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -45,8 +41,8 @@
        </property>
       </spacer>
      </item>
-     <item row="1" column="3">
-      <spacer name="horizontalSpacer_2">
+     <item row="1" column="0">
+      <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -65,6 +61,16 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="1">
+      <widget class="QRadioButton" name="astrobinRadioButton">
+       <property name="text">
+        <string>AstroBin.com</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1" colspan="2">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -75,15 +81,16 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2">
-     <item>
-      <widget class="QListWidget" name="imageListWidget">
-       <property name="viewMode">
-        <enum>QListView::IconMode</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QListWidget" name="imageListWidget">
+      <property name="viewMode">
+       <enum>QListView::IconMode</enum>
+      </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="1">
         <widget class="QPushButton" name="unsetButton">
@@ -129,8 +136,8 @@
         </widget>
        </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>

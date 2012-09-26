@@ -54,10 +54,17 @@ private slots:
     void slotEdit();
 
 private:
-    void cancelAllRunningJobs();
+    enum DATA_SOURCE
+    {
+        ASTROBIN,
+        GOOGLE_IMAGES
+    };
+
+    void clearImagesList();
+    void killAllRunningJobs();
+    void deleteImages();
 
     OnlineImageBrowser_ui *m_Ui;
-
 
     QNetworkAccessManager *m_NetworkManager;
     AstroBinApi *m_AstrobinApi;
@@ -66,7 +73,8 @@ private:
     bool m_ThumbnailPickMode;
     SkyObject *m_Object;
 
-    QList<QPixmap*> m_Pixmaps;
+    DATA_SOURCE m_SearchType;
+    QList<QPair<QPixmap*, DATA_SOURCE> > m_Images;
     QList<KIO::StoredTransferJob*> m_Jobs;
 };
 

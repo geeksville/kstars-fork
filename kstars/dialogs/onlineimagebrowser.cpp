@@ -15,6 +15,25 @@
 
 #include <QDesktopWidget>
 #include <QNetworkAccessManager>
+#include <QListWidgetItem>
+
+
+class ImageListItem : public QListWidgetItem
+{
+    Q_OBJECT
+
+public:
+    ImageListItem(const QIcon &icon, const QString &text, QPixmap *pixmap, QListWidget *parent = 0, int type = Type)
+        : QListWidgetItem(icon, text, parent, type), m_Pixmap(pixmap)
+    {}
+
+    QPixmap* pixmap() { return m_Pixmap; }
+
+private:
+    QPixmap *m_Pixmap;
+};
+
+
 
 OnlineImageBrowser_ui::OnlineImageBrowser_ui(QWidget *parent)
     : QFrame(parent)
@@ -23,7 +42,7 @@ OnlineImageBrowser_ui::OnlineImageBrowser_ui(QWidget *parent)
 }
 
 OnlineImageBrowser::OnlineImageBrowser(SkyObject *obj, bool thumbnailPickMode, QWidget *parent)
-    : KDialog(parent), m_Object(obj), m_ThumbnailPickMode(thumbnailPickMode)
+    : KDialog(parent), m_ThumbnailPickMode(thumbnailPickMode), m_Object(obj), m_SearchType(ASTROBIN)
 {
     m_Ui = new OnlineImageBrowser_ui(this);
     setMainWidget(m_Ui);
@@ -34,6 +53,8 @@ OnlineImageBrowser::OnlineImageBrowser(SkyObject *obj, bool thumbnailPickMode, Q
     }
 
     setCaption(i18n("Online Image Browser"));
+    m_Ui->splitter->setStretchFactor(0, 1);
+    m_Ui->splitter->setStretchFactor(1, 5);
 
     m_NetworkManager = new QNetworkAccessManager(this);
 
@@ -60,18 +81,14 @@ OnlineImageBrowser::OnlineImageBrowser(SkyObject *obj, bool thumbnailPickMode, Q
 
 OnlineImageBrowser::~OnlineImageBrowser()
 {
-    qDeleteAll(m_Pixmaps);
+    deleteImages();
     qDeleteAll(m_Jobs);
 }
 
 void OnlineImageBrowser::slotAstrobinSearch()
 {
-    // temp
-    qDeleteAll(m_Pixmaps);
-    m_Pixmaps.clear();
-    m_Ui->imageListWidget->clear();
-    cancelAllRunningJobs();
-
+    clearImagesList();
+    m_SearchType = ASTROBIN;
     m_AstrobinApi->searchObjectImages(m_Object->name());
 }
 
@@ -93,12 +110,8 @@ void OnlineImageBrowser::slotAstrobinSearchCompleted(bool ok)
 
 void OnlineImageBrowser::slotGoogleSearch()
 {
-    // temp
-    qDeleteAll(m_Pixmaps);
-    m_Pixmaps.clear();
-    m_Ui->imageListWidget->clear();
-    cancelAllRunningJobs();
-
+    clearImagesList();
+    m_SearchType = GOOGLE_IMAGES;
     m_GImagesApi->searchObjectImages(m_Object);
 }
 
@@ -119,13 +132,17 @@ void OnlineImageBrowser::slotGoogleSearchCompleted(bool ok)
 
 void OnlineImageBrowser::slotSetFromList(int row)
 {
-    m_Ui->imageLabel->setPixmap(*m_Pixmaps.at(row));
+    if(row < 0 || row >= m_Images.size()) {
+        return;
+    }
+
+    m_Ui->imageLabel->setPixmap(*m_Images.at(row).first);
 }
 
 void OnlineImageBrowser::slotJobResult(KJob *job)
 {
-    KIO::StoredTransferJob *stjob = (KIO::StoredTransferJob*)job;
-    m_Jobs.removeOne(stjob);
+    KIO::StoredTransferJob *storedTranferJob = (KIO::StoredTransferJob*)job;
+    m_Jobs.removeOne(storedTranferJob);
 
     //If there was a problem, just return silently without adding image to list.
     if(job->error()) {
@@ -134,17 +151,17 @@ void OnlineImageBrowser::slotJobResult(KJob *job)
     }
 
     QPixmap *pm = new QPixmap();
-    pm->loadFromData(stjob->data());
+    pm->loadFromData(storedTranferJob->data());
 
     uint w = pm->width();
     uint h = pm->height();
-    uint pad = 0; /*FIXME LATER 4* KDialogBase::marginHint() + 2*ui->SearchLabel->height() + KDialogBase::actionButton( KDialogBase::Ok )->height() + 25;*/
+    uint pad = 0;
     uint hDesk = QApplication::desktop()->availableGeometry().height() - pad;
 
     if(h > hDesk)
         *pm = pm->scaled(w * hDesk / h, hDesk, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-    m_Pixmaps.append(pm);
+    m_Images.append(QPair<QPixmap*, DATA_SOURCE>(pm, m_SearchType));
 
     //Add 50x50 image and URL to listbox
     m_Ui->imageListWidget->addItem(new QListWidgetItem(QIcon(*pm), QString()));
@@ -158,18 +175,24 @@ void OnlineImageBrowser::slotUnset()
 void OnlineImageBrowser::slotSave()
 {
     int currentRow = m_Ui->imageListWidget->currentRow();
-    if(currentRow < 0 || currentRow >= m_Pixmaps.size()) {
+    if(currentRow < 0 || currentRow >= m_Images.size()) {
         return;
     }
 
-    KUrl fileUrl = KFileDialog::getSaveUrl(QDir::homePath(), "image/png image/jpeg image/gif image/x-portable-pixmap image/bmp", this);
+    KUrl fileUrl = KFileDialog::getSaveUrl(QDir::homePath(),
+                                           "image/png image/jpeg image/gif image/x-portable-pixmap image/bmp",
+                                           this);
+    if(!fileUrl.isValid()) {
+        return;
+    }
+
     QString fileName(fileUrl.toLocalFile());
     QFile file(fileName);
     file.open(QFile::WriteOnly);
 
     if(fileUrl.isValid()) {
         QString extension = fileName.mid(fileName.lastIndexOf(".") + 1);
-        m_Pixmaps.at(currentRow)->save(&file, extension.toLocal8Bit());
+        m_Images.at(currentRow).first->save(&file, extension.toLocal8Bit());
     }
 }
 
@@ -178,13 +201,31 @@ void OnlineImageBrowser::slotEdit()
 
 }
 
-void OnlineImageBrowser::cancelAllRunningJobs()
+void OnlineImageBrowser::clearImagesList()
+{
+    // Kill all running jobs
+    killAllRunningJobs();
+
+
+    m_Ui->imageLabel->clear();
+    m_Ui->imageListWidget->clear();
+}
+
+void OnlineImageBrowser::killAllRunningJobs()
 {
     foreach(KIO::StoredTransferJob *job, m_Jobs) {
         job->kill();
     }
 
     m_Jobs.clear();
+}
+
+void OnlineImageBrowser::deleteImages()
+{
+    QPair<QPixmap*, DATA_SOURCE> image;
+    foreach(image, m_Images) {
+        delete image.first;
+    }
 }
 
 
