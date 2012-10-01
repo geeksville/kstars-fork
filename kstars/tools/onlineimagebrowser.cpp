@@ -18,23 +18,6 @@
 #include <QListWidgetItem>
 
 
-class ImageListItem : public QListWidgetItem
-{
-    Q_OBJECT
-
-public:
-    ImageListItem(const QIcon &icon, const QString &text, QPixmap *pixmap, QListWidget *parent = 0, int type = Type)
-        : QListWidgetItem(icon, text, parent, type), m_Pixmap(pixmap)
-    {}
-
-    QPixmap* pixmap() { return m_Pixmap; }
-
-private:
-    QPixmap *m_Pixmap;
-};
-
-
-
 OnlineImageBrowser_ui::OnlineImageBrowser_ui(QWidget *parent)
     : QFrame(parent)
 {
@@ -54,7 +37,7 @@ OnlineImageBrowser::OnlineImageBrowser(SkyObject *obj, bool thumbnailPickMode, Q
 
     setCaption(i18n("Online Image Browser"));
     m_Ui->splitter->setStretchFactor(0, 1);
-    m_Ui->splitter->setStretchFactor(1, 5);
+    m_Ui->splitter->setStretchFactor(1, 8);
 
     m_NetworkManager = new QNetworkAccessManager(this);
 
@@ -81,14 +64,21 @@ OnlineImageBrowser::OnlineImageBrowser(SkyObject *obj, bool thumbnailPickMode, Q
 
 OnlineImageBrowser::~OnlineImageBrowser()
 {
-    deleteImages();
+    qDeleteAll(m_AstrobinImages);
+    qDeleteAll(m_GoogleImages);
     qDeleteAll(m_Jobs);
 }
 
 void OnlineImageBrowser::slotAstrobinSearch()
 {
+    if(m_SearchType == ASTROBIN) {
+        return;
+    }
+
     clearImagesList();
+
     m_SearchType = ASTROBIN;
+    readExistingImagesForCurrentSearch();
     m_AstrobinApi->searchObjectImages(m_Object->name());
 }
 
@@ -110,8 +100,14 @@ void OnlineImageBrowser::slotAstrobinSearchCompleted(bool ok)
 
 void OnlineImageBrowser::slotGoogleSearch()
 {
+    if(m_SearchType == GOOGLE_IMAGES) {
+        return;
+    }
+
     clearImagesList();
+
     m_SearchType = GOOGLE_IMAGES;
+    readExistingImagesForCurrentSearch();
     m_GImagesApi->searchObjectImages(m_Object);
 }
 
@@ -132,11 +128,29 @@ void OnlineImageBrowser::slotGoogleSearchCompleted(bool ok)
 
 void OnlineImageBrowser::slotSetFromList(int row)
 {
-    if(row < 0 || row >= m_Images.size()) {
-        return;
-    }
+    switch(m_SearchType)
+    {
+    case ASTROBIN:
+    {
+        if(row < 0 || row >= m_AstrobinImages.size()) {
+            return;
+        }
 
-    m_Ui->imageLabel->setPixmap(*m_Images.at(row).first);
+        m_Ui->imageLabel->setPixmap(*m_AstrobinImages.at(row));
+
+        break;
+    }
+    case GOOGLE_IMAGES:
+    {
+        if(row < 0 || row >= m_GoogleImages.size()) {
+            return;
+        }
+
+        m_Ui->imageLabel->setPixmap(*m_GoogleImages.at(row));
+
+        break;
+    }
+    }
 }
 
 void OnlineImageBrowser::slotJobResult(KJob *job)
@@ -152,19 +166,7 @@ void OnlineImageBrowser::slotJobResult(KJob *job)
 
     QPixmap *pm = new QPixmap();
     pm->loadFromData(storedTranferJob->data());
-
-    uint w = pm->width();
-    uint h = pm->height();
-    uint pad = 0;
-    uint hDesk = QApplication::desktop()->availableGeometry().height() - pad;
-
-    if(h > hDesk)
-        *pm = pm->scaled(w * hDesk / h, hDesk, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
-    m_Images.append(QPair<QPixmap*, DATA_SOURCE>(pm, m_SearchType));
-
-    //Add 50x50 image and URL to listbox
-    m_Ui->imageListWidget->addItem(new QListWidgetItem(QIcon(*pm), QString()));
+    scaleAndAddPixmap(pm);
 }
 
 void OnlineImageBrowser::slotUnset()
@@ -174,26 +176,26 @@ void OnlineImageBrowser::slotUnset()
 
 void OnlineImageBrowser::slotSave()
 {
-    int currentRow = m_Ui->imageListWidget->currentRow();
-    if(currentRow < 0 || currentRow >= m_Images.size()) {
-        return;
-    }
+//    int currentRow = m_Ui->imageListWidget->currentRow();
+//    if(currentRow < 0 || currentRow >= m_Images.size()) {
+//        return;
+//    }
 
-    KUrl fileUrl = KFileDialog::getSaveUrl(QDir::homePath(),
-                                           "image/png image/jpeg image/gif image/x-portable-pixmap image/bmp",
-                                           this);
-    if(!fileUrl.isValid()) {
-        return;
-    }
+//    KUrl fileUrl = KFileDialog::getSaveUrl(QDir::homePath(),
+//                                           "image/png image/jpeg image/gif image/x-portable-pixmap image/bmp",
+//                                           this);
+//    if(!fileUrl.isValid()) {
+//        return;
+//    }
 
-    QString fileName(fileUrl.toLocalFile());
-    QFile file(fileName);
-    file.open(QFile::WriteOnly);
+//    QString fileName(fileUrl.toLocalFile());
+//    QFile file(fileName);
+//    file.open(QFile::WriteOnly);
 
-    if(fileUrl.isValid()) {
-        QString extension = fileName.mid(fileName.lastIndexOf(".") + 1);
-        m_Images.at(currentRow).first->save(&file, extension.toLocal8Bit());
-    }
+//    if(fileUrl.isValid()) {
+//        QString extension = fileName.mid(fileName.lastIndexOf(".") + 1);
+//        m_Images.at(currentRow).first->save(&file, extension.toLocal8Bit());
+//    }
 }
 
 void OnlineImageBrowser::slotEdit()
@@ -206,9 +208,65 @@ void OnlineImageBrowser::clearImagesList()
     // Kill all running jobs
     killAllRunningJobs();
 
-
     m_Ui->imageLabel->clear();
     m_Ui->imageListWidget->clear();
+}
+
+void OnlineImageBrowser::readExistingImagesForCurrentSearch()
+{
+    switch(m_SearchType)
+    {
+    case ASTROBIN:
+    {
+        foreach(QPixmap *pixmap, m_AstrobinImages) {
+            scaleAndAddPixmap(pixmap);
+        }
+
+        break;
+    }
+    case GOOGLE_IMAGES:
+    {
+        foreach(QPixmap *pixmap, m_GoogleImages) {
+            scaleAndAddPixmap(pixmap);
+        }
+
+        break;
+    }
+    }
+}
+
+void OnlineImageBrowser::scaleAndAddPixmap(QPixmap *pixmap)
+{
+    uint w = pixmap->width();
+    uint h = pixmap->height();
+    uint pad = 0;
+    uint hDesk = QApplication::desktop()->availableGeometry().height() - pad;
+
+    if(h > hDesk) {
+        *pixmap = pixmap->scaled(w * hDesk / h, hDesk, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    }
+
+    switch(m_SearchType)
+    {
+    case ASTROBIN:
+    {
+        m_AstrobinImages.append(pixmap);
+        break;
+    }
+    case GOOGLE_IMAGES:
+    {
+        m_GoogleImages.append(pixmap);
+        break;
+    }
+    default:
+    {
+        delete pixmap;
+        return;
+    }
+    }
+
+    //Add 50x50 image and URL to listbox
+    m_Ui->imageListWidget->addItem(new QListWidgetItem(QIcon(*pixmap), QString()));
 }
 
 void OnlineImageBrowser::killAllRunningJobs()
@@ -219,13 +277,4 @@ void OnlineImageBrowser::killAllRunningJobs()
 
     m_Jobs.clear();
 }
-
-void OnlineImageBrowser::deleteImages()
-{
-    QPair<QPixmap*, DATA_SOURCE> image;
-    foreach(image, m_Images) {
-        delete image.first;
-    }
-}
-
 

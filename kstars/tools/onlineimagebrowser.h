@@ -61,8 +61,9 @@ private:
     };
 
     void clearImagesList();
+    void readExistingImagesForCurrentSearch();
+    void scaleAndAddPixmap(QPixmap *pixmap);
     void killAllRunningJobs();
-    void deleteImages();
 
     OnlineImageBrowser_ui *m_Ui;
 
@@ -74,7 +75,8 @@ private:
     SkyObject *m_Object;
 
     DATA_SOURCE m_SearchType;
-    QList<QPair<QPixmap*, DATA_SOURCE> > m_Images;
+    QList<QPixmap*> m_AstrobinImages;
+    QList<QPixmap*> m_GoogleImages;
     QList<KIO::StoredTransferJob*> m_Jobs;
 };
 

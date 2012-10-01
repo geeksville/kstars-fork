@@ -59,7 +59,7 @@
 #include "dialogs/finddialog.h"
 #include "tools/altvstime.h"
 #include "tools/wutdialog.h"
-#include "dialogs/onlineimagebrowser.h"
+#include "tools/onlineimagebrowser.h"
 #include "Options.h"
 #include "imageviewer.h"
 #include "thumbnailpicker.h"

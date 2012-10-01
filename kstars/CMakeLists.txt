@@ -143,6 +143,7 @@ set(libkstarstools_SRCS
 	tools/flagmanager.cpp
 	tools/moonphasetool.cpp
 	tools/starhopper.cpp
+        tools/onlineimagebrowser.cpp
 	)
 
 kde4_add_ui_files(libkstarstools_SRCS
@@ -203,6 +204,7 @@ kde4_add_ui_files(libkstarstools_SRCS
 	tools/skycalendar.ui
 	tools/wutdialog.ui
 	tools/flagmanager.ui
+        tools/onlineimagebrowser.ui
         )
 
 
@@ -323,7 +325,6 @@ set(kstars_dialogs_SRCS
   dialogs/locationdialog.cpp
   dialogs/timedialog.cpp
   dialogs/exportimagedialog.cpp
-  dialogs/onlineimagebrowser.cpp
 )
 
 set(kstars_dialogsui_SRCS
@@ -344,7 +345,6 @@ set(kstars_dialogsui_SRCS
   dialogs/wizdownload.ui
   dialogs/newfov.ui
   dialogs/exportimagedialog.ui
-  dialogs/onlineimagebrowser.ui
 )
 
 set(kstars_projection_SRCS
