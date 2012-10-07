@@ -28,7 +28,7 @@ SkyGuides::SkyGuides(QWidget *parent,int parentWidth,int parentHeight) : QObject
 
     ctxt1 = qmlview->rootContext();
     ctxt1->setContextProperty("feedModel",guides);
-    ctxt1->setContextProperty("slidesmodel",guides);
+   // ctxt1->setContextProperty("slidesmodel",guides);
     ctxt1->setContextProperty("w",(parentWidth*0.22));
     ctxt1->setContextProperty("h",(parentHeight*0.88));
 //    ctxt1->setContextProperty("background",KStandardDirs::locate( "appdata" , "skyguides_bg.png"));
@@ -49,9 +49,9 @@ SkyGuides::SkyGuides(QWidget *parent,int parentWidth,int parentHeight) : QObject
 //     ctxt1->setContextProperty("trial_img3",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
 
  ctxt1->setContextProperty("thumbimage","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
- ctxt1->setContextProperty("trial_img1","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
- ctxt1->setContextProperty("trial_img2","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
- ctxt1->setContextProperty("trial_img3","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
+// ctxt1->setContextProperty("trial_img1","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
+// ctxt1->setContextProperty("trial_img2","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
+// ctxt1->setContextProperty("trial_img3","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
 
 
 
@@ -71,7 +71,7 @@ imageview->setSource(QUrl("/home/rmr/kde/src/kstars/kstars/data/imagepanel.qml")
     connect(guidesListObj, SIGNAL(viewImagesClicked(int,int)), this, SLOT(onViewImagesClicked(int,int)));
     connect(guidesListObj, SIGNAL(backButtonClicked()), this, SLOT(onBackButtonClicked()));
 
-    slidesListObj = baseObject->findChild<QObject *>("slidesList");
+  //  slidesListObj = baseObject->findChild<QObject *>("slidesList");
 
 
     closeButtonObj = baseObject2->findChild<QObject *>("closebutton");

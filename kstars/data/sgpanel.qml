@@ -76,9 +76,9 @@ Rectangle {
             MouseArea {
                 anchors.fill: parent
                 onClicked:{
-                    guidesView.guidesClicked(index);
-                    window.guidesOpacity=0;
-                    window.slidesOpacity=1;
+//                    guidesView.guidesClicked(index);
+//                    window.guidesOpacity=0;
+//                    window.slidesOpacity=1;
                 }
             }
 
@@ -124,120 +124,140 @@ Rectangle {
 
     }
 
-    Component{
+    Component {
         id:slidesdelegate
 
         Item {
-            id: sdelegate
-            height: scolumn.childrenRect.height
+            id: slides
+            height: window.height - guidesView.y
             width: sdelegate.ListView.view.width
 
-            Column{
-                id:scolumn
-                //width: parent.width-40;
-                anchors.left: parent.left
-                anchors.right: parent.right
-                
-                Text {
-                    id: description
-                    text: model.title
-                }
-
-                //                Rectangle {
-                //                    id:viewimages
-                //                    height: 20
-                //                    width: 70
-                //                    color: "#000000"
-
-                //                    Text {
-                //                        id: backtext
-                //                        text: "View Images"
-                //                        color: "#ffffff"
-                //                    }
-
-                //                    MouseArea {
-                //                        id:view
-                //                        anchors.fill: parent
-                //                        onClicked: {
-                //                            slidesView.viewImagesClicked(index);
-                //                        }
-                //                    }
-
-                //                }
-//                    ListView {
-//                    id:inner
-//                    model: model1
-//                    delegate: delegate2
-//                    contentHeight: contentItem.childrenRect.height
-//                    height: childrenRect.height
-//                    anchors.left: parent.left
-//                    anchors.right: parent.right
-//                    clip: true
-//                }
-            }
-
             Rectangle {
-                width: parent.width;
-                height: 2 * sizefactor;
-                color: "#000000"
-                anchors.bottom: slidesdelegate.bottom
+                id:slideText
+                color: "#ffffff"
+                x:30
+                height:parent.height -100
+                width: parent.width
+
             }
+
         }
     }
 
+//    Component{
+//        id:slidesdelegate
 
-    ListModel {
-        id:model1
+//        Item {
+//            id: sdelegate
+//            height: scolumn.childrenRect.height
+//            width: sdelegate.ListView.view.width
 
-        ListElement {
-            name: "/home/rmr/images.jpeg"
-        }
-        ListElement {
-            name: "/home/rmr/images.jpeg"
-        }
-        ListElement {
-            name: "/home/rmr/images.jpeg"
-        }
-    }
-
-    Component {
-        id: delegate2
-
-        Item {
-            width: 100 * sizefactor;
-            height: col2.childrenRect.height
-
-            MouseArea {
-                id:mclick
-                anchors.fill: parent
-                onClicked: {
-                    console.log("hai....")
-                    //guidesView.addNewGuidesClicked()
-                           // slidesView.viewImagesClicked(index);
-                    guidesView.viewImagesClicked(parent.index,index);
-                }
-            }
-
-            Column {
-                id: col2
-                anchors.left: parent.left
-                anchors.right: parent.right
+//            Column{
+//                id:scolumn
+//                //width: parent.width-40;
+//                anchors.left: parent.left
+//                anchors.right: parent.right
+                
 //                Text {
-//                    id: name1
-//                    text: name
+//                    id: description
+//                    text: model.title
 //                }
-                Image {
-                    id: iname
-                    width: 50 * sizefactor;
-                    height: 50 * sizefactor;
-                    source: name
+
+//                //                Rectangle {
+//                //                    id:viewimages
+//                //                    height: 20
+//                //                    width: 70
+//                //                    color: "#000000"
+
+//                //                    Text {
+//                //                        id: backtext
+//                //                        text: "View Images"
+//                //                        color: "#ffffff"
+//                //                    }
+
+//                //                    MouseArea {
+//                //                        id:view
+//                //                        anchors.fill: parent
+//                //                        onClicked: {
+//                //                            slidesView.viewImagesClicked(index);
+//                //                        }
+//                //                    }
+
+//                //                }
+////                    ListView {
+////                    id:inner
+////                    model: model1
+////                    delegate: delegate2
+////                    contentHeight: contentItem.childrenRect.height
+////                    height: childrenRect.height
+////                    anchors.left: parent.left
+////                    anchors.right: parent.right
+////                    clip: true
+////                }
+//            }
+
+//            Rectangle {
+//                width: parent.width;
+//                height: 2 * sizefactor;
+//                color: "#000000"
+//                anchors.bottom: slidesdelegate.bottom
+//            }
+//        }
+//    }
 
 
-                    }
-                }
+//    ListModel {
+//        id:model1
 
-            }
-        }
+//        ListElement {
+//            name: "/home/rmr/images.jpeg"
+//        }
+//        ListElement {
+//            name: "/home/rmr/images.jpeg"
+//        }
+//        ListElement {
+//            name: "/home/rmr/images.jpeg"
+//        }
+//    }
+
+//    Component {
+//        id: delegate2
+
+//        Item {
+//            width: 100 * sizefactor;
+//            height: col2.childrenRect.height
+
+//            MouseArea {
+//                id:mclick
+//                anchors.fill: parent
+//                onClicked: {
+//                    console.log("hai....")
+//                    //guidesView.addNewGuidesClicked()
+//                           // slidesView.viewImagesClicked(index);
+//                    guidesView.viewImagesClicked(parent.index,index);
+//                }
+//            }
+
+//            Column {
+//                id: col2
+//                anchors.left: parent.left
+//                anchors.right: parent.right
+////                Text {
+////                    id: name1
+////                    text: name
+////                }
+//                Image {
+//                    id: iname
+//                    width: 50 * sizefactor;
+//                    height: 50 * sizefactor;
+//                    source: name
+
+
+//                    }
+//                }
+
+//            }
+//        }
 
 
     ListView {
