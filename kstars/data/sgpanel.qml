@@ -103,7 +103,7 @@ Rectangle {
                     Text {
                         id: title
                         text: model.title; width: parent.width; wrapMode: Text.WordWrap
-                        font { bold: true; family: "Helvetica"; pointSize: 10*sizefactor; }
+                        font { bold: true; family: "Helvetica";  }
                          color:"#ffffff"
                     }
 
@@ -164,16 +164,16 @@ Rectangle {
                 //                    }
 
                 //                }
-                ListView {
-                    id:inner
-                    model: model1
-                    delegate: delegate2
-                    contentHeight: contentItem.childrenRect.height
-                    height: childrenRect.height
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    clip: true
-                }
+//                    ListView {
+//                    id:inner
+//                    model: model1
+//                    delegate: delegate2
+//                    contentHeight: contentItem.childrenRect.height
+//                    height: childrenRect.height
+//                    anchors.left: parent.left
+//                    anchors.right: parent.right
+//                    clip: true
+//                }
             }
 
             Rectangle {
@@ -244,7 +244,7 @@ Rectangle {
 
         id: guidesView
         objectName: "guidesList"
-        y:40 * sizefactor;
+        y:400 * sizefactor;
         width: parent.width
         height: parent.height-40
         model: feedModel
@@ -319,8 +319,7 @@ Rectangle {
             text: "NEW"
 	    y:10 * sizefactor
             color: "#ffffff"
-	    font { bold: true; family: "Helvetica"; pointSize: 10*sizefactor; }
-        }
+            font { bold: true; family: "Helvetica"; }
 
         MouseArea {
             id:addnewbutton
@@ -330,9 +329,5 @@ Rectangle {
             }
         }
     }
-
-
 }
-
-
-
+}

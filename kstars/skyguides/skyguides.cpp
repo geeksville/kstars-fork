@@ -16,7 +16,8 @@ SkyGuides::SkyGuides(QWidget *parent,int parentWidth,int parentHeight) : QObject
     KStandardDirs ksd;
     guidesdocument = new GuidesDocument();
 
-    guidesdocument->readBegin(KStandardDirs::locate( "appdata" , "skyguides.xml" ));
+//    guidesdocument->readBegin(KStandardDirs::locate( "appdata" , "skyguides.xml" ));
+    guidesdocument->readBegin("/home/rmr/skyguidetrial.xml");
     guides = new GuidesListModel(guidesdocument->m_Guides);
 
     qmlview = new QDeclarativeView(parent);
@@ -30,26 +31,35 @@ SkyGuides::SkyGuides(QWidget *parent,int parentWidth,int parentHeight) : QObject
     ctxt1->setContextProperty("slidesmodel",guides);
     ctxt1->setContextProperty("w",(parentWidth*0.22));
     ctxt1->setContextProperty("h",(parentHeight*0.88));
-    ctxt1->setContextProperty("background",KStandardDirs::locate( "appdata" , "skyguides_bg.png"));
-    ctxt1->setContextProperty("sgsideselect",KStandardDirs::locate( "appdata" , "skyguides_side.png"));
+//    ctxt1->setContextProperty("background",KStandardDirs::locate( "appdata" , "skyguides_bg.png"));
+//    ctxt1->setContextProperty("sgsideselect",KStandardDirs::locate( "appdata" , "skyguides_side.png"));
 
+
+    ctxt1->setContextProperty("background","/home/rmr/kde/src/kstars/kstars/data/skyguides_bg.png");
+    ctxt1->setContextProperty("sgsideselect","/home/rmr/kde/src/kstars/kstars/data/skyguides_side.png");
 
     ctxt2 = imageview->rootContext();
-    ctxt2->setContextProperty("trialImage",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+  //  ctxt2->setContextProperty("trialImage",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+ ctxt2->setContextProperty("trialImage","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
     //these are just for testing purposes
 
-     ctxt1->setContextProperty("thumbimage",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
-     ctxt1->setContextProperty("trial_img1",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
-     ctxt1->setContextProperty("trial_img2",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
-     ctxt1->setContextProperty("trial_img3",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+//     ctxt1->setContextProperty("thumbimage",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+//     ctxt1->setContextProperty("trial_img1",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+//     ctxt1->setContextProperty("trial_img2",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+//     ctxt1->setContextProperty("trial_img3",KStandardDirs::locate( "appdata" , "trial_img.jpeg"));
+
+ ctxt1->setContextProperty("thumbimage","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
+ ctxt1->setContextProperty("trial_img1","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
+ ctxt1->setContextProperty("trial_img2","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
+ ctxt1->setContextProperty("trial_img3","/home/rmr/kde/src/kstars/kstars/data/trial_img.jpeg");
 
 
 
    // FileName = KStandardDirs::locate("data","kstars/sgpanel.qml");
-    qmlview->setSource(QUrl(KStandardDirs::locate( "appdata" , "sgpanel.qml" )));
-
-    imageview->setSource(QUrl(KStandardDirs::locate( "appdata" , "imagepanel.qml" )));
-
+//    qmlview->setSource(QUrl(KStandardDirs::locate( "appdata" , "sgpanel.qml" )));
+ qmlview->setSource(QUrl("/home/rmr/kde/src/kstars/kstars/data/sgpanel.qml"));
+//    imageview->setSource(QUrl(KStandardDirs::locate( "appdata" , "imagepanel.qml" )));
+imageview->setSource(QUrl("/home/rmr/kde/src/kstars/kstars/data/imagepanel.qml"));
     imageview->hide();
 
     baseObject = qobject_cast<QObject *> (qmlview->rootObject());
@@ -105,7 +115,9 @@ void SkyGuides::onAddNewGuidesClicked()
     newfile.open(QIODevice::ReadOnly);
     QFile guidesdocloc;
 
-    QString FileName = KStandardDirs::locate( "appdata", "skyguides.xml" );
+//    QString FileName = KStandardDirs::locate( "appdata", "skyguides.xml" );
+    QString FileName = "/home/rmr/kde/src/kstars/kstars/data/skyguides.xml";
+
     guidesdocloc.setFileName(FileName);
 
   //  guidesdocloc.setFileName("/home/rmr/kstars/kstars/data/skyguides.xml");
@@ -166,7 +178,9 @@ void SkyGuides::reload()
         delete slides;
 
     guidesdocument = new GuidesDocument();
-    QString FileName = KStandardDirs::locate( "appdata", "skyguides.xml" );
+//    QString FileName = KStandardDirs::locate( "appdata", "skyguides.xml" );
+    QString FileName = "/home/rmr/kde/src/kstars/kstars/data/skyguides.xml";
+
 
     guidesdocument->readBegin(FileName);
 
