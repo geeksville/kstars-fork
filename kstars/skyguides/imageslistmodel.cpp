@@ -9,9 +9,9 @@ using namespace SkyGuidesSpace;
 
 const int ImagesListModel::imagerole = Qt::UserRole + 1;
 
-ImagesListModel::ImagesListModel(QList<Guide *> glist, QObject *parent) : QAbstractListModel(parent)
+ImagesListModel::ImagesListModel(Slide * g, QObject *parent) : QAbstractListModel(parent)
 {
-    guideslist= glist;
+    slide = g;
 
    // QHash roles = roleNames();
 
@@ -24,17 +24,29 @@ ImagesListModel::ImagesListModel(QList<Guide *> glist, QObject *parent) : QAbstr
 QVariant ImagesListModel::data(const QModelIndex &index, int role) const
 {
 
+    if (index.row() < 0 || index.row() > rowCount())
         return QVariant();
 
+    if(role==imagerole)
+    {
+        qDebug()<<"index.row="<<index.row();
+        qDebug()<<"index.col="<<index.column();
 
+        return slide->m_Images[index.row()]->m_Url;
+    }
+    else
+        return QVariant();
 
 }
 
 int ImagesListModel::rowCount( const QModelIndex& parent ) const
 {
+    qDebug()<<"size="<<slide->m_Images.size();
+    return slide->m_Images.size();
+
 //    if(currentIndex!=-1)
 //    {
 //        return guideslist[currentIndex]->m_Slides[]
 //    }
-    return 0;
+//    return 0;
 }

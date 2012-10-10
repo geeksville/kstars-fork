@@ -2,9 +2,11 @@
 #include "guidesdocument.h"
 #include "guideslistmodel.h"
 #include "slideslistmodel.h"
+#include "imageslistmodel.h"
 #include "qglobal.h"
 #include "kstandarddirs.h"
 #include "guide.h"
+#include "slide.h"
 
 #include <QGraphicsObject>
 
@@ -12,6 +14,9 @@ using namespace SkyGuidesSpace;
 
 SkyGuides::SkyGuides(QWidget *parent,int parentWidth,int parentHeight) : QObject(parent)
 {
+
+    currentGuideIndex=0;
+    currentSlideIndex=0;
 
     KStandardDirs ksd;
     guidesdocument = new GuidesDocument();
@@ -28,6 +33,11 @@ SkyGuides::SkyGuides(QWidget *parent,int parentWidth,int parentHeight) : QObject
 
     ctxt1 = qmlview->rootContext();
     ctxt1->setContextProperty("feedModel",guides);
+
+    noOfSlides = guidesdocument->m_Guides[currentGuideIndex]->m_Slides.count();
+    showSlide(guidesdocument->m_Guides[currentGuideIndex]->m_Slides[currentSlideIndex]);
+
+
    // ctxt1->setContextProperty("slidesmodel",guides);
     ctxt1->setContextProperty("w",(parentWidth*0.22));
     ctxt1->setContextProperty("h",(parentHeight*0.88));
@@ -68,8 +78,11 @@ imageview->setSource(QUrl("/home/rmr/kde/src/kstars/kstars/data/imagepanel.qml")
     guidesListObj = baseObject->findChild<QObject *>("guidesList");
     connect(guidesListObj, SIGNAL(guidesClicked(int)), this, SLOT(onguidesClicked(int)));
     connect(guidesListObj,SIGNAL(addNewGuidesClicked()),this,SLOT(onAddNewGuidesClicked()));
-    connect(guidesListObj, SIGNAL(viewImagesClicked(int,int)), this, SLOT(onViewImagesClicked(int,int)));
-    connect(guidesListObj, SIGNAL(backButtonClicked()), this, SLOT(onBackButtonClicked()));
+    connect(guidesListObj,SIGNAL(nextSlideClicked()),this,SLOT(onNextSlideClicked()));
+    connect(guidesListObj,SIGNAL(previousSlideClicked()),this,SLOT(onPreviousSlideClicked()));
+
+    // connect(guidesListObj, SIGNAL(viewImagesClicked(int,int)), this, SLOT(onViewImagesClicked(int,int)));
+   // connect(guidesListObj, SIGNAL(backButtonClicked()), this, SLOT(onBackButtonClicked()));
 
   //  slidesListObj = baseObject->findChild<QObject *>("slidesList");
 
@@ -83,22 +96,58 @@ imageview->setSource(QUrl("/home/rmr/kde/src/kstars/kstars/data/imagepanel.qml")
 void SkyGuides::onguidesClicked(int index)
 {
 
-    slides = new SlidesListModel(guidesdocument->m_Guides);
-    slides->currentIndex = (guides->rowCount()-1)-index;
-    ctxt1->setContextProperty("slidesmodel",slides);
+    //slides = new SlidesListModel(guidesdocument->m_Guides);
+    //slides->currentIndex = (guides->rowCount()-1)-index;
+    //ctxt1->setContextProperty("slidesmodel",slides);
+    currentGuideIndex = index;
+    currentSlideIndex = 0;
+    showSlide(guidesdocument->m_Guides[currentGuideIndex]->m_Slides[currentSlideIndex]);
 
 }
 
-void SkyGuides::onBackButtonClicked()
+void SkyGuides::onNextSlideClicked()
 {
-    delete slides;
+    if((currentSlideIndex)<noOfSlides)
+    {
+        showSlide(guidesdocument->m_Guides[currentGuideIndex]->m_Slides[currentSlideIndex++]);
+        qDebug()<<"slideindex = "<<currentSlideIndex;
+    }
 }
+
+void SkyGuides::onPreviousSlideClicked()
+{
+    if((currentSlideIndex)>0)
+    {
+        qDebug()<<"slideindex = "<<currentSlideIndex;
+        showSlide(guidesdocument->m_Guides[currentGuideIndex]->m_Slides[--currentSlideIndex]);
+    }
+
+}
+
+void SkyGuides::showSlide(Slide *slide)
+{
+    ctxt1->setContextProperty("slidetext",slide->text());
+    images = new ImagesListModel(slide);
+    ctxt1->setContextProperty("imageModel",images);
+}
+
+void SkyGuides::showSlideImages(Slide* slide)
+{
+    images = new ImagesListModel(slide);
+    ctxt1->setContextProperty("imageModel",images);
+}
+
+//void SkyGuides::onBackButtonClicked()
+//{
+//    delete slides;
+//}
 
 void SkyGuides::onViewImagesClicked(int slideindex,int imageindex)
 {
     imageview->show();
     imageview->move(500,200);
 }
+
 void SkyGuides::onCloseButtonClicked()
 {
     imageview->close();

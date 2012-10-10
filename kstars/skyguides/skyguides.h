@@ -26,19 +26,26 @@ public:
     GuidesDocument* guidesdocument;
     GuidesListModel *guides ;
     SlidesListModel *slides;
+    ImagesListModel  *images;
     void reload();
     void resize(int,int);
     void deleteall();
+    void showSlideImages(Slide* slide);
+    void showSlide(Slide* slide);
 
 public slots:
     void onguidesClicked(int index);
-    void onBackButtonClicked();
+  //  void onBackButtonClicked();
     void onViewImagesClicked(int slideIndex,int imageIndex);
     void onAddNewGuidesClicked();
     void onCloseButtonClicked();
-
+    void onNextSlideClicked();
+    void onPreviousSlideClicked();
 
 private:
+    int noOfSlides;
+    int currentGuideIndex;
+    int currentSlideIndex;
     QObject *baseObject,*guidesListObj,*slidesListObj,*closeButtonObj,*baseObject2;
     QDeclarativeView *qmlview;
     QDeclarativeView *imageview;
