@@ -1,3 +1,20 @@
+/***************************************************************************
+                          onlineimagebrowser.h  -  K Desktop Planetarium
+                             -------------------
+    begin                : Mon Sept 10 2012
+    copyright            : (C) 2012 by Lukasz Jaskiewicz and Rafal Kulaga
+    email                : lucas.jaskiewicz@gmail.com, rl.kulaga@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #ifndef ONLINEIMAGEBROWSER_H
 #define ONLINEIMAGEBROWSER_H
 
@@ -61,7 +78,7 @@ private:
     };
 
     void clearImagesList();
-    void readExistingImagesForCurrentSearch();
+    void readExistingImagesForCurrentSearchType();
     void scaleAndAddPixmap(QPixmap *pixmap);
     void killAllRunningJobs();
 

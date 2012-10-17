@@ -1,3 +1,20 @@
+/***************************************************************************
+                          onlineimagebrowser.cpp  -  K Desktop Planetarium
+                             -------------------
+    begin                : Mon Sept 10 2012
+    copyright            : (C) 2012 by Lukasz Jaskiewicz and Rafal Kulaga
+    email                : lucas.jaskiewicz@gmail.com, rl.kulaga@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #include "onlineimagebrowser.h"
 
 #include "services/astrobin/astrobinapi.h"
@@ -25,7 +42,7 @@ OnlineImageBrowser_ui::OnlineImageBrowser_ui(QWidget *parent)
 }
 
 OnlineImageBrowser::OnlineImageBrowser(SkyObject *obj, bool thumbnailPickMode, QWidget *parent)
-    : KDialog(parent), m_ThumbnailPickMode(thumbnailPickMode), m_Object(obj), m_SearchType(ASTROBIN)
+    : KDialog(parent), m_ThumbnailPickMode(thumbnailPickMode), m_Object(obj), m_SearchType(GOOGLE_IMAGES)
 {
     m_Ui = new OnlineImageBrowser_ui(this);
     setMainWidget(m_Ui);
@@ -78,7 +95,7 @@ void OnlineImageBrowser::slotAstrobinSearch()
     clearImagesList();
 
     m_SearchType = ASTROBIN;
-    readExistingImagesForCurrentSearch();
+    readExistingImagesForCurrentSearchType();
     m_AstrobinApi->searchObjectImages(m_Object->name());
 }
 
@@ -107,7 +124,7 @@ void OnlineImageBrowser::slotGoogleSearch()
     clearImagesList();
 
     m_SearchType = GOOGLE_IMAGES;
-    readExistingImagesForCurrentSearch();
+    readExistingImagesForCurrentSearchType();
     m_GImagesApi->searchObjectImages(m_Object);
 }
 
@@ -205,14 +222,13 @@ void OnlineImageBrowser::slotEdit()
 
 void OnlineImageBrowser::clearImagesList()
 {
-    // Kill all running jobs
     killAllRunningJobs();
 
     m_Ui->imageLabel->clear();
     m_Ui->imageListWidget->clear();
 }
 
-void OnlineImageBrowser::readExistingImagesForCurrentSearch()
+void OnlineImageBrowser::readExistingImagesForCurrentSearchType()
 {
     switch(m_SearchType)
     {
