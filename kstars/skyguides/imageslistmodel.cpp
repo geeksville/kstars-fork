@@ -13,8 +13,6 @@ ImagesListModel::ImagesListModel(Slide * g, QObject *parent) : QAbstractListMode
 {
     slide = g;
 
-   // QHash roles = roleNames();
-
       roles.insert(imagerole, QByteArray("image"));
 
       setRoleNames(roles);
@@ -29,9 +27,6 @@ QVariant ImagesListModel::data(const QModelIndex &index, int role) const
 
     if(role==imagerole)
     {
-        qDebug()<<"index.row="<<index.row();
-        qDebug()<<"index.col="<<index.column();
-
         return slide->m_Images[index.row()]->m_Url;
     }
     else
@@ -41,7 +36,6 @@ QVariant ImagesListModel::data(const QModelIndex &index, int role) const
 
 int ImagesListModel::rowCount( const QModelIndex& parent ) const
 {
-    qDebug()<<"size="<<slide->m_Images.size();
     return slide->m_Images.size();
 
 //    if(currentIndex!=-1)

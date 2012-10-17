@@ -10,12 +10,14 @@
 #include <QFile>
 #include <QList>
 #include <QTextStream>
+#include <QImage>
 
 #include <KUrl>
 #include <KFileDialog>
 
 #include "skyguidesspace.h"
 #include "ksutils.h"
+#include "imageviewer.h"
 
 class SkyGuidesSpace::SkyGuides : public QObject
 {
@@ -35,8 +37,7 @@ public:
 
 public slots:
     void onguidesClicked(int index);
-  //  void onBackButtonClicked();
-    void onViewImagesClicked(int slideIndex,int imageIndex);
+    void onViewImagesClicked(int imageIndex);
     void onAddNewGuidesClicked();
     void onCloseButtonClicked();
     void onNextSlideClicked();
@@ -51,6 +52,9 @@ private:
     QDeclarativeView *imageview;
     QDeclarativeContext *ctxt1;
     QDeclarativeContext *ctxt2;
+    ImageViewer *imageviewer;
+    Image *currentImage;
+    QImage *qimage;
     KUrl newguidesloc;
     QFile newguides;
     QList<Guide*> allguideslist;
