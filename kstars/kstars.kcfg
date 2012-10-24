@@ -1183,5 +1183,25 @@
       <label>Default Focuser driver</label>
     </entry>
   </group>
-
+  <group name="AstroBinApi">
+    <entry name="AstroBinApiVersion" type="Enum">
+      <choices>
+	<choice name="AstroBinVersionXML">
+	  <label>XML</label>
+	</choice>
+	<choice name="AstroBinVersionJSON">
+	  <label>JSON</label>
+	</choice>
+      </choices>
+      <default>JSON</default>
+    </entry>
+    <entry name="AstroBinApiKey" type="String">
+      <label>AstroBin.com API key</label>
+      <default>key</default>
+    </entry>
+    <entry name="AstroBinApiSecret" type="String">
+      <label>AstroBin.com API secret</label>
+      <default>key</default>
+    </entry>
+  </group>
 </kcfg>

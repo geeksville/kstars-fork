@@ -55,6 +55,7 @@
 #include "options/opssupernovae.h"
 #include "options/opscolors.h"
 #include "options/opsadvanced.h"
+#include "options/opsastrobinapi.h"
 
 #include "Options.h"
 #include "kstars.h"
@@ -431,6 +432,7 @@ void KStars::slotViewOps() {
     opssupernovae= new OpsSupernovae( this );
     opcolors     = new OpsColors( this );
     opadvanced   = new OpsAdvanced( this );
+    opsastrobin  = new OpsAstroBinApi( this );
 
     dialog->addPage(opcatalog, i18n("Catalogs"), "kstars_catalog");
     dialog->addPage(opsolsys, i18n("Solar System"), "kstars_solarsystem");
@@ -450,6 +452,8 @@ void KStars::slotViewOps() {
 #endif
 
     dialog->addPage(opadvanced, i18n("Advanced"), "kstars_advanced");
+
+    dialog->addPage(opsastrobin, i18n("AstroBin.com API"), "kstars_astrobinapi");
 
     dialog->setHelp(QString(), "kstars");
     dialog->show();

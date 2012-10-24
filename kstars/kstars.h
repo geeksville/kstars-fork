@@ -63,6 +63,7 @@ class OpsSupernovae;
 class OpsColors;
 class OpsAdvanced;
 class OpsINDI;
+class OpsAstroBinApi;
 class EkosManager;
 #ifdef HAVE_XPLANET
 class OpsXplanet;
@@ -661,6 +662,7 @@ private:
     OpsColors *opcolors;
     OpsAdvanced *opadvanced;
     OpsINDI *opsindi;
+    OpsAstroBinApi *opsastrobin;
 #ifdef HAVE_XPLANET
     OpsXplanet  *opsxplanet;
 #endif
