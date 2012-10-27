@@ -1193,7 +1193,7 @@
 	  <label>JSON</label>
 	</choice>
       </choices>
-      <default>JSON</default>
+      <default>AstroBinVersionXML</default>
     </entry>
     <entry name="AstroBinApiKey" type="String">
       <label>AstroBin.com API key</label>

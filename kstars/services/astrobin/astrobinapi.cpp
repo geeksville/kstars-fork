@@ -17,6 +17,8 @@
 
 #include "astrobinapi.h"
 
+#include "Options.h"
+
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 
@@ -24,8 +26,8 @@ AstroBinApi::AstroBinApi(QNetworkAccessManager *manager, QObject *parent)
     : QObject(parent), m_NetworkManager(manager), m_ResultsLimit(20), m_Offset(0)
 {
     m_UrlBase = "http://www.astrobin.com/api/v1/";
-    m_ApiKey = "ad77ef2a21e5b1bca8ff1d513e4be74746e912dd";
-    m_ApiSecret = "ab40f034595be072eec052687d4656de3c361415";
+    m_ApiKey = Options::astroBinApiKey();
+    m_ApiSecret = Options::astroBinApiSecret();
 
     connect(m_NetworkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
 }

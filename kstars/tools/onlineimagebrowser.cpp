@@ -19,9 +19,12 @@
 
 #include "services/astrobin/astrobinapi.h"
 #include "services/astrobin/astrobinapijson.h"
+#include "services/astrobin/astrobinapixml.h"
 #include "services/gimagessearch.h"
 
+#include "Options.h"
 #include "skyobject.h"
+
 
 #include <kio/copyjob.h>
 #include <kio/netaccess.h>
@@ -59,7 +62,19 @@ OnlineImageBrowser::OnlineImageBrowser(SkyObject *obj, bool thumbnailPickMode, Q
     m_NetworkManager = new QNetworkAccessManager(this);
 
     // Create AstroBinApi
-    m_AstrobinApi = new AstroBinApiJson(m_NetworkManager, this);
+    switch(Options::astroBinApiVersion())
+    {
+    case Options::EnumAstroBinApiVersion::AstroBinVersionJSON:
+    {
+        m_AstrobinApi = new AstroBinApiJson(m_NetworkManager, this);
+        break;
+    }
+    default:
+    {
+        m_AstrobinApi = new AstroBinApiXml(m_NetworkManager, this);
+    }
+    }
+
 
     // Create Google Images Api
     m_GImagesApi = new GImagesSearch(m_NetworkManager, this);
