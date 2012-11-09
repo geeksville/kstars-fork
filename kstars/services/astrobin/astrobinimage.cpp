@@ -19,15 +19,15 @@
 
 QUrl AstroBinImage::downloadUrl() const
 {
-    return QUrl("http://s3.amazonaws.com/astrobin_images/" + fileName() + originalFileExtension());
+    return QUrl("http://cdn.astrobin.com/images/" + fileName() + originalFileExtension());
 }
 
 QUrl AstroBinImage::downloadResizedUrl() const
 {
-    return QUrl("http://s3.amazonaws.com/astrobin_images/" + fileName() + "_resized" + originalFileExtension());
+    return QUrl("http://cdn.astrobin.com/images/" + fileName() + "_resized" + originalFileExtension());
 }
 
 QUrl AstroBinImage::downloadThumbnailUrl() const
 {
-    return QUrl("http://s3.amazonaws.com/astrobin_images/" + fileName() + "_thumb.png");
+    return QUrl("http://cdn.astrobin.com/images/" + fileName() + "_thumb.png");
 }
