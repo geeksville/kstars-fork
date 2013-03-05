@@ -69,76 +69,53 @@ void DeepSkyComponent::loadData()
 
     QList<KSParser::DataTypes> pattern;
     QList< QPair<QString,KSParser::DataTypes> > sequence;
-    QList<int> widths;
+    
+    //Description Available at http://www.klima-luft.de/steinicke/index_e.htm
     sequence.append(qMakePair(QString("Flag"), KSParser::D_QSTRING));
-    widths.append(1);
-
     sequence.append(qMakePair(QString("ID"), KSParser::D_INT));
-    widths.append(4);
-
-    sequence.append(qMakePair(QString("suffix"), KSParser::D_QSTRING));
-    widths.append(1);
-
+    sequence.append(qMakePair(QString("A"), KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("C"), KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("D"), KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("S"), KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("P"), KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("CON"), KSParser::D_QSTRING));
     sequence.append(qMakePair(QString("RA_H"), KSParser::D_INT));
-    widths.append(2);
-
     sequence.append(qMakePair(QString("RA_M"),KSParser::D_INT));
-    widths.append(2);
-
     sequence.append(qMakePair(QString("RA_S"),KSParser::D_FLOAT));
-    widths.append(4);
-
     sequence.append(qMakePair(QString("D_Sign"),KSParser::D_QSTRING));
-    widths.append(2);
-
     sequence.append(qMakePair(QString("Dec_d"),KSParser::D_INT));
-    widths.append(2);
-
     sequence.append(qMakePair(QString("Dec_m"),KSParser::D_INT));
-    widths.append(2);
-
     sequence.append(qMakePair(QString("Dec_s"),KSParser::D_INT));
-    widths.append(2);
-
     sequence.append(qMakePair(QString("BMag"),KSParser::D_QSTRING));
-    widths.append(6);
-
-    sequence.append(qMakePair(QString("type"),KSParser::D_INT));
-    widths.append(2);
-
+    sequence.append(qMakePair(QString("VMAG"),KSParser::D_FLOAT));
+    //TODO (spacetime): Have we been using the Blue Magnitude all along?
+    sequence.append(qMakePair(QString("B-V"),KSParser::D_FLOAT));
+    sequence.append(qMakePair(QString("SB"),KSParser::D_FLOAT));
     sequence.append(qMakePair(QString("a"),KSParser::D_FLOAT));
-    widths.append(6);
-
     sequence.append(qMakePair(QString("b"),KSParser::D_FLOAT));
-    widths.append(6);
-
     sequence.append(qMakePair(QString("pa"),KSParser::D_QSTRING));
-    widths.append(4);
-
+    sequence.append(qMakePair(QString("type"),KSParser::D_INT));
+    sequence.append(qMakePair(QString("z"),KSParser::D_FLOAT));
+    sequence.append(qMakePair(QString("D(z)"),KSParser::D_FLOAT));
+    sequence.append(qMakePair(QString("MD"),KSParser::D_FLOAT));
     sequence.append(qMakePair(QString("PGC"),KSParser::D_INT));
-    widths.append(7);
-
-    sequence.append(qMakePair(QString("other cat"),KSParser::D_QSTRING));
-    widths.append(4);
-
-    sequence.append(qMakePair(QString("other1"),KSParser::D_QSTRING));
-    widths.append(6);
-
-    sequence.append(qMakePair(QString("other2"),KSParser::D_QSTRING));
-    widths.append(6);
-
-    sequence.append(qMakePair(QString("Messr"),KSParser::D_QSTRING));
-    widths.append(2);
-
-    sequence.append(qMakePair(QString("MessrNum"),KSParser::D_INT));
-    widths.append(4);
-
-    sequence.append(qMakePair(QString("Longname"),KSParser::D_QSTRING));
-    //No width to be appended for last sequence object
+    
+    //TODO (spacetime): STUCK! What do we do with the additional data?!
+    sequence.append(qMakePair(QString("ID1"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID2"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID3"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID4"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID5"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID6"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID7"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID8"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID9"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID10"),KSParser::D_QSTRING));
+    sequence.append(qMakePair(QString("ID11"),KSParser::D_QSTRING));
 
     QString file_name = KStandardDirs::locate( "appdata",
-                                           QString("ngcic.dat") );
-    KSParser deep_sky_parser(file_name, '#', sequence, widths);
+                                           QString("NGCIC2012.csv") );
+    KSParser deep_sky_parser(file_name, '#', sequence, ',');
 
     deep_sky_parser.SetProgress( i18n("Loading NGC/IC objects"), 13444, 10 );
     kDebug() << "Loading NGC/IC objects";
