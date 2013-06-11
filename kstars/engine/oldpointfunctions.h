@@ -34,17 +34,17 @@ namespace KSEngine {
  * be ported to use new APIs.
  */
 namespace OldPointFunctions {
-    
+
 /** Determine the current coordinates (RA, Dec) from the catalog
- *  coordinates (RA0, Dec0), accounting for both precession and nutation.  
- * 
+ *  coordinates (RA0, Dec0), accounting for both precession and nutation.
+ *
  *  @param p pointer to the SkyPoint in question
  *  @param num pointer to KSNumbers object containing current values of
  *         time-dependent variables.
- *  @param forceRecompute reapplies precession, nutation and aberration even 
+ *  @param forceRecompute reapplies precession, nutation and aberration even
  *         if the time passed since the last computation is not significant.
  */
-void updateCoords( SkyPoint  *p, 
+void updateCoords( SkyPoint  *p,
                    KSNumbers *num,
                    bool       forceRecompute=false );
 
