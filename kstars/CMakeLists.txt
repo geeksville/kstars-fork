@@ -110,6 +110,7 @@ include_directories(
     ${kstars_SOURCE_DIR}/kstars/tools
     ${kstars_SOURCE_DIR}/kstars/skyobjects
     ${kstars_SOURCE_DIR}/kstars/skycomponents
+    ${kstars_SOURCE_DIR}/kstars/engine
 #    ${CMAKE_SOURCE_DIR}/kstars/kstars/htmesh
 #	${CMAKE_SOURCE_DIR}/libkdeedu/extdate
 	${ZLIB_INCLUDE_DIR}
@@ -372,6 +373,10 @@ set(kstars_projection_SRCS
     projections/equirectangularprojector.cpp
 )
 
+set(kstars_engine_SRCS
+    engine/oldpointfunctions.cpp
+)
+
 set(kstars_extra_SRCS
 	colorscheme.cpp	dms.cpp fov.cpp geolocation.cpp
 	imageviewer.cpp
@@ -441,11 +446,23 @@ set(printingui_SRCS
 )
 
 ##set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
-set(kstars_SRCS ${indi_SRCS} ${fits_SRCS} ${ekos_SRCS}
-	${libkstarswidgets_SRCS} ${libkstarscomponents_SRCS} ${libkstarstools_SRCS}
-	${kstars_extra_SRCS}  ${kstars_gl_SRCS} ${kstars_projection_SRCS} ${xplanet_SRCS}
-	${kstars_options_SRCS} ${kstars_skyobjects_SRCS} ${kstars_dialogs_SRCS} ${oal_SRCS}
-        ${printing_SRCS}
+set(kstars_SRCS 
+    ${indi_SRCS}
+    ${fits_SRCS} 
+    ${ekos_SRCS} 
+    ${xplanet_SRCS} 
+    ${oal_SRCS}
+    ${libkstarswidgets_SRCS} 
+    ${libkstarscomponents_SRCS} 
+    ${libkstarstools_SRCS}
+    ${kstars_extra_SRCS}  
+    ${kstars_gl_SRCS} 
+    ${kstars_projection_SRCS}
+    ${kstars_options_SRCS} 
+    ${kstars_skyobjects_SRCS} 
+    ${kstars_dialogs_SRCS}
+    ${kstars_engine_SRCS}
+    ${printing_SRCS}
 )
 
 qt4_add_dbus_adaptor(kstars_SRCS org.kde.kstars.xml kstars.h KStars)

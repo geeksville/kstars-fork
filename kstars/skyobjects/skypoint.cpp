@@ -31,6 +31,8 @@
 #include "Options.h"
 #include "skycomponents/skymapcomposite.h"
 
+#include "engine/oldpointfunctions.h"
+
 KSSun *SkyPoint::m_Sun = 0;
 const double SkyPoint::altCrit = -1.0;
 
@@ -314,38 +316,10 @@ void SkyPoint::aberrate(const KSNumbers *num) {
 
 // Note: This method is one of the major rate determining factors in how fast the map pans / zooms in or out
 void SkyPoint::updateCoords( KSNumbers *num, bool /*includePlanets*/, const dms *lat, const dms *LST, bool forceRecompute ) {
-    //Correct the catalog coordinates for the time-dependent effects
-    //of precession, nutation and aberration
-    bool recompute, lens;
-
-    // NOTE: The same short-circuiting checks are also implemented in
-    // StarObject::JITUpdate(), even before calling
-    // updateCoords(). While this is code-duplication, these bits of
-    // code need to be really optimized, at least for stars. For
-    // optimization purposes, the code is left duplicated in two
-    // places. Please be wary of changing one without changing the
-    // other.
-
-    Q_ASSERT( std::isfinite( lastPrecessJD ) );
-
-    if( Options::useRelativistic() && checkBendLight() ) {
-        recompute = true;
-        lens = true;
-    }
-    else {
-        recompute = ( Options::alwaysRecomputeCoordinates() ||
-                      ( lastPrecessJD - num->getJD() ) >= 0.0005 ||
-                      (lastPrecessJD - num->getJD() ) <= -0.0005 || forceRecompute ); // 0.0005 solar days is less than a minute
-        lens = false;
-    }
-    if( recompute ) {
-        precess(num);
-        nutate(num);
-        if( lens )
-            bendlight();
-        aberrate(num);
-        lastPrecessJD = num->getJD();
-    }
+    //FIXME: we should rip out this whole method, but the fact that it's
+    //virtual creates problems. It shouldn't be virtual anyways.
+    // -- hdevalence, 2013-06-11
+    KSEngine::OldPointFunctions::updateCoords(this, num, forceRecompute);
 
     if ( lat || LST )
         kWarning() << i18n( "lat and LST parameters should only be used in KSPlanetBase objects." ) ;
