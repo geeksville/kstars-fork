@@ -29,6 +29,8 @@
 #include "skyobjects/skypoint.h"
 #include "skymap.h"
 
+#include "engine/oldpointfunctions.h"
+
 FocusDialogUI::FocusDialogUI( QWidget *parent ) : QFrame( parent ) {
     setupUi( this );
 }
@@ -96,7 +98,8 @@ void FocusDialog::validatePoint() {
         Point.set( ra, dec );
         double epoch0 = getEpoch( fd->epochBox->text() );
         long double jd0 = epochToJd ( epoch0 );
-        Point.apparentCoord(jd0, ks->data()->ut().djd() );
+        KSEngine::OldPointFunctions::apparentCoord(&Point, jd0, 
+                                                   ks->data()->ut().djd());
         Point.EquatorialToHorizontal( ks->data()->lst(), ks->data()->geo()->lat() );
 
         KDialog::accept();

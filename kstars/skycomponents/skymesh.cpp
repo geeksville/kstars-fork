@@ -30,6 +30,8 @@
 #include "kstarsdata.h"
 #include "skymap.h"
 
+#include "engine/oldpointfunctions.h"
+
 QMap<int, SkyMesh *> SkyMesh::pinstances;
 int SkyMesh::defaultLevel = -1;
 
@@ -69,7 +71,7 @@ void SkyMesh::aperture(SkyPoint *p0, double radius, MeshBufNum_t bufNum)
     // FIXME: simple copying leads to incorrect results because RA0 && dec0 are both zero sometimes
     SkyPoint p1( p0->ra(), p0->dec() );
     long double now = data->updateNum()->julianDay();
-    p1.apparentCoord( now, J2000 );
+    KSEngine::OldPointFunctions::apparentCoord(&p1, now, KSEngine::EpochJ2000);
 
     if ( radius == 1.0 ) {
         printf("\n ra0 = %8.4f   dec0 = %8.4f\n", p0->ra().Degrees(), p0->dec().Degrees() );

@@ -62,5 +62,15 @@ void updateCoords(SkyPoint* p, KSNumbers* num, bool forceRecompute)
     }
 }
 
+void apparentCoord(SkyPoint* p, JulianDate jd0, JulianDate jdf)
+{
+    p->precessFromAnyEpoch(jd0,jdf);
+    KSNumbers num(jdf);
+    p->nutate( &num );
+    if( Options::useRelativistic() && p->checkBendLight() )
+        p->bendlight();
+    p->aberrate( &num );
+}
+
 } // NS OldPointfunctions
 } // NS KSEngine

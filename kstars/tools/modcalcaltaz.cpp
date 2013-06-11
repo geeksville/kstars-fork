@@ -33,6 +33,8 @@
 #include "dialogs/finddialog.h"
 #include "dialogs/locationdialog.h"
 
+#include "engine/oldpointfunctions.h"
+
 modCalcAltAz::modCalcAltAz(QWidget *parentSplit)
         : QFrame(parentSplit), horInputCoords(false)
 {
@@ -394,7 +396,7 @@ void modCalcAltAz::processLines( QTextStream &istream ) {
                     ostream << decB.toDMSString() << space;
 
             sp = SkyPoint (raB, decB);
-            sp.apparentCoord(jd0, jdf);
+            KSEngine::OldPointFunctions::apparentCoord(&sp, jd0, jdf);
             sp.EquatorialToHorizontal( &LST, &latB );
             ostream << sp.az().toDMSString() << space << sp.alt().toDMSString() << endl;
 

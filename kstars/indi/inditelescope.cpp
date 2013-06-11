@@ -14,6 +14,8 @@
 #include "skymap.h"
 #include "clientmanager.h"
 
+#include "engine/oldpointfunctions.h"
+
 namespace ISD
 {
 
@@ -233,8 +235,12 @@ bool Telescope::sendCoords(SkyPoint *ScopeTarget)
                 DecEle = IUFindNumber(EqProp, "DEC");
                     if (!DecEle) return false;
 
-           if (useJ2000)
-                ScopeTarget->apparentCoord(KStars::Instance()->data()->ut().djd(), (long double) J2000);
+           if (useJ2000) {
+               KSEngine::JulianDate jd = KStars::Instance()->data()->ut().djd();
+               KSEngine::OldPointFunctions::apparentCoord(ScopeTarget,
+                                                          jd,
+                                                          KSEngine::EpochJ2000);
+           }
 
               currentRA  = RAEle->value;
               currentDEC = DecEle->value;

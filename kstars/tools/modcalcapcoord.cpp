@@ -30,6 +30,7 @@
 #include "kstarsdatetime.h"
 #include "dialogs/finddialog.h"
 #include "widgets/dmsbox.h"
+#include "engine/oldpointfunctions.h"
 
 modCalcApCoord::modCalcApCoord(QWidget *parentSplit)
         : QFrame(parentSplit) {
@@ -75,7 +76,7 @@ void modCalcApCoord::slotCompute(){
     long double jd0 = dt.djd();
 
     SkyPoint sp( RACat->createDms(false), DecCat->createDms() );
-    sp.apparentCoord(jd0, jd);
+    KSEngine::OldPointFunctions::apparentCoord(&sp, jd0, jd);
 
     RA->setText( sp.ra().toHMSString() );
     Dec->setText( sp.dec().toDMSString() );
@@ -274,7 +275,7 @@ void modCalcApCoord::processLines( QTextStream &istream ) {
         jd = KStarsDateTime(dtB,utB).djd();
         jd0 = dt.djd();
         sp = SkyPoint (raB, decB);
-        sp.apparentCoord(jd0, jd);
+        KSEngine::OldPointFunctions::apparentCoord(&sp, jd0, jd);
 
         ostream << sp.ra().toHMSString() << sp.dec().toDMSString() << endl;
     }

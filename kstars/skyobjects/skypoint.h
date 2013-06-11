@@ -265,15 +265,6 @@ public:
     	*/
     virtual void updateCoords( KSNumbers *num, bool includePlanets=true, const dms *lat=0, const dms *LST=0, bool forceRecompute = false );
 
-    /**Computes the apparent coordinates for this SkyPoint for any epoch,
-    	*accounting for the effects of precession, nutation, and aberration.
-    	*Similar to updateCoords(), but the starting epoch need not be
-    	*J2000, and the target epoch need not be the present time.
-    	*@param jd0 Julian Day which identifies the original epoch
-    	*@param jdf Julian Day which identifies the final epoch
-    	*/
-    void apparentCoord(long double jd0, long double jdf);
-
     /**Determine the effects of nutation for this SkyPoint.
     	*@param num pointer to KSNumbers object containing current values of
     	*time-dependent variables.

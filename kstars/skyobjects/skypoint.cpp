@@ -402,15 +402,6 @@ void SkyPoint::precessFromAnyEpoch(long double jd0, long double jdf){
 
 }
 
-void SkyPoint::apparentCoord(long double jd0, long double jdf){
-    precessFromAnyEpoch(jd0,jdf);
-    KSNumbers num(jdf);
-    nutate( &num );
-    if( Options::useRelativistic() && checkBendLight() )
-        bendlight();
-    aberrate( &num );
-}
-
 void SkyPoint::Equatorial1950ToGalactic(dms &galLong, dms &galLat) {
 
     double a = 192.25;
