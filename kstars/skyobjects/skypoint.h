@@ -266,23 +266,6 @@ public:
     virtual void updateCoords( KSNumbers *num, bool includePlanets=true, const dms *lat=0, const dms *LST=0, bool forceRecompute = false );
 
     /**
-     *@short Check if this sky point is close enough to the sun for
-     * gravitational lensing to be significant
-     */
-    bool checkBendLight();
-
-    /**Correct for the effect of "bending" of light around the sun for
-     * positions near the sun.
-     *
-     * General Relativity tells us that a photon with an impact
-     * parameter b is deflected through an angle 1.75" (Rs / b) where
-     * Rs is the solar radius.
-     *
-     * @return: true if the light was bent, false otherwise
-     */
-    bool bendlight();
-
-    /**
      *@short Obtain a Skypoint with RA0 and Dec0 set from the RA, Dec
      * of this skypoint. Also set the RA0, Dec0 of this SkyPoint if not
      * set already.
@@ -514,7 +497,6 @@ private:
     dms RA0, Dec0; //catalog coordinates
     dms RA, Dec; //current true sky coordinates
     dms Alt, Az;
-    static KSSun *m_Sun;
 };
 
 #endif

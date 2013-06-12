@@ -23,6 +23,7 @@
 #define NUTTERMS 63
 
 #include "dms.h"
+class KSSun;
 
 /**@class KSNumbers
 	*
@@ -119,7 +120,10 @@ public:
 
     double vEarth(int i) const {return vearth[i];}
 
+    KSSun* sun() const {return m_sun;}
+
 private:
+    KSSun *m_sun;
     dms Obliquity, K, L, L0, LM, M, M0, O, P, D, MM, F;
     dms XP, YP, ZP, XB, YB, ZB;
     double CX, SX, CY, SY, CZ, SZ;

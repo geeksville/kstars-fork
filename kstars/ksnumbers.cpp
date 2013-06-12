@@ -18,6 +18,10 @@
  ***************************************************************************/
 
 #include "ksnumbers.h"
+#include "kstarsdata.h"
+//This is not a good dependency, but we need it to look 
+//up the sun object. FIXME: design a simpler solution.
+#include "skymapcomposite.h"
 #include "kstarsdatetime.h" //for J2000 define
 
 // 63 elements
@@ -154,10 +158,22 @@ const int KSNumbers::amp[NUTTERMS][4] = {
                                         };
 
 
-KSNumbers::KSNumbers( long double jd ){
+KSNumbers::KSNumbers( long double jd )
+{
     K.setD( 20.49552 / 3600. );  //set the constant of aberration
     P.setD( 102.94719 ); // ecliptic longitude of earth's perihelion, source: http://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html; FIXME: We should correct this, as it changes with time. See the commit log for an order of magnitude estimate of the error.
     updateValues( jd );
+    KStarsData *d = KStarsData::Instance();
+    if(d) {
+        SkyMapComposite* c = d->skyComposite();
+        if(c) {
+            m_sun = (KSSun*) d->skyComposite()->findByName("Sun");
+        } else {
+            m_sun = 0;
+        }
+    } else {
+        m_sun = 0;
+    }
 }
 
 KSNumbers::~KSNumbers(){

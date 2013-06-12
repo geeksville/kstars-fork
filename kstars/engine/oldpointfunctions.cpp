@@ -17,13 +17,12 @@
 
 #include "oldpointfunctions.h"
 
-
 #include "Options.h"
 #include "skypoint.h"
 #include "ksnumbers.h"
 #include "dms.h"
-
-#include "engine/oldpointfunctions.h"
+#include "kssun.h"
+#include "kstarsdata.h"
 
 namespace KSEngine {
 namespace OldPointFunctions {
@@ -44,7 +43,7 @@ void updateCoords(SkyPoint* p, const KSNumbers* num, const bool forceRecompute)
 
     Q_ASSERT( std::isfinite( p->lastPrecessJD ) );
 
-    if( Options::useRelativistic() && p->checkBendLight() ) {
+    if( Options::useRelativistic() && checkBendLight(p,num->sun()) ) {
         recompute = true;
         lens = true;
     }
@@ -58,7 +57,7 @@ void updateCoords(SkyPoint* p, const KSNumbers* num, const bool forceRecompute)
         p->precess(num);
         nutate(p,num);
         if( lens )
-            p->bendlight();
+            bendlight(p,num->sun());
         p->aberrate(num);
         p->lastPrecessJD = num->getJD();
     }
@@ -69,8 +68,8 @@ void apparentCoord(SkyPoint* p, const JulianDate jd0, const JulianDate jdf)
     p->precessFromAnyEpoch(jd0,jdf);
     KSNumbers num(jdf);
     nutate(p,&num);
-    if( Options::useRelativistic() && p->checkBendLight() )
-        p->bendlight();
+    if( Options::useRelativistic() && checkBendLight(p,num.sun()) )
+        bendlight(p,num.sun());
     p->aberrate( &num );
 }
 
@@ -107,6 +106,45 @@ void nutate(SkyPoint* p, const KSNumbers* num)
         dms newLong( EcLong.Degrees() + num->dEcLong() );
         p->setFromEcliptic( num->obliquity(), newLong, EcLat );
     }
+}
+
+bool checkBendLight(const SkyPoint* p, const KSSun* sun)
+{
+    // First see if we are close enough to the sun to bother about the
+    // gravitational lensing effect. We correct for the effect at
+    // least till b = 10 solar radii, where the effect is only about
+    // 0.06".  Assuming min. sun-earth distance is 200 solar radii.
+    static const dms maxAngle( 1.75 * ( 30.0 / 200.0) / dms::DegToRad );
+
+    if (!sun) {
+        return false;
+    }
+
+    // NOTE: dynamic_cast is slow and not important here.
+    const SkyPoint *sunpt = static_cast<const SkyPoint *>(sun);
+
+    // TODO: This can be optimized further. We only need a ballpark estimate of
+    // the distance to the sun to start with.
+    return ( fabs( p->angularDistanceTo( sunpt ).Degrees() ) <= maxAngle.Degrees() );
+}
+
+void bendlight(SkyPoint* p, const KSSun* sun)
+{
+    if (!sun) {
+        return;
+    }
+    // NOTE: This should be applied before aberration
+    // NOTE: One must call checkBendLight() before unnecessarily calling this.
+    // We correct for GR effects
+    const SkyPoint *sunpt = static_cast<const SkyPoint *>(sun);
+    double corr_sec_top = 1.75 * sun->physicalSize();
+    double corr_sec_bot = sun->rearth() * AU_KM * p->angularDistanceTo( sunpt ).sin();
+    double corr_sec = corr_sec_top / corr_sec_bot;
+    Q_ASSERT( corr_sec > 0 );
+
+    SkyPoint sp = p->moveAway( *sun, corr_sec );
+    p->setRA(  sp.ra() );
+    p->setDec( sp.dec() );
 }
 
 } // NS OldPointfunctions

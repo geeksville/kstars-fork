@@ -21,6 +21,7 @@
 
 #include "types.h"
 
+class KSSun;
 class SkyPoint;
 class KSPlanetBase;
 class KSNumbers;
@@ -69,6 +70,31 @@ void apparentCoord(       SkyPoint   *p,
  */
 void nutate(       SkyPoint  *p,
              const KSNumbers *num );
+
+
+/** Check if this sky point is close enough to the sun for gravitational 
+ *  lensing to be significant.
+ *
+ *  @param p the point in question
+ *  @param sun the sun.
+ *  @return true if it is close enough
+ */
+bool checkBendLight( const SkyPoint *p,
+                     const KSSun    *sun );
+
+/** Correct for the effect of "bending" of light around the sun for
+ *  positions near the sun.
+ *
+ *  General Relativity tells us that a photon with an impact
+ *  parameter b is deflected through an angle 1.75" (Rs / b) where
+ *  Rs is the solar radius.
+ *
+ *  @param p the point in question
+ *  @param sun the sun
+ */
+void bendlight(       SkyPoint *p,
+                const KSSun    *sun );
+
 
 } // NS OldPointfunctions
 } // NS KSEngine

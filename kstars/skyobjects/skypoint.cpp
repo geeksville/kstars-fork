@@ -33,7 +33,6 @@
 
 #include "engine/oldpointfunctions.h"
 
-KSSun *SkyPoint::m_Sun = 0;
 const double SkyPoint::altCrit = -1.0;
 
 SkyPoint::SkyPoint() {
@@ -228,35 +227,6 @@ SkyPoint SkyPoint::moveAway( const SkyPoint &from, double dist ){
                               cos( dst ) - dec().sin() * lat1.sin() ) );
     
     return SkyPoint( ra() + dtheta, lat1 );
-}
-
-bool SkyPoint::checkBendLight() {
-    // First see if we are close enough to the sun to bother about the
-    // gravitational lensing effect. We correct for the effect at
-    // least till b = 10 solar radii, where the effect is only about
-    // 0.06".  Assuming min. sun-earth distance is 200 solar radii.
-    static const dms maxAngle( 1.75 * ( 30.0 / 200.0) / dms::DegToRad );
-
-    if( !m_Sun )
-        m_Sun = (KSSun*) KStarsData::Instance()->skyComposite()->findByName( "Sun" );
-
-    // TODO: This can be optimized further. We only need a ballpark estimate of the distance to the sun to start with.
-    return ( fabs( angularDistanceTo( static_cast<const SkyPoint *>(m_Sun) ).Degrees() ) <= maxAngle.Degrees() ); // NOTE: dynamic_cast is slow and not important here.
-}
-
-bool SkyPoint::bendlight() {
-
-    // NOTE: This should be applied before aberration
-    // NOTE: One must call checkBendLight() before unnecessarily calling this.
-    // We correct for GR effects
-    Q_ASSERT( m_Sun );
-    double corr_sec = 1.75 * m_Sun->physicalSize() / ( m_Sun->rearth() * AU_KM * angularDistanceTo( static_cast<const SkyPoint *>(m_Sun) ).sin() );
-    Q_ASSERT( corr_sec > 0 );
-
-    SkyPoint sp = moveAway( *m_Sun, corr_sec );
-    setRA(  sp.ra() );
-    setDec( sp.dec() );
-    return true;
 }
 
 void SkyPoint::aberrate(const KSNumbers *num) {

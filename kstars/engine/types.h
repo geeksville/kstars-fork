@@ -58,6 +58,7 @@ typedef Quaternionf B1950Coord;
  * TIME
  ***************************************************************************/
 
+/// Number of fractional days since beginning of Julian calendar.
 typedef double JulianDate;
 
 /// JulianDate for noon on Jan 1, 2000 (epoch J2000)
@@ -79,7 +80,7 @@ typedef Quaternionf GreenwichCoord;
 /// Rotation from lat = long = 0 to the observer's latitude and
 /// local sidereal time.
 typedef Quaternionf LocalSiderealCoords;
-  
+
 } // NS KSEngine
 
 #endif //KSENGINE_TYPES_H
