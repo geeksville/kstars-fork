@@ -265,12 +265,6 @@ public:
     	*/
     virtual void updateCoords( KSNumbers *num, bool includePlanets=true, const dms *lat=0, const dms *LST=0, bool forceRecompute = false );
 
-    /**Determine the effects of nutation for this SkyPoint.
-    	*@param num pointer to KSNumbers object containing current values of
-    	*time-dependent variables.
-    	*/
-    void nutate(const KSNumbers *num);
-
     /**
      *@short Check if this sky point is close enough to the sun for
      * gravitational lensing to be significant
