@@ -29,6 +29,8 @@
 #include "ksutils.h"
 #include "ksfilereader.h"
 
+#include "engine/oldpointfunctions.h"
+
 KSPlanet::OrbitDataManager KSPlanet::odm;
 
 KSPlanet::OrbitDataColl::OrbitDataColl() {
@@ -305,7 +307,7 @@ bool KSPlanet::findGeocentricPosition( const KSNumbers *num, const KSPlanetBase 
 
         EclipticToEquatorial( num->obliquity() );
 
-        nutate(num);
+        KSEngine::OldPointFunctions::nutate(this,num);
         aberrate(num);
 
     } else {

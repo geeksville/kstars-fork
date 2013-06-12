@@ -23,6 +23,8 @@
 #include "kstarsdata.h"
 #include "kstarsdatetime.h"
 
+#include "engine/oldpointfunctions.h"
+
 KSSun::KSSun( )
         : KSPlanet( I18N_NOOP( "Sun" ), "sun", Qt::yellow, 1392000. /*diameter in km*/  )
 {
@@ -128,7 +130,7 @@ bool KSSun::findGeocentricPosition( const KSNumbers *num, const KSPlanetBase *Ea
     EclipticToEquatorial( num->obliquity() );
 
 
-    nutate(num);
+    KSEngine::OldPointFunctions::nutate(this,num);
 
     // Store in RA0 and Dec0, the unaberrated coordinates
     setRA0(  ra() );

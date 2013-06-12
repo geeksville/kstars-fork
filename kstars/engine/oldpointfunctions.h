@@ -61,6 +61,15 @@ void apparentCoord( SkyPoint   *p,
                     JulianDate  jd0,
                     JulianDate  jdf);
 
+/** Determine the effects of nutation for this SkyPoint.
+ *
+ *  @param p pointer to the SkyPoint in question
+ *  @param num pointer to KSNumbers object containing current values of
+ *         time-dependent variables.
+ */
+void nutate(       SkyPoint  *p,
+             const KSNumbers *num);
+
 } // NS OldPointfunctions
 } // NS KSEngine
 

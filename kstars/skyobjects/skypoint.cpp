@@ -201,33 +201,6 @@ SkyPoint SkyPoint::deprecess( const KSNumbers *num, long double epoch ) {
     return p1;
 }
 
-void SkyPoint::nutate(const KSNumbers *num) {
-    double cosRA, sinRA, cosDec, sinDec, tanDec;
-    double cosOb, sinOb;
-
-    RA.SinCos( sinRA, cosRA );
-    Dec.SinCos( sinDec, cosDec );
-
-    num->obliquity()->SinCos( sinOb, cosOb );
-
-    //Step 2: Nutation
-    if ( fabs( Dec.Degrees() ) < 80.0 ) { //approximate method
-        tanDec = sinDec/cosDec;
-
-        double dRA  = num->dEcLong()*( cosOb + sinOb*sinRA*tanDec ) - num->dObliq()*cosRA*tanDec;
-        double dDec = num->dEcLong()*( sinOb*cosRA ) + num->dObliq()*sinRA;
-
-        RA.setD( RA.Degrees() + dRA );
-        Dec.setD( Dec.Degrees() + dDec );
-    } else { //exact method
-        dms EcLong, EcLat;
-        findEcliptic( num->obliquity(), EcLong, EcLat );
-
-        //Add dEcLong to the Ecliptic Longitude
-        dms newLong( EcLong.Degrees() + num->dEcLong() );
-        setFromEcliptic( num->obliquity(), newLong, EcLat );
-    }
-}
 
 SkyPoint SkyPoint::moveAway( const SkyPoint &from, double dist ){
     dms lat1, dtheta;

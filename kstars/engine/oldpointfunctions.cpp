@@ -23,6 +23,8 @@
 #include "ksnumbers.h"
 #include "dms.h"
 
+#include "engine/oldpointfunctions.h"
+
 namespace KSEngine {
 namespace OldPointFunctions {
 
@@ -54,7 +56,7 @@ void updateCoords(SkyPoint* p, KSNumbers* num, bool forceRecompute)
     }
     if( recompute ) {
         p->precess(num);
-        p->nutate(num);
+        nutate(p,num);
         if( lens )
             p->bendlight();
         p->aberrate(num);
@@ -66,10 +68,45 @@ void apparentCoord(SkyPoint* p, JulianDate jd0, JulianDate jdf)
 {
     p->precessFromAnyEpoch(jd0,jdf);
     KSNumbers num(jdf);
-    p->nutate( &num );
+    nutate(p,&num);
     if( Options::useRelativistic() && p->checkBendLight() )
         p->bendlight();
     p->aberrate( &num );
+}
+
+void nutate(SkyPoint* p, const KSNumbers* num)
+{
+    double cosRA, sinRA, cosDec, sinDec, tanDec;
+    double cosOb, sinOb;
+
+    dms RA  = p->ra();
+    dms Dec = p->dec();
+
+    RA.SinCos( sinRA, cosRA );
+    Dec.SinCos( sinDec, cosDec );
+
+    num->obliquity()->SinCos( sinOb, cosOb );
+
+    //Step 2: Nutation
+    if ( fabs( Dec.Degrees() ) < 80.0 ) { //approximate method
+        tanDec = sinDec/cosDec;
+
+        double dRA  = num->dEcLong()*( cosOb + sinOb*sinRA*tanDec ) - num->dObliq()*cosRA*tanDec;
+        double dDec = num->dEcLong()*( sinOb*cosRA ) + num->dObliq()*sinRA;
+
+        RA.setD( RA.Degrees() + dRA );
+        Dec.setD( Dec.Degrees() + dDec );
+
+        p->setRA(RA);
+        p->setDec(Dec);
+    } else { //exact method
+        dms EcLong, EcLat;
+        p->findEcliptic( num->obliquity(), EcLong, EcLat );
+
+        //Add dEcLong to the Ecliptic Longitude
+        dms newLong( EcLong.Degrees() + num->dEcLong() );
+        p->setFromEcliptic( num->obliquity(), newLong, EcLat );
+    }
 }
 
 } // NS OldPointfunctions

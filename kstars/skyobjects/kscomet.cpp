@@ -26,6 +26,8 @@
 #include "ksnumbers.h"
 #include "dms.h"
 
+#include "engine/oldpointfunctions.h"
+
 namespace {
     int letterToNum(QChar c)
     {
@@ -246,7 +248,7 @@ bool KSComet::findGeocentricPosition( const KSNumbers *num, const KSPlanetBase *
     setRearth( Earth );
 
     EclipticToEquatorial( num->obliquity() );
-    nutate( num );
+    KSEngine::OldPointFunctions::nutate(this,num);
     aberrate( num );
 
     findPhysicalParameters();

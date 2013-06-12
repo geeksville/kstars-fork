@@ -23,6 +23,8 @@
 #include "ksnumbers.h"
 #include "kstarsdata.h"
 
+#include "engine/oldpointfunctions.h"
+
 KSAsteroid::KSAsteroid( int _catN, const QString &s, const QString &imfile,
                         long double _JD, double _a, double _e, dms _i, dms _w, dms _Node, dms _M, double _H, double _G )
         : KSPlanetBase(s, imfile),
@@ -117,7 +119,7 @@ bool KSAsteroid::findGeocentricPosition( const KSNumbers *num, const KSPlanetBas
     if ( Earth ) setRearth( Earth );
 
     EclipticToEquatorial( num->obliquity() );
-    nutate( num );
+    KSEngine::OldPointFunctions::nutate(this, num);
     aberrate( num );
 
     return true;
