@@ -28,7 +28,7 @@
 namespace KSEngine {
 namespace OldPointFunctions {
 
-void updateCoords(SkyPoint* p, KSNumbers* num, bool forceRecompute)
+void updateCoords(SkyPoint* p, const KSNumbers* num, const bool forceRecompute)
 {
     //Correct the catalog coordinates for the time-dependent effects
     //of precession, nutation and aberration
@@ -64,7 +64,7 @@ void updateCoords(SkyPoint* p, KSNumbers* num, bool forceRecompute)
     }
 }
 
-void apparentCoord(SkyPoint* p, JulianDate jd0, JulianDate jdf)
+void apparentCoord(SkyPoint* p, const JulianDate jd0, const JulianDate jdf)
 {
     p->precessFromAnyEpoch(jd0,jdf);
     KSNumbers num(jdf);

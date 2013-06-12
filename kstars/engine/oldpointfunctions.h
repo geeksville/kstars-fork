@@ -44,9 +44,9 @@ namespace OldPointFunctions {
  *  @param forceRecompute reapplies precession, nutation and aberration even
  *         if the time passed since the last computation is not significant.
  */
-void updateCoords( SkyPoint  *p,
-                   KSNumbers *num,
-                   bool       forceRecompute=false );
+void updateCoords(       SkyPoint  *p,
+                   const KSNumbers *num,
+                   const bool       forceRecompute=false );
 
 /** Computes the apparent coordinates for this SkyPoint for any epoch,
  *  accounting for the effects of precession, nutation, and aberration.
@@ -57,9 +57,9 @@ void updateCoords( SkyPoint  *p,
  *  @param jd0 Julian Day which identifies the original epoch
  *  @param jdf Julian Day which identifies the final epoch
  */
-void apparentCoord( SkyPoint   *p,
-                    JulianDate  jd0,
-                    JulianDate  jdf);
+void apparentCoord(       SkyPoint   *p,
+                    const JulianDate  jd0,
+                    const JulianDate  jdf );
 
 /** Determine the effects of nutation for this SkyPoint.
  *
@@ -68,7 +68,7 @@ void apparentCoord( SkyPoint   *p,
  *         time-dependent variables.
  */
 void nutate(       SkyPoint  *p,
-             const KSNumbers *num);
+             const KSNumbers *num );
 
 } // NS OldPointfunctions
 } // NS KSEngine
