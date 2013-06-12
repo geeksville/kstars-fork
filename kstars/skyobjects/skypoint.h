@@ -265,13 +265,6 @@ public:
     	*/
     virtual void updateCoords( KSNumbers *num, bool includePlanets=true, const dms *lat=0, const dms *LST=0, bool forceRecompute = false );
 
-    /**
-     *@short Obtain a Skypoint with RA0 and Dec0 set from the RA, Dec
-     * of this skypoint. Also set the RA0, Dec0 of this SkyPoint if not
-     * set already.
-     */
-    SkyPoint deprecess( const KSNumbers *num, long double epoch=J2000 );
-
     /**Determine the effects of aberration for this SkyPoint.
     	*@param num pointer to KSNumbers object containing current values of
     	*time-dependent variables.

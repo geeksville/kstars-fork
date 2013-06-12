@@ -67,6 +67,7 @@
 #include "skycomponents/skymapcomposite.h"
 
 #include "engine/types.h"
+#include "engine/oldpointfunctions.h"
 
 DetailDialog::DetailDialog(SkyObject *o, const KStarsDateTime &ut, GeoLocation *geo, QWidget *parent ) :
     KPageDialog( parent ),
@@ -445,7 +446,8 @@ void DetailDialog::createPositionTab( const KStarsDateTime &ut, GeoLocation *geo
     //Replace the decimal point with localized decimal symbol
     sEpoch.replace( '.', KGlobal::locale()->decimalSymbol() );
     
-    kDebug() << (selectedObject->deprecess(data->updateNum(),2451545.0l)).ra0().toHMSString() << (selectedObject->deprecess(data->updateNum(),2451545.0l)).dec0().toDMSString() << endl;
+    SkyPoint deprecessed = KSEngine::OldPointFunctions::deprecess(selectedObject, data->updateNum());
+    kDebug() << deprecessed.ra0().toHMSString() << deprecessed.dec0().toDMSString() << endl;
     //kDebug() << selectedObject->ra().toHMSString() << selectedObject->dec().toDMSString() << endl;
     Pos->RALabel->setText( i18n( "RA (%1):", sEpoch ) );
     Pos->DecLabel->setText( i18n( "Dec (%1):", sEpoch ) );

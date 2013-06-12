@@ -188,19 +188,6 @@ void SkyPoint::precess( const KSNumbers *num) {
     Dec.setRadians( asin( v[2] ) );
 }
 
-SkyPoint SkyPoint::deprecess( const KSNumbers *num, long double epoch ) {
-    SkyPoint p1( RA, Dec );
-    long double now = num->julianDay();
-    p1.precessFromAnyEpoch( now, epoch );
-    if( RA0.Degrees() < 0.0 || Dec0.Degrees() > 90.0 ) {
-        // We have invalid RA0 and Dec0, so set them.
-        RA0 = p1.ra();
-        Dec0 = p1.dec();
-    }
-    return p1;
-}
-
-
 SkyPoint SkyPoint::moveAway( const SkyPoint &from, double dist ){
     dms lat1, dtheta;
 

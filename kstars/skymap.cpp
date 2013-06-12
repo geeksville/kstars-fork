@@ -70,6 +70,8 @@
 #include "projections/equirectangularprojector.h"
 #include "fov.h"
 
+#include "engine/oldpointfunctions.h"
+
 #include "tools/flagmanager.h"
 
 #include "texturemanager.h"
@@ -440,7 +442,7 @@ void SkyMap::slotDSS() {
     if ( clickedObject() ) {
         urlstring = KSUtils::getDSSURL( clickedObject() );
     } else {
-        SkyPoint deprecessedPoint = clickedPoint()->deprecess( data->updateNum() );
+        SkyPoint deprecessedPoint = KSEngine::OldPointFunctions::deprecess(clickedPoint(), data->updateNum());
         ra  = deprecessedPoint.ra();
         dec = deprecessedPoint.dec();
         urlstring = KSUtils::getDSSURL( ra, dec ); // Use default size for non-objects
@@ -473,7 +475,7 @@ void SkyMap::slotSDSS() {
         ra  = clickedObject()->ra0();
         dec = clickedObject()->dec0();
     } else {
-        SkyPoint deprecessedPoint = clickedPoint()->deprecess( data->updateNum() );
+        SkyPoint deprecessedPoint = KSEngine::OldPointFunctions::deprecess(clickedPoint(), data->updateNum());
         ra  = deprecessedPoint.ra();
         dec = deprecessedPoint.dec();
     }
