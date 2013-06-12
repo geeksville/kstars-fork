@@ -23,7 +23,9 @@
 
 #include "kstarsdata.h"
 #include "ksutils.h"
-#include "engine/oldpointfunctions.h"
+
+#include "engine/oldprecession.h"
+using namespace KSEngine;
 
 #include <QList>
 
@@ -114,8 +116,8 @@ QList<const StarObject *> StarHopper::computePath( const SkyPoint &src, const Sk
         // needs a lot of fixing to handle unprecessed and precessed,
         // equatorial and horizontal coordinates nicely
         SkyPoint *CurrentNode = const_cast<SkyPoint *>(curr_node);
-        KSEngine::OldPointFunctions::deprecess( CurrentNode,
-                                                KStarsData::Instance()->updateNum() );
+        OldPrecession::deprecess( CurrentNode,
+                                  KStarsData::Instance()->updateNum() );
         kDebug() << "Calling starsInAperture";
         StarComponent::Instance()->starsInAperture( neighbors, *curr_node, fov, maglim );
         kDebug() << "Choosing next node from a set of " << neighbors.count();

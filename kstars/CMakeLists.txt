@@ -377,6 +377,7 @@ set(kstars_engine_SRCS
     engine/oldpointfunctions.cpp
     engine/oldvlsr.cpp
     engine/oldrefraction.cpp
+    engine/oldprecession.cpp
 )
 
 set(kstars_extra_SRCS

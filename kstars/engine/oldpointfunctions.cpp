@@ -72,21 +72,6 @@ void apparentCoord(SkyPoint* p, const JulianDate jd0, const JulianDate jdf)
     aberrate( p, &num );
 }
 
-SkyPoint deprecess(SkyPoint* p, const KSNumbers* num, const JulianDate epoch)
-{
-    SkyPoint p1( p->ra(), p->dec() );
-    long double now = num->julianDay();
-    p1.precessFromAnyEpoch( now, epoch );
-    if( p->ra0().Degrees() < 0.0 || p->dec0().Degrees() > 90.0 ) 
-    {
-        kWarning() << "Invalid catalog coordinates in deprecess";
-        // We have invalid RA0 and Dec0, so set them.
-        p->setRA0(p1.ra());
-        p->setDec0(p1.dec());
-    }
-    return p1;
-}
-
 void nutate(SkyPoint* p, const KSNumbers* num)
 {
     double cosRA, sinRA, cosDec, sinDec, tanDec;

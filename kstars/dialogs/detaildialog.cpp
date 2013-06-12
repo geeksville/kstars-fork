@@ -67,8 +67,9 @@
 #include "skycomponents/skymapcomposite.h"
 
 #include "engine/types.h"
-#include "engine/oldpointfunctions.h"
+#include "engine/oldprecession.h"
 #include "engine/oldrefraction.h"
+using namespace KSEngine;
 
 DetailDialog::DetailDialog(SkyObject *o, const KStarsDateTime &ut, GeoLocation *geo, QWidget *parent ) :
     KPageDialog( parent ),
@@ -216,7 +217,7 @@ void DetailDialog::createGeneralTab()
         //Distance from Earth.  The moon requires a unit conversion
         if ( ps->name() == "Moon" ) {
             Data->Distance->setText( i18nc("distance in kilometers", "%1 km",
-                                           KGlobal::locale()->formatNumber( ps->rearth()*KSEngine::AU_KM ) ) );
+                                           KGlobal::locale()->formatNumber( ps->rearth()*AU_KM ) ) );
         } else {
             Data->Distance->setText( i18nc("distance in Astronomical Units", "%1 AU",
                                            KGlobal::locale()->formatNumber( ps->rearth() ) ) );
@@ -447,7 +448,7 @@ void DetailDialog::createPositionTab( const KStarsDateTime &ut, GeoLocation *geo
     //Replace the decimal point with localized decimal symbol
     sEpoch.replace( '.', KGlobal::locale()->decimalSymbol() );
     
-    SkyPoint deprecessed = KSEngine::OldPointFunctions::deprecess(selectedObject, data->updateNum());
+    SkyPoint deprecessed = OldPrecession::deprecess(selectedObject, data->updateNum());
     kDebug() << deprecessed.ra0().toHMSString() << deprecessed.dec0().toDMSString() << endl;
     //kDebug() << selectedObject->ra().toHMSString() << selectedObject->dec().toDMSString() << endl;
     Pos->RALabel->setText( i18n( "RA (%1):", sEpoch ) );
@@ -459,7 +460,7 @@ void DetailDialog::createPositionTab( const KStarsDateTime &ut, GeoLocation *geo
     if( Options::useAltAz() )
         a = selectedObject->alt();
     else
-        a = KSEngine::OldRefraction::altRefracted(selectedObject);
+        a = OldRefraction::altRefracted(selectedObject);
     Pos->Alt->setText( a.toDMSString() );
 
     // Display the RA0 and Dec0 for objects that are outside the solar system

@@ -62,20 +62,6 @@ void apparentCoord(       SkyPoint   *p,
                     const JulianDate  jd0,
                     const JulianDate  jdf );
 
-
-/** Obtain a Skypoint with RA0 and Dec0 set from the RA, Dec
- *  of this skypoint. Also set the RA0, Dec0 of this SkyPoint if not
- *  set already.
- * 
- *  @param p the point in question
- *  @param num a whole bunch of extra data //FIXME clean this class out
- *  @param epoch the epoch to deprecess to
- */
-SkyPoint deprecess(       SkyPoint   *p,
-                    const KSNumbers  *num,
-                    const JulianDate  epoch=EpochJ2000 );
-
-
 /** Determine the effects of nutation for this SkyPoint.
  *
  *  @param p pointer to the SkyPoint in question
@@ -84,7 +70,6 @@ SkyPoint deprecess(       SkyPoint   *p,
  */
 void nutate(       SkyPoint  *p,
              const KSNumbers *num );
-
 
 /** Check if this sky point is close enough to the sun for gravitational 
  *  lensing to be significant.
@@ -109,6 +94,9 @@ bool checkBendLight( const SkyPoint *p,
 void bendlight(       SkyPoint *p,
                 const KSSun    *sun );
 
+SkyPoint deprecess(       SkyPoint   *p,
+                    const KSNumbers  *num,
+                    const JulianDate  epoch=EpochJ2000 );
 
 /** Determine the effects of aberration for this SkyPoint.
  *
@@ -118,7 +106,6 @@ void bendlight(       SkyPoint *p,
  */
 void aberrate(       SkyPoint  *p,
                const KSNumbers *num);
-
 
 } // NS OldPointfunctions
 } // NS KSEngine

@@ -70,8 +70,9 @@
 #include "projections/equirectangularprojector.h"
 #include "fov.h"
 
-#include "engine/oldpointfunctions.h"
 #include "engine/oldrefraction.h"
+#include "engine/oldprecession.h"
+using namespace KSEngine;
 
 #include "tools/flagmanager.h"
 
@@ -343,7 +344,7 @@ void SkyMap::slotTransientLabel() {
     //(HoverTimer is restarted with every mouseMoveEvent; so if it times
     //out, that means there was no mouse movement for HOVER_INTERVAL msec.)
     if ( ! slewing && ! ( Options::useAltAz() && Options::showGround() &&
-                          KSEngine::OldRefraction::refract(m_MousePoint.alt()).Degrees() < 0.0 ) ) {
+                          OldRefraction::refract(m_MousePoint.alt()).Degrees() < 0.0 ) ) {
         double maxrad = 1000.0/Options::zoomFactor();
         SkyObject *so = data->skyComposite()->objectNearest( &m_MousePoint, maxrad );
 
@@ -422,7 +423,7 @@ void SkyMap::slotCenter() {
 
     //update the destination to the selected coordinates
     if ( Options::useAltAz() ) {
-        dms altR = KSEngine::OldRefraction::altRefracted(focusPoint());
+        dms altR = OldRefraction::altRefracted(focusPoint());
         setDestinationAltAz( altR, focusPoint()->az() );
     } else {
         setDestination( *focusPoint() );
@@ -444,7 +445,7 @@ void SkyMap::slotDSS() {
     if ( clickedObject() ) {
         urlstring = KSUtils::getDSSURL( clickedObject() );
     } else {
-        SkyPoint deprecessedPoint = KSEngine::OldPointFunctions::deprecess(clickedPoint(), data->updateNum());
+        SkyPoint deprecessedPoint = OldPrecession::deprecess(clickedPoint(), data->updateNum());
         ra  = deprecessedPoint.ra();
         dec = deprecessedPoint.dec();
         urlstring = KSUtils::getDSSURL( ra, dec ); // Use default size for non-objects
@@ -477,7 +478,7 @@ void SkyMap::slotSDSS() {
         ra  = clickedObject()->ra0();
         dec = clickedObject()->dec0();
     } else {
-        SkyPoint deprecessedPoint = KSEngine::OldPointFunctions::deprecess(clickedPoint(), data->updateNum());
+        SkyPoint deprecessedPoint = OldPrecession::deprecess(clickedPoint(), data->updateNum());
         ra  = deprecessedPoint.ra();
         dec = deprecessedPoint.dec();
     }
@@ -842,7 +843,7 @@ void SkyMap::updateFocus() {
     if ( Options::isTracking() && focusObject() != NULL ) {
         if ( Options::useAltAz() ) {
             //Tracking any object in Alt/Az mode requires focus updates
-            dms altR = KSEngine::OldRefraction::altRefracted(focusObject());
+            dms altR = OldRefraction::altRefracted(focusObject());
             setFocusAltAz( altR, focusObject()->az() );
             focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
             setDestination( *focus() );
