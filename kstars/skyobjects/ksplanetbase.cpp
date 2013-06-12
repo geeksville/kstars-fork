@@ -37,6 +37,8 @@
 #include "skycomponents/skymapcomposite.h"
 #include "texturemanager.h"
 
+#include "engine/types.h"
+
 QVector<QColor> KSPlanetBase::planetColor = QVector<QColor>() <<
   QColor("slateblue") << //Mercury
   QColor("lightgreen") << //Venus
@@ -123,7 +125,7 @@ void KSPlanetBase::findPosition( const KSNumbers *num, const dms *lat, const dms
     // DEBUG edit
     findGeocentricPosition( num, Earth );  //private function, reimplemented in each subclass
     findPhase();
-    setAngularSize( asin(physicalSize()/Rearth/AU_KM)*60.*180./dms::PI ); //angular size in arcmin
+    setAngularSize( asin(physicalSize()/Rearth/KSEngine::AU_KM)*60.*180./dms::PI ); //angular size in arcmin
 
     if ( lat && LST )
         localizeCoords( num, lat, LST ); //correct for figure-of-the-Earth
@@ -141,7 +143,7 @@ void KSPlanetBase::findPosition( const KSNumbers *num, const dms *lat, const dms
         KSComet *me = (KSComet *)this;
         double TailAngSize;
         // Convert the tail size in km to angular tail size (degrees)
-        TailAngSize = asin(physicalSize()/Rearth/AU_KM)*60.0*180.0/dms::PI; 
+        TailAngSize = asin(physicalSize()/Rearth/KSEngine::AU_KM)*60.0*180.0/dms::PI; 
         // Find the apparent length as projected on the celestial sphere (the comet's tail points away from the sun)
         me->setTailAngSize( TailAngSize * fabs(sin( phase().radians() ))); 
     }
@@ -161,7 +163,7 @@ void KSPlanetBase::localizeCoords( const KSNumbers *num, const dms *lat, const d
     dms HA, HA2; //Hour Angle, before and after correction
     double rsinp, rcosp, u, sinHA, cosHA, sinDec, cosDec, D;
     double cosHA2;
-    double r = Rearth * AU_KM; //distance from Earth, in km
+    double r = Rearth * KSEngine::AU_KM; //distance from Earth, in km
     u = atan( 0.996647*tan( lat->radians() ) );
     rsinp = 0.996647*sin( u );
     rcosp = cos( u );
@@ -234,7 +236,7 @@ void KSPlanetBase::setRearth( const KSPlanetBase *Earth ) {
     Rearth = sqrt(x*x + y*y + z*z);
 
     //Set angular size, in arcmin
-    AngularSize = asin(PhysicalSize/Rearth/AU_KM)*60.*180./dms::PI;
+    AngularSize = asin(PhysicalSize/Rearth/KSEngine::AU_KM)*60.*180./dms::PI;
 }
 
 void KSPlanetBase::findPA( const KSNumbers *num ) {

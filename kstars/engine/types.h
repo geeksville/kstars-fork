@@ -81,6 +81,14 @@ typedef Quaternionf GreenwichCoord;
 /// local sidereal time.
 typedef Quaternionf LocalSiderealCoords;
 
+
+/***************************************************************************
+ * CONSTANTS
+ ***************************************************************************/
+
+/// Number of kilometers in one AU
+static const double AU_KM = 1.49605e8;
+
 } // NS KSEngine
 
 #endif //KSENGINE_TYPES_H

@@ -66,6 +66,8 @@
 #include "skycomponents/constellationboundarylines.h"
 #include "skycomponents/skymapcomposite.h"
 
+#include "engine/types.h"
+
 DetailDialog::DetailDialog(SkyObject *o, const KStarsDateTime &ut, GeoLocation *geo, QWidget *parent ) :
     KPageDialog( parent ),
     selectedObject(o),
@@ -212,7 +214,7 @@ void DetailDialog::createGeneralTab()
         //Distance from Earth.  The moon requires a unit conversion
         if ( ps->name() == "Moon" ) {
             Data->Distance->setText( i18nc("distance in kilometers", "%1 km",
-                                           KGlobal::locale()->formatNumber( ps->rearth()*AU_KM ) ) );
+                                           KGlobal::locale()->formatNumber( ps->rearth()*KSEngine::AU_KM ) ) );
         } else {
             Data->Distance->setText( i18nc("distance in Astronomical Units", "%1 AU",
                                            KGlobal::locale()->formatNumber( ps->rearth() ) ) );

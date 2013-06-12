@@ -22,7 +22,6 @@
 #include "ksnumbers.h"
 #include "dms.h"
 #include "kssun.h"
-#include "kstarsdata.h"
 
 namespace KSEngine {
 namespace OldPointFunctions {

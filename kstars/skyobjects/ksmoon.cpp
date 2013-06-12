@@ -31,6 +31,8 @@
 #include "skycomponents/skymapcomposite.h"
 #include "texturemanager.h"
 
+#include "engine/types.h"
+
 using namespace std;
 
 namespace {
@@ -208,7 +210,7 @@ bool KSMoon::findGeocentricPosition( const KSNumbers *num, const KSPlanetBase* )
     //Geocentric coordinates
     setEcLong( dms( sumL/1000000.0 + L * 180.0 / dms::PI) ); //convert radians to degrees
     setEcLat(  dms( sumB/1000000.0 ) );
-    Rearth = ( 385000.56 + sumR/1000.0 )/AU_KM; //distance from Earth, in AU
+    Rearth = ( 385000.56 + sumR/1000.0 )/KSEngine::AU_KM; //distance from Earth, in AU
 
     EclipticToEquatorial( num->obliquity() );
 

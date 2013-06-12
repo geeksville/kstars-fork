@@ -32,6 +32,8 @@
 #include "ksasteroid.h"
 #include "kscomet.h"
 
+#include "engine/types.h"
+
 DetailsTable::DetailsTable()
 {
     m_Document = new QTextDocument(KStars::Instance());
@@ -178,7 +180,7 @@ void DetailsTable::createGeneralTable(SkyObject *obj)
             //Distance from Earth.  The moon requires a unit conversion
             if(ps->name() == "Moon")
             {
-                objDistVal = i18nc("distance in kilometers", "%1 km", KGlobal::locale()->formatNumber(ps->rearth() * AU_KM ));
+                objDistVal = i18nc("distance in kilometers", "%1 km", KGlobal::locale()->formatNumber(ps->rearth() * KSEngine::AU_KM ));
             }
 
             else

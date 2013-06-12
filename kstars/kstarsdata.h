@@ -39,7 +39,6 @@
 #define MAXZOOM 5000000.
 #define DEFAULTZOOM 2000.
 #define DZOOM 1.189207115  // 2^(1/4)
-#define AU_KM 1.49605e8    //km in one AU
 
 
 class QFile;
