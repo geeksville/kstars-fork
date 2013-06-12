@@ -23,6 +23,8 @@
 #include "dms.h"
 #include "kssun.h"
 
+#include "oldprecession.h"
+
 namespace KSEngine {
 namespace OldPointFunctions {
 
@@ -53,7 +55,7 @@ void updateCoords(SkyPoint* p, const KSNumbers* num, const bool forceRecompute)
         lens = false;
     }
     if( recompute ) {
-        p->precess(num);
+        OldPrecession::precess(p,num);
         nutate(p,num);
         if( lens )
             bendlight(p,num->sun());
@@ -64,7 +66,7 @@ void updateCoords(SkyPoint* p, const KSNumbers* num, const bool forceRecompute)
 
 void apparentCoord(SkyPoint* p, const JulianDate jd0, const JulianDate jdf)
 {
-    p->precessFromAnyEpoch(jd0,jdf);
+    OldPrecession::precessFromAnyEpoch(p,jd0,jdf);
     KSNumbers num(jdf);
     nutate(p,&num);
     if( Options::useRelativistic() && checkBendLight(p,num.sun()) )

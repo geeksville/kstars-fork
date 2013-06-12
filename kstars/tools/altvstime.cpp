@@ -42,6 +42,9 @@
 #include "skyobjects/skypoint.h"
 #include "skyobjects/skyobject.h"
 
+#include "engine/oldprecession.h"
+using namespace KSEngine;
+
 #include "avtplotwidget.h"
 #include "ui_altvstime.h"
 
@@ -164,7 +167,7 @@ void AltVsTime::slotAddSource() {
             long double jd = dt.djd();
             if ( jd != J2000 ) {
                 SkyPoint ptest( newRA, newDec );
-                ptest.precessFromAnyEpoch( jd, J2000 );
+                OldPrecession::precessFromAnyEpoch( &ptest, jd, EpochJ2000 );
                 newRA.setH( ptest.ra().Hours() );
                 newDec.setD( ptest.dec().Degrees() );
             }

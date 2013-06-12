@@ -20,6 +20,8 @@
 #include "skypoint.h"
 #include "ksnumbers.h"
 
+#include "oldprecession.h"
+
 namespace KSEngine {
 namespace OldVLSR {
 
@@ -45,7 +47,7 @@ double vRSun(const SkyPoint &s, const JulianDate jd)
     SkyPoint aux;
     aux.set(s.ra0(), s.dec0());
 
-    aux.precessFromAnyEpoch(jd, EpochJ2000);
+    OldPrecession::precessFromAnyEpoch(&aux, jd, EpochJ2000);
 
     aux.ra().SinCos( sinRA, cosRA );
     aux.dec().SinCos( sinDec, cosDec );
@@ -91,7 +93,7 @@ double vREarth(const SkyPoint &s, const JulianDate jd)
 
     SkyPoint aux(s.ra0(), s.dec0());
 
-    aux.precessFromAnyEpoch(jd, EpochJ2000);
+    OldPrecession::precessFromAnyEpoch(&aux, jd, EpochJ2000);
 
     aux.ra().SinCos( sinRA, cosRA );
     aux.dec().SinCos( sinDec, cosDec );

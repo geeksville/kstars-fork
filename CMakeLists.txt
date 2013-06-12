@@ -47,15 +47,15 @@ enable_testing(true)
 
 
 if (EIGEN2_FOUND)
-   include_directories(${CMAKE_CURRENT_BINARY_DIR})
-   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-kstars.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-kstars.h )
+    include_directories(${CMAKE_CURRENT_BINARY_DIR})
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-kstars.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-kstars.h )
 
-   add_subdirectory( doc )
-   add_subdirectory( kstars )
+    add_subdirectory( doc )
+    add_subdirectory( kstars )
+    add_subdirectory( datahandlers )
 endif (EIGEN2_FOUND)
 
 
-add_subdirectory(datahandlers)
 add_subdirectory(Tests)
 
 

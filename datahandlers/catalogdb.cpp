@@ -18,6 +18,8 @@
 #include "datahandlers/catalogdb.h"
 #include "kstars/version.h"
 
+#include "kstars/engine/oldprecession.h"
+using namespace KSEngine;
 
 bool CatalogDB::Initialize() {
   skydb_ = QSqlDatabase::addDatabase("QSQLITE", "skydb");
@@ -717,8 +719,8 @@ void CatalogDB::GetAllObjects(const QString &catalog,
 
         if (cat_epoch == 1950) {
             // Assume B1950 epoch
-            t.B1950ToJ2000();  // t.ra() and t.dec() are now J2000.0
-                               // coordinates
+            OldPrecession::B1950ToJ2000( &t );
+            // t.ra() and t.dec() are now J2000.0 coordinates
         } else if (cat_epoch == 2000) {
             // Do nothing
                  { }

@@ -238,65 +238,6 @@ public:
     	*/
     virtual void updateCoords( KSNumbers *num, bool includePlanets=true, const dms *lat=0, const dms *LST=0, bool forceRecompute = false );
 
-    /**General case of precession. It precess from an original epoch to a
-    	*final epoch. In this case RA0, and Dec0 from SkyPoint object represent
-    	*the coordinates for the original epoch and not for J2000, as usual.
-    	*@param jd0 Julian Day which identifies the original epoch
-    	*@param jdf Julian Day which identifies the final epoch
-    	*/
-    void precessFromAnyEpoch(long double jd0, long double jdf);
-
-    /** Determine the E-terms of aberration
-     *In the past, the mean places of stars published in catalogs included
-     *the contribution to the aberration due to the ellipticity of the orbit
-     *of the Earth. These terms, known as E-terms were almost constant, and
-     *in the newer catalogs (FK5) are not included. Therefore to convert from
-     *FK4 to FK5 one has to compute these E-terms.
-     */
-    SkyPoint Eterms(void);
-
-    /** Exact precession from Besselian epoch 1950 to epoch J2000. The
-    *coordinates referred to the first epoch are in the 
-    FK4 catalog, while the latter are in the Fk5 one.
-    *Reference: Smith, C. A.; Kaplan, G. H.; Hughes, J. A.; Seidelmann,
-    *P. K.; Yallop, B. D.; Hohenkerk, C. Y.
-    *Astronomical Journal, vol. 97, Jan. 1989, p. 265-279
-    *This transformation requires 4 steps:
-    * - Correct E-terms
-    * - Precess from B1950 to 1984, January 1st, 0h, using Newcomb expressions
-    * - Add zero point correction in right ascension for 1984
-    * - Precess from 1984, January 1st, 0h to J2000
-    */
-    void B1950ToJ2000(void);
-
-    /** Exact precession from epoch J2000 Besselian epoch 1950. The coordinates
-    *referred to the first epoch are in the FK4 catalog, while the 
-    *latter are in the Fk5 one.
-    *Reference: Smith, C. A.; Kaplan, G. H.; Hughes, J. A.; Seidelmann,
-    *P. K.; Yallop, B. D.; Hohenkerk, C. Y.
-    *Astronomical Journal, vol. 97, Jan. 1989, p. 265-279
-    *This transformation requires 4 steps:
-    * - Precess from J2000 to 1984, January 1st, 0h
-    * - Add zero point correction in right ascension for 1984
-    * - Precess from 1984, January 1st, 0h, to B1950 using Newcomb expressions
-    * - Correct E-terms
-    */
-    void J2000ToB1950(void);
-
-    /** Coordinates in the FK4 catalog include the effect of aberration due
-     *to the ellipticity of the orbit of the Earth. Coordinates in the FK5
-     *catalog do not include these terms. In order to convert from B1950 (FK4)
-     *to actual mean places one has to use this function.
-    */
-    void addEterms(void);
-
-    /** Coordinates in the FK4 catalog include the effect of aberration due
-     *to the ellipticity of the orbit of the Earth. Coordinates in the FK5 
-     *catalog do not include these terms. In order to convert from 
-     * FK5 coordinates to B1950 (FK4) one has to use this function. 
-    */
-    void subtractEterms(void);
-
     /** Computes the angular distance between two SkyObjects. The algorithm
      *  to compute this distance is:
      *  cos(distance) = sin(d1)*sin(d2) + cos(d1)*cos(d2)*cos(a1-a2)
@@ -327,12 +268,6 @@ public:
      * @short Check if this point is circumpolar at the given geographic latitude
      */
     bool checkCircumpolar( const dms *gLat );
-
-    /**Precess this SkyPoint's catalog coordinates to the epoch described by the
-    	*given KSNumbers object.
-    	*@param num pointer to a KSNumbers object describing the target epoch.
-    	*/
-    void precess(const KSNumbers *num);
 
     long double   lastPrecessJD; // JD at which the last coordinate update (see updateCoords) for this SkyPoint was done
 

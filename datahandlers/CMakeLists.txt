@@ -1,3 +1,5 @@
+include_directories( ${EIGEN2_INCLUDE_DIR} )
+
 set(LibKSDataHandlers_SRCS
         ${kstars_SOURCE_DIR}/datahandlers/catalogentrydata.cpp
         ${kstars_SOURCE_DIR}/datahandlers/catalogdata.cpp

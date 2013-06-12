@@ -28,6 +28,9 @@
 #include "dialogs/finddialog.h"
 #include "widgets/dmsbox.h"
 
+#include "engine/oldprecession.h"
+using namespace KSEngine;
+
 modCalcGalCoord::modCalcGalCoord(QWidget *parentSplit)
         : QFrame(parentSplit) {
 
@@ -82,7 +85,7 @@ void modCalcGalCoord::slotComputeCoords() {
         if ( ok ) {
             SkyPoint sp, ra, dec;
             sp.GalacticToEquatorial1950( &glong, &glat );
-            sp.B1950ToJ2000();
+            OldPrecession::B1950ToJ2000( &sp );
             RA->showInHours( sp.ra() );
             Dec->showInDegrees( sp.dec() );
         }
@@ -97,7 +100,7 @@ void modCalcGalCoord::slotComputeCoords() {
         if ( ok ) {
             dms glong, glat;
             SkyPoint sp( ra, dec );
-            sp.J2000ToB1950();
+            OldPrecession::J2000ToB1950(&sp);
             sp.Equatorial1950ToGalactic(glong, glat);
             GalLongitude->showInDegrees(glong);
             GalLatitude->showInDegrees(glat);
@@ -319,7 +322,7 @@ void modCalcGalCoord::processLines( QTextStream &istream ) {
                     ostream << epoch0B << space;
 
             sp = SkyPoint (raB, decB);
-            sp.J2000ToB1950();
+            OldPrecession::J2000ToB1950(&sp);
             sp.Equatorial1950ToGalactic(galLongB, galLatB);
             ostream << galLongB.toDMSString() << space << galLatB.toDMSString() << endl;
 
