@@ -34,6 +34,10 @@
 #include "dialogs/locationdialog.h"
 #include "dialogs/finddialog.h"
 
+#include "engine/oldvlsr.h"
+
+using namespace KSEngine::OldVLSR;
+
 modCalcVlsr::modCalcVlsr(QWidget *parentSplit) :
     QFrame(parentSplit), velocityFlag(0)
 {
@@ -125,45 +129,45 @@ void modCalcVlsr::slotCompute()
     case 0: //Hold VLSR constant, compute the others
         {
             double vlsr = VLSR->text().toDouble();
-            double vhelio = sp.vHeliocentric( vlsr, dt.djd() );
-            double vgeo = sp.vGeocentric( vhelio, dt.djd() );
+            double vhelio = vHeliocentric( sp, vlsr, dt.djd() );
+            double vgeo = vGeocentric( sp, vhelio, dt.djd() );
 
             VHelio->setText( QString::number( vhelio ) );
             VGeo->setText( QString::number( vgeo ) );
-            VTopo->setText( QString::number( sp.vTopocentric(vgeo, vst) ) );
+            VTopo->setText( QString::number( vTopocentric(sp, vgeo, vst) ) );
             break;
         }
 
     case 1: //Hold VHelio constant, compute the others
         {
             double vhelio = VHelio->text().toDouble();
-            double vlsr = sp.vHelioToVlsr( vhelio, dt.djd() );
-            double vgeo = sp.vGeocentric( vhelio, dt.djd() );
+            double vlsr = vHelioToVlsr( sp, vhelio, dt.djd() );
+            double vgeo = vGeocentric( sp, vhelio, dt.djd() );
 
             VLSR->setText( QString::number( vlsr ) );
             VGeo->setText( QString::number( vgeo ) );
-            VTopo->setText( QString::number( sp.vTopocentric(vgeo, vst) ) );
+            VTopo->setText( QString::number( vTopocentric(sp, vgeo, vst) ) );
             break;
         }
 
     case 2: //Hold VGeo constant, compute the others
         {
             double vgeo = VGeo->text().toDouble();
-            double vhelio = sp.vGeoToVHelio( vgeo, dt.djd() );
-            double vlsr = sp.vHelioToVlsr( vhelio, dt.djd() );
+            double vhelio = vGeoToVHelio( sp, vgeo, dt.djd() );
+            double vlsr = vHelioToVlsr( sp, vhelio, dt.djd() );
 
             VLSR->setText( QString::number( vlsr ) );
             VHelio->setText( QString::number( vhelio ) );
-            VTopo->setText( QString::number( sp.vTopocentric(vgeo, vst) ) );
+            VTopo->setText( QString::number( vTopocentric(sp, vgeo, vst) ) );
             break;
         }
 
     case 3: //Hold VTopo constant, compute the others
         {
             double vtopo = VTopo->text().toDouble();
-            double vgeo = sp.vTopoToVGeo( vtopo, vst );
-            double vhelio = sp.vGeoToVHelio( vgeo, dt.djd() );
-            double vlsr = sp.vHelioToVlsr( vhelio, dt.djd() );
+            double vgeo = vTopoToVGeo( sp, vtopo, vst );
+            double vhelio = vGeoToVHelio( sp, vgeo, dt.djd() );
+            double vlsr = vHelioToVlsr( sp, vhelio, dt.djd() );
 
             VLSR->setText( QString::number( vlsr ) );
             VHelio->setText( QString::number( vhelio ) );
@@ -455,9 +459,9 @@ void modCalcVlsr::processLines( QTextStream &istream ) {
 
         spB = SkyPoint (raB, decB);
         dt0B.setFromEpoch(epoch0B);
-        vhB = spB.vHeliocentric(vlsrB, dt0B.djd());
+        vhB = vHeliocentric(spB, vlsrB, dt0B.djd());
         jd0 = KStarsDateTime(dtB,utB).djd();
-        vgB = spB.vGeocentric(vlsrB, jd0);
+        vgB = vGeocentric(spB, vlsrB, jd0);
         geoPlace->setLong( longB );
         geoPlace->setLat(  latB );
         geoPlace->setHeight( heightB );

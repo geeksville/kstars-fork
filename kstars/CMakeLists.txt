@@ -375,6 +375,7 @@ set(kstars_projection_SRCS
 
 set(kstars_engine_SRCS
     engine/oldpointfunctions.cpp
+    engine/oldvlsr.cpp
 )
 
 set(kstars_extra_SRCS
