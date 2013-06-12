@@ -249,7 +249,7 @@ bool KSComet::findGeocentricPosition( const KSNumbers *num, const KSPlanetBase *
 
     EclipticToEquatorial( num->obliquity() );
     KSEngine::OldPointFunctions::nutate(this,num);
-    aberrate( num );
+    KSEngine::OldPointFunctions::aberrate(this,num);
 
     findPhysicalParameters();
 

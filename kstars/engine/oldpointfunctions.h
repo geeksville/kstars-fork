@@ -110,6 +110,16 @@ void bendlight(       SkyPoint *p,
                 const KSSun    *sun );
 
 
+/** Determine the effects of aberration for this SkyPoint.
+ *
+ *  @param p the point to correct
+ *  @param num pointer to KSNumbers object containing current values of
+ *         time-dependent variables.
+ */
+void aberrate(       SkyPoint  *p,
+               const KSNumbers *num);
+
+
 } // NS OldPointfunctions
 } // NS KSEngine
 

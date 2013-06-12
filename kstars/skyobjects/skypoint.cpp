@@ -216,34 +216,6 @@ SkyPoint SkyPoint::moveAway( const SkyPoint &from, double dist ){
     return SkyPoint( ra() + dtheta, lat1 );
 }
 
-void SkyPoint::aberrate(const KSNumbers *num) {
-    double cosRA, sinRA, cosDec, sinDec;
-    double cosOb, sinOb, cosL, sinL, cosP, sinP;
-
-    double K = num->constAberr().Degrees();  //constant of aberration
-    double e = num->earthEccentricity();
-
-    RA.SinCos( sinRA, cosRA );
-    Dec.SinCos( sinDec, cosDec );
-
-    num->obliquity()->SinCos( sinOb, cosOb );
-    double tanOb = sinOb/cosOb;
-
-    num->sunTrueLongitude().SinCos( sinL, cosL );
-    num->earthPerihelionLongitude().SinCos( sinP, cosP );
-
-
-    //Step 3: Aberration
-    double dRA = -1.0 * K * ( cosRA * cosL * cosOb + sinRA * sinL )/cosDec
-                  + e * K * ( cosRA * cosP * cosOb + sinRA * sinP )/cosDec;
-
-    double dDec = -1.0 * K * ( cosL * cosOb * ( tanOb * cosDec - sinRA * sinDec ) + cosRA * sinDec * sinL )
-                   + e * K * ( cosP * cosOb * ( tanOb * cosDec - sinRA * sinDec ) + cosRA * sinDec * sinP );
-
-    RA.setD( RA.Degrees() + dRA );
-    Dec.setD( Dec.Degrees() + dDec );
-}
-
 // Note: This method is one of the major rate determining factors in how fast the map pans / zooms in or out
 void SkyPoint::updateCoords( KSNumbers *num, bool /*includePlanets*/, const dms *lat, const dms *LST, bool forceRecompute ) {
     //FIXME: we should rip out this whole method, but the fact that it's

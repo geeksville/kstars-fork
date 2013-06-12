@@ -136,7 +136,7 @@ bool KSSun::findGeocentricPosition( const KSNumbers *num, const KSPlanetBase *Ea
     setRA0(  ra() );
     setDec0( dec() );
 
-    aberrate(num);
+    KSEngine::OldPointFunctions::aberrate(this,num);
 
     // We obtain the apparent geocentric ecliptic coordinates. That is, after
     // nutation and aberration have been applied.

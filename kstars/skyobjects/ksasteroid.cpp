@@ -120,7 +120,7 @@ bool KSAsteroid::findGeocentricPosition( const KSNumbers *num, const KSPlanetBas
 
     EclipticToEquatorial( num->obliquity() );
     KSEngine::OldPointFunctions::nutate(this, num);
-    aberrate( num );
+    KSEngine::OldPointFunctions::aberrate(this, num);
 
     return true;
 }

@@ -265,12 +265,6 @@ public:
     	*/
     virtual void updateCoords( KSNumbers *num, bool includePlanets=true, const dms *lat=0, const dms *LST=0, bool forceRecompute = false );
 
-    /**Determine the effects of aberration for this SkyPoint.
-    	*@param num pointer to KSNumbers object containing current values of
-    	*time-dependent variables.
-    	*/
-    void aberrate(const KSNumbers *num);
-
     /**General case of precession. It precess from an original epoch to a
     	*final epoch. In this case RA0, and Dec0 from SkyPoint object represent
     	*the coordinates for the original epoch and not for J2000, as usual.

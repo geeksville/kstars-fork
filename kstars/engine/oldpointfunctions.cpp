@@ -57,7 +57,7 @@ void updateCoords(SkyPoint* p, const KSNumbers* num, const bool forceRecompute)
         nutate(p,num);
         if( lens )
             bendlight(p,num->sun());
-        p->aberrate(num);
+        aberrate(p,num);
         p->lastPrecessJD = num->getJD();
     }
 }
@@ -69,7 +69,7 @@ void apparentCoord(SkyPoint* p, const JulianDate jd0, const JulianDate jdf)
     nutate(p,&num);
     if( Options::useRelativistic() && checkBendLight(p,num.sun()) )
         bendlight(p,num.sun());
-    p->aberrate( &num );
+    aberrate( p, &num );
 }
 
 SkyPoint deprecess(SkyPoint* p, const KSNumbers* num, const JulianDate epoch)
@@ -160,6 +160,40 @@ void bendlight(SkyPoint* p, const KSSun* sun)
     p->setRA(  sp.ra() );
     p->setDec( sp.dec() );
 }
+
+void aberrate(SkyPoint* p, const KSNumbers* num)
+{
+    double cosRA, sinRA, cosDec, sinDec;
+    double cosOb, sinOb, cosL, sinL, cosP, sinP;
+
+    double K = num->constAberr().Degrees();  //constant of aberration
+    double e = num->earthEccentricity();
+
+    dms ra = p->ra();
+    dms dec = p->dec();
+    ra.SinCos( sinRA, cosRA );
+    dec.SinCos( sinDec, cosDec );
+
+    num->obliquity()->SinCos( sinOb, cosOb );
+    double tanOb = sinOb/cosOb;
+
+    num->sunTrueLongitude().SinCos( sinL, cosL );
+    num->earthPerihelionLongitude().SinCos( sinP, cosP );
+
+
+    //Step 3: Aberration
+    double dRA = -1.0 * K * ( cosRA * cosL * cosOb + sinRA * sinL )/cosDec
+                  + e * K * ( cosRA * cosP * cosOb + sinRA * sinP )/cosDec;
+
+    double dDec = -1.0 * K * ( cosL * cosOb * ( tanOb * cosDec - sinRA * sinDec ) + cosRA * sinDec * sinL )
+                   + e * K * ( cosP * cosOb * ( tanOb * cosDec - sinRA * sinDec ) + cosRA * sinDec * sinP );
+
+    ra.setD( ra.Degrees() + dRA );
+    dec.setD( dec.Degrees() + dDec );
+    p->setRA( ra );
+    p->setDec( dec );
+}
+
 
 } // NS OldPointfunctions
 } // NS KSEngine
