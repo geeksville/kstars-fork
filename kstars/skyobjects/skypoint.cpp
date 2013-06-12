@@ -33,8 +33,6 @@
 
 #include "engine/oldpointfunctions.h"
 
-const double SkyPoint::altCrit = -1.0;
-
 SkyPoint::SkyPoint() {
     // Default constructor. Set nonsense values
     RA0.setD(-1); // RA >= 0 always :-)
@@ -499,39 +497,4 @@ dms SkyPoint::angularDistanceTo(const SkyPoint *sp, double * const positionAngle
 
 bool SkyPoint::checkCircumpolar( const dms *gLat ) {
     return fabs(dec().Degrees())  >  (90 - fabs(gLat->Degrees()));
-}
-
-dms SkyPoint::altRefracted() const {
-    if( Options::useRefraction() )
-        return refract(Alt);
-    else
-        return Alt;
-}
-
-double SkyPoint::refractionCorr(double alt) {
-    return 1.02 / tan(dms::DegToRad * ( alt + 10.3/(alt + 5.11) )) / 60;
-}
-
-double SkyPoint::refract(const double alt) {
-    static double corrCrit = SkyPoint::refractionCorr( SkyPoint::altCrit );
-
-    if( alt > SkyPoint::altCrit )
-        return ( alt + SkyPoint::refractionCorr(alt) );
-    else
-        return ( alt + corrCrit * (alt + 90) / (SkyPoint::altCrit + 90) ); // Linear extrapolation from corrCrit at altCrit to 0 at -90 degrees
-}
-
-// Found uncorrected value by solving equation. This is OK since
-// unrefract is never called in loops.
-//
-// Convergence is quite fast just a few iterations.
-double SkyPoint::unrefract(const double alt) {
-    double h0 = alt;
-    double h1 = alt - (refract( h0 ) - h0); // It's probably okay to add h0 in refract() and subtract it here, since refract() is called way more frequently.
-
-    while( fabs(h1 - h0) > 1e-4 ) {
-        h0 = h1;
-        h1 = alt - (refract( h0 ) - h0);
-    }
-    return h1;
 }

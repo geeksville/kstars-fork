@@ -25,6 +25,9 @@
 #include "kstarsdata.h"
 #include "skycomponents/skylabeler.h"
 
+#include "engine/oldrefraction.h"
+using namespace KSEngine;
+
 namespace {
     void toXYZ(const SkyPoint* p, double *x, double *y, double *z) {
         double sinRa, sinDec, cosRa, cosDec;
@@ -384,7 +387,7 @@ SkyPoint Projector::fromScreen(const QPointF& p, dms* LST, const dms* lat) const
         alt.setRadians( Y );
         az.setRadians( A + m_vp.focus->az().radians() );
         if ( m_vp.useRefraction )
-            alt = SkyPoint::unrefract( alt );
+            alt = OldRefraction::unrefract( alt );
         result.setAlt( alt );
         result.setAz( az );
         result.HorizontalToEquatorial( LST, lat );
@@ -406,10 +409,12 @@ Vector2f Projector::toScreenVec(const SkyPoint* o, bool oRefract, bool* onVisibl
 
     oRefract &= m_vp.useRefraction;
     if ( m_vp.useAltAz ) {
-        if ( oRefract )
-            Y = SkyPoint::refract( o->alt() ).radians(); //account for atmospheric refraction
-        else
+        if ( oRefract ) {
+            //account for atmospheric refraction
+            Y = OldRefraction::refract( o->alt() ).radians();
+        } else {
             Y = o->alt().radians();
+        }
         dX = m_vp.focus->az().reduce().radians() - o->az().reduce().radians();
     } else {
         dX = o->ra().reduce().radians() - m_vp.focus->ra().reduce().radians();

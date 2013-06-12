@@ -106,6 +106,8 @@
 #include "skycomponents/asteroidscomponent.h"
 #include "skycomponents/supernovaecomponent.h"
 
+#include "engine/oldrefraction.h"
+
 #ifdef HAVE_CFITSIO_H
 #include "fitsviewer/fitsviewer.h"
 #ifdef HAVE_INDI_H
@@ -1011,9 +1013,10 @@ void KStars::slotCoordSys() {
         if ( Options::useRefraction() ) {
             if ( map()->focusObject() ) //simply update focus to focusObject's position
                 map()->setFocus( map()->focusObject() );
-            else { //need to recompute focus for unrefracted position
-                map()->setFocusAltAz( SkyPoint::unrefract( map()->focus()->alt() ),
-                                      map()->focus()->az() );
+            else {
+                //need to recompute focus for unrefracted position
+                dms uR = KSEngine::OldRefraction::unrefract(map()->focus()->alt());
+                map()->setFocusAltAz( uR, map()->focus()->az() );
                 map()->focus()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
             }
         }
@@ -1021,7 +1024,8 @@ void KStars::slotCoordSys() {
     } else {
         Options::setUseAltAz( true );
         if ( Options::useRefraction() ) {
-            map()->setFocusAltAz( map()->focus()->altRefracted(), map()->focus()->az() );
+            dms altR = KSEngine::OldRefraction::altRefracted(map()->focus());
+            map()->setFocusAltAz( altR, map()->focus()->az() );
         }
         actionCollection()->action("coordsys")->setText( i18n("Switch to star globe view (Equatorial &Coordinates)") );
     }
@@ -1209,7 +1213,7 @@ void KStars::slotShowPositionBar(SkyPoint* p ) {
     if ( Options::showAltAzField() ) {
         dms a = p->alt();
         if ( Options::useAltAz() )
-            a = p->altRefracted();
+            a = KSEngine::OldRefraction::altRefracted(p);
         QString s = QString("%1, %2").arg( p->az().toDMSString(true), //true: force +/- symbol
                                            a.toDMSString(true) );                 //true: force +/- symbol
         statusBar()->changeItem( s, 1 );

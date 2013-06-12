@@ -24,6 +24,9 @@
 #include "kstarsdata.h"
 #include "skycomponents/skylabeler.h"
 
+#include "engine/oldrefraction.h"
+using namespace KSEngine;
+
 EquirectangularProjector::EquirectangularProjector(const ViewParams& p)
     : Projector(p)
 {
@@ -47,10 +50,12 @@ Vector2f EquirectangularProjector::toScreenVec(const SkyPoint* o, bool oRefract,
 
     oRefract &= m_vp.useRefraction;
     if ( m_vp.useAltAz ) {
-        if ( oRefract )
-            Y = SkyPoint::refract( o->alt() ).radians(); //account for atmospheric refraction
-        else
+        if ( oRefract ) {
+            //account for atmospheric refraction
+            Y = OldRefraction::refract( o->alt() ).radians();
+        } else {
             Y = o->alt().radians();
+        }
         dX = m_vp.focus->az().reduce().radians() - o->az().reduce().radians();
         
         p[1] = 0.5*m_vp.height - m_vp.zoomFactor*(Y - m_vp.focus->alt().radians());
@@ -85,7 +90,7 @@ SkyPoint EquirectangularProjector::fromScreen(const QPointF& p, dms* LST, const 
             alt.setRadians( dy + m_vp.focus->alt().radians() );
             result.setAz( az.reduce() );
             if ( m_vp.useRefraction )
-                alt = SkyPoint::unrefract( alt );
+                alt = OldRefraction::unrefract( alt );
             result.setAlt( alt );
             result.HorizontalToEquatorial( LST, lat );
             return result;

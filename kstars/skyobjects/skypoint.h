@@ -201,11 +201,6 @@ public:
     /**@return a pointer to the current Altitude. */
     inline const dms& alt() const { return Alt; }
 
-    /**@return refracted altitude. This function uses
-     * Option::useRefraction to determine whether refraction
-     * correction should be aplied */
-    dms altRefracted() const;
-
     ////
     //// 3. Coordinate conversions.
     //// ==========================
@@ -354,44 +349,6 @@ public:
      * @short Check if this point is circumpolar at the given geographic latitude
      */
     bool checkCircumpolar( const dms *gLat );
-
-    /** Calculate refraction correction. Parameter and return value are in degrees */
-    static double refractionCorr( double alt );
-
-    /**
-     * @short Apply refraction correction to altitude.
-     * @param alt altitude to be corrected, in degrees
-     * @return altitude after refraction correction, in degrees
-     */
-    static double refract(const double alt);
-
-    /**
-     * @short Remove refraction correction.
-     * @param alt altitude from which refraction correction must be removed, in degrees
-     * @return altitude without refraction correction, in degrees
-     */
-    static double unrefract(const double alt);
-
-    /**
-     * @short Apply refraction correction to altitude. Overloaded method using
-     * dms provided for convenience
-     * @see SkyPoint::refract( const double alt )
-     */
-    static inline dms refract(const dms alt) { return dms( refract( alt.Degrees() ) ); }
-
-    /**
-     * @short Remove refraction correction. Overloaded method using
-     * dms provided for convenience
-     * @see SkyPoint::unrefract( const double alt )
-     */
-    static inline dms unrefract(const dms alt) { return dms( unrefract( alt.Degrees() ) ); }
-
-    /**
-     *@short Critical height for atmospheric refraction
-     * corrections. Below this, the height formula produces meaningles
-     * results and the correction value is just interpolated.
-     */
-    static const double altCrit;
 
     /**Precess this SkyPoint's catalog coordinates to the epoch described by the
     	*given KSNumbers object.

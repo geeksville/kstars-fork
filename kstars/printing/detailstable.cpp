@@ -32,7 +32,7 @@
 #include "ksasteroid.h"
 #include "kscomet.h"
 
-#include "engine/types.h"
+#include "engine/oldrefraction.h"
 
 DetailsTable::DetailsTable()
 {
@@ -577,7 +577,7 @@ void DetailsTable::createCoordinatesTable(SkyObject *obj, const KStarsDateTime &
 
     else
     {
-        a = obj->altRefracted();
+        a = KSEngine::OldRefraction::altRefracted(obj);
     }
     table->cellAt(2, 3).firstCursorPosition().insertText(a.toDMSString(), m_ItemValueCharFormat);
 

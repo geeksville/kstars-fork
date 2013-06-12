@@ -68,6 +68,7 @@
 
 #include "engine/types.h"
 #include "engine/oldpointfunctions.h"
+#include "engine/oldrefraction.h"
 
 DetailDialog::DetailDialog(SkyObject *o, const KStarsDateTime &ut, GeoLocation *geo, QWidget *parent ) :
     KPageDialog( parent ),
@@ -458,7 +459,7 @@ void DetailDialog::createPositionTab( const KStarsDateTime &ut, GeoLocation *geo
     if( Options::useAltAz() )
         a = selectedObject->alt();
     else
-        a = selectedObject->altRefracted();
+        a = KSEngine::OldRefraction::altRefracted(selectedObject);
     Pos->Alt->setText( a.toDMSString() );
 
     // Display the RA0 and Dec0 for objects that are outside the solar system

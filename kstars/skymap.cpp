@@ -71,6 +71,7 @@
 #include "fov.h"
 
 #include "engine/oldpointfunctions.h"
+#include "engine/oldrefraction.h"
 
 #include "tools/flagmanager.h"
 
@@ -342,7 +343,7 @@ void SkyMap::slotTransientLabel() {
     //(HoverTimer is restarted with every mouseMoveEvent; so if it times
     //out, that means there was no mouse movement for HOVER_INTERVAL msec.)
     if ( ! slewing && ! ( Options::useAltAz() && Options::showGround() &&
-                          SkyPoint::refract(m_MousePoint.alt()).Degrees() < 0.0 ) ) {
+                          KSEngine::OldRefraction::refract(m_MousePoint.alt()).Degrees() < 0.0 ) ) {
         double maxrad = 1000.0/Options::zoomFactor();
         SkyObject *so = data->skyComposite()->objectNearest( &m_MousePoint, maxrad );
 
@@ -421,7 +422,8 @@ void SkyMap::slotCenter() {
 
     //update the destination to the selected coordinates
     if ( Options::useAltAz() ) {
-        setDestinationAltAz( focusPoint()->altRefracted(), focusPoint()->az() );
+        dms altR = KSEngine::OldRefraction::altRefracted(focusPoint());
+        setDestinationAltAz( altR, focusPoint()->az() );
     } else {
         setDestination( *focusPoint() );
     }
@@ -840,7 +842,8 @@ void SkyMap::updateFocus() {
     if ( Options::isTracking() && focusObject() != NULL ) {
         if ( Options::useAltAz() ) {
             //Tracking any object in Alt/Az mode requires focus updates
-            setFocusAltAz( focusObject()->altRefracted(), focusObject()->az() );
+            dms altR = KSEngine::OldRefraction::altRefracted(focusObject());
+            setFocusAltAz( altR, focusObject()->az() );
             focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
             setDestination( *focus() );
         } else {
