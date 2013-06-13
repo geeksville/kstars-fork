@@ -25,6 +25,7 @@
 #include "skycomponents/skylabeler.h"
 
 #include "engine/oldrefraction.h"
+#include "engine/oldconversions.h"
 using namespace KSEngine;
 
 EquirectangularProjector::EquirectangularProjector(const ViewParams& p)
@@ -92,14 +93,14 @@ SkyPoint EquirectangularProjector::fromScreen(const QPointF& p, dms* LST, const 
             if ( m_vp.useRefraction )
                 alt = OldRefraction::unrefract( alt );
             result.setAlt( alt );
-            result.HorizontalToEquatorial( LST, lat );
+            OldConversions::HorizontalToEquatorial( &result, LST, lat );
             return result;
         } else {
             dms ra, dec;
             ra.setRadians( dx + m_vp.focus->ra().radians() );
             dec.setRadians( dy + m_vp.focus->dec().radians() );
             result.set( ra.reduce(), dec );
-            result.EquatorialToHorizontal( LST, lat );
+            OldConversions::EquatorialToHorizontal( &result, LST, lat );
             return result;
         }
 }

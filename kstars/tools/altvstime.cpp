@@ -43,6 +43,7 @@
 #include "skyobjects/skyobject.h"
 
 #include "engine/oldprecession.h"
+#include "engine/oldconversions.h"
 using namespace KSEngine;
 
 #include "avtplotwidget.h"
@@ -282,7 +283,7 @@ void AltVsTime::processObject( SkyObject *o, bool forceAdd ) {
         o->updateCoords( oldNum, true, data->geo()->lat(), data->lst() );
         delete oldNum;
     }
-    o->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+    OldConversions::EquatorialToHorizontal( o, data->lst(), data->geo()->lat() );
     delete num;
 }
 
@@ -293,7 +294,7 @@ double AltVsTime::findAltitude( SkyPoint *p, double hour ) {
     KStarsDateTime ut = getDate().addSecs( hour*3600.0 );
 
     dms LST = geo->GSTtoLST( ut.gst() );
-    p->EquatorialToHorizontal( &LST, geo->lat() );
+    OldConversions::EquatorialToHorizontal( p, &LST, geo->lat() );
     return p->alt().Degrees();
 }
 
@@ -404,7 +405,7 @@ void AltVsTime::slotUpdateDateLoc() {
                 delete oldNum;
                 oldNum = 0;
             }
-            o->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( o, data->lst(), data->geo()->lat() );
         } else {  //assume unfound object is a custom object
             pList.at(i)->updateCoords( num ); //precess to desired epoch
 

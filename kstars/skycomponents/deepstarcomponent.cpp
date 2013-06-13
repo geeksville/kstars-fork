@@ -38,6 +38,9 @@
 
 #include "skypainter.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 #include <kde_file.h>
 #include "byteorder.h"
 
@@ -134,7 +137,9 @@ bool DeepStarComponent::loadStaticStars() {
             
             if( star ) {
                 KStarsData* data = KStarsData::Instance();
-                star->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+                OldConversions::EquatorialToHorizontal( star, 
+                                                        data->lst(), 
+                                                        data->geo()->lat() );
                 if( star->getHDIndex() != 0 )
                     m_CatalogNumber.insert( star->getHDIndex(), star );
             } else {

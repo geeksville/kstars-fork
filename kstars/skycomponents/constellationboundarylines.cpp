@@ -37,6 +37,9 @@
 #include "linelistindex.h"
 #include "skycomponents/skymapcomposite.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 #include "skymesh.h"
 
 #include "skypainter.h"
@@ -127,7 +130,9 @@ ConstellationBoundaryLines::ConstellationBoundaryLines( SkyComposite *parent )
             if ( ! lineList ) lineList = new LineList();
 
             SkyPoint* point = new SkyPoint( ra, dec );
-            point->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( point,
+                                                    data->lst(),
+                                                    data->geo()->lat() );
             lineList->append( point );
             lastRa  = ra;
             lastDec = dec;

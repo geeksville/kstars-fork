@@ -29,6 +29,9 @@
 
 #include "skypainter.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 EquatorialCoordinateGrid::EquatorialCoordinateGrid( SkyComposite *parent )
         : CoordinateGrid( parent, i18n("Equatorial Coordinate Grid" ) )
 {
@@ -57,7 +60,9 @@ EquatorialCoordinateGrid::EquatorialCoordinateGrid( SkyComposite *parent )
             if ( max > 90.0 ) max = 90.0;
             for ( dec2 = dec; dec2 <= max + eps; dec2 += dDec2 ) {
                 SkyPoint* p = new SkyPoint( ra, dec2 );
-                p->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+                OldConversions::EquatorialToHorizontal( p, 
+                                                        data->lst(), 
+                                                        data->geo()->lat() );
                 lineList->append( p );
             }
             appendLine( lineList );
@@ -79,7 +84,9 @@ EquatorialCoordinateGrid::EquatorialCoordinateGrid( SkyComposite *parent )
             lineList = new LineList();
             for ( ra2 = ra; ra2 <= ra + dRa + eps; ra2 += dRa3 ) {
                 SkyPoint* p = new SkyPoint( ra2, dec );
-                p->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+                OldConversions::EquatorialToHorizontal( p, 
+                                                        data->lst(), 
+                                                        data->geo()->lat() );
                 lineList->append( p );
             }
             appendLine( lineList );

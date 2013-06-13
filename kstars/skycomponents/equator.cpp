@@ -29,6 +29,9 @@
 #include "skypainter.h"
 #include "projections/projector.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 Equator::Equator(SkyComposite *parent ) :
         NoPrecessIndex( parent, i18n("Equator") ),
         m_label( LineListIndex::name() )
@@ -46,7 +49,7 @@ Equator::Equator(SkyComposite *parent ) :
         LineList* lineList = new LineList();
         for(double ra2 = ra; ra2 <= ra + dRa + eps; ra2 += dRa2 ) {
             SkyPoint* o = new SkyPoint( ra2, 0.0 );
-            o->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( o, data->lst(), data->geo()->lat() );
             lineList->append( o );
         }
         appendLine( lineList );
@@ -93,7 +96,7 @@ void Equator::drawCompassLabels() {
     KSNumbers num( data->ut().djd() );
     for( int ra = 0; ra < 23; ra += 2 ) {
         SkyPoint o( ra, 0.0 );
-        o.EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( &o, data->lst(), data->geo()->lat() );
         bool visible;
         QPointF cpoint = proj->toScreen( &o, false, &visible );
         if ( visible && proj->checkVisibility( &o ) ) {

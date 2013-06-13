@@ -27,6 +27,9 @@
 #include "kstarsdata.h"
 #include "skymap.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 SolarSystemListComponent::SolarSystemListComponent( SolarSystemComposite *p ) :
     ListComponent( p ),
     m_Earth( p->earth() )
@@ -43,7 +46,7 @@ void SolarSystemListComponent::update(KSNumbers * ) {
         foreach ( SkyObject *o, m_ObjectList ) {
             // FIXME: get rid of cast. 
             KSPlanetBase *p = (KSPlanetBase*)o;
-            p->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( p, data->lst(), data->geo()->lat() );
         }
     }
 }
@@ -54,7 +57,7 @@ void SolarSystemListComponent::updatePlanets(KSNumbers *num ) {
         foreach ( SkyObject *o, m_ObjectList ) {
             KSPlanetBase *p = (KSPlanetBase*)o;
             p->findPosition( num, data->geo()->lat(), data->lst(), m_Earth );
-            p->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( p, data->lst(), data->geo()->lat() );
 
             if ( p->hasTrail() )
                 p->updateTrail( data->lst(), data->geo()->lat() );

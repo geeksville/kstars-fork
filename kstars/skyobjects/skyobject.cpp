@@ -36,6 +36,9 @@
 #include "Options.h"
 #include "skycomponents/skylabeler.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 QString SkyObject::emptyString;
 QString SkyObject::unnamedString = QString(I18N_NOOP("unnamed"));
 QString SkyObject::unnamedObjectString = QString(I18N_NOOP("unnamed object"));
@@ -113,7 +116,7 @@ QTime SkyObject::riseSetTime( const KStarsDateTime &dt, const GeoLocation *geo, 
     //to bring it above the horizon
     KStarsDateTime dt2 = dt;
     dms lst(geo->GSTtoLST( dt.gst() ));
-    p.EquatorialToHorizontal( &lst, geo->lat() );
+    OldConversions::EquatorialToHorizontal( &p, &lst, geo->lat() );
     if ( p.alt().Degrees() < 0.0 ) {
         if ( p.az().Degrees() < 180.0 ) { //object has not risen yet
             dt2 = dt.addSecs( 12.*3600. ); // Move forward 12 hours, to a time when it has already risen

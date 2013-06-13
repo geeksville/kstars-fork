@@ -48,6 +48,8 @@
 
 #include "skypainter.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 LineListIndex::LineListIndex( SkyComposite *parent, const QString& name ) :
     SkyComponent( parent ),
@@ -148,7 +150,9 @@ void LineListIndex::JITupdate( LineList* lineList )
     }
 
     for (int i = 0; i < points->size(); i++ ) {
-        points->at( i )->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( points->at(i),
+                                                data->lst(),
+                                                data->geo()->lat() );
     }
 }
 

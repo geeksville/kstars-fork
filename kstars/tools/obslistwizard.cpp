@@ -33,6 +33,9 @@
 #include "skycomponents/constellationboundarylines.h"
 #include "skycomponents/skymapcomposite.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 ObsListWizardUI::ObsListWizardUI( QWidget *p ) : QFrame ( p ) {
     setupUi( this );
 }
@@ -837,7 +840,7 @@ bool ObsListWizard::applyObservableFilter( SkyObject *o, bool doBuildList, bool 
     for ( KStarsDateTime t = Evening; t < Midnight; t = t.addSecs( 3600.0 ) )
     {
         dms LST = geo->GSTtoLST( t.gst() );
-        p.EquatorialToHorizontal( &LST, geo->lat() );
+        OldConversions::EquatorialToHorizontal( &p, &LST, geo->lat() );
 
         if ( p.alt().Degrees() >= minAlt && p.alt().Degrees() <= maxAlt )
         {

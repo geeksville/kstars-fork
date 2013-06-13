@@ -24,6 +24,9 @@
 #include "kssun.h"
 #include "trailobject.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 PlanetMoons::PlanetMoons(){
 }
 
@@ -39,5 +42,5 @@ void PlanetMoons::EquatorialToHorizontal( const dms *LST, const dms *lat ) {
   int nmoons = nMoons();
   
   for ( int i=0; i<nmoons; ++i )
-        moon(i)->EquatorialToHorizontal( LST, lat );
+      OldConversions::EquatorialToHorizontal(moon(i), LST, lat);
 }

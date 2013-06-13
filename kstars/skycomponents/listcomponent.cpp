@@ -23,6 +23,9 @@
 #include "skymap.h" 
 #include "skyobjects/skyobject.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 ListComponent::ListComponent( SkyComposite *parent ) :
     SkyComponent( parent )
 {}
@@ -47,7 +50,7 @@ void ListComponent::update( KSNumbers *num )
     foreach ( SkyObject *o, m_ObjectList ) {
         if( num )
             o->updateCoords( num );
-        o->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( o, data->lst(), data->geo()->lat() );
     }
 }
 

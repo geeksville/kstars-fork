@@ -28,6 +28,9 @@
 #include "skylabeler.h"
 #include "projections/projector.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 ConstellationNamesComponent::ConstellationNamesComponent(SkyComposite *parent, CultureList* cultures )
         : ListComponent(parent )
 {
@@ -105,7 +108,7 @@ void ConstellationNamesComponent::update( KSNumbers* )
         return;
     KStarsData *data = KStarsData::Instance();
     foreach(SkyObject* o, m_ObjectList)
-        o->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal(o, data->lst(), data->geo()->lat() );
 }
 
 void ConstellationNamesComponent::draw( SkyPainter *skyp )

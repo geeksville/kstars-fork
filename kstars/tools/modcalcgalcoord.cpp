@@ -29,6 +29,7 @@
 #include "widgets/dmsbox.h"
 
 #include "engine/oldprecession.h"
+#include "engine/oldconversions.h"
 using namespace KSEngine;
 
 modCalcGalCoord::modCalcGalCoord(QWidget *parentSplit)
@@ -84,7 +85,7 @@ void modCalcGalCoord::slotComputeCoords() {
             glat = GalLatitude->createDms( true, &ok );
         if ( ok ) {
             SkyPoint sp, ra, dec;
-            sp.GalacticToEquatorial1950( &glong, &glat );
+            OldConversions::GalacticToEquatorial1950( &sp, &glong, &glat );
             OldPrecession::B1950ToJ2000( &sp );
             RA->showInHours( sp.ra() );
             Dec->showInDegrees( sp.dec() );
@@ -101,7 +102,7 @@ void modCalcGalCoord::slotComputeCoords() {
             dms glong, glat;
             SkyPoint sp( ra, dec );
             OldPrecession::J2000ToB1950(&sp);
-            sp.Equatorial1950ToGalactic(glong, glat);
+            OldConversions::Equatorial1950ToGalactic( &sp, glong, glat);
             GalLongitude->showInDegrees(glong);
             GalLatitude->showInDegrees(glat);
         }
@@ -273,7 +274,7 @@ void modCalcGalCoord::processLines( QTextStream &istream ) {
                     ostream << galLatB.toDMSString() << space;
 
             sp = SkyPoint ();
-            sp.GalacticToEquatorial1950(&galLongB, &galLatB);
+            OldConversions::GalacticToEquatorial1950(&sp, &galLatB, &galLatB);
             ostream << sp.ra().toHMSString() << space << sp.dec().toDMSString() << epoch0B << endl;
             // Input coords. are equatorial coordinates:
 
@@ -323,7 +324,7 @@ void modCalcGalCoord::processLines( QTextStream &istream ) {
 
             sp = SkyPoint (raB, decB);
             OldPrecession::J2000ToB1950(&sp);
-            sp.Equatorial1950ToGalactic(galLongB, galLatB);
+            OldConversions::Equatorial1950ToGalactic(&sp, galLongB, galLatB);
             ostream << galLongB.toDMSString() << space << galLatB.toDMSString() << endl;
 
         }

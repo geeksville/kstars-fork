@@ -31,6 +31,9 @@
 #include "skyobjects/deepskyobject.h"
 #include "kstars/skypainter.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 QStringList CatalogComponent::m_Columns
                             = QString( "ID RA Dc Tp Nm Mg Flux Mj Mn PA Ig" )
                               .split( ' ',QString::SkipEmptyParts );
@@ -86,7 +89,7 @@ void CatalogComponent::update( KSNumbers * ) {
                         dso->updateCoords( data->updateNum() );
 
                     }
-                    dso->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+                    OldConversions::EquatorialToHorizontal( dso, data->lst(), data->geo()->lat() );
                 }
             }
             else {
@@ -96,7 +99,7 @@ void CatalogComponent::update( KSNumbers * ) {
                     if ( so->updateNumID != data->updateNumID() ) {
                         so->updateCoords( data->updateNum() );
                     }
-                    so->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+                    OldConversions::EquatorialToHorizontal( so, data->lst(), data->geo()->lat() );
                 }
             }
         }

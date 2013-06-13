@@ -46,6 +46,9 @@
 #include "projections/projector.h"
 #include "projections/lambertprojector.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 #include <config-kstars.h>
 
 #ifdef HAVE_INDI_H
@@ -243,7 +246,9 @@ void SkyMapDrawAbstract::drawTelescopeSymbols(QPainter &psky)
         }
 
         if ( Options::useAltAz() )
-            indi_sp.EquatorialToHorizontal( m_KStarsData->lst(), m_KStarsData->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( &indi_sp,
+                                                    m_KStarsData->lst(), 
+                                                    m_KStarsData->geo()->lat() );
 
 
         QPointF P = m_SkyMap->m_proj->toScreen( &indi_sp );

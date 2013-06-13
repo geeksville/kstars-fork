@@ -30,6 +30,8 @@
 #include "skymap.h"
 
 #include "engine/oldpointfunctions.h"
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 // DEBUG EDIT. Uncomment for testing Proper Motion
 //#include "skycomponents/skymesh.h"
@@ -332,7 +334,7 @@ void StarObject::JITupdate()
 
         updateNumID = data->updateNumID();
     }
-    EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+    OldConversions::EquatorialToHorizontal(this, data->lst(), data->geo()->lat() );
     updateID = data->updateID();
 }
 

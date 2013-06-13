@@ -29,6 +29,9 @@
 #include "skypainter.h"
 #include "projections/projector.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 Ecliptic::Ecliptic(SkyComposite *parent ) :
         LineListIndex( parent, i18n("Ecliptic") ),
         m_label( name() )
@@ -48,10 +51,10 @@ Ecliptic::Ecliptic(SkyComposite *parent ) :
         for(double ra2 = ra; ra2 <= ra + dRa + eps; ra2 += dRa2 ) {
             elng.setH( ra2 );
             SkyPoint* o = new SkyPoint();
-            o->setFromEcliptic( num.obliquity(), elng, elat );
+            OldConversions::setFromEcliptic( o, num.obliquity(), elng, elat );
             o->setRA0( o->ra().Hours() );
             o->setDec0( o->dec().Degrees() );
-            o->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal(o, data->lst(), data->geo()->lat() );
             lineList->append( o );
         }
         appendLine( lineList );
@@ -93,10 +96,12 @@ void Ecliptic::drawCompassLabels() {
     for( int ra = 0; ra < 23; ra += 6 ) {
         elng.setH( ra );
         SkyPoint o;
-        o.setFromEcliptic( num.obliquity(), elng, elat );
+        OldConversions::setFromEcliptic( &o, num.obliquity(), elng, elat );
         o.setRA0(  o.ra()  );
         o.setDec0( o.dec() );
-        o.EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( &o, 
+                                                data->lst(),
+                                                data->geo()->lat() );
         bool visible;
         QPointF cpoint = proj->toScreen( &o, false, &visible );
         if( visible && proj->checkVisibility( &o ) ) {

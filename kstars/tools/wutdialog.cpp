@@ -39,6 +39,9 @@
 #include "skyobjects/ksmoon.h"
 #include "skycomponents/skymapcomposite.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 WUTDialogUI::WUTDialogUI( QWidget *p ) : QFrame( p ) {
     setupUi( this );
 }
@@ -362,7 +365,7 @@ bool WUTDialog::checkVisibility(SkyObject *o) {
         SkyPoint sp = o->recomputeCoords( ut, geo );
 
         //check altitude of object at this time.
-        sp.EquatorialToHorizontal( &LST, geo->lat() );
+        OldConversions::EquatorialToHorizontal( &sp, &LST, geo->lat() );
 
         if ( sp.alt().Degrees() > minAlt ) {
             visible = true;

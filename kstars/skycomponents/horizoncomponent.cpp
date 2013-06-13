@@ -31,6 +31,9 @@
 
 #include "projections/projector.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 #define NCIRCLE 360   //number of points used to define equator, ecliptic and horizon
 
 HorizonComponent::HorizonComponent(SkyComposite *parent )
@@ -45,7 +48,7 @@ HorizonComponent::HorizonComponent(SkyComposite *parent )
         o->setAz( i*360./NCIRCLE );
         o->setAlt( 0.0 );
 
-        o->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+        OldConversions::HorizontalToEquatorial( o, data->lst(), data->geo()->lat() );
         pointList().append( o );
     }
 }
@@ -64,7 +67,7 @@ void HorizonComponent::update( KSNumbers * )
         return;
     KStarsData *data = KStarsData::Instance();
     foreach ( SkyPoint *p, pointList() ) {
-        p->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+        OldConversions::HorizontalToEquatorial( p, data->lst(), data->geo()->lat() );
     }
 }
 
@@ -100,7 +103,9 @@ void HorizonComponent::draw( SkyPainter *skyp )
         SkyPoint labelPoint2;
         labelPoint2.setAlt(0.0);
         labelPoint2.setAz( labelPoint.az().Degrees() + 1.0 );
-        labelPoint2.HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+        OldConversions::HorizontalToEquatorial( &labelPoint2, 
+                                                data->lst(), 
+                                                data->geo()->lat() );
     }
     #ifdef __GNUC__
     #warning Still have to port HorizonComponent::draw()
@@ -474,7 +479,9 @@ void HorizonComponent::drawCompassLabels() {
         c.setAz( az );
         c.setAlt( 0.0 );
         if ( !Options::useAltAz() ) {
-            c.HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( &c, 
+                                                    data->lst(), 
+                                                    data->geo()->lat() );
         }
         
         cpoint = proj->toScreen( &c, false, &visible );

@@ -39,6 +39,8 @@
 
 #include "projections/projector.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_NETBSD)
 #include <sys/endian.h>
@@ -459,7 +461,7 @@ bool StarComponent::loadStaticData()
             star = new StarObject;
             star->init( &stardata );
             star->setNames( name, visibleName );
-            star->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( star, data->lst(), data->geo()->lat() );
             ++nstars;
             
             if ( ! gname.isEmpty() ) m_genName.insert( gname, star );
@@ -552,7 +554,9 @@ SkyObject *StarComponent::findByHDIndex( int HDnum ) {
             byteSwap( &stardata );
         }
         m_starObject.init( &stardata );
-        m_starObject.EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( &m_starObject,
+                                                data->lst(),
+                                                data->geo()->lat() );
         m_starObject.JITupdate();
         focusStar = &m_starObject;
         hdidxReader.closeFile();

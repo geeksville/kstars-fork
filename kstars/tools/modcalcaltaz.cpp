@@ -34,6 +34,8 @@
 #include "dialogs/locationdialog.h"
 
 #include "engine/oldpointfunctions.h"
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 modCalcAltAz::modCalcAltAz(QWidget *parentSplit)
         : QFrame(parentSplit), horInputCoords(false)
@@ -129,7 +131,7 @@ void modCalcAltAz::slotCompute()
             SkyPoint sp;
             sp.setAz( az );
             sp.setAlt( alt );
-            sp.HorizontalToEquatorial( &LST, geoPlace->lat() );
+            OldConversions::HorizontalToEquatorial( &sp, &LST, geoPlace->lat() );
             RA->showInHours( sp.ra() );
             Dec->showInDegrees( sp.dec() );
         }
@@ -142,7 +144,7 @@ void modCalcAltAz::slotCompute()
         if ( ok ) ra = RA->createDms( false, &ok );
         if ( ok ) {
             SkyPoint sp( ra, dec );
-            sp.EquatorialToHorizontal( &LST, geoPlace->lat() );
+            OldConversions::EquatorialToHorizontal( &sp, &LST, geoPlace->lat() );
             Az->showInDegrees( sp.az() );
             Alt->showInDegrees( sp.alt() );
         }
@@ -397,7 +399,7 @@ void modCalcAltAz::processLines( QTextStream &istream ) {
 
             sp = SkyPoint (raB, decB);
             KSEngine::OldPointFunctions::apparentCoord(&sp, jd0, jdf);
-            sp.EquatorialToHorizontal( &LST, &latB );
+            OldConversions::EquatorialToHorizontal( &sp, &LST, &latB );
             ostream << sp.az().toDMSString() << space << sp.alt().toDMSString() << endl;
 
             // Input coords are horizontal coordinates
@@ -431,7 +433,7 @@ void modCalcAltAz::processLines( QTextStream &istream ) {
 
             sp.setAz(azB);
             sp.setAlt(elB);
-            sp.HorizontalToEquatorial( &LST, &latB );
+            OldConversions::HorizontalToEquatorial( &sp, &LST, &latB );
             ostream << sp.ra().toHMSString() << space << sp.dec().toDMSString() << endl;
         }
 

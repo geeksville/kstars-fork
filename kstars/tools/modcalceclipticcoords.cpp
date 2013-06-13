@@ -32,6 +32,9 @@
 #include "dialogs/finddialog.h"
 #include "widgets/dmsbox.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 modCalcEclCoords::modCalcEclCoords(QWidget *parentSplit)
         : QFrame(parentSplit) {
 
@@ -98,7 +101,7 @@ void modCalcEclCoords::slotCompute(void) {
         if ( ok ) elat = EcLat->createDms( true, &ok );
         if ( ok ) {
             SkyPoint sp;
-            sp.setFromEcliptic( num.obliquity(), elong, elat );
+            OldConversions::setFromEcliptic( &sp, num.obliquity(), elong, elat );
             RA->showInHours( sp.ra() );
             Dec->showInDegrees( sp.dec() );
         }
@@ -112,7 +115,10 @@ void modCalcEclCoords::slotCompute(void) {
         if ( ok ) {
             SkyPoint sp( ra, dec );
             dms elong, elat;
-            sp.findEcliptic( num.obliquity(), elong, elat );
+            OldConversions::findEcliptic( &sp, 
+                                          num.obliquity(), 
+                                          elong, 
+                                          elat );
             EcLong->showInDegrees( elong );
             EcLat->showInDegrees( elat );
         }
@@ -347,7 +353,7 @@ void modCalcEclCoords::processLines( QTextStream &istream ) {
         KStarsDateTime dt;
         dt.setFromEpoch( epoch0B );
         KSNumbers *num = new KSNumbers( dt.djd() );
-        sp.findEcliptic(num->obliquity(), eclLongB, eclLatB);
+        OldConversions::findEcliptic( &sp, num->obliquity(), eclLongB, eclLatB);
         ostream << eclLongB.toDMSString() << space << eclLatB.toDMSString() << endl;
         delete num;
 

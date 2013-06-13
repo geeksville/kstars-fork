@@ -29,6 +29,9 @@
 
 #include "skypainter.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 HorizontalCoordinateGrid::HorizontalCoordinateGrid( SkyComposite *parent )
         : CoordinateGrid( parent, i18n("Horizontal Coordinate Grid" ) )
 {
@@ -115,7 +118,9 @@ void HorizontalCoordinateGrid::update( KSNumbers* )
 
     for ( int i=0; i<listList().count(); i++ ) {
         for ( int j=0; j<listList().at( i )->points()->count(); j++ ) {
-            listList().at( i )->points()->at( j )->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( listList().at( i )->points()->at( j ),
+                                                    data->lst(), 
+                                                    data->geo()->lat() );
         }
     }
 }

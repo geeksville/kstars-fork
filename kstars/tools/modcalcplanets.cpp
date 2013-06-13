@@ -33,6 +33,9 @@
 #include "skyobjects/kspluto.h"
 #include "widgets/dmsbox.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 modCalcPlanets::modCalcPlanets(QWidget *parentSplit) :
     QFrame(parentSplit)
 {
@@ -128,7 +131,7 @@ void modCalcPlanets::slotComputePosition (void)
 
     // Show data.
     p->findPosition( &num, geoPlace->lat(), &LST, &Earth);        
-    p->EquatorialToHorizontal( &LST, geoPlace->lat());            
+    OldConversions::EquatorialToHorizontal(p, &LST, geoPlace->lat());
     showCoordinates( *p );
     // Cleanup. 
     delete p;
@@ -385,7 +388,7 @@ void modCalcPlanets::processLines( QTextStream &istream )
             kspb = new KSPlanet(i18n( pn.toLocal8Bit() ), QString(), Qt::white, 1.0 );
         }
         kspb->findPosition( &num, &latB, &LST, &Earth );
-        kspb->EquatorialToHorizontal( &LST, &latB );
+        OldConversions::EquatorialToHorizontal(kspb, &LST, &latB);
 
         // Heliocentric Ecl. coords.
         hlongB  = kspb->helEcLong();

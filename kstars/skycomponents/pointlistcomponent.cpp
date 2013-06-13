@@ -20,6 +20,9 @@
 #include "skyobjects/skypoint.h" 
 #include "kstarsdata.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 PointListComponent::PointListComponent( SkyComposite *parent ) :
         SkyComponent( parent )
 {}
@@ -37,6 +40,8 @@ void PointListComponent::update( KSNumbers *num )
     foreach( SkyPoint *p, pointList() ) {
         if( num )
             p->updateCoords( num );
-        p->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( p,
+                                                data->lst(),
+                                                data->geo()->lat() );
     }
 }

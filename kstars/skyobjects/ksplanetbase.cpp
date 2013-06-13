@@ -38,6 +38,8 @@
 #include "texturemanager.h"
 
 #include "engine/types.h"
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 QVector<QColor> KSPlanetBase::planetColor = QVector<QColor>() <<
   QColor("slateblue") << //Mercury
@@ -97,11 +99,11 @@ KSPlanetBase* KSPlanetBase::createPlanet( int n ) {
 }
 
 void KSPlanetBase::EquatorialToEcliptic( const dms *Obliquity ) {
-    findEcliptic( Obliquity, ep.longitude, ep.latitude );
+    OldConversions::findEcliptic( this, Obliquity, ep.longitude, ep.latitude );
 }
 
 void KSPlanetBase::EclipticToEquatorial( const dms *Obliquity ) {
-    setFromEcliptic( Obliquity, ep.longitude, ep.latitude );
+    OldConversions::setFromEcliptic( this, Obliquity, ep.longitude, ep.latitude );
 }
 
 void KSPlanetBase::updateCoords( KSNumbers *num, bool includePlanets, const dms *lat, const dms *LST, bool )
@@ -245,7 +247,7 @@ void KSPlanetBase::findPA( const KSNumbers *num ) {
     //Displace a point along +Ecliptic Latitude by 1 degree
     SkyPoint test;
     dms newELat( ecLat().Degrees() + 1.0 );
-    test.setFromEcliptic( num->obliquity(), ecLong(), newELat );
+    OldConversions::setFromEcliptic(&test, num->obliquity(), ecLong(), newELat );
     double dx = ra().Degrees() - test.ra().Degrees(); 
     double dy = test.dec().Degrees() - dec().Degrees();
     double pa;

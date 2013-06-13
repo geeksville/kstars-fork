@@ -45,6 +45,9 @@
 #include <config-kstars.h>
 #include "dialogs/detaildialog.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 namespace {
     // Convert string to integer and complain on failure.
     //
@@ -798,14 +801,18 @@ bool KStarsData::executeScript( const QString &scriptname, SkyMap *map ) {
                 if ( arg == "nw" || arg == "northwest" ) az = 335.0;
                 if ( az >= 0.0 ) {
                     map->setFocusAltAz( dms(90.0), map->focus()->az() );
-                    map->focus()->HorizontalToEquatorial( &LST, geo()->lat() );
+                    OldConversions::HorizontalToEquatorial( map->focus(), 
+                                                            &LST, 
+                                                            geo()->lat() );
                     map->setDestination( *map->focus() );
                     cmdCount++;
                 }
 
                 if ( arg == "z" || arg == "zenith" ) {
                     map->setFocusAltAz( dms(90.0), map->focus()->az() );
-                    map->focus()->HorizontalToEquatorial( &LST, geo()->lat() );
+                    OldConversions::HorizontalToEquatorial( map->focus(),
+                                                            &LST,
+                                                            geo()->lat() );
                     map->setDestination( *map->focus() );
                     cmdCount++;
                 }
@@ -817,7 +824,9 @@ bool KStarsData::executeScript( const QString &scriptname, SkyMap *map ) {
                 SkyObject *target = objectNamed( objname );
                 if ( target ) { 
                     map->setFocus( target );
-                    map->focus()->EquatorialToHorizontal( &LST, geo()->lat() );
+                    OldConversions::EquatorialToHorizontal( map->focus(),
+                                                            &LST, 
+                                                            geo()->lat() );
                     map->setDestination( *map->focus() );
                     cmdCount++;
                 }
@@ -830,7 +839,9 @@ bool KStarsData::executeScript( const QString &scriptname, SkyMap *map ) {
                 if ( ok ) ok = d.setFromString( fn[2], true );  //assume angle in degrees
                 if ( ok ) {
                     map->setFocus( r, d );
-                    map->focus()->EquatorialToHorizontal( &LST, geo()->lat() );
+                    OldConversions::EquatorialToHorizontal( map->focus(),
+                                                            &LST, 
+                                                            geo()->lat() );
                     cmdCount++;
                 }
 
@@ -842,7 +853,9 @@ bool KStarsData::executeScript( const QString &scriptname, SkyMap *map ) {
                 if ( ok ) ok = az.setFromString( fn[2] );
                 if ( ok ) {
                     map->setFocusAltAz( alt, az );
-                    map->focus()->HorizontalToEquatorial( &LST, geo()->lat() );
+                    OldConversions::HorizontalToEquatorial( map->focus(),
+                                                            &LST, 
+                                                            geo()->lat() );
                     cmdCount++;
                 }
 

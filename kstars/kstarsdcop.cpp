@@ -49,6 +49,9 @@
 #include "imageexporter.h"
 #include "skycomponents/constellationboundarylines.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 // INDI includes
 #include <config-kstars.h>
 
@@ -84,23 +87,35 @@ void KStars::lookTowards ( const QString &direction ) {
         actionCollection()->action("west")->trigger();
     } else if (dir == "northeast" || dir=="ne") {
         map()->stopTracking();
-        map()->clickedPoint()->setAlt( 15.0 ); map()->clickedPoint()->setAz( 45.0 );
-        map()->clickedPoint()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+        map()->clickedPoint()->setAlt( 15.0 );
+        map()->clickedPoint()->setAz( 45.0 );
+        OldConversions::HorizontalToEquatorial( map()->clickedPoint(),
+                                                data()->lst(),
+                                                data()->geo()->lat() );
         map()->slotCenter();
     } else if (dir == "southeast" || dir=="se") {
         map()->stopTracking();
-        map()->clickedPoint()->setAlt( 15.0 ); map()->clickedPoint()->setAz( 135.0 );
-        map()->clickedPoint()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+        map()->clickedPoint()->setAlt( 15.0 );
+        map()->clickedPoint()->setAz( 135.0 );
+        OldConversions::HorizontalToEquatorial( map()->clickedPoint(),
+                                                data()->lst(),
+                                                data()->geo()->lat() );
         map()->slotCenter();
     } else if (dir == "southwest" || dir=="sw") {
         map()->stopTracking();
-        map()->clickedPoint()->setAlt( 15.0 ); map()->clickedPoint()->setAz( 225.0 );
-        map()->clickedPoint()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+        map()->clickedPoint()->setAlt( 15.0 );
+        map()->clickedPoint()->setAz( 225.0 );
+        OldConversions::HorizontalToEquatorial( map()->clickedPoint(),
+                                                data()->lst(),
+                                                data()->geo()->lat() );
         map()->slotCenter();
     } else if (dir == "northwest" || dir=="nw") {
         map()->stopTracking();
-        map()->clickedPoint()->setAlt( 15.0 ); map()->clickedPoint()->setAz( 315.0 );
-        map()->clickedPoint()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+        map()->clickedPoint()->setAlt( 15.0 );
+        map()->clickedPoint()->setAz( 315.0 );
+        OldConversions::HorizontalToEquatorial( map()->clickedPoint(),
+                                                data()->lst(),
+                                                data()->geo()->lat() );
         map()->slotCenter();
     } else {
         SkyObject *target = data()->objectNamed( direction );
@@ -220,7 +235,9 @@ void KStars::setGeoLocation( const QString &city, const QString &province, const
             // If the sky is in Horizontal mode and not tracking, reset focus such that
             // Alt/Az remain constant.
             if ( ! Options::isTracking() && Options::useAltAz() ) {
-                map()->focus()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+                OldConversions::HorizontalToEquatorial( map()->focus(),
+                                                        data()->lst(),
+                                                        data()->geo()->lat() );
             }
 
             // recalculate new times and objects

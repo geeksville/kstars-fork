@@ -107,6 +107,8 @@
 #include "skycomponents/supernovaecomponent.h"
 
 #include "engine/oldrefraction.h"
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 #ifdef HAVE_CFITSIO_H
 #include "fitsviewer/fitsviewer.h"
@@ -245,7 +247,9 @@ void KStars::slotWizard() {
         // If the sky is in Horizontal mode and not tracking, reset focus such that
         // Alt/Az remain constant.
         if ( ! Options::isTracking() && Options::useAltAz() ) {
-            map()->focus()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( map()->focus(), 
+                                                    data()->lst(), 
+                                                    data()->geo()->lat() );
         }
 
         // recalculate new times and objects
@@ -487,7 +491,9 @@ void KStars::slotGeoLocator() {
             // If the sky is in Horizontal mode and not tracking, reset focus such that
             // Alt/Az remain constant.
             if ( ! Options::isTracking() && Options::useAltAz() ) {
-                map()->focus()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+                OldConversions::HorizontalToEquatorial( map()->focus(), 
+                                                        data()->lst(), 
+                                                        data()->geo()->lat() );
             }
 
             // recalculate new times and objects
@@ -580,10 +586,15 @@ void KStars::slotSetTime() {
 
         if ( Options::useAltAz() ) {
             if ( map()->focusObject() ) {
-                map()->focusObject()->EquatorialToHorizontal( data()->lst(), data()->geo()->lat() );
+                OldConversions::EquatorialToHorizontal( map()->focusObject(),
+                                                        data()->lst(), 
+                                                        data()->geo()->lat() );
                 map()->setFocus( map()->focusObject() );
-            } else
-                map()->focus()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+            } else {
+                OldConversions::HorizontalToEquatorial( map()->focus(),
+                                                        data()->lst(), 
+                                                        data()->geo()->lat() );
+            }
         }
 
         map()->forceUpdateNow();
@@ -604,10 +615,15 @@ void KStars::slotSetTimeToNow() {
 
     if ( Options::useAltAz() ) {
         if ( map()->focusObject() ) {
-            map()->focusObject()->EquatorialToHorizontal( data()->lst(), data()->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( map()->focusObject(),
+                                                    data()->lst(), 
+                                                    data()->geo()->lat() );
             map()->setFocus( map()->focusObject() );
-        } else
-            map()->focus()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+        } else {
+            OldConversions::HorizontalToEquatorial( map()->focus(),
+                                                    data()->lst(), 
+                                                    data()->geo()->lat() );
+        }
     }
 
     map()->forceUpdateNow();
@@ -934,11 +950,15 @@ void KStars::slotManualFocus() {
         double realDec( focusDialog->point().dec().Degrees() );
         if ( Options::useAltAz() && realAlt > 89.0 ) {
             focusDialog->point().setAlt( 89.0 );
-            focusDialog->point().HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( &focusDialog->point(),
+                                                    data()->lst(),
+                                                    data()->geo()->lat() );
         }
         if ( ! Options::useAltAz() && realDec > 89.0 ) {
             focusDialog->point().setDec( 89.0 );
-            focusDialog->point().EquatorialToHorizontal( data()->lst(), data()->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( &focusDialog->point(),
+                                                    data()->lst(),
+                                                    data()->geo()->lat() );
         }
 
         map()->setClickedPoint( & focusDialog->point() );
@@ -1017,7 +1037,9 @@ void KStars::slotCoordSys() {
                 //need to recompute focus for unrefracted position
                 dms uR = KSEngine::OldRefraction::unrefract(map()->focus()->alt());
                 map()->setFocusAltAz( uR, map()->focus()->az() );
-                map()->focus()->HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+                OldConversions::HorizontalToEquatorial( map()->focus(),
+                                                        data()->lst(), 
+                                                        data()->geo()->lat() );
             }
         }
         actionCollection()->action("coordsys")->setText( i18n("Switch to horizonal view (Horizontal &Coordinates)") );

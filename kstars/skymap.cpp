@@ -72,6 +72,7 @@
 
 #include "engine/oldrefraction.h"
 #include "engine/oldprecession.h"
+#include "engine/oldconversions.h"
 using namespace KSEngine;
 
 #include "tools/flagmanager.h"
@@ -379,8 +380,11 @@ void SkyMap::slotCenter() {
     TrailObject* trailObj = dynamic_cast<TrailObject*>( focusObject() );
     
     setFocusPoint( clickedPoint() );
-    if ( Options::useAltAz() )
-        focusPoint()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+    if ( Options::useAltAz() ) {
+        OldConversions::EquatorialToHorizontal( focusPoint(), 
+                                                data->lst(), 
+                                                data->geo()->lat() );
+    }
 
     //clear the planet trail of old focusObject, if it was temporary
     if( trailObj && data->temporaryTrail ) {
@@ -429,7 +433,9 @@ void SkyMap::slotCenter() {
         setDestination( *focusPoint() );
     }
 
-    focusPoint()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+    OldConversions::EquatorialToHorizontal( focusPoint(),
+                                            data->lst(), 
+                                            data->geo()->lat() );
 
     //display coordinates in statusBar
     emit mousePointChanged( focusPoint() );
@@ -800,7 +806,7 @@ void SkyMap::setFocus( const dms &ra, const dms &dec ) {
     Options::setFocusDec( dec.Degrees() );
 
     focus()->set( ra, dec );
-    focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+    OldConversions::EquatorialToHorizontal( focus(), data->lst(), data->geo()->lat() );
 }
 
 void SkyMap::setFocusAltAz( const dms &alt, const dms &az) {
@@ -808,7 +814,7 @@ void SkyMap::setFocusAltAz( const dms &alt, const dms &az) {
     Options::setFocusDec( focus()->dec().Degrees() );
     focus()->setAlt(alt);
     focus()->setAz(az);
-    focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+    OldConversions::HorizontalToEquatorial( focus(), data->lst(), data->geo()->lat() );
 
     slewing = false;
     forceUpdate(); //need a total update, or slewing with the arrow keys doesn't work.
@@ -820,14 +826,14 @@ void SkyMap::setDestination( const SkyPoint& p ) {
 
 void SkyMap::setDestination( const dms &ra, const dms &dec ) {
     destination()->set( ra, dec );
-    destination()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+    OldConversions::EquatorialToHorizontal( destination(), data->lst(), data->geo()->lat() );
     emit destinationChanged();
 }
 
 void SkyMap::setDestinationAltAz( const dms &alt, const dms &az) {
     destination()->setAlt(alt);
     destination()->setAz(az);
-    destination()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+    OldConversions::HorizontalToEquatorial( destination(), data->lst(), data->geo()->lat() );
     emit destinationChanged();
 }
 
@@ -845,12 +851,16 @@ void SkyMap::updateFocus() {
             //Tracking any object in Alt/Az mode requires focus updates
             dms altR = OldRefraction::altRefracted(focusObject());
             setFocusAltAz( altR, focusObject()->az() );
-            focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( focus(), 
+                                                    data->lst(), 
+                                                    data->geo()->lat() );
             setDestination( *focus() );
         } else {
             //Tracking in equatorial coords
             setFocus( focusObject() );
-            focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( focus(),
+                                                    data->lst(), 
+                                                    data->geo()->lat() );
             setDestination( *focus() );
         }
 
@@ -859,14 +869,18 @@ void SkyMap::updateFocus() {
         if ( Options::useAltAz() ) {
             //Tracking on empty sky in Alt/Az mode
             setFocus( focusPoint() );
-            focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( focus(), 
+                                                    data->lst(), 
+                                                    data->geo()->lat() );
             setDestination( *focus() );
         }
 
     // Not tracking and not slewing, let sky drift by
     // This means that horizontal coordinates are constant.
     } else {
-        focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat() );
+        OldConversions::HorizontalToEquatorial( focus(), 
+                                                data->lst(), 
+                                                data->geo()->lat() );
     }
 }
 
@@ -906,12 +920,12 @@ void SkyMap::slewFocus() {
                 if ( Options::useAltAz() ) {
                     focus()->setAlt( focus()->alt().Degrees() + fY*step );
                     focus()->setAz( dms( focus()->az().Degrees() + fX*step ).reduce() );
-                    focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+                    OldConversions::HorizontalToEquatorial( focus(), data->lst(), data->geo()->lat() );
                 } else {
                     fX = fX/15.; //convert RA degrees to hours
                     SkyPoint newFocus( focus()->ra().Hours() + fX*step, focus()->dec().Degrees() + fY*step );
                     setFocus( &newFocus );
-                    focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+                    OldConversions::EquatorialToHorizontal( focus(), data->lst(), data->geo()->lat() );
                 }
 
                 slewing = true;
@@ -945,10 +959,10 @@ void SkyMap::slewFocus() {
         //set focus=destination.
         if ( Options::useAltAz() ) {
             setFocusAltAz( destination()->alt(), destination()->az() );
-            focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( focus(), data->lst(), data->geo()->lat() );
         } else {
             setFocus( destination() );
-            focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( focus(), data->lst(), data->geo()->lat() );
         }
 
         slewing = false;

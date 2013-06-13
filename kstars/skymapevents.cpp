@@ -50,7 +50,8 @@
 #include "skycomponents/skylabeler.h"
 #include "skycomponents/starcomponent.h"
 
-
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 void SkyMap::resizeEvent( QResizeEvent * )
 {
@@ -94,10 +95,10 @@ void SkyMap::keyPressEvent( QKeyEvent *e ) {
     case Qt::Key_Left :
         if ( Options::useAltAz() ) {
             focus()->setAz( dms( focus()->az().Degrees() - step * MINZOOM/Options::zoomFactor() ).reduce() );
-            focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( focus(), data->lst(), data->geo()->lat() );
         } else {
             focus()->setRA( focus()->ra().Hours() + 0.05*step * MINZOOM/Options::zoomFactor() );
-            focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( focus(), data->lst(), data->geo()->lat() );
         }
 
         arrowKeyPressed = true;
@@ -107,10 +108,10 @@ void SkyMap::keyPressEvent( QKeyEvent *e ) {
     case Qt::Key_Right :
         if ( Options::useAltAz() ) {
             focus()->setAz( dms( focus()->az().Degrees() + step * MINZOOM/Options::zoomFactor() ).reduce() );
-            focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( focus(), data->lst(), data->geo()->lat() );
         } else {
             focus()->setRA( focus()->ra().Hours() - 0.05*step * MINZOOM/Options::zoomFactor() );
-            focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( focus(), data->lst(), data->geo()->lat() );
         }
 
         arrowKeyPressed = true;
@@ -121,11 +122,11 @@ void SkyMap::keyPressEvent( QKeyEvent *e ) {
         if ( Options::useAltAz() ) {
             focus()->setAlt( focus()->alt().Degrees() + step * MINZOOM/Options::zoomFactor() );
             if ( focus()->alt().Degrees() > 90.0 ) focus()->setAlt( 90.0 );
-            focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( focus(), data->lst(), data->geo()->lat() );
         } else {
             focus()->setDec( focus()->dec().Degrees() + step * MINZOOM/Options::zoomFactor() );
             if (focus()->dec().Degrees() > 90.0) focus()->setDec( 90.0 );
-            focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( focus(), data->lst(), data->geo()->lat() );
         }
 
         arrowKeyPressed = true;
@@ -136,11 +137,11 @@ void SkyMap::keyPressEvent( QKeyEvent *e ) {
         if ( Options::useAltAz() ) {
             focus()->setAlt( focus()->alt().Degrees() - step * MINZOOM/Options::zoomFactor() );
             if ( focus()->alt().Degrees() < -90.0 ) focus()->setAlt( -90.0 );
-            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( focus(), data->lst(), data->geo()->lat() );
         } else {
             focus()->setDec( focus()->dec().Degrees() - step * MINZOOM/Options::zoomFactor() );
             if (focus()->dec().Degrees() < -90.0) focus()->setDec( -90.0 );
-            focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( focus(), data->lst(), data->geo()->lat() );
         }
 
         arrowKeyPressed = true;
@@ -467,15 +468,15 @@ void SkyMap::mouseMoveEvent( QMouseEvent *e ) {
 
         //Update focus such that the sky coords at mouse cursor remain approximately constant
         if ( Options::useAltAz() ) {
-            m_MousePoint.EquatorialToHorizontal( data->lst(), data->geo()->lat() );
-            clickedPoint()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal(&m_MousePoint, data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal(clickedPoint(), data->lst(), data->geo()->lat() );
             dms dAz  = m_MousePoint.az()  - clickedPoint()->az();
             dms dAlt = m_MousePoint.alt() - clickedPoint()->alt();
             focus()->setAz( focus()->az().Degrees() - dAz.Degrees() ); //move focus in opposite direction
             focus()->setAz( focus()->az().reduce() );
             focus()->setAlt(
                 KSUtils::clamp( focus()->alt().Degrees() - dAlt.Degrees() , -90.0 , 90.0 ) );
-            focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            OldConversions::HorizontalToEquatorial(focus(), data->lst(), data->geo()->lat() );
         } else {
             dms dRA  = m_MousePoint.ra()  - clickedPoint()->ra();
             dms dDec = m_MousePoint.dec() - clickedPoint()->dec();
@@ -483,7 +484,7 @@ void SkyMap::mouseMoveEvent( QMouseEvent *e ) {
             focus()->setRA( focus()->ra().reduce() );
             focus()->setDec(
                 KSUtils::clamp( focus()->dec().Degrees() - dDec.Degrees() , -90.0 , 90.0 ) );
-            focus()->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+            OldConversions::EquatorialToHorizontal( focus(), data->lst(), data->geo()->lat() );
         }
         showFocusCoords();
 

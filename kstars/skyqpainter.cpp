@@ -43,6 +43,9 @@
 #include "projections/projector.h"
 #include "ksutils.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 namespace {
 
     // Convert spectral class to numerical index.
@@ -729,7 +732,9 @@ void SkyQPainter::drawFlags()
         image = data->skyComposite()->flags()->image( i );
 
         // Set Horizontal coordinates
-        point->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( point, 
+                                                data->lst(), 
+                                                data->geo()->lat() );
 
         // Get flag position on screen
         pos = m_proj->toScreen( point, true, &visible );
@@ -768,7 +773,7 @@ void SkyQPainter::drawSatellite( Satellite* sat ) {
     QPointF pos;
     bool visible = false;
 
-    sat->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+    OldConversions::HorizontalToEquatorial( sat, data->lst(), data->geo()->lat() );
 
     pos = m_proj->toScreen( sat, true, &visible );
 

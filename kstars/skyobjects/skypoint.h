@@ -180,50 +180,6 @@ public:
     inline const dms& alt() const { return Alt; }
 
     ////
-    //// 3. Coordinate conversions.
-    //// ==========================
-
-    /**Determine the (Altitude, Azimuth) coordinates of the
-    	*SkyPoint from its (RA, Dec) coordinates, given the local
-    	*sidereal time and the observer's latitude.
-    	*@param LST pointer to the local sidereal time
-    	*@param lat pointer to the geographic latitude
-    	*/
-    void EquatorialToHorizontal( const dms* LST, const dms* lat );
-
-    /**Determine the (RA, Dec) coordinates of the
-    	*SkyPoint from its (Altitude, Azimuth) coordinates, given the local
-    	*sidereal time and the observer's latitude.
-    	*@param LST pointer to the local sidereal time
-    	*@param lat pointer to the geographic latitude
-    	*/
-    void HorizontalToEquatorial( const dms* LST, const dms* lat );
-
-    /**Determine the Ecliptic coordinates of the SkyPoint, given the Julian Date.
-    	*The ecliptic coordinates are returned as reference arguments (since
-    	*they are not stored internally)
-    	*/
-    void findEcliptic( const dms *Obliquity, dms &EcLong, dms &EcLat );
-
-    /**Set the current (RA, Dec) coordinates of the
-    	*SkyPoint, given pointers to its Ecliptic (Long, Lat) coordinates, and
-    	*to the current obliquity angle (the angle between the equator and ecliptic).
-    	*/
-    void setFromEcliptic( const dms *Obliquity, const dms& EcLong, const dms& EcLat );
-
-    /** Computes galactic coordinates from equatorial coordinates referred to
-    	* epoch 1950. RA and Dec are, therefore assumed to be B1950
-    	* coordinates.
-    	*/
-    void Equatorial1950ToGalactic(dms &galLong, dms &galLat);
-
-    /** Computes equatorial coordinates referred to 1950 from galactic ones referred to
-    	* epoch B1950. RA and Dec are, therefore assumed to be B1950
-    	* coordinates.
-    	*/
-    void GalacticToEquatorial1950(const dms* galLong, const dms* galLat);
-
-    ////
     //// 4. Coordinate update/corrections.
     //// =================================
 

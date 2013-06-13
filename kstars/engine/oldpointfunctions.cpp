@@ -24,6 +24,7 @@
 #include "kssun.h"
 
 #include "oldprecession.h"
+#include "oldconversions.h"
 
 namespace KSEngine {
 namespace OldPointFunctions {
@@ -101,11 +102,11 @@ void nutate(SkyPoint* p, const KSNumbers* num)
         p->setDec(Dec);
     } else { //exact method
         dms EcLong, EcLat;
-        p->findEcliptic( num->obliquity(), EcLong, EcLat );
+        OldConversions::findEcliptic( p, num->obliquity(), EcLong, EcLat );
 
         //Add dEcLong to the Ecliptic Longitude
         dms newLong( EcLong.Degrees() + num->dEcLong() );
-        p->setFromEcliptic( num->obliquity(), newLong, EcLat );
+        OldConversions::setFromEcliptic( p, num->obliquity(), newLong, EcLat );
     }
 }
 

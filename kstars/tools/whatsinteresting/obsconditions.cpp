@@ -19,6 +19,9 @@
 #include "math.h"
 #include "kdebug.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 ObsConditions::ObsConditions(int bortle, double aperture, Equipment equip, TelescopeType telType):
     m_BortleClass(bortle), m_Equip(equip), m_TelType(telType), m_Aperture(aperture)
 {
@@ -99,7 +102,7 @@ bool ObsConditions::isVisible(GeoLocation *geo, dms *lst, SkyObject *so)
     SkyPoint sp = so->recomputeCoords(ut, geo);
 
     //check altitude of object at this time.
-    sp.EquatorialToHorizontal(lst, geo->lat());
+    OldConversions::EquatorialToHorizontal( &sp, lst, geo->lat());
 
     return (sp.alt().Degrees() > 6.0 && so->mag() < getTrueMagLim());
 }

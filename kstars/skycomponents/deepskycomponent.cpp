@@ -35,6 +35,8 @@
 #include "skypainter.h"
 #include "projections/projector.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 DeepSkyComponent::DeepSkyComponent( SkyComposite *parent ) :
     SkyComponent(parent)
@@ -267,7 +269,7 @@ void DeepSkyComponent::loadData()
         DeepSkyObject *o = 0;
         if ( type==0 ) type = 1; //Make sure we use CATALOG_STAR, not STAR
         o = new DeepSkyObject( type, r, d, mag, name, name2, longname, cat, a, b, pa, pgc, ugc );
-        o->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( o, data->lst(), data->geo()->lat() );
 
         // Add the name(s) to the nameHash for fast lookup -jbb
         if ( hasName) {
@@ -440,7 +442,7 @@ void DeepSkyComponent::drawDeepSkyCatalog( SkyPainter *skyp, bool drawObject,
                 if ( obj->updateNumID != updateNumID) {
                     obj->updateCoords( data->updateNum() );
                 }
-                obj->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+                OldConversions::EquatorialToHorizontal( obj, data->lst(), data->geo()->lat() );
             }
 
             float mag = obj->mag();

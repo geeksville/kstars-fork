@@ -34,6 +34,9 @@
 #include "dialogs/locationdialog.h"
 #include "dialogs/finddialog.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 Execute::Execute() {
     QWidget *w = new QWidget;
     ui.setupUi( w );
@@ -311,7 +314,7 @@ void Execute::slotSetTarget( QString name ) {
         ui.SchTime->setText( ks->observingList()->scheduledTime(currentTarget).toString( "h:mm:ss AP" ) ) ;
         SkyPoint p = currentTarget->recomputeCoords( KStarsDateTime::currentDateTime() , geo );
         dms lst(geo->GSTtoLST( KStarsDateTime::currentDateTime().gst() ));
-        p.EquatorialToHorizontal( &lst, geo->lat() );
+        OldConversions::EquatorialToHorizontal( &p, &lst, geo->lat() );
         ui.RA->setText( p.ra().toHMSString() ) ;
         ui.Dec->setText( p.dec().toDMSString() );
         ui.Alt->setText( p.alt().toDMSString() );

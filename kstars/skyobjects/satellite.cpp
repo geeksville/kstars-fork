@@ -28,6 +28,9 @@
 #include "Options.h"
 #include "kspopupmenu.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 // Define some constants
 //  WGS-72 constants
 #define MU              398600.8            // Earth gravitational constant (km3/s2)
@@ -1105,7 +1108,7 @@ int Satellite::sgp4( double tsince )
 
     setAz( azimut / DEG2RAD );
     setAlt( elevation / DEG2RAD );
-    HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+    OldConversions::HorizontalToEquatorial( this, data->lst(), data->geo()->lat() );
 
     // is the satellite visible ?
     // Find ECI coordinates of the sun

@@ -32,6 +32,9 @@
 #include "skypainter.h"
 #include "projections/projector.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 SolarSystemSingleComponent::SolarSystemSingleComponent(SolarSystemComposite *parent, KSPlanetBase *kspb, bool (*visibleMethod)()) :
     SkyComponent( parent ),
     visible( visibleMethod ),
@@ -76,14 +79,18 @@ SkyObject* SolarSystemSingleComponent::objectNearest( SkyPoint *p, double &maxra
 void SolarSystemSingleComponent::update(KSNumbers*) {
     KStarsData *data = KStarsData::Instance(); 
     if( selected() )
-        m_Planet->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( m_Planet, 
+                                                data->lst(), 
+                                                data->geo()->lat() );
 }
 
 void SolarSystemSingleComponent::updatePlanets(KSNumbers *num) {
     if ( selected() ) {
         KStarsData *data = KStarsData::Instance(); 
         m_Planet->findPosition( num, data->geo()->lat(), data->lst(), m_Earth );
-        m_Planet->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( m_Planet, 
+                                                data->lst(), 
+                                                data->geo()->lat() );
         if ( m_Planet->hasTrail() )
             m_Planet->updateTrail( data->lst(), data->geo()->lat() );
     }

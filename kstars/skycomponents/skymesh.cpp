@@ -31,6 +31,8 @@
 #include "skymap.h"
 
 #include "engine/oldpointfunctions.h"
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 QMap<int, SkyMesh *> SkyMesh::pinstances;
 int SkyMesh::defaultLevel = -1;
@@ -354,9 +356,11 @@ void SkyMesh::draw(QPainter &psky, MeshBufNum_t bufNum)
         SkyPoint s1( r1 / 15.0, d1 );
         SkyPoint s2( r2 / 15.0, d2 );
         SkyPoint s3( r3 / 15.0, d3 );
-        s1.EquatorialToHorizontal( data->lst(), data->geo()->lat() );
-        s2.EquatorialToHorizontal( data->lst(), data->geo()->lat() );
-        s3.EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        const dms *lst = data->lst();
+        const dms *lat = data->geo()->lat();
+        OldConversions::EquatorialToHorizontal( &s1, lst, lat );
+        OldConversions::EquatorialToHorizontal( &s2, lst, lat );
+        OldConversions::EquatorialToHorizontal( &s3, lst, lat );
         QPointF q1 = map->projector()->toScreen( &s1 );
         QPointF q2 = map->projector()->toScreen( &s2 );
         QPointF q3 = map->projector()->toScreen( &s3 );

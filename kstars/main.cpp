@@ -33,6 +33,8 @@
 #include <QPixmap>
 #include <kglobal.h>
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
 
 static const char description[] =
     I18N_NOOP("Desktop Planetarium");
@@ -158,9 +160,13 @@ int main(int argc, char *argv[])
 
         SkyPoint dest( Options::focusRA(), Options::focusDec() );
         map->setDestination( dest );
-        map->destination()->EquatorialToHorizontal( dat->lst(), dat->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( map->destination(), 
+                                                dat->lst(),
+                                                dat->geo()->lat() );
         map->setFocus( map->destination() );
-        map->focus()->EquatorialToHorizontal( dat->lst(), dat->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( map->focus(),
+                                                dat->lst(), 
+                                                dat->geo()->lat() );
 
         //Execute the specified script
         QString scriptfile = args->getOption( "script" );

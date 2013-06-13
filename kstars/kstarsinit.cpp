@@ -47,6 +47,9 @@
 #include "skycomponents/skymapcomposite.h"
 #include "texturemanager.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 #include <config-kstars.h>
 
 #ifdef HAVE_INDI_H
@@ -643,14 +646,18 @@ void KStars::initFocus() {
         SkyPoint pFocus;
         pFocus.setAz( Options::focusRA() );
         pFocus.setAlt( Options::focusDec() );
-        pFocus.HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+        OldConversions::HorizontalToEquatorial( &pFocus, 
+                                                data()->lst(), 
+                                                data()->geo()->lat() );
         map()->setFocusPoint( &pFocus );
 
     //Default: set focus point using FocusRA as the RA and
     //FocusDec as the Dec
     } else {
         SkyPoint pFocus( Options::focusRA(), Options::focusDec() );
-        pFocus.EquatorialToHorizontal( data()->lst(), data()->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( &pFocus, 
+                                                data()->lst(), 
+                                                data()->geo()->lat() );
         map()->setFocusPoint( &pFocus );
     }
     data()->setSnapNextFocus();
@@ -675,7 +682,9 @@ void KStars::initFocus() {
             SkyPoint DefaultFocus;
             DefaultFocus.setAz( 180.0 );
             DefaultFocus.setAlt( 45.0 );
-            DefaultFocus.HorizontalToEquatorial( data()->lst(), data()->geo()->lat() );
+            OldConversions::HorizontalToEquatorial( &DefaultFocus,
+                                                    data()->lst(),
+                                                    data()->geo()->lat() );
             map()->setDestination( DefaultFocus );
         }
     }

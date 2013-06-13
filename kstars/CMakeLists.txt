@@ -378,6 +378,7 @@ set(kstars_engine_SRCS
     engine/oldvlsr.cpp
     engine/oldrefraction.cpp
     engine/oldprecession.cpp
+    engine/oldconversions.cpp
 )
 
 set(kstars_extra_SRCS

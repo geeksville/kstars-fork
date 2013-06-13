@@ -22,6 +22,9 @@
 #include "skyobjitem.h"
 #include "ksutils.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 SkyObjItem::SkyObjItem(SkyObject *so) : m_Name(so->name()), m_LongName(so->longname()),m_TypeName(so->typeName()), m_So(so)
 {
     switch (so->type())
@@ -84,7 +87,7 @@ void SkyObjItem::setPosition(SkyObject* so)
     SkyPoint sp = so->recomputeCoords(ut, data->geo());
 
     //check altitude of object at this time.
-    sp.EquatorialToHorizontal(data->lst(), data->geo()->lat());
+    OldConversions::EquatorialToHorizontal( &sp, data->lst(), data->geo()->lat());
     double rounded_altitude = (int)(sp.alt().Degrees()/5.0)*5.0;
 
     m_Position = i18n("Now visible: About %1 degrees above the %2 horizon", rounded_altitude, KSUtils::toDirectionString( sp.az() ) );

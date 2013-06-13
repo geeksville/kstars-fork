@@ -30,6 +30,9 @@
 #include "kstandarddirs.h"
 #include "kstarsdata.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 SupernovaeComponent::SupernovaeComponent(SkyComposite* parent): ListComponent(parent), m_Parser(0)
 {
     loadData();
@@ -45,7 +48,9 @@ void SupernovaeComponent::update(KSNumbers* num)
     foreach ( SkyObject *so, m_ObjectList ) {
         if( num )
             so->updateCoords( num );
-        so->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( so,
+                                                data->lst(),
+                                                data->geo()->lat() );
     }
 }
 

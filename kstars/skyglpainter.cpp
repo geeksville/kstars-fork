@@ -52,6 +52,9 @@ using Eigen::Rotation2Df;
 #include "skyobjects/satellite.h"
 #include "skyobjects/supernova.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 Vector2f SkyGLPainter::m_vertex[NUMTYPES][6*BUFSIZE];
 Vector2f SkyGLPainter::m_texcoord[NUMTYPES][6*BUFSIZE];
 Vector3f SkyGLPainter::m_color[NUMTYPES][6*BUFSIZE];
@@ -539,7 +542,7 @@ void SkyGLPainter::drawFlags()
         image = data->skyComposite()->flags()->image( i );
 
         // Set Horizontal coordinates
-        point->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( point, data->lst(), data->geo()->lat() );
 
         // Get flag position on screen
         vec = m_proj->toScreenVec( point, true, &visible );
@@ -701,7 +704,7 @@ void SkyGLPainter::drawSatellite( Satellite* sat ) {
     bool visible = false;
     Vector2f pos, vertex;
 
-    sat->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+    OldConversions::HorizontalToEquatorial(sat, data->lst(), data->geo()->lat() );
 
     pos = m_proj->toScreenVec( sat, true, &visible );
 
@@ -742,7 +745,7 @@ bool SkyGLPainter::drawSupernova(Supernova* sup)
     bool visible = false;
     Vector2f pos, vertex;
 
-    sup->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+    OldConversions::HorizontalToEquatorial( sup, data->lst(), data->geo()->lat() );
 
     pos = m_proj->toScreenVec( sup, true, &visible );
 

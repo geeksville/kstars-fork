@@ -26,6 +26,7 @@
 #include "skycomponents/skylabeler.h"
 
 #include "engine/oldrefraction.h"
+#include "engine/oldconversions.h"
 using namespace KSEngine;
 
 namespace {
@@ -45,7 +46,7 @@ SkyPoint Projector::pointAt(double az, KStarsData* data)
     SkyPoint p;
     p.setAz( az );
     p.setAlt( 0.0 );
-    p.HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+    OldConversions::HorizontalToEquatorial( &p, data->lst(), data->geo()->lat() );
     return p;
 }
 
@@ -163,7 +164,7 @@ Vector2f Projector::clipLineVec( SkyPoint *p1, SkyPoint *p2 ) const
         dec = asin( z / sqrt(x*x + y*y + z*z) );
 
         mid = SkyPoint( ra * 12. / dms::PI, dec * 180. / dms::PI );
-        mid.EquatorialToHorizontal( m_data->lst(), m_data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( &mid, m_data->lst(), m_data->geo()->lat() );
 
         oMid = toScreenVec( &mid, false, &isVisible );
         //AND the result with checkVisibility to clip things going below horizon
@@ -238,7 +239,7 @@ double Projector::findPA( SkyObject *o, float x, float y ) const
         newDec = 90.0;
     SkyPoint test( o->ra().Hours(), newDec );
     if ( m_vp.useAltAz )
-        test.EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( &test, data->lst(), data->geo()->lat() );
     Vector2f t = toScreenVec( &test );
     float dx = t.x() - x;
     float dy = y - t.y(); //backwards because QWidget Y-axis increases to the bottom
@@ -390,13 +391,13 @@ SkyPoint Projector::fromScreen(const QPointF& p, dms* LST, const dms* lat) const
             alt = OldRefraction::unrefract( alt );
         result.setAlt( alt );
         result.setAz( az );
-        result.HorizontalToEquatorial( LST, lat );
+        OldConversions::HorizontalToEquatorial(&result, LST, lat);
     } else {
         dms ra, dec;
         dec.setRadians( Y );
         ra.setRadians( A + m_vp.focus->ra().radians() );
         result.set( ra.reduce(), dec );
-        result.EquatorialToHorizontal( LST, lat );
+        OldConversions::EquatorialToHorizontal(&result, LST, lat);
     }
 
     return result;

@@ -19,6 +19,9 @@
 #include "kstarsdata.h"
 #include "ksnumbers.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 SkyLine::SkyLine()
 {}
 
@@ -72,6 +75,6 @@ void SkyLine::update( KStarsData *d, KSNumbers *num ) {
     foreach ( SkyPoint *p, m_pList ) {
         if ( num )
             p->updateCoords( num );
-        p->EquatorialToHorizontal( d->lst(), d->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( p, d->lst(), d->geo()->lat() );
     }
 }

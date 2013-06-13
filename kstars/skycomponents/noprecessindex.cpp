@@ -21,6 +21,9 @@
 #include "kstarsdata.h"
 #include "linelist.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 NoPrecessIndex::NoPrecessIndex( SkyComposite *parent, const QString& name ) :
     LineListIndex( parent, name )
 {}
@@ -32,6 +35,8 @@ void NoPrecessIndex::JITupdate( LineList* lineList )
     lineList->updateID = data->updateID();
     SkyList* points = lineList->points();
     for (int i = 0; i < points->size(); i++ ) {
-        points->at( i )->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+        OldConversions::EquatorialToHorizontal( points->at(i),
+                                                data->lst(),
+                                                data->geo()->lat() );
     }
 }

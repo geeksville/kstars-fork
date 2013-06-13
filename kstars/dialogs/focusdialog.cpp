@@ -30,6 +30,9 @@
 #include "skymap.h"
 
 #include "engine/oldpointfunctions.h"
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 
 FocusDialogUI::FocusDialogUI( QWidget *parent ) : QFrame( parent ) {
     setupUi( this );
@@ -100,8 +103,9 @@ void FocusDialog::validatePoint() {
         long double jd0 = epochToJd ( epoch0 );
         KSEngine::OldPointFunctions::apparentCoord(&Point, jd0, 
                                                    ks->data()->ut().djd());
-        Point.EquatorialToHorizontal( ks->data()->lst(), ks->data()->geo()->lat() );
-
+        OldConversions::EquatorialToHorizontal( &Point, 
+                                                ks->data()->lst(), 
+                                                ks->data()->geo()->lat() );
         KDialog::accept();
     } else {
         dms az(  fd->azBox->createDms( true, &azOk ) );
@@ -120,10 +124,10 @@ void FocusDialog::validatePoint() {
 
             Point.setAz( az );
             Point.setAlt( alt );
-            Point.HorizontalToEquatorial( ks->data()->lst(), ks->data()->geo()->lat() );
-
+            OldConversions::HorizontalToEquatorial( &Point, 
+                                                    ks->data()->lst(), 
+                                                    ks->data()->geo()->lat() );
             UsedAltAz = true;
-
             KDialog::accept();
         } else {
             KDialog::reject();

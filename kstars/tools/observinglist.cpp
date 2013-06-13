@@ -69,6 +69,9 @@
 
 #include <config-kstars.h>
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 #ifdef HAVE_INDI_H
 #include <basedevice.h>
 #include "indi/indilistener.h"
@@ -283,7 +286,7 @@ void ObservingList::slotAddObject( SkyObject *obj, bool session, bool update ) {
         m_SessionList.append(obj);
         dt.setTime( TimeHash.value( obj->name(), obj->transitTime( dt, geo ) ) );
         dms lst(geo->GSTtoLST( dt.gst() ));
-        p.EquatorialToHorizontal( &lst, geo->lat() );
+        OldConversions::EquatorialToHorizontal( &p, &lst, geo->lat() );
         QList<QStandardItem*> itemList;
 
         QString ra, dec, time = "--", alt = "--", az = "--";
@@ -930,7 +933,7 @@ double ObservingList::findAltitude( SkyPoint *p, double hour ) {
     ut = geo->LTtoUT( ut );
     ut= ut.addSecs( hour*3600.0 );
     dms LST = geo->GSTtoLST( ut.gst() );
-    p->EquatorialToHorizontal( &LST, geo->lat() );
+    OldConversions::EquatorialToHorizontal( p, &LST, geo->lat() );
     return p->alt().Degrees();
 }
 

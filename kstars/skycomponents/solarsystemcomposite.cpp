@@ -34,6 +34,9 @@
 #include "skyobjects/kspluto.h"
 #include "planetmoonscomponent.h"
 
+#include "engine/oldconversions.h"
+using namespace KSEngine;
+
 SolarSystemComposite::SolarSystemComposite(SkyComposite *parent ) :
     SkyComposite(parent)
 {
@@ -77,8 +80,12 @@ void SolarSystemComposite::update( KSNumbers *num )
 	//    if ( ! selected() ) return;
 
     KStarsData *data = KStarsData::Instance(); 
-    m_Sun->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
-    m_Moon->EquatorialToHorizontal( data->lst(), data->geo()->lat() );
+    OldConversions::EquatorialToHorizontal( m_Sun,
+                                            data->lst(),
+                                            data->geo()->lat() );
+    OldConversions::EquatorialToHorizontal( m_Moon,
+                                            data->lst(),
+                                            data->geo()->lat() );
     m_JupiterMoons->update( num );
 
     foreach ( SkyComponent *comp, components() ) {
