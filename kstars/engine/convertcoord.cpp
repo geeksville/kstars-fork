@@ -22,15 +22,28 @@
 namespace KSEngine {
 namespace ConvertCoord {
 
-Quaternionf sphericalToQuaternion(const dms &lat, const dms &lon)
+Quaternionf sphericalToQuaternion(const Radian lat, const Radian lon)
 {
     // We rotate along the Z-axis first, and then the Y-axis.
     // Doing this in the opposite order is incorrect.
     // To convince yourself of this fact, spend some time playing with a
     // sperical object such as a grapefruit.
-    Quaternionf lonq(AngleAxisf(lon.radians(), Vector3f::UnitZ()));
-    Quaternionf latq(AngleAxisf(lat.radians(), Vector3f::UnitY()));
+    Quaternionf lonq(AngleAxisf(lon, Vector3f::UnitZ()));
+    Quaternionf latq(AngleAxisf(lat, Vector3f::UnitY()));
     return latq * lonq;
+}
+
+Quaternionf sphericalToQuaternion(const dms &lat, const dms &lon)
+{
+    return sphericalToQuaternion(lat.radians(),lon.radians());
+}
+
+void quaternionToSpherical(const Quaternionf &q, Radian *lat, Radian *lon)
+{
+    const Vector3f origin(1,0,0);
+    const Vector3f point = q * origin;
+    *lat = asin(point.z());
+    *lon = atan2(point.y(), point.x());
 }
 
 void quaternionToSpherical(const Quaternionf &q, dms *lat, dms *lon)

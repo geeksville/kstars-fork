@@ -61,6 +61,8 @@ namespace ConvertCoord {
      */
     Quaternionf sphericalToQuaternion( const dms &lat,
                                        const dms &lon );
+    Quaternionf sphericalToQuaternion( const Radian lat,
+                                       const Radian lon );
 
     /** Convert a quaternion to spherical coordinates.
      *  @param q the quaternion
@@ -72,6 +74,9 @@ namespace ConvertCoord {
     void quaternionToSpherical( const Quaternionf &q,
                                       dms         *lat,
                                       dms         *lon );
+    void quaternionToSpherical( const Quaternionf &q,
+                                      Radian      *lat,
+                                      Radian      *lon );
 
     //
     // Calculate the rotation factors between coordinate systems.
