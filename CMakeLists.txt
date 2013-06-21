@@ -53,10 +53,8 @@ if (EIGEN2_FOUND)
     add_subdirectory( doc )
     add_subdirectory( kstars )
     add_subdirectory( datahandlers )
+    add_subdirectory(Tests)
 endif (EIGEN2_FOUND)
-
-
-add_subdirectory(Tests)
 
 
 

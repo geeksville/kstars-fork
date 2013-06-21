@@ -1,3 +1,4 @@
+add_subdirectory(engine)
 include_directories( ${kstars_SOURCE_DIR} )
 # QT4_AUTOMOC( ${kstars_SRCS} )
 # add_library( KStarsAll SHARED ${kstars_extra_SRCS})

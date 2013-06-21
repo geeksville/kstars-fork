@@ -54,6 +54,9 @@ typedef Quaternionf GalacticCoord;
 typedef Quaternionf J2000Coord;
 typedef Quaternionf B1950Coord;
 
+/// Represents a rotation from one coordinate system to another.
+typedef Quaternionf CoordConversion;
+
 /***************************************************************************
  * TIME
  ***************************************************************************/
@@ -81,6 +84,11 @@ typedef Quaternionf GreenwichCoord;
 /// local sidereal time.
 typedef Quaternionf LocalSiderealCoords;
 
+/***************************************************************************
+ * ANGLES
+ ***************************************************************************/
+
+typedef double Radian;
 
 /***************************************************************************
  * CONSTANTS
