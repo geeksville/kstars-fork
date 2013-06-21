@@ -1,5 +1,5 @@
 /***************************************************************************
-                      convertCoord.cpp - KStars Tests
+              testconvertcoord.cpp - Tests coordinate conversions
                              -------------------
     begin                : 2013-06-20
     copyright            : (C) 2013 by Henry de Valence
@@ -15,7 +15,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "convertCoord.h"
+#include "testconvertcoord.h"
 
 #include "kstars/engine/convertcoord.h"
 #include "kstars/dms.h"
@@ -55,4 +55,4 @@ void TestConvertCoord::testSphericalToQuaternion()
 
 QTEST_MAIN(TestConvertCoord)
 
-#include "convertCoord.moc"
+#include "testconvertcoord.moc"

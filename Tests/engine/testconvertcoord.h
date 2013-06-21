@@ -1,5 +1,5 @@
 /***************************************************************************
-                      convertCoord.h - KStars Tests
+              testconvertcoord.h - Tests coordinate conversions
                              -------------------
     begin                : 2013-06-20
     copyright            : (C) 2013 by Henry de Valence

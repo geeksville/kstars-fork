@@ -6,13 +6,13 @@ set( TEST_LIBRARIES
    )
 include_directories( ${kstars_SOURCE_DIR} ${EIGEN2_INCLUDE_DIR} )
 
-set( KSEngineTests_SRCS convertCoord.cpp )
+set( KSEngineTests_SRCS testconvertcoord.cpp )
 QT4_AUTOMOC( ${KSEngineTests_SRCS} )
 
 #
 # Test coordinate conversions
 #
 
-add_executable( testConvertCoord convertCoord.cpp )
-target_link_libraries( testConvertCoord ${TEST_LIBRARIES} )
-add_test( NAME ConvertCoordTest COMMAND testConvertCoord )
+add_executable( testconvertcoord testconvertcoord.cpp )
+target_link_libraries( testconvertcoord ${TEST_LIBRARIES} )
+add_test( NAME ConvertCoordTest COMMAND testconvertcoord )
