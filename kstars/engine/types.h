@@ -97,6 +97,11 @@ typedef double Radian;
 /// Number of kilometers in one AU
 static const double AU_KM = 1.49605e8;
 
+/// Degrees to radians conversion
+static const double DEG2RAD = M_PI/180.;
+/// Radians to degrees conversion
+static const double RAD2DEG = 180./M_PI;
+
 } // NS KSEngine
 
 #endif //KSENGINE_TYPES_H
