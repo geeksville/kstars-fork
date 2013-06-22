@@ -44,13 +44,29 @@ void TestConvertCoord::testQuaternionToSpherical()
 
 void TestConvertCoord::testSphericalToQuaternion()
 {
-    //see remarks above
-    dms lat(0); dms lon(90);
+    dms lat(0); dms lon(-45);
     Quaternionf q = ConvertCoord::sphericalToQuaternion(lat, lon);
-    Quaternionf qref(AngleAxisf(0.5*M_PI, Vector3f::UnitZ()));
-    //printQ(q);
-    //printQ(qref);
-    QVERIFY(q.isApprox(qref));
+    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    QCOMPARE( (float)lat.Degrees(), 0.f  );
+    QCOMPARE( (float)lon.Degrees(), -45.f );
+
+    lat = dms(45); lon = dms(0);
+    q = ConvertCoord::sphericalToQuaternion(lat, lon);
+    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    QCOMPARE( (float)lat.Degrees(), 45.f );
+    QCOMPARE( (float)lon.Degrees(), 0.f  );
+
+    lat = dms(0); lon = dms(0);
+    q = ConvertCoord::sphericalToQuaternion(lat, lon);
+    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    QCOMPARE( (float)lat.Degrees(), 0.f );
+    QCOMPARE( (float)lon.Degrees(), 0.f );
+
+    lat = dms(45); lon = dms(45);
+    q = ConvertCoord::sphericalToQuaternion(lat, lon);
+    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    QCOMPARE( (float)lat.Degrees(), 45.f );
+    QCOMPARE( (float)lon.Degrees(), 45.f );
 }
 
 QTEST_MAIN(TestConvertCoord)

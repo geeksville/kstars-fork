@@ -27,10 +27,11 @@ Quaternionf sphericalToQuaternion(const Radian lat, const Radian lon)
     // We rotate along the Z-axis first, and then the Y-axis.
     // Doing this in the opposite order is incorrect.
     // To convince yourself of this fact, spend some time playing with a
-    // sperical object such as a grapefruit.
+    // spherical object such as a grapefruit.
+    // Note: apparently Eigen does things left-to-right?
     Quaternionf lonq(AngleAxisf(lon, Vector3f::UnitZ()));
-    Quaternionf latq(AngleAxisf(lat, Vector3f::UnitY()));
-    return latq * lonq;
+    Quaternionf latq(AngleAxisf(-lat, Vector3f::UnitY()));
+    return lonq * latq;
 }
 
 Quaternionf sphericalToQuaternion(const dms &lat, const dms &lon)
