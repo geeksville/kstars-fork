@@ -59,6 +59,27 @@ void TestConvertCoord::testSphericalToVector()
     QCOMPARE( (float)lon.Degrees(), 45.f );
 }
 
+void TestConvertCoord::testRotB1950ToGal()
+{
+    CoordConversion c = ConvertCoord::rotB1950ToGal();
+    dms lat,lon;
+    GalacticCoord g;
+
+    g = c*ConvertCoord::sphericalToVector(27.4*DEG2RAD, 192.25*DEG2RAD);
+    ConvertCoord::vectorToSpherical(g,&lat, &lon);
+    QCOMPARE((float)lat.Degrees(), 90.f);
+
+    g = c*ConvertCoord::sphericalToVector(-28.916790*DEG2RAD, 265.610844f*DEG2RAD);
+    ConvertCoord::vectorToSpherical(g,&lat, &lon);
+    QCOMPARE((float)lat.Degrees() + 1.f, 1.f); // discard 1 digit precision
+    QCOMPARE((float)lon.Degrees() + 1.f, 1.f);
+
+    g = c*ConvertCoord::sphericalToVector(-27.4*DEG2RAD, 12.25*DEG2RAD);
+    ConvertCoord::vectorToSpherical(g,&lat, &lon);
+    QCOMPARE((float)lat.Degrees(), -90.f);
+}
+
 QTEST_MAIN(TestConvertCoord)
 
 #include "testconvertcoord.moc"
+

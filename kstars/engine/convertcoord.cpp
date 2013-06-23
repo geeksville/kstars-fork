@@ -46,5 +46,19 @@ void vectorToSpherical(const Vector3f &v, dms *lat, dms *lon)
     lon->setRadians(atan2(v.x(), v.z()));
 }
 
+CoordConversion rotB1950ToGal()
+{
+    Quaterniond rot1(AngleAxisd(-282.25*DEG2RAD,Vector3d::UnitY()));
+    Quaterniond rot2(AngleAxisd(  -62.6*DEG2RAD,Vector3d::UnitZ()));
+    Quaterniond rot3(AngleAxisd(     33*DEG2RAD,Vector3d::UnitY()));
+    return Quaternionf(rot3*rot2*rot1);
+}
+
+CoordConversion rotGalToB1950()
+{
+    return rotB1950ToGal().conjugate();
+}
+
+
 }
 }

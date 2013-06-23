@@ -26,6 +26,7 @@ class TestConvertCoord : public QObject
 private slots:
     void testSphericalToVector();
     void testVectorToSpherical();
+    void testRotB1950ToGal();
 };
 
 #endif
