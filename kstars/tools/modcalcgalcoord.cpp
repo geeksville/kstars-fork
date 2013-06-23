@@ -29,7 +29,7 @@
 #include "widgets/dmsbox.h"
 
 #include "engine/oldprecession.h"
-#include "engine/oldconversions.h"
+#include "engine/convertcoord.h"
 using namespace KSEngine;
 
 modCalcGalCoord::modCalcGalCoord(QWidget *parentSplit)
@@ -84,8 +84,12 @@ void modCalcGalCoord::slotComputeCoords() {
         if ( ok )
             glat = GalLatitude->createDms( true, &ok );
         if ( ok ) {
-            SkyPoint sp, ra, dec;
-            OldConversions::GalacticToEquatorial1950( &sp, &glong, &glat );
+            SkyPoint sp;
+            dms ra, dec;
+            GalacticCoord g = ConvertCoord::sphericalToVector(glat,glong);
+            B1950Coord    b = ConvertCoord::rotGalToB1950() * g;
+            ConvertCoord::vectorToSpherical(b,&dec,&ra);
+            sp.setRA(ra); sp.setDec(dec);
             OldPrecession::B1950ToJ2000( &sp );
             RA->showInHours( sp.ra() );
             Dec->showInDegrees( sp.dec() );
@@ -102,7 +106,9 @@ void modCalcGalCoord::slotComputeCoords() {
             dms glong, glat;
             SkyPoint sp( ra, dec );
             OldPrecession::J2000ToB1950(&sp);
-            OldConversions::Equatorial1950ToGalactic( &sp, glong, glat);
+            GalacticCoord g = ConvertCoord::sphericalToVector(sp.dec(), sp.ra());
+            B1950Coord    b = ConvertCoord::rotGalToB1950() * g;
+            ConvertCoord::vectorToSpherical(b,&glat,&glong);
             GalLongitude->showInDegrees(glong);
             GalLatitude->showInDegrees(glat);
         }
@@ -273,9 +279,11 @@ void modCalcGalCoord::processLines( QTextStream &istream ) {
                 if(galLatCheckBatch->isChecked() )
                     ostream << galLatB.toDMSString() << space;
 
-            sp = SkyPoint ();
-            OldConversions::GalacticToEquatorial1950(&sp, &galLatB, &galLatB);
-            ostream << sp.ra().toHMSString() << space << sp.dec().toDMSString() << epoch0B << endl;
+            dms ra, dec;
+            GalacticCoord g = ConvertCoord::sphericalToVector(galLatB,galLongB);
+            B1950Coord b = ConvertCoord::rotGalToB1950() * g;
+            ConvertCoord::vectorToSpherical(b, &dec, &ra);
+            ostream << ra.toHMSString() << space << dec.toDMSString() << epoch0B << endl;
             // Input coords. are equatorial coordinates:
 
         } else {
@@ -324,7 +332,9 @@ void modCalcGalCoord::processLines( QTextStream &istream ) {
 
             sp = SkyPoint (raB, decB);
             OldPrecession::J2000ToB1950(&sp);
-            OldConversions::Equatorial1950ToGalactic(&sp, galLongB, galLatB);
+            B1950Coord b = ConvertCoord::sphericalToVector(sp.dec(), sp.ra());
+            GalacticCoord g = ConvertCoord::rotB1950ToGal() * b;
+            ConvertCoord::vectorToSpherical(g, &galLatB, &galLongB);
             ostream << galLongB.toDMSString() << space << galLatB.toDMSString() << endl;
 
         }

@@ -153,53 +153,5 @@ void setFromEcliptic(SkyPoint *p, const dms *Obliquity, const dms &EcLong, const
     p->setDec(Dec);
 }
 
-void Equatorial1950ToGalactic(const SkyPoint *p, dms &galLong, dms &galLat)
-{
-    dms RA = p->ra();
-    dms Dec = p->dec();
-
-    double a = 192.25;
-    double sinb, cosb, sina_RA, cosa_RA, sinDEC, cosDEC, tanDEC;
-
-    dms c(303.0);
-    dms b(27.4);
-    tanDEC = tan( Dec.radians() );
-
-    b.SinCos(sinb,cosb);
-    dms( a - RA.Degrees() ).SinCos(sina_RA,cosa_RA);
-    Dec.SinCos(sinDEC,cosDEC);
-
-    galLong.setRadians( c.radians() - atan2( sina_RA, cosa_RA*sinb-tanDEC*cosb) );
-    galLong = galLong.reduce();
-
-    galLat.setRadians( asin(sinDEC*sinb+cosDEC*cosb*cosa_RA) );
-}
-
-void GalacticToEquatorial1950(SkyPoint *p, const dms *galLong, const dms *galLat)
-{
-    double a = 123.0;
-    double sinb, cosb, singLat, cosgLat, tangLat, singLong_a, cosgLong_a;
-
-    dms c(12.25);
-    dms b(27.4);
-    tangLat = tan( galLat->radians() );
-    galLat->SinCos(singLat,cosgLat);
-
-    dms( galLong->Degrees() - a ).SinCos(singLong_a,cosgLong_a);
-    b.SinCos(sinb,cosb);
-
-    dms RA = p->ra();
-    dms Dec = p->dec();
-
-    RA.setRadians(c.radians() + atan2(singLong_a,cosgLong_a*sinb-tangLat*cosb) );
-    RA = RA.reduce();
-    Dec.setRadians( asin(singLat*sinb+cosgLat*cosb*cosgLong_a) );
-
-    p->setRA(RA);
-    p->setDec(Dec);
-}
-
-
-
 }
 }

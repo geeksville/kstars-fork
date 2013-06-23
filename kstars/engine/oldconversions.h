@@ -78,26 +78,6 @@ namespace OldConversions {
                           const dms      &EcLong,
                           const dms      &EcLat );
 
-    /** Computes galactic coordinates from equatorial coordinates referred to
-     *  epoch 1950. RA and Dec are, therefore assumed to be B1950
-     *  coordinates.
-     *
-     *  FIXME: document parameters properly
-     */
-    void Equatorial1950ToGalactic( const SkyPoint *p,
-                                         dms      &galLong,
-                                         dms      &galLat);
-
-    /** Computes equatorial coordinates referred to 1950 from galactic ones referred to
-     * epoch B1950. RA and Dec are, therefore assumed to be B1950
-     * coordinates.
-     *
-     *  FIXME: document parameters properly
-     */
-    void GalacticToEquatorial1950(       SkyPoint *p,
-                                   const dms      *galLong,
-                                   const dms      *galLat);
-
 }
 }
 
