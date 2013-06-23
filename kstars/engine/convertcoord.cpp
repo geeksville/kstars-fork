@@ -22,37 +22,28 @@
 namespace KSEngine {
 namespace ConvertCoord {
 
-Quaternionf sphericalToQuaternion(const Radian lat, const Radian lon)
+Vector3f sphericalToVector(const Radian lat, const Radian lon)
 {
-    // We rotate along the Z-axis first, and then the Y-axis.
-    // Doing this in the opposite order is incorrect.
-    // To convince yourself of this fact, spend some time playing with a
-    // spherical object such as a grapefruit.
-    // Note: apparently Eigen does things left-to-right?
-    Quaternionf lonq(AngleAxisf(lon, Vector3f::UnitZ()));
-    Quaternionf latq(AngleAxisf(-lat, Vector3f::UnitY()));
-    return lonq * latq;
+    return Vector3f( cos(lat)*sin(lon),
+                     sin(lat),
+                     cos(lat)*cos(lon) );
 }
 
-Quaternionf sphericalToQuaternion(const dms &lat, const dms &lon)
+Vector3f sphericalToVector(const dms &lat, const dms &lon)
 {
-    return sphericalToQuaternion(lat.radians(),lon.radians());
+    return sphericalToVector(lat.radians(),lon.radians());
 }
 
-void quaternionToSpherical(const Quaternionf &q, Radian *lat, Radian *lon)
+void vectorToSpherical(const Vector3f &v, Radian *lat, Radian *lon)
 {
-    const Vector3f origin(1,0,0);
-    const Vector3f point = q * origin;
-    *lat = asin(point.z());
-    *lon = atan2(point.y(), point.x());
+    *lat = asin(v.y());
+    *lon = atan2(v.x(), v.z());
 }
 
-void quaternionToSpherical(const Quaternionf &q, dms *lat, dms *lon)
+void vectorToSpherical(const Vector3f &v, dms *lat, dms *lon)
 {
-    const Vector3f origin(1,0,0);
-    const Vector3f point = q * origin;
-    lat->setRadians(asin(point.z()));
-    lon->setRadians(atan2(point.y(), point.x()));
+    lat->setRadians(asin(v.y()));
+    lon->setRadians(atan2(v.x(), v.z()));
 }
 
 }

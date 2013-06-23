@@ -54,29 +54,27 @@ namespace KSEngine {
  */
 namespace ConvertCoord {
 
-    /** @return A quaternion corresponding to the given angular coordinates
+    /** @return A vector corresponding to the given angular coordinates
      *  @param lat the latitude-like angle (altitude, declination, etc)
      *  @param lon the longitude-like angle (azimuth, RA, etc)
      *  @note You should convert the result to the appropriate named type.
      */
-    Quaternionf sphericalToQuaternion( const dms &lat,
-                                       const dms &lon );
-    Quaternionf sphericalToQuaternion( const Radian lat,
-                                       const Radian lon );
+    Vector3f sphericalToVector( const dms &lat,
+                                const dms &lon );
+    Vector3f sphericalToVector( const Radian lat,
+                                const Radian lon );
 
-    /** Convert a quaternion to spherical coordinates.
-     *  @param q the quaternion
+    /** Convert a vector to spherical coordinates.
+     *  @param v the vector
      *  @param lat a pointer to store the computed latitude in
      *  @param long a pointer to store the computed longitude in
-     *  @note This conversion discards information; it collapses one degree
-     *        of freedom.
      */
-    void quaternionToSpherical( const Quaternionf &q,
-                                      dms         *lat,
-                                      dms         *lon );
-    void quaternionToSpherical( const Quaternionf &q,
-                                      Radian      *lat,
-                                      Radian      *lon );
+    void vectorToSpherical( const Vector3f &v,
+                                  dms      *lat,
+                                  dms      *lon );
+    void vectorToSpherical( const Vector3f &v,
+                                  Radian   *lat,
+                                  Radian   *lon );
 
     //
     // Calculate the rotation factors between coordinate systems.

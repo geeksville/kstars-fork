@@ -22,49 +22,39 @@
 
 using namespace KSEngine;
 
-/*
-// cout gave a bunch of weird issues, and an > 1000 line compile error.
-// Looked like something with Qt -- stdc++ interaction. We just want the values.
-void printQ(Quaternionf q) {
-    printf("q= %f %f %f %f\n\n\n", q.w(), q.x(), q.y(), q.z());
-}
-*/
-
-void TestConvertCoord::testQuaternionToSpherical()
+void TestConvertCoord::testVectorToSpherical()
 {
-    //Manually construct a quaternion.
-    Quaternionf q(AngleAxisf(0.5*M_PI, Vector3f::UnitZ()));
-    //printQ(q);
+    Vector3f v(1,0,0);
     dms lat, lon;
-    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    ConvertCoord::vectorToSpherical(v,&lat,&lon);
     // Need to cast to float for precision issues
     QCOMPARE( (float)lat.Degrees(), 0.0f );
     QCOMPARE( (float)lon.Degrees(), 90.0f );
 }
 
-void TestConvertCoord::testSphericalToQuaternion()
+void TestConvertCoord::testSphericalToVector()
 {
     dms lat(0); dms lon(-45);
-    Quaternionf q = ConvertCoord::sphericalToQuaternion(lat, lon);
-    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    Vector3f v = ConvertCoord::sphericalToVector(lat, lon);
+    ConvertCoord::vectorToSpherical(v,&lat,&lon);
     QCOMPARE( (float)lat.Degrees(), 0.f  );
     QCOMPARE( (float)lon.Degrees(), -45.f );
 
     lat = dms(45); lon = dms(0);
-    q = ConvertCoord::sphericalToQuaternion(lat, lon);
-    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    v = ConvertCoord::sphericalToVector(lat, lon);
+    ConvertCoord::vectorToSpherical(v,&lat,&lon);
     QCOMPARE( (float)lat.Degrees(), 45.f );
     QCOMPARE( (float)lon.Degrees(), 0.f  );
 
     lat = dms(0); lon = dms(0);
-    q = ConvertCoord::sphericalToQuaternion(lat, lon);
-    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    v = ConvertCoord::sphericalToVector(lat, lon);
+    ConvertCoord::vectorToSpherical(v,&lat,&lon);
     QCOMPARE( (float)lat.Degrees(), 0.f );
     QCOMPARE( (float)lon.Degrees(), 0.f );
 
     lat = dms(45); lon = dms(45);
-    q = ConvertCoord::sphericalToQuaternion(lat, lon);
-    ConvertCoord::quaternionToSpherical(q,&lat,&lon);
+    v = ConvertCoord::sphericalToVector(lat, lon);
+    ConvertCoord::vectorToSpherical(v,&lat,&lon);
     QCOMPARE( (float)lat.Degrees(), 45.f );
     QCOMPARE( (float)lon.Degrees(), 45.f );
 }

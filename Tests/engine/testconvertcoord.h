@@ -24,8 +24,8 @@ class TestConvertCoord : public QObject
 {
     Q_OBJECT
 private slots:
-    void testSphericalToQuaternion();
-    void testQuaternionToSpherical();
+    void testSphericalToVector();
+    void testVectorToSpherical();
 };
 
 #endif

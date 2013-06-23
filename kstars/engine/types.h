@@ -37,22 +37,28 @@ using namespace Eigen;
  *   * Catalog coordinates with respect to the J2000 epoch (equatorial).
  *   * Catalog coordinates with respect to the B1950 epoch (equatorial).
  * 
- * We represent all of these as a Quaternionf, which gives the rotation from
- * the origin of the coordinate system to the given point.
+ * We represent all of these as a Vector3f, in the coordinate system
+ *   
+ *                 ^y
+ *                 |
+ *                 /----> x
+ *                /
+ *                z
+ *
  * Changing coordinate systems is then as simple as computing the rotation of
- * one coordinate system's origin to the next, and multiplying (28 flop).
+ * one coordinate system to the next, and multiplying (28 flop).
  *  
  * FIXME: Should it be a compile error to convert one to the other without
  * using an explicit function? 
  * 
  ***************************************************************************/
 
-typedef Quaternionf EquatorialCoord;
-typedef Quaternionf HorizontalCoord;
-typedef Quaternionf EclipticCoord;
-typedef Quaternionf GalacticCoord;
-typedef Quaternionf J2000Coord;
-typedef Quaternionf B1950Coord;
+typedef Vector3f EquatorialCoord;
+typedef Vector3f HorizontalCoord;
+typedef Vector3f EclipticCoord;
+typedef Vector3f GalacticCoord;
+typedef Vector3f J2000Coord;
+typedef Vector3f B1950Coord;
 
 /// Represents a rotation from one coordinate system to another.
 typedef Quaternionf CoordConversion;
