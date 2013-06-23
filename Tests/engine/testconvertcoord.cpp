@@ -26,7 +26,7 @@ void TestConvertCoord::testVectorToSpherical()
 {
     Vector3f v(1,0,0);
     dms lat, lon;
-    ConvertCoord::vectorToSpherical(v,&lat,&lon);
+    Convert::vectToSph(v,&lat,&lon);
     // Need to cast to float for precision issues
     QCOMPARE( (float)lat.Degrees(), 0.0f );
     QCOMPARE( (float)lon.Degrees(), 90.0f );
@@ -35,47 +35,47 @@ void TestConvertCoord::testVectorToSpherical()
 void TestConvertCoord::testSphericalToVector()
 {
     dms lat(0); dms lon(-45);
-    Vector3f v = ConvertCoord::sphericalToVector(lat, lon);
-    ConvertCoord::vectorToSpherical(v,&lat,&lon);
+    Vector3f v = Convert::sphToVect(lat, lon);
+    Convert::vectToSph(v,&lat,&lon);
     QCOMPARE( (float)lat.Degrees(), 0.f  );
     QCOMPARE( (float)lon.Degrees(), -45.f );
 
     lat = dms(45); lon = dms(0);
-    v = ConvertCoord::sphericalToVector(lat, lon);
-    ConvertCoord::vectorToSpherical(v,&lat,&lon);
+    v = Convert::sphToVect(lat, lon);
+    Convert::vectToSph(v,&lat,&lon);
     QCOMPARE( (float)lat.Degrees(), 45.f );
     QCOMPARE( (float)lon.Degrees(), 0.f  );
 
     lat = dms(0); lon = dms(0);
-    v = ConvertCoord::sphericalToVector(lat, lon);
-    ConvertCoord::vectorToSpherical(v,&lat,&lon);
+    v = Convert::sphToVect(lat, lon);
+    Convert::vectToSph(v,&lat,&lon);
     QCOMPARE( (float)lat.Degrees(), 0.f );
     QCOMPARE( (float)lon.Degrees(), 0.f );
 
     lat = dms(45); lon = dms(45);
-    v = ConvertCoord::sphericalToVector(lat, lon);
-    ConvertCoord::vectorToSpherical(v,&lat,&lon);
+    v = Convert::sphToVect(lat, lon);
+    Convert::vectToSph(v,&lat,&lon);
     QCOMPARE( (float)lat.Degrees(), 45.f );
     QCOMPARE( (float)lon.Degrees(), 45.f );
 }
 
 void TestConvertCoord::testRotB1950ToGal()
 {
-    CoordConversion c = ConvertCoord::rotB1950ToGal();
+    CoordConversion c = Convert::B1950ToGal();
     dms lat,lon;
     GalacticCoord g;
 
-    g = c*ConvertCoord::sphericalToVector(27.4*DEG2RAD, 192.25*DEG2RAD);
-    ConvertCoord::vectorToSpherical(g,&lat, &lon);
+    g = c*Convert::sphToVect(27.4*DEG2RAD, 192.25*DEG2RAD);
+    Convert::vectToSph(g,&lat, &lon);
     QCOMPARE((float)lat.Degrees(), 90.f);
 
-    g = c*ConvertCoord::sphericalToVector(-28.916790*DEG2RAD, 265.610844f*DEG2RAD);
-    ConvertCoord::vectorToSpherical(g,&lat, &lon);
+    g = c*Convert::sphToVect(-28.916790*DEG2RAD, 265.610844f*DEG2RAD);
+    Convert::vectToSph(g,&lat, &lon);
     QCOMPARE((float)lat.Degrees() + 1.f, 1.f); // discard 1 digit precision
     QCOMPARE((float)lon.Degrees() + 1.f, 1.f);
 
-    g = c*ConvertCoord::sphericalToVector(-27.4*DEG2RAD, 12.25*DEG2RAD);
-    ConvertCoord::vectorToSpherical(g,&lat, &lon);
+    g = c*Convert::sphToVect(-27.4*DEG2RAD, 12.25*DEG2RAD);
+    Convert::vectToSph(g,&lat, &lon);
     QCOMPARE((float)lat.Degrees(), -90.f);
 }
 

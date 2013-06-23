@@ -20,33 +20,33 @@
 #include "dms.h"
 
 namespace KSEngine {
-namespace ConvertCoord {
+namespace Convert {
 
-Vector3f sphericalToVector(const Radian lat, const Radian lon)
+Vector3f sphToVect(const Radian lat, const Radian lon)
 {
     return Vector3f( cos(lat)*sin(lon),
                      sin(lat),
                      cos(lat)*cos(lon) );
 }
 
-Vector3f sphericalToVector(const dms &lat, const dms &lon)
+Vector3f sphToVect(const dms &lat, const dms &lon)
 {
-    return sphericalToVector(lat.radians(),lon.radians());
+    return sphToVect(lat.radians(),lon.radians());
 }
 
-void vectorToSpherical(const Vector3f &v, Radian *lat, Radian *lon)
+void vectToSph(const Vector3f &v, Radian *lat, Radian *lon)
 {
     *lat = asin(v.y());
     *lon = atan2(v.x(), v.z());
 }
 
-void vectorToSpherical(const Vector3f &v, dms *lat, dms *lon)
+void vectToSph(const Vector3f &v, dms *lat, dms *lon)
 {
     lat->setRadians(asin(v.y()));
     lon->setRadians(atan2(v.x(), v.z()));
 }
 
-CoordConversion rotB1950ToGal()
+CoordConversion B1950ToGal()
 {
     Quaterniond rot1(AngleAxisd(-282.25*DEG2RAD,Vector3d::UnitY()));
     Quaterniond rot2(AngleAxisd(  -62.6*DEG2RAD,Vector3d::UnitZ()));
@@ -54,9 +54,9 @@ CoordConversion rotB1950ToGal()
     return Quaternionf(rot3*rot2*rot1);
 }
 
-CoordConversion rotGalToB1950()
+CoordConversion GalToB1950()
 {
-    return rotB1950ToGal().conjugate();
+    return B1950ToGal().conjugate();
 }
 
 

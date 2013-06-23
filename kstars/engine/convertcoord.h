@@ -52,85 +52,84 @@ namespace KSEngine {
  *       be corrected seperately.
  *
  */
-namespace ConvertCoord {
+namespace Convert {
 
     /** @return A vector corresponding to the given angular coordinates
      *  @param lat the latitude-like angle (altitude, declination, etc)
      *  @param lon the longitude-like angle (azimuth, RA, etc)
      *  @note You should convert the result to the appropriate named type.
      */
-    Vector3f sphericalToVector( const dms &lat,
-                                const dms &lon );
-    Vector3f sphericalToVector( const Radian lat,
-                                const Radian lon );
+    Vector3f sphToVect( const dms &lat,
+                        const dms &lon );
+    Vector3f sphToVect( const Radian lat,
+                        const Radian lon );
 
     /** Convert a vector to spherical coordinates.
      *  @param v the vector
      *  @param lat a pointer to store the computed latitude in
      *  @param long a pointer to store the computed longitude in
      */
-    void vectorToSpherical( const Vector3f &v,
-                                  dms      *lat,
-                                  dms      *lon );
-    void vectorToSpherical( const Vector3f &v,
-                                  Radian   *lat,
-                                  Radian   *lon );
+    void vectToSph( const Vector3f &v,
+                          dms      *lat,
+                          dms      *lon );
+    void vectToSph( const Vector3f &v,
+                          Radian   *lat,
+                          Radian   *lon );
 
     //
     // Calculate the rotation factors between coordinate systems.
     // To convert a coordinate from one type to another, get the rotation
     // using these functions and multiply, like so:
     //
-    // HorizontalCoord h = ...;
-    // LocalSiderealCoords c = ...;
-    // EquatorialCoord e = ConvertCoord::rotHorToEq(c) * h;
+    // GalacticCoord g = ...;
+    // B1950Coord e = Convert::GalToB1950(c) * h;
     //
 
     /** @return rotation from horizontal to equatorial coordinates
      *  @param c the time/place
      */
-    CoordConversion rotHorToEq( const LocalSiderealCoords &c );
+    CoordConversion HorToEq( const LocalSiderealCoords &c );
 
     /** @return rotation from equatorial to horizontal coordinates
      *  @param c the time/place
      */
-    CoordConversion rotEqToHor( const LocalSiderealCoords &c );
+    CoordConversion EqToHor( const LocalSiderealCoords &c );
 
     /** @return rotation from ecliptic to equatorial coordinates
      *  @param obliquity the obliquity angle
      */
-    CoordConversion rotEclToEq( const Radian obliquity );
+    CoordConversion EclToEq( const Radian obliquity );
 
     /** @return rotation from equatorial to ecliptic coordinates 
      *  @param obliquity the obliquity angle
      */
-    CoordConversion rotEqToEcl( const Radian obliquity );
+    CoordConversion EqToEcl( const Radian obliquity );
 
     /** @return rotation from equatorial coordinates to J2000 coordinates
      *  @param jd the date the equatorial coordinates are defined for
      */
-    CoordConversion rotEqToJ2000( const JulianDate jd );
+    CoordConversion EqToJ2000( const JulianDate jd );
 
     /** @return rotation from J2000 coordinates to equatorial coordinates
      *  @param jd the date the equatorial coordinates are defined for
      */
-    CoordConversion rotJ2000ToEq( const JulianDate jd );
+    CoordConversion J2000ToEq( const JulianDate jd );
 
     /** @return rotation from J2000 coordinates to B1950 coordinates.
      */
-    CoordConversion rotJ2000ToB1950();
+    CoordConversion J2000ToB1950();
 
     /** @return rotation from B1950 coordinates to J2000 coordinates
      */
-    CoordConversion rotB1950ToJ2000();
+    CoordConversion B1950ToJ2000();
 
     /** @return rotation from B1950 coordinates to galactic coordinates
      */
-    CoordConversion rotB1950ToGal();
+    CoordConversion B1950ToGal();
 
     /** @return rotation from galactic coordinates to B1950 coordinates
      */
-    CoordConversion rotGalToB1950();
+    CoordConversion GalToB1950();
 
 }
 }
