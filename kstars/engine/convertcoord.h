@@ -59,9 +59,9 @@ namespace Convert {
      *  @param lon the longitude-like angle (azimuth, RA, etc)
      *  @note You should convert the result to the appropriate named type.
      */
-    Vector3f sphToVect( const dms &lat,
+    Vector3d sphToVect( const dms &lat,
                         const dms &lon );
-    Vector3f sphToVect( const Radian lat,
+    Vector3d sphToVect( const Radian lat,
                         const Radian lon );
 
     /** Convert a vector to spherical coordinates.
@@ -69,10 +69,10 @@ namespace Convert {
      *  @param lat a pointer to store the computed latitude in
      *  @param long a pointer to store the computed longitude in
      */
-    void vectToSph( const Vector3f &v,
+    void vectToSph( const Vector3d &v,
                           dms      *lat,
                           dms      *lon );
-    void vectToSph( const Vector3f &v,
+    void vectToSph( const Vector3d &v,
                           Radian   *lat,
                           Radian   *lon );
 

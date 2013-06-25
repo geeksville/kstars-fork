@@ -24,39 +24,39 @@ using namespace KSEngine;
 
 void TestConvertCoord::testVectorToSpherical()
 {
-    Vector3f v(1,0,0);
+    Vector3d v(1,0,0);
     dms lat, lon;
     Convert::vectToSph(v,&lat,&lon);
     // Need to cast to float for precision issues
-    QCOMPARE( (float)lat.Degrees(), 0.0f );
-    QCOMPARE( (float)lon.Degrees(), 90.0f );
+    QCOMPARE( lat.Degrees(), 0. );
+    QCOMPARE( lon.Degrees(), 90. );
 }
 
 void TestConvertCoord::testSphericalToVector()
 {
     dms lat(0); dms lon(-45);
-    Vector3f v = Convert::sphToVect(lat, lon);
+    Vector3d v = Convert::sphToVect(lat, lon);
     Convert::vectToSph(v,&lat,&lon);
-    QCOMPARE( (float)lat.Degrees(), 0.f  );
-    QCOMPARE( (float)lon.Degrees(), -45.f );
+    QCOMPARE( lat.Degrees(), 0.  );
+    QCOMPARE( lon.Degrees(), -45. );
 
     lat = dms(45); lon = dms(0);
     v = Convert::sphToVect(lat, lon);
     Convert::vectToSph(v,&lat,&lon);
-    QCOMPARE( (float)lat.Degrees(), 45.f );
-    QCOMPARE( (float)lon.Degrees(), 0.f  );
+    QCOMPARE( lat.Degrees(), 45. );
+    QCOMPARE( lon.Degrees(), 0.  );
 
     lat = dms(0); lon = dms(0);
     v = Convert::sphToVect(lat, lon);
     Convert::vectToSph(v,&lat,&lon);
-    QCOMPARE( (float)lat.Degrees(), 0.f );
-    QCOMPARE( (float)lon.Degrees(), 0.f );
+    QCOMPARE( lat.Degrees(), 0. );
+    QCOMPARE( lon.Degrees(), 0. );
 
     lat = dms(45); lon = dms(45);
     v = Convert::sphToVect(lat, lon);
     Convert::vectToSph(v,&lat,&lon);
-    QCOMPARE( (float)lat.Degrees(), 45.f );
-    QCOMPARE( (float)lon.Degrees(), 45.f );
+    QCOMPARE( lat.Degrees(), 45. );
+    QCOMPARE( lon.Degrees(), 45. );
 }
 
 void TestConvertCoord::testRotB1950ToGal()
@@ -67,16 +67,16 @@ void TestConvertCoord::testRotB1950ToGal()
 
     g = c*Convert::sphToVect(27.4*DEG2RAD, 192.25*DEG2RAD);
     Convert::vectToSph(g,&lat, &lon);
-    QCOMPARE((float)lat.Degrees(), 90.f);
+    QCOMPARE(lat.Degrees(), 90.);
 
-    g = c*Convert::sphToVect(-28.916790*DEG2RAD, 265.610844f*DEG2RAD);
+    g = c*Convert::sphToVect(-28.91679035*DEG2RAD, 265.61084403*DEG2RAD);
     Convert::vectToSph(g,&lat, &lon);
-    QCOMPARE((float)lat.Degrees() + 1.f, 1.f); // discard 1 digit precision
-    QCOMPARE((float)lon.Degrees() + 1.f, 1.f);
+    QVERIFY( (lat.Degrees() - 0.) < MILLIARCSEC_DEGREES );
+    QVERIFY( (lon.Degrees() - 0.) < MILLIARCSEC_DEGREES );
 
     g = c*Convert::sphToVect(-27.4*DEG2RAD, 12.25*DEG2RAD);
     Convert::vectToSph(g,&lat, &lon);
-    QCOMPARE((float)lat.Degrees(), -90.f);
+    QCOMPARE(lat.Degrees(), -90.);
 }
 
 QTEST_MAIN(TestConvertCoord)

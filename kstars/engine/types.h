@@ -37,7 +37,7 @@ using namespace Eigen;
  *   * Catalog coordinates with respect to the J2000 epoch (equatorial).
  *   * Catalog coordinates with respect to the B1950 epoch (equatorial).
  * 
- * We represent all of these as a Vector3f, in the coordinate system
+ * We represent all of these as a Vector3d, in the coordinate system
  *   
  *                 ^y
  *                 |
@@ -53,15 +53,15 @@ using namespace Eigen;
  * 
  ***************************************************************************/
 
-typedef Vector3f EquatorialCoord;
-typedef Vector3f HorizontalCoord;
-typedef Vector3f EclipticCoord;
-typedef Vector3f GalacticCoord;
-typedef Vector3f J2000Coord;
-typedef Vector3f B1950Coord;
+typedef Vector3d EquatorialCoord;
+typedef Vector3d HorizontalCoord;
+typedef Vector3d EclipticCoord;
+typedef Vector3d GalacticCoord;
+typedef Vector3d J2000Coord;
+typedef Vector3d B1950Coord;
 
 /// Represents a rotation from one coordinate system to another.
-typedef Quaternionf CoordConversion;
+typedef Quaterniond CoordConversion;
 
 /***************************************************************************
  * TIME
@@ -84,11 +84,11 @@ static const double SiderealSecond = 1.002737909;
  ***************************************************************************/
 
 /// Rotation from the prime meridian.
-typedef Quaternionf GreenwichCoord;
+typedef Quaterniond GreenwichCoord;
 
 /// Rotation from lat = long = 0 to the observer's latitude and
 /// local sidereal time.
-typedef Quaternionf LocalSiderealCoords;
+typedef Quaterniond LocalSiderealCoords;
 
 /***************************************************************************
  * ANGLES
@@ -107,6 +107,10 @@ static const double AU_KM = 1.49605e8;
 static const double DEG2RAD = M_PI/180.;
 /// Radians to degrees conversion
 static const double RAD2DEG = 180./M_PI;
+/// Number of radians in 1 milliarcsec
+static const double MILLIARCSEC_RADIANS = 0.00000000484813681;
+/// Number of degrees in 1 milliarcsec
+static const double MILLIARCSEC_DEGREES = MILLIARCSEC_RADIANS*RAD2DEG;
 
 } // NS KSEngine
 
