@@ -115,6 +115,16 @@ namespace Convert {
      */
     CoordConversion J2000ToEq( const JulianDate jd );
 
+    /** @return rotation representing precession from J2000.
+     *  @param jd the date to precess to
+     */
+    CoordConversion PrecessTo( const JulianDate jd );
+
+    /** @return rotation representing deprecession to J2000.
+     *  @param jd the date to precess from.
+     */
+    CoordConversion PrecessFrom( const JulianDate jd );
+
     /** @return rotation from J2000 coordinates to B1950 coordinates.
      */
     CoordConversion J2000ToB1950();

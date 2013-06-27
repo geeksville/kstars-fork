@@ -79,5 +79,26 @@ CoordConversion EclToEq(const JulianDate jd)
     return EqToEcl(jd).conjugate();
 }
 
+CoordConversion PrecessTo(const JulianDate jd)
+{
+    //Julian Centuries since J2000.0
+    double T = ( jd - EpochJ2000 ) / 36525.;
+    //Compute rotation angles from series
+    double zeta  = 0.6406161*T + 0.0000839*T*T + 0.0000050*T*T*T;
+    double theta = 0.5567530*T - 0.0001185*T*T - 0.0000116*T*T*T;
+    double z     = 0.6406161*T + 0.0003041*T*T + 0.0000051*T*T*T;
+    //Build rotation
+    Quaterniond rot1(AngleAxisd(  zeta*DEG2RAD,Vector3d::UnitY()));
+    Quaterniond rot2(AngleAxisd(-theta*DEG2RAD,Vector3d::UnitZ()));
+    Quaterniond rot3(AngleAxisd(     z*DEG2RAD,Vector3d::UnitY()));
+    return rot1*rot2*rot3;
+}
+
+CoordConversion PrecessFrom(const JulianDate jd)
+{
+    return PrecessTo(jd).conjugate();
+}
+
+
 }
 }

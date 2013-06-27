@@ -20,6 +20,11 @@
 #include "kstars/engine/convertcoord.h"
 #include "kstars/dms.h"
 
+#include "kstars/engine/oldprecession.h"
+#include "kstars/skyobjects/skypoint.h"
+#include "kstars/ksnumbers.h"
+#include <iostream>
+
 using namespace KSEngine;
 
 void TestConvertCoord::testVectorToSpherical()
@@ -89,6 +94,33 @@ void TestConvertCoord::testConvertEqToEcl()
     Vector3d v = Convert::EqToEcl(jd) * Convert::sphToVect(dec, ra);
     QVERIFY(result.isApprox(v));
 }
+
+void TestConvertCoord::testPrecession()
+{
+    //Precess 1 century into the future
+    JulianDate jd = EpochJ2000 + 36525.;
+    dms RA(20), Dec(30);
+
+    SkyPoint p1;
+    p1.setRA0(RA);
+    p1.setDec0(Dec);
+    KSNumbers num(jd);
+    OldPrecession::precess(&p1, &num);
+    Vector3d v1 = Convert::sphToVect(p1.dec(), p1.ra());
+
+    Vector3d p2 = Convert::sphToVect(Dec, RA);
+    Vector3d v2 = Convert::PrecessTo(jd) * p2;
+
+    std::cout << v1 << std::endl;
+    std::cout << v2 << std::endl;
+    dms ra, dec;
+    Convert::vectToSph(v1,&dec,&ra);
+    std::cout << ra.Degrees() << " " << dec.Degrees() << std::endl;
+    Convert::vectToSph(v2,&dec,&ra);
+    std::cout << ra.Degrees() << " " << dec.Degrees() << std::endl;
+    QVERIFY(v1.isApprox(v2));
+}
+
 
 QTEST_MAIN(TestConvertCoord)
 
