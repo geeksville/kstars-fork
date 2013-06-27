@@ -89,9 +89,9 @@ CoordConversion PrecessTo(const JulianDate jd)
     double z     = 0.6406161*T + 0.0003041*T*T + 0.0000051*T*T*T;
     //Build rotation
     Quaterniond rot1(AngleAxisd(  zeta*DEG2RAD,Vector3d::UnitY()));
-    Quaterniond rot2(AngleAxisd(-theta*DEG2RAD,Vector3d::UnitZ()));
+    Quaterniond rot2(AngleAxisd(-theta*DEG2RAD,Vector3d::UnitX()));
     Quaterniond rot3(AngleAxisd(     z*DEG2RAD,Vector3d::UnitY()));
-    return rot1*rot2*rot3;
+    return rot3*rot2*rot1;
 }
 
 CoordConversion PrecessFrom(const JulianDate jd)
