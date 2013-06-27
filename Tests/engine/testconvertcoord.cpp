@@ -79,6 +79,17 @@ void TestConvertCoord::testRotB1950ToGal()
     QCOMPARE(lat.Degrees(), -90.);
 }
 
+void TestConvertCoord::testConvertEqToEcl()
+{
+    dms ra(20), dec(30);
+    JulianDate jd = EpochJ2000 + 36525.;
+    Vector3d result(0.470567674777011279996230541656,
+                    0.341026974424810169761457245841,
+                    0.813797681349373691617188342207);
+    Vector3d v = Convert::EqToEcl(jd) * Convert::sphToVect(dec, ra);
+    QVERIFY(result.isApprox(v));
+}
+
 QTEST_MAIN(TestConvertCoord)
 
 #include "testconvertcoord.moc"

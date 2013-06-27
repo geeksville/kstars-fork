@@ -59,6 +59,25 @@ CoordConversion GalToB1950()
     return B1950ToGal().conjugate();
 }
 
+CoordConversion EqToEcl(const JulianDate jd)
+{
+    //Julian Centuries since J2000.0
+    double T = ( jd - EpochJ2000 ) / 36525.;
+    //Obliquity of the Ecliptic
+    double U = T/100.0;
+    double dObliq = -4680.93*U - 1.55*U*U + 1999.25*U*U*U
+                    - 51.38*U*U*U*U - 249.67*U*U*U*U*U
+                    - 39.05*U*U*U*U*U*U + 7.12*U*U*U*U*U*U*U
+                    + 27.87*U*U*U*U*U*U*U*U + 5.79*U*U*U*U*U*U*U*U*U
+                    + 2.45*U*U*U*U*U*U*U*U*U*U;
+    double obliq = 23.43929111 + dObliq/3600.0;
+    return Quaterniond(AngleAxisd(-obliq*DEG2RAD,Vector3d::UnitZ()));
+}
+
+CoordConversion EclToEq(const JulianDate jd)
+{
+    return EqToEcl(jd).conjugate();
+}
 
 }
 }

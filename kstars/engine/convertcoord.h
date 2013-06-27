@@ -96,14 +96,14 @@ namespace Convert {
     CoordConversion EqToHor( const LocalSiderealCoords &c );
 
     /** @return rotation from ecliptic to equatorial coordinates
-     *  @param obliquity the obliquity angle
+     *  @param jd the date
      */
-    CoordConversion EclToEq( const Radian obliquity );
+    CoordConversion EclToEq( const JulianDate jd );
 
     /** @return rotation from equatorial to ecliptic coordinates 
-     *  @param obliquity the obliquity angle
+     *  @param jd the date
      */
-    CoordConversion EqToEcl( const Radian obliquity );
+    CoordConversion EqToEcl( const JulianDate jd );
 
     /** @return rotation from equatorial coordinates to J2000 coordinates
      *  @param jd the date the equatorial coordinates are defined for
