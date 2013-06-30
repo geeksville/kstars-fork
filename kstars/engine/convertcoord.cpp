@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include "convertcoord.h"
+#include "engine/astrovars.h"
 
 #include "dms.h"
 
@@ -97,6 +98,20 @@ CoordConversion PrecessTo(const JulianDate jd)
 CoordConversion PrecessFrom(const JulianDate jd)
 {
     return PrecessTo(jd).conjugate();
+}
+
+CoordConversion Nutate(const JulianDate jd)
+{
+    double dEcLong, dObliq;
+    AstroVars::nutationVars(jd, &dEcLong, &dObliq);
+    //Add dEcLong to the Ecliptic Longitude
+    Quaterniond rot(AngleAxisd(dEcLong*DEG2RAD,Vector3d::UnitY()));
+    return EclToEq(jd) * rot * EqToEcl(jd);
+}
+
+CoordConversion DeNutate(const JulianDate jd)
+{
+    return Nutate(jd).conjugate();
 }
 
 

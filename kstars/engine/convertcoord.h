@@ -125,6 +125,24 @@ namespace Convert {
      */
     CoordConversion PrecessFrom( const JulianDate jd );
 
+    /** @return a rotation representing the nutation for this date.
+     *  @param jd the date in question.
+     *
+     *  FIXME: this implementation is probably incorrect.
+     *         It should be checked once all of the KSNumbers code
+     *         is moved and rewritten.
+     */
+    CoordConversion Nutate( const JulianDate jd );
+
+    /** @return a rotation which removes nutation.
+     *  @param jd the date
+     *
+     *  FIXME: this implementation is probably incorrect.
+     *         It should be checked once all of the KSNumbers code
+     *         is moved and rewritten.
+     */
+    CoordConversion DeNutate( const JulianDate jd );
+
     /** @return rotation from J2000 coordinates to B1950 coordinates.
      */
     CoordConversion J2000ToB1950();
