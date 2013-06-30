@@ -379,6 +379,7 @@ set(kstars_engine_SRCS
     engine/oldprecession.cpp
     engine/oldconversions.cpp
     engine/convertcoord.cpp
+    engine/astrovars.cpp
 )
 
 set(kstars_extra_SRCS
