@@ -46,7 +46,7 @@ using namespace Eigen;
  *                z
  *
  * Changing coordinate systems is then as simple as computing the rotation of
- * one coordinate system to the next, and multiplying (28 flop).
+ * one coordinate system to the next, and multiplying.
  *  
  * FIXME: Should it be a compile error to convert one to the other without
  * using an explicit function? 
@@ -61,7 +61,7 @@ typedef Vector3d J2000Coord;
 typedef Vector3d B1950Coord;
 
 /// Represents a rotation from one coordinate system to another.
-typedef Quaterniond CoordConversion;
+typedef Matrix3d CoordConversion;
 
 /***************************************************************************
  * TIME

@@ -52,12 +52,12 @@ CoordConversion B1950ToGal()
     Quaterniond rot1(AngleAxisd(-282.25*DEG2RAD,Vector3d::UnitY()));
     Quaterniond rot2(AngleAxisd(  -62.6*DEG2RAD,Vector3d::UnitZ()));
     Quaterniond rot3(AngleAxisd(     33*DEG2RAD,Vector3d::UnitY()));
-    return rot3*rot2*rot1;
+    return (rot3*rot2*rot1).matrix();
 }
 
 CoordConversion GalToB1950()
 {
-    return B1950ToGal().conjugate();
+    return B1950ToGal().transpose();
 }
 
 CoordConversion EqToEcl(const JulianDate jd)
@@ -72,12 +72,12 @@ CoordConversion EqToEcl(const JulianDate jd)
                     + 27.87*U*U*U*U*U*U*U*U + 5.79*U*U*U*U*U*U*U*U*U
                     + 2.45*U*U*U*U*U*U*U*U*U*U;
     double obliq = 23.43929111 + dObliq/3600.0;
-    return Quaterniond(AngleAxisd(-obliq*DEG2RAD,Vector3d::UnitZ()));
+    return AngleAxisd(-obliq*DEG2RAD,Vector3d::UnitZ()).matrix();
 }
 
 CoordConversion EclToEq(const JulianDate jd)
 {
-    return EqToEcl(jd).conjugate();
+    return EqToEcl(jd).transpose();
 }
 
 CoordConversion PrecessTo(const JulianDate jd)
@@ -92,12 +92,12 @@ CoordConversion PrecessTo(const JulianDate jd)
     Quaterniond rot1(AngleAxisd(  zeta*DEG2RAD,Vector3d::UnitY()));
     Quaterniond rot2(AngleAxisd(-theta*DEG2RAD,Vector3d::UnitX()));
     Quaterniond rot3(AngleAxisd(     z*DEG2RAD,Vector3d::UnitY()));
-    return rot3*rot2*rot1;
+    return (rot3*rot2*rot1).matrix();
 }
 
 CoordConversion PrecessFrom(const JulianDate jd)
 {
-    return PrecessTo(jd).conjugate();
+    return PrecessTo(jd).transpose();
 }
 
 CoordConversion Nutate(const JulianDate jd)
@@ -105,13 +105,13 @@ CoordConversion Nutate(const JulianDate jd)
     double dEcLong, dObliq;
     AstroVars::nutationVars(jd, &dEcLong, &dObliq);
     //Add dEcLong to the Ecliptic Longitude
-    Quaterniond rot(AngleAxisd(dEcLong*DEG2RAD,Vector3d::UnitY()));
+    CoordConversion rot = AngleAxisd(dEcLong*DEG2RAD,Vector3d::UnitY()).matrix();
     return EclToEq(jd) * rot * EqToEcl(jd);
 }
 
 CoordConversion DeNutate(const JulianDate jd)
 {
-    return Nutate(jd).conjugate();
+    return Nutate(jd).transpose();
 }
 
 
