@@ -103,6 +103,18 @@ void TestConvertCoord::testPrecession()
     QVERIFY(result.isApprox(v));
 }
 
+void TestConvertCoord::testNutation()
+{
+    //Nutate 1 century into the future
+    JulianDate jd = EpochJ2000 + 36525.;
+    dms ra(20), dec(81);
+    EclipticCoord result(0.053505875240156049177375763293,
+                         0.987689266559254708255366494996,
+                         0.146993312903773154509678988688);
+    Vector3d v = Convert::Nutate(jd) * Convert::sphToVect(dec, ra);
+    QVERIFY(result.isApprox(v));
+}
+
 
 QTEST_MAIN(TestConvertCoord)
 

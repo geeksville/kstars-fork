@@ -29,6 +29,7 @@ private slots:
     void testRotB1950ToGal();
     void testConvertEqToEcl();
     void testPrecession();
+    void testNutation();
 };
 
 #endif
