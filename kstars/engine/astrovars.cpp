@@ -215,6 +215,7 @@ double lonMoonAscendingNode(const JulianDate jd)
 
 void nutationVars(const JulianDate jd, double *deltaEcLong, double *deltaObliquity)
 {
+    typedef Array<double, NUTTERMS, 1> nutArr;
     Matrix<double, 5, 1> params;
     params << meanElongationOfMoon(jd),
               sunMeanAnomaly(jd),
@@ -223,8 +224,8 @@ void nutationVars(const JulianDate jd, double *deltaEcLong, double *deltaObliqui
               lonMoonAscendingNode(jd);
     // This vector has all of the dot products of the
     // params vector with the coefficients in the argument matrix.
-    typedef Array<double, NUTTERMS, 1> nutArr;
-    nutArr sums = (arguments*params).array();
+    // We need to convert to radians before calling sin() or cos()!
+    nutArr sums = (DEG2RAD*arguments*params).array();
     double T = centuriesSinceJ2000(jd);
     nutArr ecLongColumn = 1e-4*(amp.col(0) + (T/10.)*amp.col(1)).array();
     nutArr obliqColumn  = 1e-4*(amp.col(2) + (T/10.)*amp.col(3)).array();
