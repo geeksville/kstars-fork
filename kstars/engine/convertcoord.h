@@ -85,15 +85,24 @@ namespace Convert {
     // B1950Coord e = Convert::GalToB1950(c) * h;
     //
 
+    // FIXME: What's the best way to represent the time + place data for
+    // this conversion, anyways?
+    // I sort of feel that it may be best to give a geolocation and a time,
+    // and then have it figure out the LST internally, but I'm not 100% sure.
+
     /** @return rotation from horizontal to equatorial coordinates
-     *  @param c the time/place
+     *  @param LST the local sidereal time
+     *  @param lat the latitude of the observer
      */
-    CoordConversion HorToEq( const LocalSiderealCoords &c );
+    CoordConversion HorToEq( const dms &LST,
+                             const dms &lat );
 
     /** @return rotation from equatorial to horizontal coordinates
-     *  @param c the time/place
+     *  @param LST the local sidereal time
+     *  @param lat the latitude of the observer
      */
-    CoordConversion EqToHor( const LocalSiderealCoords &c );
+    CoordConversion EqToHor( const dms &LST,
+                             const dms &lat );
 
     /** @return rotation from ecliptic to equatorial coordinates
      *  @param jd the date

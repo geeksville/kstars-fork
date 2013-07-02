@@ -28,6 +28,7 @@ private slots:
     void testVectorToSpherical();
     void testRotB1950ToGal();
     void testConvertEqToEcl();
+    void testConvertEqToHor();
     void testPrecession();
     void testNutation();
 };

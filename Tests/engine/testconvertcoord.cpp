@@ -115,6 +115,15 @@ void TestConvertCoord::testNutation()
     QVERIFY(result.isApprox(v));
 }
 
+void TestConvertCoord::testConvertEqToHor()
+{
+    dms lat(43.7), LST(50.0), ra(20), dec(30);
+    HorizontalCoord result(-0.433012701892219353805302262117,
+                            0.887666564970605254103475090233,
+                           -0.156678235352859906992506466850);
+    HorizontalCoord v = Convert::EqToHor(LST, lat) * Convert::sphToVect(dec, ra);
+    QVERIFY(result.isApprox(v));
+}
 
 QTEST_MAIN(TestConvertCoord)
 

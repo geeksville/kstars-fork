@@ -114,6 +114,24 @@ CoordConversion DeNutate(const JulianDate jd)
     return Nutate(jd).transpose();
 }
 
+CoordConversion EqToHor(const dms &LST, const dms &lat)
+{
+    Quaterniond lstRot(AngleAxisd( -LST.radians(), Vector3d::UnitY()));
+    Quaterniond latRot(AngleAxisd( -M_PI_2 + lat.radians(), Vector3d::UnitX()));
+    Matrix3d flip;
+    flip << 1, 0, 0,
+            0, 1, 0,
+            0, 0, -1;
+    return flip * (latRot * lstRot).matrix();
+}
+
+CoordConversion HorToEq(const dms &LST, const dms &lat)
+{
+    return EqToHor(LST,lat).transpose();
+}
+
+
+
 
 }
 }
