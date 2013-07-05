@@ -94,6 +94,10 @@ static const double AU_KM = 1.49605e8;
 
 /// Degrees to radians conversion
 static const double DEG2RAD = M_PI/180.;
+/// Arcmin to radians conversion
+static const double ARCMIN2RAD = DEG2RAD/60.;
+/// Arcsec to radions conversion
+static const double ARCSEC2RAD = ARCMIN2RAD/60.;
 /// Radians to degrees conversion
 static const double RAD2DEG = 180./M_PI;
 /// Number of radians in 1 milliarcsec
