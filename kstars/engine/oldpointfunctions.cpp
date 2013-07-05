@@ -51,8 +51,8 @@ void updateCoords(SkyPoint* p, const KSNumbers* num, const bool forceRecompute)
     }
     else {
         recompute = ( Options::alwaysRecomputeCoordinates() ||
-                      ( p->lastPrecessJD - num->getJD() ) >=  0.0005 ||
-                      ( p->lastPrecessJD - num->getJD() ) <= -0.0005 || forceRecompute ); // 0.0005 solar days is less than a minute
+                      ( p->lastPrecessJD - num->julianDay() ) >=  0.0005 ||
+                      ( p->lastPrecessJD - num->julianDay() ) <= -0.0005 || forceRecompute ); // 0.0005 solar days is less than a minute
         lens = false;
     }
     if( recompute ) {
@@ -61,7 +61,7 @@ void updateCoords(SkyPoint* p, const KSNumbers* num, const bool forceRecompute)
         if( lens )
             bendlight(p,num->sun());
         aberrate(p,num);
-        p->lastPrecessJD = num->getJD();
+        p->lastPrecessJD = num->julianDay();
     }
 }
 

@@ -323,8 +323,8 @@ void StarObject::JITupdate()
         Q_ASSERT( std::isfinite( lastPrecessJD ) );
         bool gr =  Options::useRelativistic()
                 && KSEngine::OldPointFunctions::checkBendLight(this,data->updateNum()->sun());
-        if( ( lastPrecessJD - data->updateNum()->getJD() ) >= 0.0005 // TODO: Make this 0.0005 a constant / define it
-            || ( lastPrecessJD - data->updateNum()->getJD() ) <= -0.0005
+        if( ( lastPrecessJD - data->updateNum()->julianDay() ) >= 0.0005 // TODO: Make this 0.0005 a constant / define it
+            || ( lastPrecessJD - data->updateNum()->julianDay() ) <= -0.0005
             || Options::alwaysRecomputeCoordinates()
             || gr ) {
 

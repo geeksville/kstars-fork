@@ -113,11 +113,6 @@ public:
     	*/
     void updateValues( long double jd );
 
-    /**
-     *@return the JD for which these values hold (i.e. the last updated JD)
-     */
-    inline long double getJD() const { return days; }
-
     double vEarth(int i) const {return vearth[i];}
 
     KSSun* sun() const {return m_sun;}
