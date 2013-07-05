@@ -64,9 +64,6 @@ public:
     /**@return the mean solar anomaly. */
     dms sunMeanAnomaly() const { return M; }
 
-    /**@return the mean solar longitude. */
-    dms sunMeanLongitude() const { return L; }
-
     /**@return the true solar anomaly. */
     dms sunTrueAnomaly() const { return M0; }
 

@@ -26,11 +26,9 @@ namespace KSEngine {
 namespace AstroVars {
 
     double centuriesSinceJ2000( const JulianDate jd );
-    Radian sunMeanLongitude( const JulianDate jd );
     Radian meanElongationOfMoon( const JulianDate jd );
     Radian sunMeanAnomaly( const JulianDate jd );
     Radian moonMeanAnomaly( const JulianDate jd );
-    Radian moonMeanLongitude( const JulianDate jd );
     Radian moonArgumentOfLatitude( const JulianDate jd );
     Radian lonMoonAscendingNode( const JulianDate jd );
 

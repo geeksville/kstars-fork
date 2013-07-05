@@ -183,12 +183,6 @@ Radian moonMeanAnomaly(const JulianDate jd)
     return DEG2RAD*(134.96298 + 477198.867398*T + 0.0086972*T*T + T*T*T/56250.0);
 }
 
-Radian moonMeanLongitude(const JulianDate jd)
-{
-    double T = centuriesSinceJ2000(jd);
-    return DEG2RAD*(218.3164591 + 481267.88134236*T - 0.0013268*T*T + T*T*T/538841. - T*T*T*T/6519400.);
-}
-
 Radian sunMeanAnomaly(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
@@ -199,12 +193,6 @@ Radian meanElongationOfMoon(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
     return DEG2RAD*(297.85036 + 445267.111480*T - 0.0019142*T*T + T*T*T/189474.);
-}
-
-Radian sunMeanLongitude(const JulianDate jd)
-{
-    double T = centuriesSinceJ2000(jd);
-    return DEG2RAD*(280.46645 + 36000.76983*T + 0.0003032*T*T);
 }
 
 Radian lonMoonAscendingNode(const JulianDate jd)

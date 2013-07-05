@@ -194,9 +194,6 @@ void KSNumbers::updateValues( long double jd ) {
     double T2 = T*T;
     double T3 = T2*T;
 
-    //Sun's Mean Longitude
-    L.setD( 280.46645 + 36000.76983*T + 0.0003032*T2 );
-
     //Mean elongation of the Moon from the Sun
     D.setD( 297.85036 + 445267.111480*T - 0.0019142*T2 + T3/189474.);
 
@@ -205,9 +202,6 @@ void KSNumbers::updateValues( long double jd ) {
 
     //Moon's Mean Anomaly
     MM.setD( 134.96298 + 477198.867398*T + 0.0086972*T2 + T3/56250.0 );
-
-    //Moon's Mean Longitude
-    LM.setD( 218.3164591 + 481267.88134236*T - 0.0013268*T2 + T3/538841. - T*T*T*T/6519400.);
 
     //Moon's argument of latitude
     F.setD( 93.27191 + 483202.017538*T - 0.0036825*T2 + T3/327270.);
@@ -236,23 +230,6 @@ void KSNumbers::updateValues( long double jd ) {
                     + 27.87*U*U*U*U*U*U*U*U + 5.79*U*U*U*U*U*U*U*U*U
                     + 2.45*U*U*U*U*U*U*U*U*U*U;
     Obliquity.setD( 23.43929111 + dObliq/3600.0);
-
-    //Nutation parameters
-    dms  L2, M2, O2;
-    double sin2L, cos2L, sin2M, cos2M;
-    double sinO, cosO, sin2O, cos2O;
-
-    O2.setD( 2.0*O.Degrees() );
-    L2.setD( 2.0*L.Degrees() ); //twice mean ecl. long. of Sun
-    M2.setD( 2.0*LM.Degrees() );  //twice mean ecl. long. of Moon
-
-    O.SinCos( sinO, cosO );
-    O2.SinCos( sin2O, cos2O );
-    L2.SinCos( sin2L, cos2L );
-    M2.SinCos( sin2M, cos2M );
-
-    //	deltaEcLong = ( -17.2*sinO - 1.32*sin2L - 0.23*sin2M + 0.21*sin2O)/3600.0; //Ecl. long. correction
-    //	deltaObliquity = ( 9.2*cosO + 0.57*cos2L + 0.10*cos2M - 0.09*cos2O)/3600.0; //Obliq. correction
 
     deltaEcLong = 0.;
     deltaObliquity = 0.;
