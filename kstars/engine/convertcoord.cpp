@@ -16,8 +16,10 @@
  ***************************************************************************/
 
 #include "convertcoord.h"
-#include "engine/astrovars.h"
 
+#include <Eigen/Geometry>
+
+#include "engine/astrovars.h"
 #include "dms.h"
 
 namespace KSEngine {

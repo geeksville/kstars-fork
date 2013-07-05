@@ -18,7 +18,7 @@
 #ifndef KSENGINE_TYPES_H
 #define KSENGINE_TYPES_H
 
-#include <Eigen/Geometry>
+#include <Eigen/Core>
 
 namespace KSEngine {
 
