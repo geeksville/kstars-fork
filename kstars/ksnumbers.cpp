@@ -194,6 +194,9 @@ void KSNumbers::updateValues( long double jd ) {
     double T2 = T*T;
     double T3 = T2*T;
 
+    //Sun's Mean Longitude
+    L.setD( 280.46645 + 36000.76983*T + 0.0003032*T2 );
+
     //Mean elongation of the Moon from the Sun
     D.setD( 297.85036 + 445267.111480*T - 0.0019142*T2 + T3/189474.);
 
