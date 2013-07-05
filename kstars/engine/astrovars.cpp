@@ -166,6 +166,32 @@ static const Eigen::Map<const Eigen::Matrix<double,NUTTERMS,4,Eigen::RowMajor>,
 namespace KSEngine {
 namespace AstroVars {
 
+double sunEquationOfCenter(const JulianDate jd) {
+    double T = centuriesSinceJ2000(jd);
+    Radian M = sunMeanAnomaly(jd);
+    double C = ( 1.914600 - 0.004817*T - 0.000014*T*T ) * sin( M )
+                            + ( 0.019993 - 0.000101*T ) * sin( 2.0*M )
+                                             + 0.000290 * sin( 3.0*M );
+    return C*DEG2RAD;
+}
+
+double earthEccentricity(const JulianDate jd)
+{
+    double T = centuriesSinceJ2000(jd);
+    return 0.016708617 - 0.000042037*T - 0.0000001236*T*T;
+}
+
+Radian sunMeanLongitude(const JulianDate jd)
+{
+    double T = centuriesSinceJ2000(jd);
+    return DEG2RAD*(280.46645 + 36000.76983*T + 0.0003032*T*T);
+}
+
+Radian sunTrueLongitude(const JulianDate jd)
+{
+    return sunMeanLongitude(jd) + sunEquationOfCenter(jd);
+}
+
 double centuriesSinceJ2000(const JulianDate jd)
 {
     return (jd - EpochJ2000) / 36525.;

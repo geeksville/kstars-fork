@@ -25,12 +25,23 @@
 namespace KSEngine {
 namespace AstroVars {
 
-    double centuriesSinceJ2000( const JulianDate jd );
-    Radian meanElongationOfMoon( const JulianDate jd );
-    Radian sunMeanAnomaly( const JulianDate jd );
-    Radian moonMeanAnomaly( const JulianDate jd );
-    Radian moonArgumentOfLatitude( const JulianDate jd );
-    Radian lonMoonAscendingNode( const JulianDate jd );
+    /**
+     * Ecliptic longitude of earth's perhelion.
+     * See commit 75515fa2b0a4cc4d8dc5e62261595350ac1f2311 for discussion.
+     */
+    static const Radian EarthPerhelionLongitude   = 102.94719*DEG2RAD;
+    static const Radian EarthConstantOfAberration = 20.49552*ARCSEC2RAD;
+    double centuriesSinceJ2000                  ( const JulianDate jd );
+    double earthEccentricity                    ( const JulianDate jd );
+    Radian meanElongationOfMoon                 ( const JulianDate jd );
+    Radian sunMeanAnomaly                       ( const JulianDate jd );
+    Radian sunMeanLongitude                     ( const JulianDate jd );
+    Radian sunTrueLongitude                     ( const JulianDate jd );
+    /** Meeus, Ch. 25. */
+    Radian sunEquationOfCenter                  ( const JulianDate jd );
+    Radian moonMeanAnomaly                      ( const JulianDate jd );
+    Radian moonArgumentOfLatitude               ( const JulianDate jd );
+    Radian lonMoonAscendingNode                 ( const JulianDate jd );
 
     void nutationVars( const JulianDate  jd,
                              double     *deltaEcLong,

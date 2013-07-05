@@ -115,6 +115,17 @@ void TestConvertCoord::testNutation()
     QVERIFY(result.isApprox(v));
 }
 
+void TestConvertCoord::testAberration()
+{
+    JulianDate jd = EpochJ2000 + 36525.;
+    dms ra(20), dec(30);
+    EquatorialCoord result(0.296206820559580585872083702270,
+                           0.500037158377960588850896783697,
+                           0.813771687695804990525516586786);
+    EclipticCoord v = Convert::Aberrate( Convert::EqToEcl(jd)*Convert::sphToVect(dec,ra), jd );
+    QVERIFY(result.isApprox(Convert::EclToEq(jd)*v, 1e-10));
+}
+
 void TestConvertCoord::testConvertEqToHor()
 {
     dms lat(43.7), LST(50.0), ra(20), dec(30);

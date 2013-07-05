@@ -144,6 +144,17 @@ namespace Convert {
      */
     CoordConversion DeNutate( const JulianDate jd );
 
+    /** @return an aberrated point
+     *  @param p the point to compute the aberration for
+     *  @param jd the date
+     *  @note this function is not suited to pipelining
+     *        and really shouldn't be called except as a one-off.
+     *        Unfortunately aberration is nonlinear, so we
+     *        can't just give a matrix.
+     */
+    EclipticCoord Aberrate( const EclipticCoord &p,
+                            const JulianDate     jd );
+
     /** @return rotation from J2000 coordinates to B1950 coordinates.
      */
     CoordConversion J2000ToB1950();

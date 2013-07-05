@@ -116,6 +116,19 @@ CoordConversion DeNutate(const JulianDate jd)
     return Nutate(jd).transpose();
 }
 
+EclipticCoord Aberrate(const EclipticCoord &p, const JulianDate jd)
+{
+    const double e = AstroVars::earthEccentricity(jd);
+    const Radian pi = AstroVars::EarthPerhelionLongitude;
+    const Radian O = AstroVars::sunTrueLongitude(jd);
+    const Radian K = AstroVars::EarthConstantOfAberration;
+    double lat, lon;
+    vectToSph(p,&lat,&lon);
+    const double dLon = (-K*cos(O-lon) + e*K*cos(pi-lon)) / cos(lat);
+    const double dLat = -K*sin(lat)*(sin(O-lon)-e*sin(pi-lon));
+    return sphToVect(lat+dLat, lon+dLon);
+}
+
 CoordConversion EqToHor(const dms &LST, const dms &lat)
 {
     Quaterniond lstRot(AngleAxisd( -LST.radians(), Vector3d::UnitY()));

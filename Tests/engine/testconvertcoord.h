@@ -31,6 +31,7 @@ private slots:
     void testConvertEqToHor();
     void testPrecession();
     void testNutation();
+    void testAberration();
 };
 
 #endif
