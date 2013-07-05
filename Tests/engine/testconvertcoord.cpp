@@ -136,6 +136,28 @@ void TestConvertCoord::testConvertEqToHor()
     QVERIFY(result.isApprox(v));
 }
 
+void TestConvertCoord::testFindPosition()
+{
+    // Pick a point with dec > 80 so that the old code uses the precise
+    // method for nutation, which the new code uses always. This way
+    // we don't pick up error from that approximation.
+    dms ra(30), dec(80.1);
+    dms lat(43.7), LST(50.0);
+    JulianDate jd = EpochJ2000 + 36525.;
+    HorizontalCoord result(-0.047837445506930538485779180746,
+                            0.794725389083798638978350936668,
+                            0.605081097666235523391264905513);
+
+    J2000Coord v0 = Convert::sphToVect(dec,ra);
+    EquatorialCoord pn = Convert::Nutate(jd) * Convert::PrecessTo(jd) * v0;
+    EclipticCoord ab = Convert::Aberrate( Convert::EqToEcl(jd) * pn, jd );
+    HorizontalCoord h = Convert::EqToHor( LST, lat ) * Convert::EclToEq(jd) * ab;
+
+    //TODO: is this good enough? Should we try to improve the precision?
+    //As far as I can see, most of this error comes from the aberration calculation.
+    QVERIFY(result.isApprox(h,1e-7));
+}
+
 QTEST_MAIN(TestConvertCoord)
 
 #include "testconvertcoord.moc"

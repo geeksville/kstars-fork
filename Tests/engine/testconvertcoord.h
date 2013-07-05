@@ -32,6 +32,7 @@ private slots:
     void testPrecession();
     void testNutation();
     void testAberration();
+    void testFindPosition();
 };
 
 #endif
