@@ -80,17 +80,6 @@ static const JulianDate EpochB1950 = 2433282.4235;
 static const double SiderealSecond = 1.002737909;
 
 /***************************************************************************
- * LOCATION
- ***************************************************************************/
-
-/// Rotation from the prime meridian.
-typedef Quaterniond GreenwichCoord;
-
-/// Rotation from lat = long = 0 to the observer's latitude and
-/// local sidereal time.
-typedef Quaterniond LocalSiderealCoords;
-
-/***************************************************************************
  * ANGLES
  ***************************************************************************/
 
