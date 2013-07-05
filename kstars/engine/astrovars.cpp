@@ -171,46 +171,46 @@ double centuriesSinceJ2000(const JulianDate jd)
     return (jd - EpochJ2000) / 36525.;
 }
 
-double moonArgumentOfLatitude(const JulianDate jd)
+Radian moonArgumentOfLatitude(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
-    return 93.27191 + 483202.017538*T - 0.0036825*T*T + T*T*T/327270.;
+    return DEG2RAD*(93.27191 + 483202.017538*T - 0.0036825*T*T + T*T*T/327270.);
 }
 
-double moonMeanAnomaly(const JulianDate jd)
+Radian moonMeanAnomaly(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
-    return 134.96298 + 477198.867398*T + 0.0086972*T*T + T*T*T/56250.0;
+    return DEG2RAD*(134.96298 + 477198.867398*T + 0.0086972*T*T + T*T*T/56250.0);
 }
 
-double moonMeanLongitude(const JulianDate jd)
+Radian moonMeanLongitude(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
-    return 218.3164591 + 481267.88134236*T - 0.0013268*T*T + T*T*T/538841. - T*T*T*T/6519400.;
+    return DEG2RAD*(218.3164591 + 481267.88134236*T - 0.0013268*T*T + T*T*T/538841. - T*T*T*T/6519400.);
 }
 
-double sunMeanAnomaly(const JulianDate jd)
+Radian sunMeanAnomaly(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
-    return 357.52910 + 35999.05030*T - 0.0001559*T*T - 0.00000048*T*T*T;
+    return DEG2RAD*(357.52910 + 35999.05030*T - 0.0001559*T*T - 0.00000048*T*T*T);
 }
 
-double meanElongationOfMoon(const JulianDate jd)
+Radian meanElongationOfMoon(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
-    return 297.85036 + 445267.111480*T - 0.0019142*T*T + T*T*T/189474.;
+    return DEG2RAD*(297.85036 + 445267.111480*T - 0.0019142*T*T + T*T*T/189474.);
 }
 
-double sunMeanLongitude(const JulianDate jd)
+Radian sunMeanLongitude(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
-    return 280.46645 + 36000.76983*T + 0.0003032*T*T;
+    return DEG2RAD*(280.46645 + 36000.76983*T + 0.0003032*T*T);
 }
 
-double lonMoonAscendingNode(const JulianDate jd)
+Radian lonMoonAscendingNode(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
-    return 125.04452 - 1934.136261*T + 0.0020708*T*T + T*T*T/450000.0;
+    return DEG2RAD*(125.04452 - 1934.136261*T + 0.0020708*T*T + T*T*T/450000.0);
 }
 
 void nutationVars(const JulianDate jd, double *deltaEcLong, double *deltaObliquity)
@@ -224,8 +224,7 @@ void nutationVars(const JulianDate jd, double *deltaEcLong, double *deltaObliqui
               lonMoonAscendingNode(jd);
     // This vector has all of the dot products of the
     // params vector with the coefficients in the argument matrix.
-    // We need to convert to radians before calling sin() or cos()!
-    nutArr sums = (DEG2RAD*arguments*params).array();
+    nutArr sums = (arguments*params).array();
     double T = centuriesSinceJ2000(jd);
     nutArr ecLongColumn = 1e-4*(amp.col(0) + (T/10.)*amp.col(1)).array();
     nutArr obliqColumn  = 1e-4*(amp.col(2) + (T/10.)*amp.col(3)).array();

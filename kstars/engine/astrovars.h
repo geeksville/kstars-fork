@@ -26,13 +26,13 @@ namespace KSEngine {
 namespace AstroVars {
 
     double centuriesSinceJ2000( const JulianDate jd );
-    double sunMeanLongitude( const JulianDate jd );
-    double meanElongationOfMoon( const JulianDate jd );
-    double sunMeanAnomaly( const JulianDate jd );
-    double moonMeanAnomaly( const JulianDate jd );
-    double moonMeanLongitude( const JulianDate jd );
-    double moonArgumentOfLatitude( const JulianDate jd );
-    double lonMoonAscendingNode( const JulianDate jd );
+    Radian sunMeanLongitude( const JulianDate jd );
+    Radian meanElongationOfMoon( const JulianDate jd );
+    Radian sunMeanAnomaly( const JulianDate jd );
+    Radian moonMeanAnomaly( const JulianDate jd );
+    Radian moonMeanLongitude( const JulianDate jd );
+    Radian moonArgumentOfLatitude( const JulianDate jd );
+    Radian lonMoonAscendingNode( const JulianDate jd );
 
     void nutationVars( const JulianDate  jd,
                              double     *deltaEcLong,
