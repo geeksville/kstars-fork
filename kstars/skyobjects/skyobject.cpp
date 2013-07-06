@@ -57,7 +57,7 @@ SkyObject::SkyObject( int t, dms r, dms d, float m,
       info()
 {
     setType( t );
-    Magnitude = m;
+    sortMagnitude = m;
     setName(n);
     setName2(n2);
     setLongName(lname);
@@ -70,7 +70,7 @@ SkyObject::SkyObject( int t, double r, double d, float m,
       info()
 {
     setType( t );
-    Magnitude = m;
+    sortMagnitude = m;
     setName(n);
     setName2(n2);
     setLongName(lname);
@@ -131,7 +131,7 @@ QTime SkyObject::riseSetTime( const KStarsDateTime &dt, const GeoLocation *geo, 
     QTime rstUt = riseSetTimeUT( dt2, geo, rst, exact );
     if ( ! rstUt.isValid() )
         return QTime();
-    
+
     return geo->UTtoLT( KStarsDateTime( dt2.date(), rstUt ) ).time();
 }
 
@@ -480,7 +480,7 @@ double SkyObject::labelOffset() const {
 
 AuxInfo *SkyObject::getAuxInfo() {
     if( !info )
-        info = new AuxInfo; 
+        info = new AuxInfo;
     return &(*info);
 }
 
