@@ -16,6 +16,7 @@ include(KDE4Defaults)
 include_directories (${CMAKE_SOURCE_DIR}
                      ${CMAKE_BINARY_DIR}
                      ${EIGEN3_INCLUDE_DIR}
+                     ${OPENCL_INCLUDE_DIRS}
                      ${KDE4_INCLUDES}
                      ${QT4_INCLUDES})
 add_definitions(${EIGEN_DEFINITIONS})
