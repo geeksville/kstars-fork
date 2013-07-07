@@ -10,6 +10,7 @@ configure_file( "${kstars_SOURCE_DIR}/kstars/version.h.cmake"
 
 find_package(Eigen3 REQUIRED)
 find_package(KDE4   REQUIRED)
+find_package(OpenCL REQUIRED)
 include(KDE4Defaults)
 include_directories (${CMAKE_SOURCE_DIR}
                      ${CMAKE_BINARY_DIR}
