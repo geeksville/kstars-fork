@@ -380,6 +380,7 @@ set(kstars_engine_SRCS
     engine/oldconversions.cpp
     engine/convertcoord.cpp
     engine/astrovars.cpp
+    engine/kscontext.cpp
 )
 
 set(kstars_extra_SRCS

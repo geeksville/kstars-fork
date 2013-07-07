@@ -6,7 +6,7 @@ set( TEST_LIBRARIES
    )
 include_directories( ${kstars_SOURCE_DIR} ${EIGEN2_INCLUDE_DIR} )
 
-set( KSEngineTests_SRCS testconvertcoord.cpp testastrovars.cpp )
+set( KSEngineTests_SRCS testconvertcoord.cpp testastrovars.cpp testkscontext.cpp )
 QT4_AUTOMOC( ${KSEngineTests_SRCS} )
 
 #
@@ -24,3 +24,11 @@ add_test( NAME ConvertCoordTest COMMAND testconvertcoord )
 add_executable( testastrovars testastrovars.cpp )
 target_link_libraries( testastrovars ${TEST_LIBRARIES} )
 add_test( NAME AstroVarsTest COMMAND testastrovars )
+
+#
+# Test KSContext
+#
+
+add_executable( testkscontext testkscontext.cpp )
+target_link_libraries( testkscontext ${TEST_LIBRARIES} )
+add_test( NAME KSContextTest COMMAND testkscontext )
