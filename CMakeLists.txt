@@ -1,3 +1,4 @@
+add_definitions(--std=c++11)
 PROJECT(kstars CXX C)
 set (KStars_VERSION_MAJOR 2)
 set (KStars_VERSION_MINOR 1)
