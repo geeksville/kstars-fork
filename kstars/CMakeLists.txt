@@ -450,7 +450,6 @@ set(printingui_SRCS
     printing/pwizwelcome.ui
 )
 
-##set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
 set(kstars_SRCS 
     ${indi_SRCS}
     ${fits_SRCS} 
@@ -474,9 +473,6 @@ qt4_add_dbus_adaptor(kstars_SRCS org.kde.kstars.xml kstars.h KStars)
 qt4_add_dbus_adaptor(kstars_SRCS org.kde.kstars.SimClock.xml simclock.h SimClock)
 
 kde4_add_kcfg_files(kstars_SRCS ${kstars_KCFG_SRCS})
-
-##DCOP_IS_DEAD
-#kde4_add_dcop_skels(kstars_SRCS kstarsinterface.h simclockinterface.h )
 
 kde4_add_ui_files(kstars_SRCS
        ${indiui_SRCS} ${ui_SRCS} ${fitsui_SRCS} ${ekosui_SRCS} ${xplanetui_SRCS} ${kstars_optionsui_SRCS} ${kstars_dialogsui_SRCS}
