@@ -1,3 +1,5 @@
+#Needed for compilation on some systems, like Debian Wheezy
+add_definitions( -DCL_USE_DEPRECATED_OPENCL_1_1_APIS )
 include_directories( ${OPENCL_INCLUDE_DIRS} )
 
 set(LibKSCl_SRCS
