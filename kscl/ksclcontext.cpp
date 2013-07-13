@@ -96,8 +96,8 @@ bool KSClContext::create()
     };
     std::stable_sort( candidates.begin(), candidates.end(), 
                       [&isGPU](Candidate a, Candidate b) {
-                          // Pick b over a when b is a GPU and a isn't
-                          return !(isGPU(b) && !isGPU(a));
+                          // a < b when a is a GPU but b is not.
+                          return isGPU(a) && !isGPU(b);
                       });
 
     // Prefer devices with GL interop
@@ -107,16 +107,18 @@ bool KSClContext::create()
     };
     std::stable_sort( candidates.begin(), candidates.end(), 
                       [&hasGL](Candidate a, Candidate b) {
-                          // Pick b over a when b has GL interop and a doesn't
-                          return !(hasGL(b) && !hasGL(a));
+                          // a < b when a has GL but b does not.
+                          return hasGL(a) && !hasGL(b);
                       });
 
     Candidate c = candidates.front();
-    std::string cname, cplat;
-    c.first.getInfo( CL_PLATFORM_NAME, &cplat);
-    c.second.getInfo( CL_DEVICE_NAME, &cname);
-    kDebug() << "Decided to try to use " << QString::fromStdString(cname) 
-             << "on" << QString::fromStdString(cplat);
+    std::string device_name, plat_name, plat_version;
+    c.first.getInfo( CL_PLATFORM_NAME, &plat_name);
+    c.first.getInfo( CL_PLATFORM_VERSION, &plat_version);
+    c.second.getInfo( CL_DEVICE_NAME, &device_name);
+    kDebug() << "Decided to try to use " << QString::fromStdString(device_name) 
+             << "on" << QString::fromStdString(plat_name)
+             << "version" << QString::fromStdString(plat_version);
 
     //
     // Now create the context.
