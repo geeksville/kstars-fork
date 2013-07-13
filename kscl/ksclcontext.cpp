@@ -111,6 +111,10 @@ bool KSClContext::create()
                           return hasGL(a) && !hasGL(b);
                       });
 
+    if( candidates.empty() ) {
+        kFatal() << "Could not find any candidate platforms!";
+        return false;
+    }
     Candidate c = candidates.front();
     std::string device_name, plat_name, plat_version;
     c.first.getInfo( CL_PLATFORM_NAME, &plat_name);
