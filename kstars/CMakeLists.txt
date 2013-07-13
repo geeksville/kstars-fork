@@ -380,7 +380,6 @@ set(kstars_engine_SRCS
     engine/oldconversions.cpp
     engine/convertcoord.cpp
     engine/astrovars.cpp
-    engine/kscontext.cpp
 )
 
 set(kstars_extra_SRCS
@@ -495,6 +494,7 @@ kde4_add_library( KStarsLib STATIC ${kstars_SRCS})
 
 target_link_libraries(KStarsLib
         LibKSDataHandlers
+        LibKSCl
         ${KDE4_KDECORE_LIBS}
         ${KDE4_KNEWSTUFF3_LIBS}
         ${KDE4_KIO_LIBS}
@@ -503,7 +503,6 @@ target_link_libraries(KStarsLib
         htmesh
         ${ZLIB_LIBRARIES}
         ${QT_QTSQL_LIBRARY}
-        ${OPENCL_LIBRARIES}
         )
 # qt4_automoc(kstars.h)
 if(NOT WIN32)

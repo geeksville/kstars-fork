@@ -1,4 +1,7 @@
 /*
+ * KStars OpenCL Bindings
+ * copyright    : (C) 2013 Henry de Valence
+ * email        : hdevalence@hdevalence.ca
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,23 +21,17 @@
  *
  */
 
-#ifndef KSCONTEXTPRIVATE_H
-#define KSCONTEXTPRIVATE_H
+#ifndef KSCLEVENT_H
+#define KSCLEVENT_H
 
-namespace KSEngine {
-    class KSContext;
-}
-
-using namespace KSEngine;
-
-class KSContextPrivate
+class KSClEvent
 {
 public:
-    KSContextPrivate(KSContext *q);
-    virtual ~KSContextPrivate();
+    KSClEvent();
+    KSClEvent(const KSClEvent &other);
+    ~KSClEvent();
+    KSClEvent &operator=(const KSClEvent &other);
 
-private:
-    KSContext *const q;
 };
 
-#endif // KSCONTEXTPRIVATE_H
+#endif // KSCLEVENT_H

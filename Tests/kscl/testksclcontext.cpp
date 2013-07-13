@@ -1,5 +1,5 @@
 /***************************************************************************
- *         testkscontext.h - Tests the KSContext class
+ *         testksclcontext.cpp - tests KSClContext class
  *                             -------------------
  *    begin                : 2013-07-06
  *    copyright            : (C) 2013 by Henry de Valence
@@ -15,16 +15,17 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef TESTKSCONTEXT_H
-#define TESTKSCONTEXT_H
+#include "testksclcontext.h"
 
-#include <QtTest>
+#include "kscl/ksclcontext.h"
 
-class TestKSContext : public QObject
+void TestKSClContext::testCreation()
 {
-    Q_OBJECT
-private slots:
-    void testCreation();
-};
+    KSClContext *c = new KSClContext();
+    c->create();
+    QVERIFY(c->isValid());
+}
 
-#endif 
+QTEST_MAIN(TestKSClContext)
+
+#include "testksclcontext.moc"

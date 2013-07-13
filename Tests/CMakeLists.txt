@@ -1,8 +1,6 @@
 add_subdirectory(engine)
+add_subdirectory(kscl)
 include_directories( ${kstars_SOURCE_DIR} )
-# QT4_AUTOMOC( ${kstars_SRCS} )
-# add_library( KStarsAll SHARED ${kstars_extra_SRCS})
-
 
 FIND_PACKAGE(Qt4 REQUIRED)
 SET( TEST_LIBRARIES ${QT_QTTEST_LIBRARY} ${QT_LIBRARIES}

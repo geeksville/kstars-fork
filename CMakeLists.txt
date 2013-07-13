@@ -16,7 +16,6 @@ include(KDE4Defaults)
 include_directories (${CMAKE_SOURCE_DIR}
                      ${CMAKE_BINARY_DIR}
                      ${EIGEN3_INCLUDE_DIR}
-                     ${OPENCL_INCLUDE_DIRS}
                      ${KDE4_INCLUDES}
                      ${QT4_INCLUDES})
 add_definitions(${EIGEN_DEFINITIONS})
@@ -67,8 +66,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-kstars.h.cmake
                ${CMAKE_CURRENT_BINARY_DIR}/config-kstars.h )
 
 add_subdirectory(doc)
-add_subdirectory(kstars)
 add_subdirectory(datahandlers)
+add_subdirectory(kscl)
+add_subdirectory(kstars)
 add_subdirectory(Tests)
 
 if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})

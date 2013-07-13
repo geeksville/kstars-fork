@@ -1,12 +1,7 @@
-/***************************************************************************
-   engine/kscontext.h - Class to manage contextual state for computation
-                             -------------------
-    begin                : 2013-07-06
-    copyright            : (C) 2013 by Henry de Valence
-    email                : hdevalence@hdevalence.ca
- ***************************************************************************/
-
 /*
+ * KStars OpenCL Bindings
+ * copyright	: (C) 2013 Henry de Valence
+ * email	: hdevalence@hdevalence.ca
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,21 +21,30 @@
  *
  */
 
-#ifndef KSCONTEXT_H
-#define KSCONTEXT_H
+#ifndef KSCLCONTEXT_H
+#define KSCLCONTEXT_H
 
-class KSContextPrivate;
+class KSClContextPrivate;
 
-namespace KSEngine {
-class KSContext
+class KSClContext
 {
 public:
-    KSContext();
-    ~KSContext();
-
+    KSClContext();
+    ~KSClContext();
+    /**
+     * @return true if we were able to successfully create a context.
+     */
+    bool isValid();
+    /**
+     * Try to create an OpenCL context.
+     * @return true if successful.
+     */
+    bool create();
+    //Disallow copy and assignment
+    KSClContext &operator=(const KSClContext &other) = delete;
+    KSClContext(const KSClContext &other) = delete;
 private:
-    KSContextPrivate *const d;
+    KSClContextPrivate *d;
 };
-} // NS KSEngine
 
-#endif // KSCONTEXT_H
+#endif // KSCLCONTEXT_H

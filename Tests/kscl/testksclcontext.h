@@ -1,5 +1,5 @@
 /***************************************************************************
- *         testkscontext.cpp - Tests the KSContext class.
+ *         testksclcontext.h - Tests the KSClContext class
  *                             -------------------
  *    begin                : 2013-07-06
  *    copyright            : (C) 2013 by Henry de Valence
@@ -15,18 +15,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "testkscontext.h"
+#ifndef TESTKSCLCONTEXT_H
+#define TESTKSCLCONTEXT_H
 
-#include "kstars/engine/kscontext.h"
+#include <QtTest>
 
-using namespace KSEngine;
-
-void TestKSContext::testCreation()
+class TestKSClContext : public QObject
 {
-    KSContext *c = new KSContext();
-    QCOMPARE(0,0);
-}
+    Q_OBJECT
+private slots:
+    void testCreation();
+};
 
-QTEST_MAIN(TestKSContext)
-
-#include "testkscontext.moc"
+#endif 
