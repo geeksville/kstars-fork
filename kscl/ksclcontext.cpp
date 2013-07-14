@@ -36,11 +36,15 @@
 // KDE
 #include <KDebug>
 
+// Local
+#include "ksclbuffer.h"
+
 class KSClContextPrivate {
 public:
     bool m_Valid;
     cl::Context m_context;
     cl::Device m_device;
+    cl::CommandQueue m_queue;
 };
 
 KSClContext::KSClContext()
@@ -57,6 +61,21 @@ KSClContext::~KSClContext()
 bool KSClContext::isValid()
 {
     return d->m_Valid;
+}
+
+KSClBuffer KSClContext::createBuffer(const QVector<Eigen::Vector4d>& buf)
+{
+    cl_int err;
+    // Do some bullshit to compensate for the fact that OpenCL's C++ API
+    // doesn't use const
+    void *bufdata = const_cast<void*>(static_cast<const void*>(buf.data()));
+    cl::Buffer clbuf(d->m_context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                     buf.size()*sizeof(Eigen::Vector4d), bufdata, &err);
+    if( err != CL_SUCCESS ) {
+        kFatal() << "Could not create buffer with error" << err;
+    }
+
+    return KSClBuffer(clbuf);
 }
 
 bool KSClContext::create()
@@ -140,6 +159,8 @@ bool KSClContext::create()
     cl::vector<cl::Device> devices;
     devices.push_back(c.second);
     d->m_context = cl::Context(devices, properties, nullptr, nullptr, &err);
+    d->m_device = devices.front();
+    d->m_queue = cl::CommandQueue(d->m_context, d->m_device);
 
     if( err != CL_SUCCESS ) {
         kFatal() << "Could not create OpenCL context, error" << err;
@@ -148,8 +169,6 @@ bool KSClContext::create()
         kDebug() << "Context created successfully";
         d->m_Valid = true;
         d->m_context.getInfo( CL_CONTEXT_DEVICES, &devices );
-        Q_ASSERT( devices.size() == 1 );
-        d->m_device = devices.front();
         return true;
     }
 }

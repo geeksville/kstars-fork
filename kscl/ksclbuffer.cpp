@@ -23,8 +23,33 @@
 
 #include "ksclbuffer.h"
 
+// OpenCL
+#define __NO_STD_VECTOR
+#include <CL/cl.hpp>
+
+// KDE
+#include <KDebug>
+
+class KSClBufferPrivate
+{
+public:
+    KSClBufferPrivate(const cl::Buffer& buf);
+    cl::Buffer m_buf;
+};
+
+KSClBufferPrivate::KSClBufferPrivate(const cl::Buffer& buf)
+{
+    m_buf = buf;
+}
+
+KSClBuffer::KSClBuffer(const cl::Buffer& buf)
+    : d(new KSClBufferPrivate(buf))
+{
+    
+}
+
 KSClBuffer::~KSClBuffer()
 {
-
+    delete d;
 }
 

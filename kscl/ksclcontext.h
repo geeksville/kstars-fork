@@ -24,7 +24,14 @@
 #ifndef KSCLCONTEXT_H
 #define KSCLCONTEXT_H
 
+// Eigen
+#include <Eigen/Core>
+
+// Qt
+#include <QtCore/QVector>
+
 class KSClContextPrivate;
+class KSClBuffer;
 
 class KSClContext
 {
@@ -40,6 +47,10 @@ public:
      * @return true if successful.
      */
     bool create();
+    /**
+     * Create a buffer that lives in OpenCL.
+     */
+    KSClBuffer createBuffer(const QVector<Eigen::Vector4d>& buf);
     //Disallow copy and assignment
     KSClContext &operator=(const KSClContext &other) = delete;
     KSClContext(const KSClContext &other) = delete;

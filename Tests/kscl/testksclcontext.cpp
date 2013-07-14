@@ -17,13 +17,31 @@
 
 #include "testksclcontext.h"
 
+// Eigen
+#include <Eigen/Core>
+using namespace Eigen;
+
+// Qt
+#include <QtCore/QVector>
+
+// Local
 #include "kscl/ksclcontext.h"
+#include "kscl/ksclbuffer.h"
 
 void TestKSClContext::testCreation()
 {
     KSClContext *c = new KSClContext();
     c->create();
     QVERIFY(c->isValid());
+}
+
+void TestKSClContext::testCreateBuffer()
+{
+    QVector<Vector4d> bufferdata(1024, Vector4d::UnitX());
+    KSClContext c;
+    c.create();
+    KSClBuffer buf = c.createBuffer(bufferdata);
+    QVERIFY(true);
 }
 
 QTEST_MAIN(TestKSClContext)

@@ -25,6 +25,7 @@ class TestKSClContext : public QObject
     Q_OBJECT
 private slots:
     void testCreation();
+    void testCreateBuffer();
 };
 
 #endif 

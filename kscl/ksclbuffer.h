@@ -24,16 +24,30 @@
 #ifndef KSCLBUFFER_H
 #define KSCLBUFFER_H
 
+namespace cl {
+    class Buffer;
+    class Event;
+}
+
 class KSClBufferPrivate;
 
 class KSClBuffer
 {
 public:
-    KSClBuffer() = delete;
-    KSClBuffer(const KSClBuffer &other) = delete;
+    friend class KSClContext;
+    KSClBuffer(const KSClBuffer &other);
     ~KSClBuffer();
-    KSClBuffer &operator=(const KSClBuffer &other) = delete;
+    KSClBuffer &operator=(const KSClBuffer &other);
+    /** Waits for any pending operations on the buffer to finish.
+     *  For example, if this buffer is supposed to hold the output of
+     *  some computation, then you need to call wait() to ensure that
+     *  the computation is finished before using it.
+     */
+    void wait();
+    /** Get the event for this buffer. */
+    cl::Event event();
 private:
+    KSClBuffer(const cl::Buffer& buf);
     KSClBufferPrivate *d;
 };
 

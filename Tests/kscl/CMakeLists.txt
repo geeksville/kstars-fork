@@ -4,7 +4,9 @@ set(TEST_LIBRARIES
     ${QT_QTTEST_LIBRARY}
     LibKSCl
    )
-include_directories( ${kstars_SOURCE_DIR} ${OPENCL_INCLUDE_DIRS} )
+include_directories( ${kstars_SOURCE_DIR}
+                     ${OPENCL_INCLUDE_DIRS}
+                     ${EIGEN3_INCLUDE_DIR} )
 
 set( KSClTests_SRCS testksclcontext.cpp )
 QT4_AUTOMOC( ${KSClTests_SRCS} )
