@@ -63,7 +63,8 @@ bool KSClContext::isValid()
     return d->m_Valid;
 }
 
-KSClBuffer KSClContext::createBuffer(const QVector<Eigen::Vector4d>& buf)
+KSClBuffer KSClContext::createBuffer(const KSClBuffer::BufferType    t,
+                                     const QVector<Eigen::Vector4d> &buf)
 {
     cl_int err;
     // Do some bullshit to compensate for the fact that OpenCL's C++ API
@@ -75,7 +76,7 @@ KSClBuffer KSClContext::createBuffer(const QVector<Eigen::Vector4d>& buf)
         kFatal() << "Could not create buffer with error" << err;
     }
 
-    return KSClBuffer(clbuf);
+    return KSClBuffer(t, clbuf);
 }
 
 bool KSClContext::create()

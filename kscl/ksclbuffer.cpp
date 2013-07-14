@@ -35,6 +35,7 @@ class KSClBufferPrivate
 public:
     KSClBufferPrivate(const cl::Buffer& buf);
     cl::Buffer m_buf;
+    KSClBuffer::BufferType m_type;
 };
 
 KSClBufferPrivate::KSClBufferPrivate(const cl::Buffer& buf)
@@ -42,14 +43,20 @@ KSClBufferPrivate::KSClBufferPrivate(const cl::Buffer& buf)
     m_buf = buf;
 }
 
-KSClBuffer::KSClBuffer(const cl::Buffer& buf)
+KSClBuffer::KSClBuffer(const BufferType  t,
+                       const cl::Buffer &buf)
     : d(new KSClBufferPrivate(buf))
 {
-    
+    d->m_type = t;
 }
 
 KSClBuffer::~KSClBuffer()
 {
     delete d;
+}
+
+KSClBuffer::BufferType KSClBuffer::type()
+{
+    return d->m_type;
 }
 

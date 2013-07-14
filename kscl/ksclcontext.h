@@ -30,8 +30,9 @@
 // Qt
 #include <QtCore/QVector>
 
+#include "ksclbuffer.h"
+
 class KSClContextPrivate;
-class KSClBuffer;
 
 class KSClContext
 {
@@ -50,7 +51,8 @@ public:
     /**
      * Create a buffer that lives in OpenCL.
      */
-    KSClBuffer createBuffer(const QVector<Eigen::Vector4d>& buf);
+    KSClBuffer createBuffer(const KSClBuffer::BufferType    t,
+                            const QVector<Eigen::Vector4d> &buf);
     //Disallow copy and assignment
     KSClContext &operator=(const KSClContext &other) = delete;
     KSClContext(const KSClContext &other) = delete;

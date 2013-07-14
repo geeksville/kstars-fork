@@ -34,10 +34,23 @@ class KSClBufferPrivate;
 class KSClBuffer
 {
 public:
+    /** Describes the type of vector contained in the buffer. */
+    enum BufferType {
+        J2000Buffer,
+        EquatorialBuffer,
+        EclipticBuffer,
+        HorizontalBuffer
+    };
     friend class KSClContext;
     KSClBuffer(const KSClBuffer &other);
     ~KSClBuffer();
     KSClBuffer &operator=(const KSClBuffer &other);
+
+    /**
+     * @return the type of vector contained in this buffer.
+     */
+    BufferType type();
+
     /** Waits for any pending operations on the buffer to finish.
      *  For example, if this buffer is supposed to hold the output of
      *  some computation, then you need to call wait() to ensure that
@@ -47,7 +60,8 @@ public:
     /** Get the event for this buffer. */
     cl::Event event();
 private:
-    KSClBuffer(const cl::Buffer& buf);
+    KSClBuffer(const BufferType  t,
+               const cl::Buffer &buf);
     KSClBufferPrivate *d;
 };
 
