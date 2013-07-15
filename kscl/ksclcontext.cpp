@@ -32,12 +32,19 @@
 
 // Qt
 #include <QtCore/QString>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtCore/QByteArray>
 
 // KDE
 #include <KDebug>
+#include <KStandardDirs>
 
 // Local
 #include "ksclbuffer.h"
+#include "ksclbuffer_p.h"
+
+using namespace Eigen;
 
 class KSClContextPrivate {
 public:
@@ -45,6 +52,8 @@ public:
     cl::Context m_context;
     cl::Device m_device;
     cl::CommandQueue m_queue;
+    cl::Program m_program;
+    cl::Kernel m_kernel_applyMatrix;
 };
 
 KSClContext::KSClContext()
@@ -63,8 +72,8 @@ bool KSClContext::isValid()
     return d->m_Valid;
 }
 
-KSClBuffer KSClContext::createBuffer(const KSClBuffer::BufferType    t,
-                                     const QVector<Eigen::Vector4d> &buf)
+KSClBuffer KSClContext::createBuffer(const KSClBuffer::BufferType  t,
+                                     const QVector<Eigen::Vector4d>   &buf)
 {
     cl_int err;
     // Do some bullshit to compensate for the fact that OpenCL's C++ API
@@ -76,7 +85,45 @@ KSClBuffer KSClContext::createBuffer(const KSClBuffer::BufferType    t,
         kFatal() << "Could not create buffer with error" << err;
     }
 
-    return KSClBuffer(t, clbuf);
+    return KSClBuffer(t, buf.size(), clbuf);
+}
+
+template<typename T> T YOLO(const T t) { return const_cast<T>(t); };
+
+KSClBuffer KSClContext::applyConversion(const Eigen::Matrix3d        &m,
+                                        const KSClBuffer::BufferType  newtype,
+                                        const KSClBuffer             &buffer)
+{
+    Eigen::Matrix4d big = Eigen::Matrix4d::Identity();
+    big.block(0,0,3,3) = m;
+    cl_double16 *clmat = reinterpret_cast<cl_double16*>(&big);
+    cl_int err;
+    // YOLO
+    cl::Buffer oldbuffer = buffer.d->m_buf;
+    cl::Buffer newbuffer(d->m_context, CL_MEM_READ_WRITE,
+                         buffer.size()*sizeof(Eigen::Vector4d), nullptr, &err);
+    if( err != CL_SUCCESS ) {
+        // All of the failure modes for buffer creation are pretty bad,
+        // so it's probably best to curl up and die or something.
+        kFatal() << "Failed to create a new buffer!" << err;
+    }
+    //d->m_kernel_applyMatrix.setArg(0,reinterpret_cast<cl_double16>(big));
+    d->m_kernel_applyMatrix.setArg(0,*clmat);
+    d->m_kernel_applyMatrix.setArg(1,buffer.d->m_buf);
+    d->m_kernel_applyMatrix.setArg(2,newbuffer);
+    cl::Event event;
+    err = d->m_queue.enqueueNDRangeKernel(d->m_kernel_applyMatrix,
+                                          cl::NullRange,
+                                          cl::NDRange(buffer.size()),
+                                          cl::NDRange(1),
+                                          nullptr,
+                                          &event);
+    event.wait();
+    if( err != CL_SUCCESS ) {
+        kFatal() << "Failed executing kernel with error" << err;
+    }
+
+    return KSClBuffer(newtype,buffer.size(),newbuffer);
 }
 
 bool KSClContext::create()
@@ -168,9 +215,41 @@ bool KSClContext::create()
         return false;
     } else {
         kDebug() << "Context created successfully";
-        d->m_Valid = true;
-        d->m_context.getInfo( CL_CONTEXT_DEVICES, &devices );
-        return true;
     }
+
+    //
+    // Now load the kernels from a file
+    //
+
+    QString filename = KStandardDirs::locate("appdata","scripts/kernels.cl");
+    kDebug() << "Trying to load kernels from" << filename;
+
+    QFile sourcefile(filename);
+    if( !sourcefile.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+        kFatal() << "Can't open the kernel sources";
+        return false;
+    }
+    QByteArray source = QTextStream(&sourcefile).readAll().toLocal8Bit();
+
+    cl::Program::Sources sources(1,std::make_pair(source.data(),source.size()+1));
+    d->m_program = cl::Program(d->m_context,sources,&err);
+    if( err != CL_SUCCESS ) {
+        kFatal() << "Dying with error" << err << "in cl::Program";
+        return false;
+    }
+    err = d->m_program.build( devices, "-cl-std=CL1.1" );
+    if( err != CL_SUCCESS ) {
+        kFatal() << "Failed to compile the kernel!";
+        return false;
+    }
+
+    d->m_kernel_applyMatrix = cl::Kernel(d->m_program,"applyMatrix",&err);
+    if( err != CL_SUCCESS ) {
+        kFatal() << "Failed to get a reference to __kernel applyMatrix";
+        return false;
+    }
+
+    d->m_Valid = true;
+    return true;
 }
 

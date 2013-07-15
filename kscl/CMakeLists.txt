@@ -14,7 +14,9 @@ set(LibKSCl_SRCS
 kde4_add_library(LibKSCl STATIC ${LibKSCl_SRCS})
 target_link_libraries(LibKSCl
                       ${OPENCL_LIBRARIES}
-                      ${QT_QTCORE_LIBRARY}
+		      ${QT_QTCORE_LIBRARY}
                       ${KDE4_KDECORE_LIBS} #Needed only for KDebug
                      )
+
+install ( FILES kernels.cl DESTINATION ${DATA_INSTALL_DIR}/kstars/scripts )
 

@@ -39,20 +39,30 @@ class KSClContext
 public:
     KSClContext();
     ~KSClContext();
+
     /**
      * @return true if we were able to successfully create a context.
      */
     bool isValid();
+
     /**
      * Try to create an OpenCL context.
      * @return true if successful.
      */
     bool create();
+
     /**
      * Create a buffer that lives in OpenCL.
      */
-    KSClBuffer createBuffer(const KSClBuffer::BufferType    t,
-                            const QVector<Eigen::Vector4d> &buf);
+    KSClBuffer createBuffer(const KSClBuffer::BufferType  t,
+                            const QVector<Eigen::Vector4d>   &buf);
+    /**
+     * Transform a buffer of points using the given coordinate conversion.
+     */
+    KSClBuffer applyConversion(const Eigen::Matrix3d        &m,
+                               const KSClBuffer::BufferType  newtype,
+                               const KSClBuffer             &buffer);
+
     //Disallow copy and assignment
     KSClContext &operator=(const KSClContext &other) = delete;
     KSClContext(const KSClContext &other) = delete;

@@ -49,7 +49,12 @@ public:
     /**
      * @return the type of vector contained in this buffer.
      */
-    BufferType type();
+    BufferType type() const;
+
+    /**
+     * @return the number of elements in this buffer.
+     */
+    int size() const;
 
     /** Waits for any pending operations on the buffer to finish.
      *  For example, if this buffer is supposed to hold the output of
@@ -61,6 +66,7 @@ public:
     cl::Event event();
 private:
     KSClBuffer(const BufferType  t,
+               const int         size,
                const cl::Buffer &buf);
     KSClBufferPrivate *d;
 };

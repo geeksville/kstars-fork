@@ -24,9 +24,20 @@ using namespace Eigen;
 // Qt
 #include <QtCore/QVector>
 
+// KDE
+#include <KStandardDirs>
+#include <KGlobal>
+
 // Local
 #include "kscl/ksclcontext.h"
 #include "kscl/ksclbuffer.h"
+
+void TestKSClContext::initTestCase()
+{
+    // We need to modify the directories, since we aren't running
+    // as KStars itself, so it won't search the right places.
+    KGlobal::dirs()->addResourceType("appdata","data","kstars");
+}
 
 void TestKSClContext::testCreation()
 {
