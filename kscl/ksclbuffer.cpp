@@ -28,6 +28,10 @@
 #define __NO_STD_VECTOR
 #include <CL/cl.hpp>
 
+// Eigen
+#include <Eigen/Core>
+using namespace Eigen;
+
 // KDE
 #include <KDebug>
 
@@ -36,13 +40,32 @@ KSClBufferPrivate::KSClBufferPrivate(const cl::Buffer& buf)
     m_buf = buf;
 }
 
-KSClBuffer::KSClBuffer(const BufferType  t,
-                       const int         size,
-                       const cl::Buffer &buf)
+bool KSClBufferPrivate::setData(const QVector<Vector4d>& data) {
+    if( data.size() != m_size )
+        return false;
+    cl_int err;
+    void *ptr = CAST_INTO_THE_VOID(data.data());
+    err = m_queue.enqueueWriteBuffer(m_buf,
+    /* Blocking read              */ true,
+    /* Zero offset                */ 0,
+    /* Size to copy               */ data.size() * sizeof(Vector4d),
+    /* Pointer to data            */ ptr,
+    /* Events to wait on          */ nullptr,
+    /* Result event               */ nullptr);
+    return (err == CL_SUCCESS);
+}
+
+KSClBuffer::KSClBuffer(const BufferType        t,
+                       const int               size,
+                       const cl::Buffer       &buf,
+                       const cl::Context      &context,
+                       const cl::CommandQueue &queue)
     : d(new KSClBufferPrivate(buf))
 {
     d->m_type = t;
     d->m_size = size;
+    d->m_context = context;
+    d->m_queue = queue;
 }
 
 KSClBuffer::~KSClBuffer()
@@ -59,4 +82,17 @@ KSClBuffer::BufferType KSClBuffer::type() const
 {
     return d->m_type;
 }
+
+QVector<Vector4d> KSClBuffer::data() const
+{
+    QVector<Vector4d> buf(this->size());
+    cl_int err = d->m_queue.enqueueReadBuffer(d->m_buf,
+    /* Blocking read                       */ true,
+    /* Read offset                         */ 0,
+    /* Number of bytes to read             */ this->size() * sizeof(Vector4d),
+    /* Pointer to write to                 */ buf.data());
+    Q_ASSERT( err == CL_SUCCESS );
+    return buf;
+}
+
 

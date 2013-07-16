@@ -27,11 +27,23 @@
 #define __NO_STD_VECTOR
 #include <CL/cl.hpp>
 
+/* This is just some bullshit since CL C++ always takes void */
+template<typename T> 
+void* CAST_INTO_THE_VOID(const T *t) { 
+    return const_cast<void*>(static_cast<const void*>(t)); 
+};
+
 class KSClBufferPrivate
 {
 public:
     KSClBufferPrivate(const cl::Buffer& buf);
+    /**
+     * Try to set the data in this buffer from the data vector given.
+     */
+    bool setData(const QVector<Eigen::Vector4d> &data);
     cl::Buffer m_buf;
+    cl::Context m_context;
+    cl::CommandQueue m_queue;
     KSClBuffer::BufferType m_type;
     int m_size;
 };

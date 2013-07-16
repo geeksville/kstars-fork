@@ -27,6 +27,7 @@ private slots:
     void initTestCase();
     void testCreation();
     void testCreateBuffer();
+    void testApplyConversion();
 };
 
 #endif 

@@ -24,9 +24,14 @@
 #ifndef KSCLBUFFER_H
 #define KSCLBUFFER_H
 
+#include <Eigen/Core>
+
+#include <QtCore/QVector>
+
 namespace cl {
     class Buffer;
-    class Event;
+    class Context;
+    class CommandQueue;
 }
 
 class KSClBufferPrivate;
@@ -56,18 +61,17 @@ public:
      */
     int size() const;
 
-    /** Waits for any pending operations on the buffer to finish.
-     *  For example, if this buffer is supposed to hold the output of
-     *  some computation, then you need to call wait() to ensure that
-     *  the computation is finished before using it.
+    /**
+     * @return a matrix with the data for this buffer.
      */
-    void wait();
-    /** Get the event for this buffer. */
-    cl::Event event();
+    QVector<Eigen::Vector4d> data() const;
+
 private:
-    KSClBuffer(const BufferType  t,
-               const int         size,
-               const cl::Buffer &buf);
+    KSClBuffer(const BufferType        t,
+               const int               size,
+               const cl::Buffer       &buf,
+               const cl::Context      &context,
+               const cl::CommandQueue &queue);
     KSClBufferPrivate *d;
 };
 

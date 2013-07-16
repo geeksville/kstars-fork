@@ -55,6 +55,26 @@ void TestKSClContext::testCreateBuffer()
     QVERIFY(true);
 }
 
+void TestKSClContext::testApplyConversion()
+{
+    QVector<Vector4d> bufferdata(1024, Vector4d::UnitX());
+    KSClContext c;
+    QVERIFY(c.create());
+    KSClBuffer buf = c.createBuffer(KSClBuffer::J2000Buffer, bufferdata);
+    Matrix3d m;
+    m << 0, 1, 0,
+         1, 0, 0,
+         0, 0, 1;
+    KSClBuffer buf2 = c.applyConversion(m, KSClBuffer::J2000Buffer, buf);
+    QVector<Vector4d> newdata = buf2.data();
+    bool ok = true;
+    for( int i = 0; i < bufferdata.size(); ++i) {
+        ok &= (newdata[i] == Vector4d::UnitY());
+    }
+    QVERIFY(ok);
+}
+
+
 QTEST_MAIN(TestKSClContext)
 
 #include "testksclcontext.moc"
