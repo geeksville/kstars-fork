@@ -50,7 +50,7 @@ void TestKSClContext::testCreateBuffer()
 {
     QVector<Vector4d> bufferdata(1024, Vector4d::UnitX());
     KSClContext c;
-    c.create();
+    QVERIFY(c.create());
     KSClBuffer buf = c.createBuffer(KSClBuffer::J2000Buffer, bufferdata);
     QVERIFY(true);
 }
