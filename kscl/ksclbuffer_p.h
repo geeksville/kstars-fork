@@ -27,7 +27,7 @@
 #define __NO_STD_VECTOR
 #include <CL/cl.hpp>
 
-/* This is just some bullshit since CL C++ always takes void */
+/* This is just some bullshit since CL C++ always takes void* */
 template<typename T> 
 void* CAST_INTO_THE_VOID(const T *t) { 
     return const_cast<void*>(static_cast<const void*>(t)); 
