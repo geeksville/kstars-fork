@@ -3,12 +3,13 @@ set(TEST_LIBRARIES
     ${QT_QTCORE_LIBRARY}
     ${QT_QTTEST_LIBRARY}
     LibKSCl
+    KStarsLib
    )
 include_directories( ${kstars_SOURCE_DIR}
                      ${OPENCL_INCLUDE_DIRS}
                      ${EIGEN3_INCLUDE_DIR} )
 
-set( KSClTests_SRCS testksclcontext.cpp )
+set( KSClTests_SRCS testksclcontext.cpp testclconvert.cpp )
 QT4_AUTOMOC( ${KSClTests_SRCS} )
 
 #
@@ -18,4 +19,14 @@ QT4_AUTOMOC( ${KSClTests_SRCS} )
 add_executable( testksclcontext testksclcontext.cpp )
 target_link_libraries( testksclcontext ${TEST_LIBRARIES} )
 add_test( NAME KSClContextTest COMMAND testksclcontext )
+
+#
+# Test using CL to process points
+#
+
+add_executable( testclconvert testclconvert.cpp )
+target_link_libraries( testclconvert ${TEST_LIBRARIES} )
+add_test( NAME ClConvertTest COMMAND testclconvert )
+
+
 
