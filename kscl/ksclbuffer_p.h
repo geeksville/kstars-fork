@@ -21,6 +21,9 @@
  *
  */
 
+#ifndef KSCLBUFFER_P_H
+#define KSCLBUFFER_P_H
+
 #include "ksclbuffer.h"
 
 // OpenCL
@@ -33,6 +36,8 @@ void* CAST_INTO_THE_VOID(const T *t) {
     return const_cast<void*>(static_cast<const void*>(t)); 
 };
 
+class KSClContext;
+
 class KSClBufferPrivate
 {
 public:
@@ -42,9 +47,11 @@ public:
      */
     bool setData(const QVector<Eigen::Vector4d> &data);
     cl::Buffer m_buf;
-    cl::Context m_context;
     cl::CommandQueue m_queue;
+    const KSClContext *m_context;
     KSClBuffer::BufferType m_type;
     int m_size;
 };
+
+#endif
 

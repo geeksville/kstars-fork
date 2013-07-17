@@ -21,48 +21,22 @@
  *
  */
 
-#ifndef KSCLCONTEXT_H
-#define KSCLCONTEXT_H
+#ifndef KSCLCONTEXT_P_H
+#define KSCLCONTEXT_P_H
 
-// Eigen
-#include <Eigen/Core>
+// OPENCL
+#define __NO_STD_VECTOR // use cl vectors
+#include <CL/cl.hpp>
 
-// Qt
-#include <QtCore/QVector>
-
-#include "ksclbuffer.h"
-
-class KSClContextPrivate;
-
-class KSClContext
-{
+class KSClContextPrivate {
 public:
-    friend class KSClBuffer;
-    KSClContext();
-    ~KSClContext();
-
-    /**
-     * @return true if we were able to successfully create a context.
-     */
-    bool isValid();
-
-    /**
-     * Try to create an OpenCL context.
-     * @return true if successful.
-     */
-    bool create();
-
-    /**
-     * Create a buffer that lives in OpenCL.
-     */
-    KSClBuffer createBuffer(const KSClBuffer::BufferType  t,
-                            const QVector<Eigen::Vector4d>   &buf);
-
-    //Disallow copy and assignment
-    KSClContext &operator=(const KSClContext &other) = delete;
-    KSClContext(const KSClContext &other) = delete;
-private:
-    KSClContextPrivate *d;
+    bool m_Valid;
+    cl::Context m_context;
+    cl::Device m_device;
+    cl::CommandQueue m_queue;
+    cl::Program m_program;
+    cl::Kernel m_kernel_applyMatrix;
 };
 
-#endif // KSCLCONTEXT_H
+#endif
+

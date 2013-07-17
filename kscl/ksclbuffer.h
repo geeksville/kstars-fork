@@ -35,6 +35,7 @@ namespace cl {
 }
 
 class KSClBufferPrivate;
+class KSClContext;
 
 class KSClBuffer
 {
@@ -66,11 +67,24 @@ public:
      */
     QVector<Eigen::Vector4d> data() const;
 
+    /**
+     * Applies the matrix @p m to the points in the buffer in-place
+     * and changes the coordinate type to @p newtype.
+     */
+    void applyConversion(const Eigen::Matrix3d &m,
+                         const BufferType       newtype);
+
+    /**
+     * Copies the coordinate data in @p other into this buffer
+     * and also changes the type of this buffer to match @p other.
+     */
+    void copyFrom(const KSClBuffer& other);
+
 private:
     KSClBuffer(const BufferType        t,
                const int               size,
                const cl::Buffer       &buf,
-               const cl::Context      &context,
+               const KSClContext      *context,
                const cl::CommandQueue &queue);
     KSClBufferPrivate *d;
 };

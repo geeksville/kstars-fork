@@ -22,6 +22,7 @@
  */
 
 #include "ksclcontext.h"
+#include "ksclcontext_p.h"
 
 // OPENCL
 #define __NO_STD_VECTOR // use cl vectors
@@ -45,16 +46,6 @@
 #include "ksclbuffer_p.h"
 
 using namespace Eigen;
-
-class KSClContextPrivate {
-public:
-    bool m_Valid;
-    cl::Context m_context;
-    cl::Device m_device;
-    cl::CommandQueue m_queue;
-    cl::Program m_program;
-    cl::Kernel m_kernel_applyMatrix;
-};
 
 KSClContext::KSClContext()
     : d(new KSClContextPrivate)
@@ -84,47 +75,7 @@ KSClBuffer KSClContext::createBuffer(const KSClBuffer::BufferType  t,
     /* error ptr  */ &err);
     if( err != CL_SUCCESS )
         kFatal() << "Could not create buffer with error" << err;
-    return KSClBuffer(t, buf.size(), clbuf, d->m_context, d->m_queue);
-}
-
-KSClBuffer KSClContext::applyConversion(const Eigen::Matrix3d        &m,
-                                        const KSClBuffer::BufferType  newtype,
-                                        const KSClBuffer             &buffer)
-{
-    // We need to construct a 4x4 matrix in row-major order, since
-    // our CL kernel expects it that way.
-    Eigen::Matrix<double,4,4,RowMajor> big = Eigen::Matrix4d::Identity();
-    big.block(0,0,3,3) = m;
-    cl_double16 *clmat = reinterpret_cast<cl_double16*>(&big);
-    // Make a new buffer
-    cl_int err;
-    cl::Buffer oldbuffer = buffer.d->m_buf;
-    cl::Buffer newbuffer(d->m_context, 
-                         CL_MEM_READ_WRITE,
-                         buffer.size() * sizeof(Eigen::Vector4d), 
-                         nullptr, 
-                         &err);
-    if( err != CL_SUCCESS ) {
-        // All of the failure modes for buffer creation are pretty bad,
-        // so it's probably best to curl up and die or something.
-        kFatal() << "Failed to create a new buffer!" << err;
-    }
-    cl::Event event;
-    // Set kernel arguments and run the kernel
-    d->m_kernel_applyMatrix.setArg(0,*clmat);
-    d->m_kernel_applyMatrix.setArg(1,buffer.d->m_buf);
-    d->m_kernel_applyMatrix.setArg(2,newbuffer);
-    err = d->m_queue.enqueueNDRangeKernel(d->m_kernel_applyMatrix,
-    /* Work range offset -- no offset  */ cl::NullRange,
-    /* Global ID NDRange               */ cl::NDRange(buffer.size()),
-    /* Local  ID NDRange               */ cl::NDRange(1),
-    /* Event waitlist                  */ nullptr,
-    /* Output event                    */ &event);
-    event.wait();
-    if( err != CL_SUCCESS )
-        kFatal() << "Failed executing kernel with error" << err;
-
-    return KSClBuffer(newtype,buffer.size(),newbuffer,d->m_context,d->m_queue);
+    return KSClBuffer(t, buf.size(), clbuf, this, d->m_queue);
 }
 
 bool KSClContext::create()

@@ -35,6 +35,10 @@ using namespace Eigen;
 // KDE
 #include <KDebug>
 
+// Local
+#include "ksclcontext.h"
+#include "ksclcontext_p.h"
+
 KSClBufferPrivate::KSClBufferPrivate(const cl::Buffer& buf)
 {
     m_buf = buf;
@@ -58,7 +62,7 @@ bool KSClBufferPrivate::setData(const QVector<Vector4d>& data) {
 KSClBuffer::KSClBuffer(const BufferType        t,
                        const int               size,
                        const cl::Buffer       &buf,
-                       const cl::Context      &context,
+                       const KSClContext      *context,
                        const cl::CommandQueue &queue)
     : d(new KSClBufferPrivate(buf))
 {
@@ -95,4 +99,47 @@ QVector<Vector4d> KSClBuffer::data() const
     return buf;
 }
 
+void KSClBuffer::applyConversion(const Matrix3d   &m,
+                                 const BufferType  newtype)
+{
+    // We need to construct a 4x4 matrix in row-major order, since
+    // our CL kernel expects it that way.
+    Eigen::Matrix<double,4,4,RowMajor> big = Eigen::Matrix4d::Identity();
+    big.block(0,0,3,3) = m;
+    cl_double16 *clmat = reinterpret_cast<cl_double16*>(&big);
+    // Set kernel arguments and run the kernel
+    auto kern = d->m_context->d->m_kernel_applyMatrix;
+    kern.setArg(0,*clmat);
+    kern.setArg(1,d->m_buf);
+    cl::Event event;
+    cl_int err = d->m_queue.enqueueNDRangeKernel(kern,
+    /* Work range offset -- no offset         */ cl::NullRange,
+    /* Global ID NDRange                      */ cl::NDRange(this->size()),
+    /* Local  ID NDRange                      */ cl::NDRange(1),
+    /* Event waitlist                         */ nullptr,
+    /* Output event                           */ &event);
+    event.wait();
+    if( err != CL_SUCCESS )
+        kFatal() << "Failed executing kernel with error" << err;
+}
+
+void KSClBuffer::copyFrom(const KSClBuffer& other)
+{
+    if( other.size() != this->size() ) {
+        kFatal() << "Tried to copyFrom() buffers of different sizes!";
+    }
+    cl::Event event;
+    cl_int err = d->m_queue.enqueueCopyBuffer(other.d->m_buf,
+    /* Destination buffer                  */ d->m_buf,
+    /* Source offset                       */ 0,
+    /* Destination offset                  */ 0,
+    /* Num of bytes to copy                */ this->size()*sizeof(Vector4d),
+    /* Waitlist                            */ nullptr,
+    /* Completion event                    */ &event);
+    event.wait();
+    if( err != CL_SUCCESS ) {
+        kFatal() << "Failed to copy buffer with error" << err;
+    }
+    d->m_type = other.d->m_type;
+}
 

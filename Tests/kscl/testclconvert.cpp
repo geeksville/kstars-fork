@@ -98,7 +98,7 @@ void TestClConvert::testApparentCoord()
     QVERIFY(ctx.create());
     KSClBuffer buf = ctx.createBuffer(KSClBuffer::J2000Buffer, bufferdata);
     t.restart();
-    KSClBuffer buf2 = ctx.applyConversion(c, KSClBuffer::J2000Buffer, buf);
+    buf.applyConversion(c, KSClBuffer::EquatorialBuffer);
     time = t.elapsed();
     kDebug() << "OpenCL took" << time << "ms";
 

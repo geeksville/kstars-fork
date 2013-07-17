@@ -65,8 +65,8 @@ void TestKSClContext::testApplyConversion()
     m << 0, 1, 0,
          1, 0, 0,
          0, 0, 1;
-    KSClBuffer buf2 = c.applyConversion(m, KSClBuffer::J2000Buffer, buf);
-    QVector<Vector4d> newdata = buf2.data();
+    buf.applyConversion(m,KSClBuffer::J2000Buffer);
+    QVector<Vector4d> newdata = buf.data();
     bool ok = true;
     for( int i = 0; i < bufferdata.size(); ++i) {
         ok &= (newdata[i] == Vector4d::UnitY());
