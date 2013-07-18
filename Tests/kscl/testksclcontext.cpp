@@ -26,8 +26,8 @@ using namespace Eigen;
 #include <KGlobal>
 
 // Local
-#include "kscl/ksclcontext.h"
-#include "kscl/ksclbuffer.h"
+#include "ksengine/ksclcontext.h"
+#include "ksengine/ksclbuffer.h"
 
 void TestKSClContext::initTestCase()
 {

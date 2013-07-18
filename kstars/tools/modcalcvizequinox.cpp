@@ -27,7 +27,7 @@
 #include <KLocale>
 #include <kmessagebox.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "kstarsdata.h"
 #include "kstarsdatetime.h"
 #include "ksnumbers.h"

@@ -25,7 +25,7 @@
 #include <klocale.h>
 #include <ktextedit.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "modcalcjd.h"
 #include "modcalcgeodcoord.h"
 #include "modcalcgalcoord.h"

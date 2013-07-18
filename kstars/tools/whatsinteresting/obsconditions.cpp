@@ -19,7 +19,7 @@
 #include "math.h"
 #include "kdebug.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 ObsConditions::ObsConditions(int bortle, double aperture, Equipment equip, TelescopeType telType):

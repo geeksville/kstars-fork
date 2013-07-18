@@ -106,8 +106,8 @@
 #include "skycomponents/asteroidscomponent.h"
 #include "skycomponents/supernovaecomponent.h"
 
-#include "engine/oldrefraction.h"
-#include "engine/oldconversions.h"
+#include "oldengine/oldrefraction.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 #ifdef HAVE_CFITSIO_H

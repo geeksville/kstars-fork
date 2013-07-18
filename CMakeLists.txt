@@ -67,7 +67,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-kstars.h.cmake
 
 add_subdirectory(doc)
 add_subdirectory(datahandlers)
-add_subdirectory(kscl)
+add_subdirectory(ksengine)
 add_subdirectory(kstars)
 add_subdirectory(Tests)
 

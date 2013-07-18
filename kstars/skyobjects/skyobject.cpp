@@ -29,14 +29,14 @@
 #include "starobject.h" //needed in saveUserLog()
 #include "ksnumbers.h"
 #include "kspopupmenu.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "geolocation.h"
 #include "kstarsdatetime.h"
 #include "kstarsdata.h"
 #include "Options.h"
 #include "skycomponents/skylabeler.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 QString SkyObject::emptyString;

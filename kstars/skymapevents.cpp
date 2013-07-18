@@ -50,7 +50,7 @@
 #include "skycomponents/skylabeler.h"
 #include "skycomponents/starcomponent.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 void SkyMap::resizeEvent( QResizeEvent * )

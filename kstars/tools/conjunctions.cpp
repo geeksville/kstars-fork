@@ -37,7 +37,7 @@
 #include "ksconjunct.h"
 #include "geolocation.h"
 #include "dialogs/locationdialog.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "kstars.h"
 #include "kstarsdata.h"
 #include "ksnumbers.h"

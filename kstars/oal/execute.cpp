@@ -34,7 +34,7 @@
 #include "dialogs/locationdialog.h"
 #include "dialogs/finddialog.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 Execute::Execute() {

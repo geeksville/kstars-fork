@@ -24,7 +24,7 @@
 #include "kstarsdata.h"
 #include "ksutils.h"
 
-#include "engine/oldprecession.h"
+#include "oldengine/oldprecession.h"
 using namespace KSEngine;
 
 #include <QList>

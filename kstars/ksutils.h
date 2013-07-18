@@ -31,7 +31,7 @@
 #include <Eigen/Core>
 using namespace Eigen;
 #include <QPointF>
-#include "dms.h"
+#include "ksengine/dms.h"
 
 class QFile;
 class QString;

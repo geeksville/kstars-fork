@@ -38,7 +38,7 @@
 
 #include "skypainter.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 #include <kde_file.h>

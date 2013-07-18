@@ -29,7 +29,7 @@
 #include <KPlotAxis>
 
 #include "simclock.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "ksnumbers.h"
 #include "kstars.h"
 #include "kstarsdata.h"

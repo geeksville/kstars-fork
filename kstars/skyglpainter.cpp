@@ -49,7 +49,7 @@
 #include "skyobjects/satellite.h"
 #include "skyobjects/supernova.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 Vector2f SkyGLPainter::m_vertex[NUMTYPES][6*BUFSIZE];

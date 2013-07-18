@@ -110,7 +110,7 @@ include_directories(
     ${kstars_SOURCE_DIR}/kstars/tools
     ${kstars_SOURCE_DIR}/kstars/skyobjects
     ${kstars_SOURCE_DIR}/kstars/skycomponents
-    ${kstars_SOURCE_DIR}/kstars/engine
+    ${kstars_SOURCE_DIR}/kstars/oldengine
 #    ${CMAKE_SOURCE_DIR}/kstars/kstars/htmesh
 #	${CMAKE_SOURCE_DIR}/libkdeedu/extdate
 	${ZLIB_INCLUDE_DIR}
@@ -372,18 +372,18 @@ set(kstars_projection_SRCS
     projections/equirectangularprojector.cpp
 )
 
-set(kstars_engine_SRCS
-    engine/oldpointfunctions.cpp
-    engine/oldvlsr.cpp
-    engine/oldrefraction.cpp
-    engine/oldprecession.cpp
-    engine/oldconversions.cpp
-    engine/convertcoord.cpp
-    engine/astrovars.cpp
+set(kstars_oldengine_SRCS
+    oldengine/oldpointfunctions.cpp
+    oldengine/oldvlsr.cpp
+    oldengine/oldrefraction.cpp
+    oldengine/oldprecession.cpp
+    oldengine/oldconversions.cpp
 )
 
 set(kstars_extra_SRCS
-	colorscheme.cpp	dms.cpp fov.cpp geolocation.cpp
+	colorscheme.cpp	
+    fov.cpp 
+    geolocation.cpp
 	imageviewer.cpp
 	ksfilereader.cpp ksnumbers.cpp
 	kspopupmenu.cpp obslistpopupmenu.cpp ksalmanac.cpp
@@ -465,7 +465,7 @@ set(kstars_SRCS
     ${kstars_options_SRCS} 
     ${kstars_skyobjects_SRCS} 
     ${kstars_dialogs_SRCS}
-    ${kstars_engine_SRCS}
+    ${kstars_oldengine_SRCS}
     ${printing_SRCS}
 )
 
@@ -490,7 +490,7 @@ kde4_add_library( KStarsLib STATIC ${kstars_SRCS})
 
 target_link_libraries(KStarsLib
         LibKSDataHandlers
-        LibKSCl
+        LibKSEngine
         ${KDE4_KDECORE_LIBS}
         ${KDE4_KNEWSTUFF3_LIBS}
         ${KDE4_KIO_LIBS}

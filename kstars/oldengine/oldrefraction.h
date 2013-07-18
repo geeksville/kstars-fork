@@ -19,8 +19,8 @@
 #ifndef KSENGINE_OLDREFRACTION_H
 #define KSENGINE_OLDREFRACTION_H
 
-#include "types.h"
-#include "dms.h"
+#include "ksengine/kstypes.h"
+#include "ksengine/dms.h"
 
 class SkyPoint;
 

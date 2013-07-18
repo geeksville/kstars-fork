@@ -21,7 +21,7 @@
 #include "kstarsdata.h"
 #include "skymap.h"
 #include "skyobjects/skypoint.h" 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "Options.h"
 #include "linelist.h"
 #include "skylabeler.h"
@@ -29,7 +29,7 @@
 #include "skypainter.h"
 #include "projections/projector.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 Ecliptic::Ecliptic(SkyComposite *parent ) :

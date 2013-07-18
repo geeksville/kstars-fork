@@ -14,7 +14,7 @@
 #include "skymap.h"
 #include "clientmanager.h"
 
-#include "engine/oldpointfunctions.h"
+#include "oldengine/oldpointfunctions.h"
 
 namespace ISD
 {

@@ -30,12 +30,12 @@ using namespace Eigen;
 #include <KDebug>
 
 // Local
-#include "kscl/ksclcontext.h"
-#include "kscl/ksclbuffer.h"
-#include "kstars/engine/oldconversions.h"
-#include "kstars/engine/oldprecession.h"
-#include "kstars/engine/oldpointfunctions.h"
-#include "kstars/engine/convertcoord.h"
+#include "ksengine/ksclcontext.h"
+#include "ksengine/ksclbuffer.h"
+#include "ksengine/convertcoord.h"
+#include "kstars/oldengine/oldconversions.h"
+#include "kstars/oldengine/oldprecession.h"
+#include "kstars/oldengine/oldpointfunctions.h"
 #include "kstars/ksnumbers.h"
 #include "kstars/skyobjects/skypoint.h"
 using namespace KSEngine;

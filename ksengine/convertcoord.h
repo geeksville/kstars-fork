@@ -18,7 +18,7 @@
 #ifndef KSENGINE_CONVERTCOORD_H
 #define KSENGINE_CONVERTCOORD_H
 
-#include "types.h"
+#include "ksengine/kstypes.h"
 
 class dms;
 namespace KSEngine {

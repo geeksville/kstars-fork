@@ -33,7 +33,7 @@
 #include "skycomponents/constellationboundarylines.h"
 #include "skycomponents/skymapcomposite.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 ObsListWizardUI::ObsListWizardUI( QWidget *p ) : QFrame ( p ) {

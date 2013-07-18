@@ -39,7 +39,7 @@
 
 #include "projections/projector.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_NETBSD)

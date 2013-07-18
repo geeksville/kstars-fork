@@ -30,7 +30,7 @@
 #include <QPrintDialog>
 #include <kdeprintdialog.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "ksalmanac.h"
 #include "kstarsdata.h"
 #include "kstarsdatetime.h"
@@ -42,8 +42,8 @@
 #include "skyobjects/skypoint.h"
 #include "skyobjects/skyobject.h"
 
-#include "engine/oldprecession.h"
-#include "engine/oldconversions.h"
+#include "oldengine/oldprecession.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 #include "avtplotwidget.h"

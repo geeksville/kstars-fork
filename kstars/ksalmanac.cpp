@@ -24,7 +24,7 @@
 #include "kstarsdata.h"
 #include "kstarsdatetime.h"
 #include "ksnumbers.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "skyobjects/kssun.h"
 #include "skyobjects/ksmoon.h"
 #include "skyobjects/skyobject.h"

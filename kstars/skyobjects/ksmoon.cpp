@@ -31,7 +31,7 @@
 #include "skycomponents/skymapcomposite.h"
 #include "texturemanager.h"
 
-#include "engine/types.h"
+#include "ksengine/kstypes.h"
 
 using namespace std;
 

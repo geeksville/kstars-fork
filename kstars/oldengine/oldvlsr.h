@@ -19,7 +19,7 @@
 #ifndef KSENGINE_OLDVLSR_H
 #define KSENGINE_OLDVLSR_H
 
-#include "types.h"
+#include "ksengine/kstypes.h"
 
 class SkyPoint;
 

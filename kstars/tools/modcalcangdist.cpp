@@ -24,7 +24,7 @@
 #include <kfiledialog.h>
 #include <kmessagebox.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "widgets/dmsbox.h"
 #include "skyobjects/skypoint.h"
 #include "dialogs/finddialog.h"

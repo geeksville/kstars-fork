@@ -21,7 +21,7 @@
 #include <klocale.h>
 
 #include "ksnumbers.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 
 KStarsDateTime::KStarsDateTime() : KDateTime()
 {

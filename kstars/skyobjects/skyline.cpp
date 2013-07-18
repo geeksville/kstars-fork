@@ -19,7 +19,7 @@
 #include "kstarsdata.h"
 #include "ksnumbers.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 SkyLine::SkyLine()

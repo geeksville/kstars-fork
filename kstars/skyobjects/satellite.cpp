@@ -28,7 +28,7 @@
 #include "Options.h"
 #include "kspopupmenu.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 // Define some constants

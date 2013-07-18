@@ -25,11 +25,11 @@
 #include "kstarsdata.h"
 #include "skymap.h"
 #include "linelist.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 
 #include "skypainter.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 HorizontalCoordinateGrid::HorizontalCoordinateGrid( SkyComposite *parent )

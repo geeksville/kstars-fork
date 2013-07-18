@@ -23,7 +23,7 @@
 
 #include <QList>
 
-#include "kstars/dms.h"
+#include "ksengine/dms.h"
 #include "kstars/kstarsdatetime.h"
 
 class KSNumbers;

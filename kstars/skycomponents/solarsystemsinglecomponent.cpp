@@ -20,7 +20,7 @@
 #include "skycomponent.h"
 
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "kstarsdata.h"
 #include "skyobjects/starobject.h"
 #include "skyobjects/ksplanetbase.h"
@@ -32,7 +32,7 @@
 #include "skypainter.h"
 #include "projections/projector.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 SolarSystemSingleComponent::SolarSystemSingleComponent(SolarSystemComposite *parent, KSPlanetBase *kspb, bool (*visibleMethod)()) :

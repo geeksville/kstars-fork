@@ -25,7 +25,7 @@
 #include <kmessagebox.h>
 
 #include "ksnumbers.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "skyobjects/skypoint.h"
 #include "geolocation.h"
 #include "kstarsdata.h"
@@ -34,7 +34,7 @@
 #include "dialogs/locationdialog.h"
 #include "dialogs/finddialog.h"
 
-#include "engine/oldvlsr.h"
+#include "oldengine/oldvlsr.h"
 
 using namespace KSEngine::OldVLSR;
 

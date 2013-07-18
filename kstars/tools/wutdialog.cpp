@@ -39,7 +39,7 @@
 #include "skyobjects/ksmoon.h"
 #include "skycomponents/skymapcomposite.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 WUTDialogUI::WUTDialogUI( QWidget *p ) : QFrame( p ) {

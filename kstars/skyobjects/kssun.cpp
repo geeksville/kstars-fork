@@ -23,7 +23,7 @@
 #include "kstarsdata.h"
 #include "kstarsdatetime.h"
 
-#include "engine/oldpointfunctions.h"
+#include "oldengine/oldpointfunctions.h"
 
 KSSun::KSSun( )
         : KSPlanet( I18N_NOOP( "Sun" ), "sun", Qt::yellow, 1392000. /*diameter in km*/  )

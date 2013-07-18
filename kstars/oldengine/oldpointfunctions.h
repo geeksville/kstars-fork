@@ -19,7 +19,7 @@
 #ifndef KSENGINE_OLDPOINTFUNCTIONS_H
 #define KSENGINE_OLDPOINTFUNCTIONS_H
 
-#include "types.h"
+#include "ksengine/kstypes.h"
 
 class KSSun;
 class SkyPoint;

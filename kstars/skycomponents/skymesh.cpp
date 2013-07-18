@@ -30,8 +30,8 @@
 #include "kstarsdata.h"
 #include "skymap.h"
 
-#include "engine/oldpointfunctions.h"
-#include "engine/oldconversions.h"
+#include "oldengine/oldpointfunctions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 QMap<int, SkyMesh *> SkyMesh::pinstances;

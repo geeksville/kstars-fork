@@ -31,7 +31,7 @@
 #include "skyobjects/deepskyobject.h"
 #include "kstars/skypainter.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 QStringList CatalogComponent::m_Columns

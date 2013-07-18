@@ -24,7 +24,7 @@
 
 #include "geolocation.h"
 #include "dialogs/locationdialog.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "kstarsdata.h"
 #include "ksnumbers.h"
 #include "skyobjects/kssun.h"
@@ -33,7 +33,7 @@
 #include "skyobjects/kspluto.h"
 #include "widgets/dmsbox.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 modCalcPlanets::modCalcPlanets(QWidget *parentSplit) :

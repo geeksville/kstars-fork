@@ -17,7 +17,7 @@
 
 #include "testastrovars.h"
 
-#include "kstars/engine/astrovars.h"
+#include "ksengine/astrovars.h"
 #include "kstars/ksnumbers.h"
 
 using namespace KSEngine;

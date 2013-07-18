@@ -22,7 +22,7 @@
 #include <qpoint.h>
 
 #include "kstars/skyobjects/skyobject.h"
-#include "kstars/dms.h"
+#include "ksengine/dms.h"
 
 class QImage;
 class QString;

@@ -41,7 +41,7 @@
 #include "fitshistogram.h"
 #include "fitscommon.h"
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "fitsimage.h"
 
 #define INITIAL_W	640

@@ -19,7 +19,7 @@
 #ifndef KSENGINE_OLDCONVERSIONS_H
 #define KSENGINE_OLDCONVERSIONS_H
 
-#include "types.h"
+#include "ksengine/kstypes.h"
 
 class SkyPoint;
 class dms;

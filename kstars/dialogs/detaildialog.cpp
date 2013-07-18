@@ -66,9 +66,9 @@
 #include "skycomponents/constellationboundarylines.h"
 #include "skycomponents/skymapcomposite.h"
 
-#include "engine/types.h"
-#include "engine/oldprecession.h"
-#include "engine/oldrefraction.h"
+#include "ksengine/kstypes.h"
+#include "oldengine/oldprecession.h"
+#include "oldengine/oldrefraction.h"
 using namespace KSEngine;
 
 DetailDialog::DetailDialog(SkyObject *o, const KStarsDateTime &ut, GeoLocation *geo, QWidget *parent ) :

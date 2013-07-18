@@ -28,7 +28,7 @@
 #include "skylabeler.h"
 #include "projections/projector.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 ConstellationNamesComponent::ConstellationNamesComponent(SkyComposite *parent, CultureList* cultures )

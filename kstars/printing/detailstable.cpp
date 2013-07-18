@@ -32,7 +32,7 @@
 #include "ksasteroid.h"
 #include "kscomet.h"
 
-#include "engine/oldrefraction.h"
+#include "oldengine/oldrefraction.h"
 
 DetailsTable::DetailsTable()
 {

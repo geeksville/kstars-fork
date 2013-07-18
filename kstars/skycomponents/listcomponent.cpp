@@ -23,7 +23,7 @@
 #include "skymap.h" 
 #include "skyobjects/skyobject.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 ListComponent::ListComponent( SkyComposite *parent ) :

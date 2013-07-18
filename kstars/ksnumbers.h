@@ -22,7 +22,7 @@
 
 #define NUTTERMS 63
 
-#include "dms.h"
+#include "ksengine/dms.h"
 class KSSun;
 
 /**@class KSNumbers

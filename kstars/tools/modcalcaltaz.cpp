@@ -33,8 +33,8 @@
 #include "dialogs/finddialog.h"
 #include "dialogs/locationdialog.h"
 
-#include "engine/oldpointfunctions.h"
-#include "engine/oldconversions.h"
+#include "oldengine/oldpointfunctions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 modCalcAltAz::modCalcAltAz(QWidget *parentSplit)

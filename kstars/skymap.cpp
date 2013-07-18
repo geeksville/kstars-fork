@@ -70,9 +70,9 @@
 #include "projections/equirectangularprojector.h"
 #include "fov.h"
 
-#include "engine/oldrefraction.h"
-#include "engine/oldprecession.h"
-#include "engine/oldconversions.h"
+#include "oldengine/oldrefraction.h"
+#include "oldengine/oldprecession.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 #include "tools/flagmanager.h"

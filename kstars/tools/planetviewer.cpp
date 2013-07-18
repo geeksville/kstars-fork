@@ -41,7 +41,7 @@
 #include "skyobjects/ksplanetbase.h"
 #include "skyobjects/ksplanet.h"
 #include "skyobjects/kspluto.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "widgets/timestepbox.h"
 
 PlanetViewerUI::PlanetViewerUI( QWidget *p ) : QFrame( p ) {

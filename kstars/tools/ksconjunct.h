@@ -22,7 +22,7 @@
 #include <QMap>
 #include <QObject>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "skyobjects/skyobject.h"
 #include "skyobjects/ksplanet.h"
 #include "skyobjects/ksplanetbase.h"

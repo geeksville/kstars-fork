@@ -18,7 +18,7 @@
 #include "datahandlers/catalogdb.h"
 #include "kstars/version.h"
 
-#include "kstars/engine/oldprecession.h"
+#include "kstars/oldengine/oldprecession.h"
 using namespace KSEngine;
 
 bool CatalogDB::Initialize() {

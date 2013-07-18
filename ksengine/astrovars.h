@@ -18,7 +18,7 @@
 #ifndef ASTROVARS_H
 #define ASTROVARS_H
 
-#include "types.h"
+#include "ksengine/kstypes.h"
 
 #include <Eigen/Core>
 

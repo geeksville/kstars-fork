@@ -26,7 +26,7 @@
 #include "skymap.h"
 #include "skyobjects/skypoint.h" 
 #include "skyobjects/trailobject.h" 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "Options.h"
 #include "solarsystemsinglecomponent.h"
 #include "solarsystemcomposite.h"

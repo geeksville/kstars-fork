@@ -69,7 +69,7 @@
 
 #include <config-kstars.h>
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 #ifdef HAVE_INDI_H

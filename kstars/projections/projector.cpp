@@ -25,8 +25,8 @@
 #include "kstarsdata.h"
 #include "skycomponents/skylabeler.h"
 
-#include "engine/oldrefraction.h"
-#include "engine/oldconversions.h"
+#include "oldengine/oldrefraction.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 namespace {

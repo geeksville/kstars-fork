@@ -24,7 +24,7 @@
 #include <kmessagebox.h>
 #include <kurlrequester.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "kstars.h"
 #include "kstarsdata.h"
 #include "skyobjects/skypoint.h"
@@ -32,7 +32,7 @@
 #include "dialogs/finddialog.h"
 #include "widgets/dmsbox.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 modCalcEclCoords::modCalcEclCoords(QWidget *parentSplit)

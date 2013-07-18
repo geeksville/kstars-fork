@@ -29,7 +29,7 @@
 #include <kstandarddirs.h>
 
 #include "Options.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "fov.h"
 #include "skymap.h"
 #include "ksutils.h"
@@ -45,7 +45,7 @@
 #include <config-kstars.h>
 #include "dialogs/detaildialog.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 namespace {

@@ -23,7 +23,7 @@
 #include <klocale.h>
 
 #include "skyobject.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "ksnumbers.h"
 #include "kstarsdatetime.h" //for J2000 define
 #include "kssun.h"
@@ -31,7 +31,7 @@
 #include "Options.h"
 #include "skycomponents/skymapcomposite.h"
 
-#include "engine/oldpointfunctions.h"
+#include "oldengine/oldpointfunctions.h"
 
 SkyPoint::SkyPoint() {
     // Default constructor. Set nonsense values

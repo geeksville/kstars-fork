@@ -25,13 +25,13 @@
 #include "ksnumbers.h"
 #include "skymap.h"
 #include "skyobjects/skypoint.h" 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "skylabeler.h"
 #include "skypainter.h"
 
 #include "projections/projector.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 #define NCIRCLE 360   //number of points used to define equator, ecliptic and horizon

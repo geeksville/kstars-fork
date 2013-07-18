@@ -17,8 +17,8 @@
 
 #include "testconvertcoord.h"
 
-#include "kstars/engine/convertcoord.h"
-#include "kstars/dms.h"
+#include "ksengine/convertcoord.h"
+#include "ksengine/dms.h"
 
 using namespace KSEngine;
 

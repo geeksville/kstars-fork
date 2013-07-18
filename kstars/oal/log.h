@@ -25,7 +25,7 @@
 #include <QXmlStreamWriter>
 
 #include "kstars.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "skyobjects/skyobject.h"
 #include "oal/observer.h"
 #include "oal/site.h"

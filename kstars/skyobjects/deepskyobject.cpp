@@ -28,7 +28,7 @@
 
 #include "kstarsdata.h"
 #include "ksutils.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "kspopupmenu.h"
 #include "Options.h"
 #include "skymap.h"

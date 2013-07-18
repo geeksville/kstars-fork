@@ -25,12 +25,12 @@
 
 #include "kstars.h"
 #include "kstarsdata.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "skyobjects/skypoint.h"
 #include "skymap.h"
 
-#include "engine/oldpointfunctions.h"
-#include "engine/oldconversions.h"
+#include "oldengine/oldpointfunctions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 

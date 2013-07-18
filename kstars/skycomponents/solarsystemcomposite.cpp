@@ -34,7 +34,7 @@
 #include "skyobjects/kspluto.h"
 #include "planetmoonscomponent.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 SolarSystemComposite::SolarSystemComposite(SkyComposite *parent ) :

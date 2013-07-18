@@ -19,7 +19,7 @@
 #ifndef KSENGINE_OLDPRECESSION_H
 #define KSENGINE_OLDPRECESSION_H
 
-#include "types.h"
+#include "ksengine/kstypes.h"
 
 class SkyPoint;
 class KSNumbers;

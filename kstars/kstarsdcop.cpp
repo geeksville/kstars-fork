@@ -49,7 +49,7 @@
 #include "imageexporter.h"
 #include "skycomponents/constellationboundarylines.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 // INDI includes

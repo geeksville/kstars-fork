@@ -19,11 +19,11 @@
 
 #include <kdebug.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "ksnumbers.h"
 #include "kstarsdata.h"
 
-#include "engine/oldpointfunctions.h"
+#include "oldengine/oldpointfunctions.h"
 
 KSAsteroid::KSAsteroid( int _catN, const QString &s, const QString &imfile,
                         long double _JD, double _a, double _e, dms _i, dms _w, dms _Node, dms _M, double _H, double _G )

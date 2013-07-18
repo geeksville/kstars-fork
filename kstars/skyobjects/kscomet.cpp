@@ -24,9 +24,9 @@
 #include "kstarsdata.h"
 #include "kstarsdatetime.h"
 #include "ksnumbers.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 
-#include "engine/oldpointfunctions.h"
+#include "oldengine/oldpointfunctions.h"
 
 namespace {
     int letterToNum(QChar c)

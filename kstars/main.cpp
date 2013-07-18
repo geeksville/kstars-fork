@@ -33,7 +33,7 @@
 #include <QPixmap>
 #include <kglobal.h>
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 static const char description[] =

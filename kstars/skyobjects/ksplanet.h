@@ -22,7 +22,7 @@
 #include <QHash>
 
 #include "ksplanetbase.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 
 /**@class KSPlanet
  *A subclass of KSPlanetBase for seven of the major planets in the solar system

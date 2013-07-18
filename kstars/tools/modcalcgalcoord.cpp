@@ -22,14 +22,14 @@
 #include <kfiledialog.h>
 #include <kmessagebox.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "skyobjects/skypoint.h"
 #include "kstars.h"
 #include "dialogs/finddialog.h"
 #include "widgets/dmsbox.h"
 
-#include "engine/oldprecession.h"
-#include "engine/convertcoord.h"
+#include "oldengine/oldprecession.h"
+#include "ksengine/convertcoord.h"
 using namespace KSEngine;
 
 modCalcGalCoord::modCalcGalCoord(QWidget *parentSplit)

@@ -24,7 +24,7 @@
 #include <kstandarddirs.h>
 
 #include "skyobjects/deepskyobject.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "ksfilereader.h"
 #include "kstarsdata.h"
 #include "skymap.h"
@@ -35,7 +35,7 @@
 #include "skypainter.h"
 #include "projections/projector.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 DeepSkyComponent::DeepSkyComponent( SkyComposite *parent ) :

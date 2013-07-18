@@ -19,7 +19,7 @@
 
 #include <kdebug.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "skypoint.h"
 
 namespace KSEngine {

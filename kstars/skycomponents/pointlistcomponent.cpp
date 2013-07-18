@@ -20,7 +20,7 @@
 #include "skyobjects/skypoint.h" 
 #include "kstarsdata.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 PointListComponent::PointListComponent( SkyComposite *parent ) :

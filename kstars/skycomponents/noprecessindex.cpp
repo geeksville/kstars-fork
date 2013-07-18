@@ -21,7 +21,7 @@
 #include "kstarsdata.h"
 #include "linelist.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 NoPrecessIndex::NoPrecessIndex( SkyComposite *parent, const QString& name ) :

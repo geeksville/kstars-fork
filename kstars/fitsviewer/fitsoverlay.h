@@ -15,7 +15,7 @@
 #include <KIO/Job>
 #include <QFile>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 
 class FITSImage;
 class SkyPoint;

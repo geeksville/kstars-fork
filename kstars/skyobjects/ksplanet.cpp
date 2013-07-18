@@ -29,7 +29,7 @@
 #include "ksutils.h"
 #include "ksfilereader.h"
 
-#include "engine/oldpointfunctions.h"
+#include "oldengine/oldpointfunctions.h"
 
 KSPlanet::OrbitDataManager KSPlanet::odm;
 

@@ -37,8 +37,8 @@
 #include "skycomponents/skymapcomposite.h"
 #include "texturemanager.h"
 
-#include "engine/types.h"
-#include "engine/oldconversions.h"
+#include "ksengine/kstypes.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 QVector<QColor> KSPlanetBase::planetColor = QVector<QColor>() <<

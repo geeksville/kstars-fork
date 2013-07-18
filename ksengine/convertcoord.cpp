@@ -19,7 +19,7 @@
 
 #include <Eigen/Geometry>
 
-#include "engine/astrovars.h"
+#include "astrovars.h"
 #include "dms.h"
 
 namespace KSEngine {

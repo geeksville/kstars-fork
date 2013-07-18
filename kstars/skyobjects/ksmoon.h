@@ -19,7 +19,7 @@
 #define KSMOON_H_
 
 #include "ksplanetbase.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 
 /**@class KSMoon
 	*A subclass of SkyObject that provides information

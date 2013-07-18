@@ -20,7 +20,7 @@
 #include "Options.h"
 #include "skypoint.h"
 #include "ksnumbers.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "kssun.h"
 
 #include "oldprecession.h"

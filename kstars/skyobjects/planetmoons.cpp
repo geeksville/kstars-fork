@@ -24,7 +24,7 @@
 #include "kssun.h"
 #include "trailobject.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 PlanetMoons::PlanetMoons(){

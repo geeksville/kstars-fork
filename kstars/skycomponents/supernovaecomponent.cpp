@@ -21,7 +21,7 @@
 #include "skymesh.h"
 #include "skylabeler.h"
 #include "projections/projector.h"
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "Options.h"
 #include "notifyupdatesui.h"
 
@@ -30,7 +30,7 @@
 #include "kstandarddirs.h"
 #include "kstarsdata.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 SupernovaeComponent::SupernovaeComponent(SkyComposite* parent): ListComponent(parent), m_Parser(0)

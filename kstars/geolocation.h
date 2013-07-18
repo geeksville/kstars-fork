@@ -22,7 +22,7 @@
 
 #include <klocale.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "timezonerule.h"
 #include "kstarsdatetime.h"
 

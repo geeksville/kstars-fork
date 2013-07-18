@@ -27,7 +27,7 @@
 #include "kstarsdata.h"
 #include "skymap.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 SolarSystemListComponent::SolarSystemListComponent( SolarSystemComposite *p ) :

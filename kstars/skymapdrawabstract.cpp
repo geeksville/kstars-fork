@@ -46,7 +46,7 @@
 #include "projections/projector.h"
 #include "projections/lambertprojector.h"
 
-#include "engine/oldconversions.h"
+#include "oldengine/oldconversions.h"
 using namespace KSEngine;
 
 #include <config-kstars.h>

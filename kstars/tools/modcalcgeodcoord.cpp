@@ -23,7 +23,7 @@
 #include <kglobal.h>
 #include <kmessagebox.h>
 
-#include "dms.h"
+#include "ksengine/dms.h"
 #include "geolocation.h"
 #include "kstars.h"
 #include "kstarsdata.h"
