@@ -90,7 +90,8 @@ QString KSUtils::getDSSURL( const SkyPoint * const p ) {
         return getDSSURL( p->ra0(), p->dec0(), width, height );
 }
 
-QString KSUtils::getDSSURL( const dms &ra, const dms &dec, float width, float height, const QString & type) {
+QString KSUtils::getDSSURL( const dms &ra, const dms &dec, float width, float height) {
+    QString type = "gif";
     const QString URLprefix( "http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_blue" );
     QString URLsuffix = QString( "&e=J2000&f=%1&c=none&fov=NONE" ).arg(type);
     const double dss_default_size = Options::defaultDSSImageSize();

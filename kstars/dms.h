@@ -18,12 +18,10 @@
 #ifndef DMS_H_
 #define DMS_H_
 
-#include <kdebug.h>
-
-#include <QString>
-
 #include <cmath>
 #include "nan.h"
+
+class QString;
 
 /**@class dms
  * @short An angle, stored as degrees, but expressible in many ways.

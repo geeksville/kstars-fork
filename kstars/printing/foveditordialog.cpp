@@ -16,11 +16,14 @@
  ***************************************************************************/
 
 #include "foveditordialog.h"
+
+#include <KIO/NetAccess>
+#include <KTemporaryFile>
+#include <KFileDialog>
+#include <KMessageBox>
+#include <KDebug>
+
 #include "printingwizard.h"
-#include "kio/netaccess.h"
-#include "ktemporaryfile.h"
-#include "kfiledialog.h"
-#include "kmessagebox.h"
 
 FovEditorDialogUI::FovEditorDialogUI(QWidget *parent) : QFrame(parent)
 {

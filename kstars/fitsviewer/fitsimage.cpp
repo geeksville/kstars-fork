@@ -24,9 +24,11 @@
 #include <cmath>
 #include <cstdlib>
 
-#include <QApplication>
-#include <QFile>
-#include <QProgressDialog>
+#include <QtGui/QApplication>
+#include <QtGui/QProgressDialog>
+#include <QtCore/QFile>
+#include <QtCore/QDebug>
+
 #include <KMessageBox>
 
 #ifdef HAVE_WCSLIB

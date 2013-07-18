@@ -15,9 +15,10 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <QFile>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
 
-#include <kstandarddirs.h>
+#include <KStandardDirs>
 
 #include "satellitegroup.h"
 #include "ksutils.h"

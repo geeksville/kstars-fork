@@ -12,8 +12,11 @@
 #ifndef INDISTD_H
 #define INDISTD_H
 
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtCore/QVariant>
+
 #include <indiproperty.h>
-#include <QObject>
 
 #include "skypoint.h"
 #include "indicommon.h"

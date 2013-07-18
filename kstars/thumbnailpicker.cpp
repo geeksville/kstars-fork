@@ -18,20 +18,21 @@
 #include "thumbnailpicker.h"
 #include "thumbnaileditor.h"
 
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QTextStream>
-#include <QPainter>
-#include <kio/copyjob.h>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
+#include <QtCore/QTextStream>
+#include <QtGui/QPainter>
 
 #include <kdeversion.h>
-#include <kpushbutton.h>
-#include <klineedit.h>
-#include <kmessagebox.h>
-#include <kurl.h>
-#include <kurlrequester.h>
-#include <klocale.h>
-#include <kstandarddirs.h>
+#include <KDebug>
+#include <KIO/CopyJob>
+#include <KPushButton>
+#include <KLineEdit>
+#include <KMessageBox>
+#include <KUrl>
+#include <KUrlRequester>
+#include <KLocale>
+#include <KStandardDirs>
 
 #include "ksutils.h"
 #include "dialogs/detaildialog.h"

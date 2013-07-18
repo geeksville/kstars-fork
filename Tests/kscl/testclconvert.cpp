@@ -27,6 +27,7 @@ using namespace Eigen;
 // KDE
 #include <KStandardDirs>
 #include <KGlobal>
+#include <KDebug>
 
 // Local
 #include "kscl/ksclcontext.h"
