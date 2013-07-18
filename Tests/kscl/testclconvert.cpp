@@ -73,15 +73,17 @@ void TestClConvert::testApparentCoord()
     int time = t.elapsed();
     kDebug() << "Old method took" << time << "ms";
 
+    // Get the coordinate conversion
+    CoordConversion c = Convert::EqToHor(LST,lat)
+                      * Convert::Nutate(jd)
+                      * Convert::PrecessTo(jd);
+    
     // Test with newer CPU vector3d method
     Matrix3Xd cpu_input3(3,NUM_TEST_POINTS);
     Matrix3Xd cpu_output3(3,NUM_TEST_POINTS);
     for(int i = 0; i < NUM_TEST_POINTS; ++i) {
         cpu_input3.col(i) = Convert::sphToVect(dec,ra);
     }
-    CoordConversion c = Convert::EqToHor(LST,lat)
-                      * Convert::Nutate(jd)
-                      * Convert::PrecessTo(jd);
     t.restart();
     cpu_output3 = c * cpu_input3;
     time = t.elapsed();
@@ -100,7 +102,15 @@ void TestClConvert::testApparentCoord()
     time = t.elapsed();
     kDebug() << "OpenCL took" << time << "ms";
 
-    QVERIFY(true);
+    Matrix4Xd opencl_output = buf.data();
+    Vector3d v_skyp = Convert::sphToVect(skypoints[0].alt(),
+                                         skypoints[1].az());
+    Vector3d v_cpu  = cpu_output3.col(0);
+    Vector3d v_cl   = opencl_output.block(0,0,3,1);
+
+    QVERIFY(v_skyp.isApprox(v_cpu));
+    QVERIFY(v_cpu.isApprox(v_cl));
+    QVERIFY(v_cl.isApprox(v_skyp));
 }
 
 
