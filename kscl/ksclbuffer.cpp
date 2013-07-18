@@ -106,11 +106,18 @@ void KSClBuffer::applyConversion(const Matrix3d   &m,
     // our CL kernel expects it that way.
     Eigen::Matrix<double,4,4,RowMajor> big = Eigen::Matrix4d::Identity();
     big.block(0,0,3,3) = m;
-    cl_double16 *clmat = reinterpret_cast<cl_double16*>(&big);
+    Vector4d m1 = big.row(0); 
+    Vector4d m2 = big.row(1);
+    Vector4d m3 = big.row(2);
+    cl_double4 *clm1 = reinterpret_cast<cl_double4*>(&m1);
+    cl_double4 *clm2 = reinterpret_cast<cl_double4*>(&m2);
+    cl_double4 *clm3 = reinterpret_cast<cl_double4*>(&m3);
     // Set kernel arguments and run the kernel
     auto kern = d->m_context->d->m_kernel_applyMatrix;
-    kern.setArg(0,*clmat);
-    kern.setArg(1,d->m_buf);
+    kern.setArg(0,*clm1);
+    kern.setArg(1,*clm2);
+    kern.setArg(2,*clm3);
+    kern.setArg(3,d->m_buf);
     cl::Event event;
     cl_int err = d->m_queue.enqueueNDRangeKernel(kern,
     /* Work range offset -- no offset         */ cl::NullRange,
