@@ -30,6 +30,9 @@
 #define __NO_STD_VECTOR
 #include <CL/cl.hpp>
 
+// Eigen
+#include <Eigen/Core>
+
 /* This is just some bullshit since CL C++ always takes void* */
 template<typename T> 
 void* CAST_INTO_THE_VOID(const T *t) { 
@@ -45,7 +48,7 @@ public:
     /**
      * Try to set the data in this buffer from the data vector given.
      */
-    bool setData(const QVector<Eigen::Vector4d> &data);
+    bool setData(const Eigen::Matrix4Xd &data);
     cl::Buffer m_buf;
     cl::CommandQueue m_queue;
     const KSClContext *m_context;

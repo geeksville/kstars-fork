@@ -74,25 +74,23 @@ void TestClConvert::testApparentCoord()
     kDebug() << "Old method took" << time << "ms";
 
     // Test with newer CPU vector3d method
-    QVector<J2000Coord> cpu_input(NUM_TEST_POINTS);
-    QVector<HorizontalCoord> cpu_output(NUM_TEST_POINTS);
+    Matrix3Xd cpu_input3(3,NUM_TEST_POINTS);
+    Matrix3Xd cpu_output3(3,NUM_TEST_POINTS);
     for(int i = 0; i < NUM_TEST_POINTS; ++i) {
-        cpu_input[i] = Convert::sphToVect(dec,ra);
+        cpu_input3.col(i) = Convert::sphToVect(dec,ra);
     }
     CoordConversion c = Convert::EqToHor(LST,lat)
                       * Convert::Nutate(jd)
                       * Convert::PrecessTo(jd);
     t.restart();
-    for(int i = 0; i < NUM_TEST_POINTS; ++i) {
-        cpu_output[i] = c * cpu_input[i];
-    }
+    cpu_output3 = c * cpu_input3;
     time = t.elapsed();
     kDebug() << "Plain CPU took" << time << "ms";
 
     // Now use OpenCL
-    QVector<Vector4d> bufferdata(NUM_TEST_POINTS);
+    Matrix4Xd bufferdata(4,NUM_TEST_POINTS);
     for(int i = 0; i < NUM_TEST_POINTS; ++i) {
-        bufferdata[i] = Convert::sphToVect4(dec,ra);
+        bufferdata.col(i) = Convert::sphToVect4(dec,ra);
     }
     KSClContext ctx;
     QVERIFY(ctx.create());

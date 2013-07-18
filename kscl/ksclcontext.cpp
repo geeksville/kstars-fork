@@ -64,18 +64,18 @@ bool KSClContext::isValid()
 }
 
 KSClBuffer KSClContext::createBuffer(const KSClBuffer::BufferType  t,
-                                     const QVector<Eigen::Vector4d>   &buf)
+                                     const Eigen::Matrix4Xd       &data)
 {
     cl_int err;
-    void *bufdata = CAST_INTO_THE_VOID(buf.data());
+    void *bufdata = CAST_INTO_THE_VOID(data.data());
     cl::Buffer clbuf(d->m_context,
     /* Type flags */ CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-    /* # of bytes */ buf.size() * sizeof(Vector4d), 
+    /* # of bytes */ data.size() * sizeof(double), 
     /* data ptr   */ bufdata, 
     /* error ptr  */ &err);
     if( err != CL_SUCCESS )
         kFatal() << "Could not create buffer with error" << err;
-    return KSClBuffer(t, buf.size(), clbuf, this, d->m_queue);
+    return KSClBuffer(t, data.cols(), clbuf, this, d->m_queue);
 }
 
 bool KSClContext::create()

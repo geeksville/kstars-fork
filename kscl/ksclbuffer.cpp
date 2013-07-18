@@ -44,15 +44,15 @@ KSClBufferPrivate::KSClBufferPrivate(const cl::Buffer& buf)
     m_buf = buf;
 }
 
-bool KSClBufferPrivate::setData(const QVector<Vector4d>& data) {
-    if( data.size() != m_size )
+bool KSClBufferPrivate::setData(const Matrix4Xd &data) {
+    if( data.cols() != m_size )
         return false;
     cl_int err;
     void *ptr = CAST_INTO_THE_VOID(data.data());
     err = m_queue.enqueueWriteBuffer(m_buf,
     /* Blocking read              */ true,
     /* Zero offset                */ 0,
-    /* Size to copy               */ data.size() * sizeof(Vector4d),
+    /* Size to copy               */ data.size() * sizeof(double),
     /* Pointer to data            */ ptr,
     /* Events to wait on          */ nullptr,
     /* Result event               */ nullptr);
@@ -87,16 +87,16 @@ KSClBuffer::BufferType KSClBuffer::type() const
     return d->m_type;
 }
 
-QVector<Vector4d> KSClBuffer::data() const
+Matrix4Xd KSClBuffer::data() const
 {
-    QVector<Vector4d> buf(this->size());
+    Matrix4Xd mat(4,this->size());
     cl_int err = d->m_queue.enqueueReadBuffer(d->m_buf,
     /* Blocking read                       */ true,
     /* Read offset                         */ 0,
-    /* Number of bytes to read             */ this->size() * sizeof(Vector4d),
-    /* Pointer to write to                 */ buf.data());
+    /* Number of bytes to read             */ mat.size()*sizeof(double),
+    /* Pointer to write to                 */ mat.data());
     Q_ASSERT( err == CL_SUCCESS );
-    return buf;
+    return mat;
 }
 
 void KSClBuffer::applyConversion(const Matrix3d   &m,
@@ -121,6 +121,7 @@ void KSClBuffer::applyConversion(const Matrix3d   &m,
     event.wait();
     if( err != CL_SUCCESS )
         kFatal() << "Failed executing kernel with error" << err;
+    d->m_type = newtype;
 }
 
 void KSClBuffer::copyFrom(const KSClBuffer& other)

@@ -26,8 +26,6 @@
 
 #include <Eigen/Core>
 
-#include <QtCore/QVector>
-
 namespace cl {
     class Buffer;
     class Context;
@@ -64,8 +62,9 @@ public:
 
     /**
      * @return a matrix with the data for this buffer.
+     * The columns of the matrix are the points of the buffer.
      */
-    QVector<Eigen::Vector4d> data() const;
+    Eigen::Matrix4Xd data() const;
 
     /**
      * Applies the matrix @p m to the points in the buffer in-place

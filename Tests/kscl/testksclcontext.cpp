@@ -21,9 +21,6 @@
 #include <Eigen/Core>
 using namespace Eigen;
 
-// Qt
-#include <QtCore/QVector>
-
 // KDE
 #include <KStandardDirs>
 #include <KGlobal>
@@ -48,7 +45,10 @@ void TestKSClContext::testCreation()
 
 void TestKSClContext::testCreateBuffer()
 {
-    QVector<Vector4d> bufferdata(1024, Vector4d::UnitX());
+    Matrix4Xd bufferdata(4,1024);
+    for(int i = 0; i < 1024; ++i) {
+        bufferdata.col(i) = Vector4d::UnitX();
+    }
     KSClContext c;
     QVERIFY(c.create());
     KSClBuffer buf = c.createBuffer(KSClBuffer::J2000Buffer, bufferdata);
@@ -57,7 +57,10 @@ void TestKSClContext::testCreateBuffer()
 
 void TestKSClContext::testApplyConversion()
 {
-    QVector<Vector4d> bufferdata(1024, Vector4d::UnitX());
+    Matrix4Xd bufferdata(4,1024);
+    for(int i = 0; i < 1024; ++i) {
+        bufferdata.col(i) = Vector4d::UnitX();
+    }
     KSClContext c;
     QVERIFY(c.create());
     KSClBuffer buf = c.createBuffer(KSClBuffer::J2000Buffer, bufferdata);
@@ -66,10 +69,10 @@ void TestKSClContext::testApplyConversion()
          1, 0, 0,
          0, 0, 1;
     buf.applyConversion(m,KSClBuffer::J2000Buffer);
-    QVector<Vector4d> newdata = buf.data();
+    Matrix4Xd newdata = buf.data();
     bool ok = true;
-    for( int i = 0; i < bufferdata.size(); ++i) {
-        ok &= (newdata[i] == Vector4d::UnitY());
+    for( int i = 0; i < 1024; ++i) {
+        ok &= (newdata.col(i) == Vector4d::UnitY());
     }
     QVERIFY(ok);
 }

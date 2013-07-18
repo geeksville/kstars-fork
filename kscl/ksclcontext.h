@@ -27,9 +27,6 @@
 // Eigen
 #include <Eigen/Core>
 
-// Qt
-#include <QtCore/QVector>
-
 #include "ksclbuffer.h"
 
 class KSClContextPrivate;
@@ -54,9 +51,11 @@ public:
 
     /**
      * Create a buffer that lives in OpenCL.
+     * @param t the type of coordinates that are in this buffer.
+     * @param data a 4xN matrix whose columns are the points.
      */
     KSClBuffer createBuffer(const KSClBuffer::BufferType  t,
-                            const QVector<Eigen::Vector4d>   &buf);
+                            const Eigen::Matrix4Xd       &data);
 
     //Disallow copy and assignment
     KSClContext &operator=(const KSClContext &other) = delete;
