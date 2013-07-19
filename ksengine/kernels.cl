@@ -14,3 +14,22 @@ __kernel void applyMatrix(          double4  m1,
                           0);
     vs[gid] = w;
 }
+
+__kernel void aberrate(          double   expRapidity,
+                        __global double4 *vs)
+{
+    int gid = get_global_id(0);
+    double4 v = vs[gid];
+    if( v.y < 0 ) {
+        double2 ab = expRapidity*(1/(1-v.y))*v.xz;
+        double n = dot(ab,ab);
+        double4 vnew = (1/(1+n))*(double4)(2*ab.lo,n-1,2*ab.hi,0);
+        vs[gid] = vnew;
+    } else {
+        double2 ab = expRapidity*(1/(1+v.y))*v.xz;
+        double n = dot(ab,ab);
+        double4 vnew = (1/(1+n))*(double4)(2*ab.lo,-n+1,2*ab.hi,0);
+        vs[gid] = vnew;
+    }
+}
+        

@@ -200,6 +200,11 @@ bool KSClContext::create()
         kFatal() << "Failed to get a reference to __kernel applyMatrix";
         return false;
     }
+    d->m_kernel_aberrate = cl::Kernel(d->m_program,"aberrate",&err);
+    if( err != CL_SUCCESS ) {
+        kFatal() << "Failed to get a reference to __kernel aberrate";
+        return false;
+    }
 
     d->m_Valid = true;
     return true;

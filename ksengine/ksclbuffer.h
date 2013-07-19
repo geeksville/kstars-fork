@@ -43,7 +43,8 @@ public:
         J2000Buffer,
         EquatorialBuffer,
         EclipticBuffer,
-        HorizontalBuffer
+        HorizontalBuffer,
+        EarthVelocityBuffer
     };
     friend class KSClContext;
     KSClBuffer(const KSClBuffer &other);
@@ -78,6 +79,8 @@ public:
      * and also changes the type of this buffer to match @p other.
      */
     void copyFrom(const KSClBuffer& other);
+
+    void aberrate(const double expRapidity);
 
 private:
     KSClBuffer(const BufferType        t,

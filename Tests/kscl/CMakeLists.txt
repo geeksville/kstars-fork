@@ -2,7 +2,7 @@ find_package(Qt4 REQUIRED)
 set(TEST_LIBRARIES
     ${QT_QTCORE_LIBRARY}
     ${QT_QTTEST_LIBRARY}
-    LibKSCl
+    LibKSEngine
     KStarsLib
    )
 include_directories( ${kstars_SOURCE_DIR}

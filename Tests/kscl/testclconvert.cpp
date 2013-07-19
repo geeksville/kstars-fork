@@ -33,6 +33,7 @@ using namespace Eigen;
 #include "ksengine/ksclcontext.h"
 #include "ksengine/ksclbuffer.h"
 #include "ksengine/convertcoord.h"
+#include "ksengine/astrovars.h"
 #include "kstars/oldengine/oldconversions.h"
 #include "kstars/oldengine/oldprecession.h"
 #include "kstars/oldengine/oldpointfunctions.h"
@@ -68,16 +69,24 @@ void TestClConvert::testApparentCoord()
         SkyPoint *pt = &skypoints[i];
         OldPrecession::precess(pt,&num);
         OldPointFunctions::nutate(pt,&num);
-        // FIXME: Add aberration
+        OldPointFunctions::aberrate(pt,&num);
         OldConversions::EquatorialToHorizontal(pt,&LST,&lat);
     }
     int time = t.elapsed();
     kDebug() << "Old method took" << time << "ms";
 
     // Get the coordinate conversion
-    CoordConversion c = Convert::EqToHor(LST,lat)
-                      * Convert::Nutate(jd)
-                      * Convert::PrecessTo(jd);
+    CoordConversion toEarthVel   = Convert::EclToEarthVel(jd)
+                                 * Convert::EqToEcl(jd)
+                                 * Convert::Nutate(jd)
+                                 * Convert::PrecessTo(jd);
+    
+    CoordConversion fromEarthVel = Convert::EqToHor(LST,lat)
+                                 * Convert::EclToEq(jd)
+                                 * Convert::EarthVelToEcl(jd);
+    
+    //double expRapidity = AstroVars::expRapidity(AstroVars::earthVelocity(jd));
+    double expRapidity = 0;
     
     // Test with newer CPU vector3d method
     Matrix3Xd cpu_input3(3,NUM_TEST_POINTS);
@@ -86,7 +95,12 @@ void TestClConvert::testApparentCoord()
         cpu_input3.col(i) = Convert::sphToVect(dec,ra);
     }
     t.restart();
-    cpu_output3 = c * cpu_input3;
+        cpu_output3 = toEarthVel * cpu_input3;
+        for(int i = 0; i < NUM_TEST_POINTS; ++i) {
+            cpu_output3.col(i) = Convert::Aberrate( cpu_output3.col(i), 
+                                                    expRapidity);
+        }
+        cpu_output3 = fromEarthVel * cpu_output3;
     time = t.elapsed();
     kDebug() << "Plain CPU took" << time << "ms";
 
@@ -99,7 +113,9 @@ void TestClConvert::testApparentCoord()
     QVERIFY(ctx.create());
     KSClBuffer buf = ctx.createBuffer(KSClBuffer::J2000Buffer, bufferdata);
     t.restart();
-    buf.applyConversion(c, KSClBuffer::HorizontalBuffer);
+        buf.applyConversion(toEarthVel, KSClBuffer::EarthVelocityBuffer);
+        buf.aberrate(expRapidity);
+        buf.applyConversion(fromEarthVel, KSClBuffer::HorizontalBuffer);
     time = t.elapsed();
     kDebug() << "OpenCL took" << time << "ms";
 

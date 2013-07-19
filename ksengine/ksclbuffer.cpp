@@ -131,6 +131,25 @@ void KSClBuffer::applyConversion(const Matrix3d   &m,
     d->m_type = newtype;
 }
 
+void KSClBuffer::aberrate(const double expRapidity)
+{
+    if( type() != EarthVelocityBuffer )
+        kFatal() << "Can't aberrate without changing coord systems!";
+    auto kern = d->m_context->d->m_kernel_aberrate;
+    kern.setArg(0,expRapidity);
+    kern.setArg(1,d->m_buf);
+    cl::Event event;
+    cl_int err = d->m_queue.enqueueNDRangeKernel(kern,
+    /* Work range offset -- no offset         */ cl::NullRange,
+    /* Global ID NDRange                      */ cl::NDRange(this->size()),
+    /* Local  ID NDRange                      */ cl::NDRange(1),
+    /* Event waitlist                         */ nullptr,
+    /* Output event                           */ &event);
+    event.wait();
+    if( err != CL_SUCCESS )
+        kFatal() << "Failed executing kernel with error" << err;
+}
+
 void KSClBuffer::copyFrom(const KSClBuffer& other)
 {
     if( other.size() != this->size() ) {
