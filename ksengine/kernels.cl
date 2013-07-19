@@ -26,7 +26,7 @@ __kernel void aberrate(          double   expRapidity,
         double4 vnew = (1/(1+n))*(double4)(2*ab.lo,n-1,2*ab.hi,0);
         vs[gid] = vnew;
     } else {
-        double2 ab = expRapidity*(1/(1+v.y))*v.xz;
+        double2 ab = (1/expRapidity)*(1/(1+v.y))*v.xz;
         double n = dot(ab,ab);
         double4 vnew = (1/(1+n))*(double4)(2*ab.lo,-n+1,2*ab.hi,0);
         vs[gid] = vnew;
