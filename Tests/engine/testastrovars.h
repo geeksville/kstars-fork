@@ -25,6 +25,7 @@ class TestAstroVars : public QObject
     Q_OBJECT
 private slots:
     void testNutationVars();
+    void testEarthVelocity();
 };
 
 #endif 

@@ -33,6 +33,16 @@ void TestAstroVars::testNutationVars()
     QCOMPARE( avOb, num.dObliq() );
 }
 
+void TestAstroVars::testEarthVelocity()
+{
+    JulianDate jd = EpochJ2000 + 36525.;
+    Vector3d v = AstroVars::earthVelocity(jd);
+    Vector3d result(-29.84305281986653213266436068806,
+                    -4.696253830852529453920851665316,
+                    -2.032992870687553299546834750799);
+    QVERIFY(v.isApprox(result));
+}
+
 QTEST_MAIN(TestAstroVars)
 
 #include "testastrovars.moc"

@@ -43,6 +43,9 @@ namespace AstroVars {
     Radian moonArgumentOfLatitude               ( const JulianDate jd );
     Radian lonMoonAscendingNode                 ( const JulianDate jd );
 
+    /** @return the velocity vector of the earth at the given day. */
+    Vector3d earthVelocity                      ( const JulianDate jd );
+
     void nutationVars( const JulianDate  jd,
                              double     *deltaEcLong,
                              double     *deltaObliquity );

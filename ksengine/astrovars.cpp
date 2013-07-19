@@ -18,6 +18,10 @@
 #include "astrovars.h"
 #include <iostream>
 
+using namespace Eigen;
+using KSEngine::Radian;
+using KSEngine::JulianDate;
+
 /*
  * These variables are taken from a table in chapter 20 of Meeus.
  */
@@ -163,6 +167,106 @@ static const Eigen::Map<const Eigen::Matrix<double,NUTTERMS,4,Eigen::RowMajor>,
                         Eigen::Aligned>
                 amp((double*)_amp_data);
 
+static Array<double, 36, 1> ronVondrakAngles(const JulianDate jd)
+{
+    double T = KSEngine::AstroVars::centuriesSinceJ2000(jd);
+    // Mean longitudes for the planets, in radians
+    Radian LVenus   = 3.1761467+1021.3285546*T; // Venus
+    Radian LMars    = 1.7534703+ 628.3075849*T; // Mars
+    Radian LEarth   = 6.2034809+ 334.0612431*T; // Earth
+    Radian LJupiter = 0.5995465+  52.9690965*T; // Jupiter
+    Radian LSaturn  = 0.8740168+  21.3299095*T; // Saturn
+    Radian LNeptune = 5.3118863+   3.8133036*T; // Neptune
+    Radian LUranus  = 5.4812939+   7.4781599*T; // Uranus
+
+    Radian LMRad = 3.8103444+8399.6847337*T; // Moon
+    Radian DRad  = 5.1984667+7771.3771486*T;
+    Radian MMRad = 2.3555559+8328.6914289*T; // Moon
+    Radian FRad  = 1.6279052+8433.4661601*T;
+
+    Array<double, 36, 1> angles;
+    angles <<   LMars,
+                2*LMars,
+                LJupiter,
+                LMRad,
+                3*LMars,
+                LSaturn,
+                FRad,
+                LMRad+MMRad,
+                2*LJupiter,
+                2*LMars-LJupiter,
+                3*LMars-8*LEarth+3*LJupiter,
+                5*LMars-8*LEarth+3*LJupiter,
+                2*LVenus-LMars,
+                LVenus,
+                LNeptune,
+                LMars-2*LJupiter,
+                LUranus,
+                LMars+LJupiter,
+                2*LVenus-2*LMars,
+                LMars-LJupiter,
+                4*LMars,
+                3*LMars-2*LJupiter,
+                LVenus-2*LMars,
+                2*LVenus-3*LMars,
+                2*LSaturn,
+                2*LVenus-4*LMars,
+                3*LMars-2*LEarth,
+                LMRad+2*DRad-MMRad,
+                8*LVenus-12*LMars,
+                8*LVenus-14*LMars,
+                2*LEarth,
+                3*LVenus-4*LMars,
+                2*LMars-2*LJupiter,
+                3*LVenus-3*LMars,
+                2*LMars-2*LEarth,
+                LMRad-2*DRad;
+    return angles;
+}
+
+static Array<double, 36, 6> ronVondrakMatrix(const JulianDate jd)
+{
+    double T = KSEngine::AstroVars::centuriesSinceJ2000(jd);
+    Array<double, 36, 6> arr;
+    arr <<  -1719914-2*T,        -25,   25-13*T,1578089+156*T,   10+32*T,684185-358*T,
+              6434+141*T,28007-107*T,25697-95*T,  -5904-130*T,11141-48*T,  -2559-55*T,
+                     715,           0,        6,         -657,       -15,        -282,
+                     715,           0,        0,         -656,         0,        -285,
+                 486-5*T,    -236-4*T, -216-4*T,     -446+5*T,       -94,        -193,
+                     159,           0,        2,         -147,        -6,         -61,
+                       0,           0,        0,           26,         0,         -59,
+                      39,           0,        0,          -36,         0,         -16,
+                      33,         -10,       -9,          -30,        -5,         -13,
+                      31,           1,        1,          -28,         0,         -12,
+                       8,         -28,       25,            8,        11,           3,
+                       8,         -28,      -25,           -8,       -11,          -3,
+                      21,           0,        0,          -19,         0,          -8,
+                     -19,           0,        0,           17,         0,           8,
+                      17,           0,        0,          -16,         0,          -7,
+                      16,           0,        0,           15,         1,           7,
+                      16,           0,        1,          -15,        -3,          -6,
+                      11,          -1,       -1,          -10,        -1,          -5,
+                       0,         -11,      -10,            0,        -4,           0,
+                     -11,          -2,       -2,            9,        -1,           4,
+                      -7,          -8,       -8,            6,        -3,           3,
+                     -10,           0,        0,            9,         0,           4,
+                      -9,           0,        0,           -9,         0,          -4,
+                      -9,           0,        0,           -8,         0,          -4,
+                       0,          -9,       -8,            0,        -3,           0,
+                       0,          -9,        8,            0,         3,           0,
+                       8,           0,        0,           -8,         0,          -3,
+                       8,           0,        0,           -7,         0,          -3,
+                      -4,          -7,       -6,            4,        -3,           2,
+                      -4,          -7,        6,           -4,         3,          -2,
+                      -6,          -5,       -4,            5,        -2,           2,
+                      -1,          -1,       -2,           -7,         1,          -4,
+                       4,          -6,       -5,           -4,        -2,          -2,
+                       0,          -7,       -6,            0,        -3,           0,
+                       5,          -5,       -4,           -5,        -2,          -2,
+                       5,           0,        0,           -5,         0,          -2;
+    return arr;
+}
+
 namespace KSEngine {
 namespace AstroVars {
 
@@ -225,6 +329,21 @@ Radian lonMoonAscendingNode(const JulianDate jd)
 {
     double T = centuriesSinceJ2000(jd);
     return DEG2RAD*(125.04452 - 1934.136261*T + 0.0020708*T*T + T*T*T/450000.0);
+}
+
+Vector3d earthVelocity(const JulianDate jd)
+{
+    typedef Array<double, 36, 1> rvCol;
+    rvCol angles = ronVondrakAngles(jd);
+    Array<double, 36, 6> coeffs = ronVondrakMatrix(jd);
+    rvCol angleSin = angles.sin();
+    rvCol angleCos = angles.cos();
+    double x = (coeffs.col(0)*angleSin + coeffs.col(1)*angleCos).sum();
+    double y = (coeffs.col(2)*angleSin + coeffs.col(3)*angleCos).sum();
+    double z = (coeffs.col(4)*angleSin + coeffs.col(5)*angleCos).sum();
+    // The above are in 10e-8 AU/day, so we need to convert to km/s
+    const double UA2km  =  1.49597870/86400.;
+    return UA2km*Vector3d(x,y,z);
 }
 
 void nutationVars(const JulianDate jd, double *deltaEcLong, double *deltaObliquity)

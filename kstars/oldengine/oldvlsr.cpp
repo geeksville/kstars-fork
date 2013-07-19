@@ -21,6 +21,7 @@
 #include "ksnumbers.h"
 
 #include "oldprecession.h"
+#include "ksengine/astrovars.h"
 
 namespace KSEngine {
 namespace OldVLSR {
@@ -102,10 +103,10 @@ double vREarth(const SkyPoint &s, const JulianDate jd)
     the source coordinates are also in the same reference system.
     */
 
-    KSNumbers num(jd);
-    return num.vEarth(0) * cosDec * cosRA +
-           num.vEarth(1) * cosDec * sinRA +
-           num.vEarth(2) * sinDec;
+    Vector3d vEarth = AstroVars::earthVelocity(jd);
+    return vEarth.x() * cosDec * cosRA +
+           vEarth.y() * cosDec * sinRA +
+           vEarth.z() * sinDec;
 }
 
 double vGeocentric(const SkyPoint &s, const double vhelio, const JulianDate jd)

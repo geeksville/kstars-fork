@@ -115,8 +115,6 @@ public:
     	*/
     void updateValues( long double jd );
 
-    double vEarth(int i) const {return vearth[i];}
-
     KSSun* sun() const {return m_sun;}
 
 private:
