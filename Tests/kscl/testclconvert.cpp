@@ -85,8 +85,7 @@ void TestClConvert::testApparentCoord()
                                  * Convert::EclToEq(jd)
                                  * Convert::EarthVelToEcl(jd);
     
-    //double expRapidity = AstroVars::expRapidity(AstroVars::earthVelocity(jd));
-    double expRapidity = 0;
+    double expRapidity = AstroVars::expRapidity(AstroVars::earthVelocity(jd));
     
     // Test with newer CPU vector3d method
     Matrix3Xd cpu_input3(3,NUM_TEST_POINTS);
