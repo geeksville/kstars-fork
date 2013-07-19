@@ -144,6 +144,7 @@ namespace Convert {
      */
     CoordConversion PrecessFrom( const JulianDate jd );
 
+    //FIXME rename these to match precession functions
     /** @return a rotation representing the nutation for this date.
      *  @param jd the date in question.
      */
