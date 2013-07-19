@@ -43,6 +43,8 @@ namespace AstroVars {
 
     /** @return the velocity vector of the earth at the given day. */
     Vector3d earthVelocity                      ( const JulianDate jd );
+    /** @return $e^{-\phi}$: $\phi$ is the rapidity of v and v is in km/sec. */
+    double   expRapidity                        ( const Vector3d  &v  );
 
     void nutationVars( const JulianDate  jd,
                              double     *deltaEcLong,

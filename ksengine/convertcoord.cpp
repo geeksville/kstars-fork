@@ -141,17 +141,24 @@ CoordConversion DeNutate(const JulianDate jd)
     return Nutate(jd).transpose();
 }
 
-EclipticCoord Aberrate(const EclipticCoord &p, const JulianDate jd)
+EarthVelocityCoord Aberrate(const EarthVelocityCoord &p, const double expRapidity)
 {
-    const double e = AstroVars::earthEccentricity(jd);
-    const Radian pi = AstroVars::EarthPerhelionLongitude;
-    const Radian O = AstroVars::sunTrueLongitude(jd);
-    const Radian K = AstroVars::EarthConstantOfAberration;
-    double lat, lon;
-    vectToSph(p,&lat,&lon);
-    const double dLon = (-K*cos(O-lon) + e*K*cos(pi-lon)) / cos(lat);
-    const double dLat = -K*sin(lat)*(sin(O-lon)-e*sin(pi-lon));
-    return sphToVect(lat+dLat, lon+dLon);
+    if( p.y() < 0 ) {
+        //Project through north pole.
+        Vector2d p_proj = (1/(1-p.y()))*Vector2d(p.x(),p.z());
+        Vector2d ab = expRapidity*p_proj;
+        double n = ab.squaredNorm();
+        // We use 0 and 1 to get the components we are calling X and Z
+        return (1/(1+n))*Vector3d(2*ab(0), n-1, 2*ab(1));
+    } else {
+        //Project through south pole (same as projecting the point with
+        //inverted y-coord through the north pole).
+        Vector2d p_proj = (1/(1+p.y()))*Vector2d(p.x(),p.z());
+        Vector2d ab = (1/expRapidity)*p_proj;
+        double n = ab.squaredNorm();
+        // We use 0 and 1 to get the components we are calling X and Z
+        return (1/(1+n))*Vector3d(2*ab(0), -n+1, 2*ab(1));
+    }
 }
 
 CoordConversion EqToHor(const dms &LST, const dms &lat)
@@ -170,6 +177,18 @@ CoordConversion HorToEq(const dms &LST, const dms &lat)
     return EqToHor(LST,lat).transpose();
 }
 
+CoordConversion EclToEarthVel(const JulianDate jd)
+{
+    Vector3d v = AstroVars::earthVelocity(jd);
+    v.normalize();
+    Quaterniond q = Quaterniond::FromTwoVectors(v,-Vector3d::UnitY());
+    return q.matrix();
+}
+
+CoordConversion EarthVelToEcl(const JulianDate jd)
+{
+    return EclToEarthVel(jd).transpose();
+}
 
 
 

@@ -345,6 +345,12 @@ Vector3d earthVelocity(const JulianDate jd)
     return UA2km*Vector3d(x,y,z);
 }
 
+double expRapidity(const Vector3d &v)
+{
+    double mag = v.norm();
+    return sqrt((C_KMSEC-mag)/(C_KMSEC+mag));
+}
+
 void nutationVars(const JulianDate jd, double *deltaEcLong, double *deltaObliquity)
 {
     typedef Array<double, NUTTERMS, 1> nutArr;

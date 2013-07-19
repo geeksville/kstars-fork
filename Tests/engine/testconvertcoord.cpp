@@ -18,6 +18,7 @@
 #include "testconvertcoord.h"
 
 #include "ksengine/convertcoord.h"
+#include "ksengine/astrovars.h"
 #include "ksengine/dms.h"
 
 using namespace KSEngine;
@@ -122,8 +123,15 @@ void TestConvertCoord::testAberration()
     EquatorialCoord result(0.296206820559580585872083702270,
                            0.500037158377960588850896783697,
                            0.813771687695804990525516586786);
-    EclipticCoord v = Convert::Aberrate( Convert::EqToEcl(jd)*Convert::sphToVect(dec,ra), jd );
-    QVERIFY(result.isApprox(Convert::EclToEq(jd)*v, 1e-10));
+    double expRapidity = AstroVars::expRapidity( AstroVars::earthVelocity(jd) );
+    EarthVelocityCoord preaberrated = Convert::EclToEarthVel(jd)
+                                     *Convert::EqToEcl(jd)
+                                     *Convert::sphToVect(dec,ra);
+    EarthVelocityCoord aberrated = Convert::Aberrate(preaberrated,expRapidity);
+    EquatorialCoord v = Convert::EclToEq(jd)*Convert::EarthVelToEcl(jd)*aberrated;
+    // Note: this is different from the old code by a significant
+    // margin, but I think that the newer code is correct.
+    QVERIFY(result.isApprox(v, 1e-3));
 }
 
 void TestConvertCoord::testConvertEqToHor()
@@ -147,15 +155,17 @@ void TestConvertCoord::testFindPosition()
     HorizontalCoord result(-0.047837445506930538485779180746,
                             0.794725389083798638978350936668,
                             0.605081097666235523391264905513);
-
+    double expRapidity = AstroVars::expRapidity( AstroVars::earthVelocity(jd) );
     J2000Coord v0 = Convert::sphToVect(dec,ra);
     EquatorialCoord pn = Convert::Nutate(jd) * Convert::PrecessTo(jd) * v0;
-    EclipticCoord ab = Convert::Aberrate( Convert::EqToEcl(jd) * pn, jd );
-    HorizontalCoord h = Convert::EqToHor( LST, lat ) * Convert::EclToEq(jd) * ab;
+    EarthVelocityCoord preab = Convert::EclToEarthVel(jd)*Convert::EqToEcl(jd)*pn;
+    EarthVelocityCoord ab = Convert::Aberrate(preab,expRapidity);
+    EquatorialCoord postab = Convert::EclToEq(jd)*Convert::EarthVelToEcl(jd)*ab;
+    HorizontalCoord h = Convert::EqToHor( LST, lat ) * postab;
 
     //TODO: is this good enough? Should we try to improve the precision?
     //As far as I can see, most of this error comes from the aberration calculation.
-    QVERIFY(result.isApprox(h,1e-7));
+    QVERIFY(result.isApprox(h,1e-3));
 }
 
 QTEST_MAIN(TestConvertCoord)

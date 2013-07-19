@@ -60,6 +60,17 @@ typedef Vector3d GalacticCoord;
 typedef Vector3d J2000Coord;
 typedef Vector3d B1950Coord;
 
+/*
+ * These coordinate systems are used in conjunction with a
+ * stereographic projection to compute some transformations without
+ * making use of trigonometric functions. They are only defined up
+ * to some rotation around the axis which is used for the projection,
+ * but this is ok since the transformations have rotational symmetry.
+ */
+
+/// A coord system in which the Earth's velocity is aligned with -Y.
+typedef Vector3d EarthVelocityCoord;
+
 /// Represents a rotation from one coordinate system to another.
 typedef Matrix3d CoordConversion;
 
@@ -91,6 +102,8 @@ typedef double Radian;
 
 /// Number of kilometers in one AU
 static const double AU_KM = 1.49605e8;
+/// The speed of light in km/sec.
+static const double C_KMSEC = 299792.458;
 
 /// Degrees to radians conversion
 static const double DEG2RAD = M_PI/180.;

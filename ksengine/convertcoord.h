@@ -155,16 +155,31 @@ namespace Convert {
      */
     CoordConversion DeNutate( const JulianDate jd );
 
+    /** @return a conversion from Ecliptic coordinates to
+     *  "Earth velocity coordinates".
+     *  @param jd the date
+     */
+    CoordConversion EclToEarthVel( const JulianDate jd );
+
+    /** @return a conversion from earth velocity coords to ecliptic coords.
+     *  @param jd the date
+     */
+    CoordConversion EarthVelToEcl( const JulianDate jd );
+
     /** @return an aberrated point
      *  @param p the point to compute the aberration for
-     *  @param jd the date
+     *  @param expRapidity @see AstroVars::expRapidity()
      *  @note this function is not suited to pipelining
      *        and really shouldn't be called except as a one-off.
      *        Unfortunately aberration is nonlinear, so we
      *        can't just give a matrix.
+     *  @note This roughly follows the algorithm in
+     *  "Applications of complex analysis to precession, nutation and aberration"
+     *  by Robin Stuart:
+     *         http://mnras.oxfordjournals.org/content/400/3/1366.full
      */
-    EclipticCoord Aberrate( const EclipticCoord &p,
-                            const JulianDate     jd );
+    EarthVelocityCoord Aberrate( const EarthVelocityCoord &p,
+                                 const double             expRapidity);
 
     /** @return rotation from J2000 coordinates to B1950 coordinates.
      */
