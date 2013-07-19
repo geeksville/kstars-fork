@@ -16,7 +16,6 @@
  ***************************************************************************/
 
 #include "astrovars.h"
-#include <iostream>
 
 using namespace Eigen;
 using KSEngine::Radian;

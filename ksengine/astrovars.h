@@ -20,8 +20,6 @@
 
 #include "ksengine/kstypes.h"
 
-#include <Eigen/Core>
-
 namespace KSEngine {
 namespace AstroVars {
 
