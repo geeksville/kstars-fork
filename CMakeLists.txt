@@ -69,7 +69,7 @@ add_subdirectory(doc)
 add_subdirectory(datahandlers)
 add_subdirectory(ksengine)
 add_subdirectory(kstars)
-add_subdirectory(Tests)
+add_subdirectory(tests)
 
 if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
    macro_display_feature_log()
