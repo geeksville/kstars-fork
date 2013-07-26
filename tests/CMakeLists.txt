@@ -1,5 +1,4 @@
 add_subdirectory(engine)
-add_subdirectory(kscl)
 include_directories( ${kstars_SOURCE_DIR} )
 
 FIND_PACKAGE(Qt4 REQUIRED)
