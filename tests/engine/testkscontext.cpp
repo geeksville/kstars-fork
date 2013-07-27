@@ -38,7 +38,7 @@ void TestKSContext::initTestCase()
 
 void TestKSContext::testCreateBuffer()
 {
-    Matrix3Xd bufferdata(4,1024);
+    Matrix3Xd bufferdata(3,1024);
     for(int i = 0; i < 1024; ++i) {
         bufferdata.col(i) = Vector3d::UnitX();
     }
@@ -49,7 +49,7 @@ void TestKSContext::testCreateBuffer()
 
 void TestKSContext::testApplyConversion()
 {
-    Matrix3Xd bufferdata(4,1024);
+    Matrix3Xd bufferdata(3,1024);
     for(int i = 0; i < 1024; ++i) {
         bufferdata.col(i) = Vector3d::UnitX();
     }
