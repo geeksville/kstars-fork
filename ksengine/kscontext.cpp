@@ -22,7 +22,9 @@
  */
 
 #include "kscontext.h"
+#ifdef HAVE_OPENCL
 #include "kscontextcl.h"
+#endif
 #include "kscontexteigen.h"
 
 // KDE
@@ -32,15 +34,20 @@ using namespace Eigen;
 
 KSContext::KSContext()
 {
+#ifdef HAVE_OPENCL
     KSContextCL *d_cl = new KSContextCL();
     if(d_cl->isValid()) {
         d = d_cl;
     } else {
         delete d_cl;
+#else
         KSContextEigen *d_eigen = new KSContextEigen();
         d = d_eigen;
         kDebug() << "Falling back to Eigen CPU implementation instead of OpenCL";
+#endif
+#ifdef HAVE_OPENCL
     }
+#endif
 }
 
 KSContext::~KSContext()
