@@ -32,10 +32,10 @@ namespace cl {
     class CommandQueue;
 }
 
-class KSClBufferPrivate;
-class KSClContext;
+class KSBufferPrivate;
+class KSContext;
 
-class KSClBuffer
+class KSBuffer
 {
 public:
     /** Describes the type of vector contained in the buffer. */
@@ -46,10 +46,10 @@ public:
         HorizontalBuffer,
         EarthVelocityBuffer
     };
-    friend class KSClContext;
-    KSClBuffer(const KSClBuffer &other);
-    ~KSClBuffer();
-    KSClBuffer &operator=(const KSClBuffer &other);
+    friend class KSContext;
+    KSBuffer(const KSBuffer &other);
+    ~KSBuffer();
+    KSBuffer &operator=(const KSBuffer &other);
 
     /**
      * @return the type of vector contained in this buffer.
@@ -78,17 +78,17 @@ public:
      * Copies the coordinate data in @p other into this buffer
      * and also changes the type of this buffer to match @p other.
      */
-    void copyFrom(const KSClBuffer& other);
+    void copyFrom(const KSBuffer& other);
 
     void aberrate(const double expRapidity);
 
 private:
-    KSClBuffer(const BufferType        t,
+    KSBuffer(const BufferType        t,
                const int               size,
                const cl::Buffer       &buf,
-               const KSClContext      *context,
+               const KSContext      *context,
                const cl::CommandQueue &queue);
-    KSClBufferPrivate *d;
+    KSBufferPrivate *d;
 };
 
 #endif // KSCLBUFFER_H

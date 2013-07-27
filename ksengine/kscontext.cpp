@@ -21,8 +21,8 @@
  *
  */
 
-#include "ksclcontext.h"
-#include "ksclcontext_p.h"
+#include "kscontext.h"
+#include "kscontext_p.h"
 
 // OPENCL
 #define __NO_STD_VECTOR // use cl vectors
@@ -42,28 +42,28 @@
 #include <KStandardDirs>
 
 // Local
-#include "ksclbuffer.h"
-#include "ksclbuffer_p.h"
+#include "ksbuffer.h"
+#include "ksbuffer_p.h"
 
 using namespace Eigen;
 
-KSClContext::KSClContext()
-    : d(new KSClContextPrivate)
+KSContext::KSContext()
+    : d(new KSContextPrivate)
 {
     d->m_Valid = false;
 }
 
-KSClContext::~KSClContext()
+KSContext::~KSContext()
 {
     delete d;
 }
 
-bool KSClContext::isValid()
+bool KSContext::isValid()
 {
     return d->m_Valid;
 }
 
-KSClBuffer KSClContext::createBuffer(const KSClBuffer::BufferType  t,
+KSBuffer KSContext::createBuffer(const KSBuffer::BufferType  t,
                                      const Eigen::Matrix4Xd       &data)
 {
     cl_int err;
@@ -75,10 +75,10 @@ KSClBuffer KSClContext::createBuffer(const KSClBuffer::BufferType  t,
     /* error ptr  */ &err);
     if( err != CL_SUCCESS )
         kFatal() << "Could not create buffer with error" << err;
-    return KSClBuffer(t, data.cols(), clbuf, this, d->m_queue);
+    return KSBuffer(t, data.cols(), clbuf, this, d->m_queue);
 }
 
-bool KSClContext::create()
+bool KSContext::create()
 {
     //
     // Pick a device and platform to use.

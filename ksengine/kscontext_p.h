@@ -28,7 +28,7 @@
 #define __NO_STD_VECTOR // use cl vectors
 #include <CL/cl.hpp>
 
-class KSClContextPrivate {
+class KSContextPrivate {
 public:
     bool m_Valid;
     cl::Context m_context;

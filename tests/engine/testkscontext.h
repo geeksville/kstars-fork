@@ -1,5 +1,5 @@
 /***************************************************************************
- *         testksclcontext.h - Tests the KSClContext class
+ *         testkscontext.h - Tests the KSContext class
  *                             -------------------
  *    begin                : 2013-07-06
  *    copyright            : (C) 2013 by Henry de Valence
@@ -20,7 +20,7 @@
 
 #include <QtTest>
 
-class TestKSClContext : public QObject
+class TestKSContext : public QObject
 {
     Q_OBJECT
 private slots:

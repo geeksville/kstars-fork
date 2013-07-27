@@ -21,40 +21,47 @@
  *
  */
 
-#ifndef KSCLBUFFER_P_H
-#define KSCLBUFFER_P_H
-
-#include "ksclbuffer.h"
-
-// OpenCL
-#define __NO_STD_VECTOR
-#include <CL/cl.hpp>
+#ifndef KSCLCONTEXT_H
+#define KSCLCONTEXT_H
 
 // Eigen
 #include <Eigen/Core>
 
-/* This is just some bullshit since CL C++ always takes void* */
-template<typename T> 
-void* CAST_INTO_THE_VOID(const T *t) { 
-    return const_cast<void*>(static_cast<const void*>(t)); 
-};
+#include "ksbuffer.h"
 
-class KSClContext;
+class KSContextPrivate;
 
-class KSClBufferPrivate
+class KSContext
 {
 public:
-    KSClBufferPrivate(const cl::Buffer& buf);
+    friend class KSBuffer;
+    KSContext();
+    ~KSContext();
+
     /**
-     * Try to set the data in this buffer from the data vector given.
+     * @return true if we were able to successfully create a context.
      */
-    bool setData(const Eigen::Matrix4Xd &data);
-    cl::Buffer m_buf;
-    cl::CommandQueue m_queue;
-    const KSClContext *m_context;
-    KSClBuffer::BufferType m_type;
-    int m_size;
+    bool isValid();
+
+    /**
+     * Try to create an OpenCL context.
+     * @return true if successful.
+     */
+    bool create();
+
+    /**
+     * Create a buffer that lives in OpenCL.
+     * @param t the type of coordinates that are in this buffer.
+     * @param data a 4xN matrix whose columns are the points.
+     */
+    KSBuffer createBuffer(const KSBuffer::BufferType  t,
+                            const Eigen::Matrix4Xd       &data);
+
+    //Disallow copy and assignment
+    KSContext &operator=(const KSContext &other) = delete;
+    KSContext(const KSContext &other) = delete;
+private:
+    KSContextPrivate *d;
 };
 
-#endif
-
+#endif // KSCLCONTEXT_H

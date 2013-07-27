@@ -1,5 +1,5 @@
 /***************************************************************************
- *         testclconvert.h - Tests conversion of points using KSCl
+ *         testclconvert.h - Tests conversion of points using KS
  *                             -------------------
  *    begin                : 2013-07-15
  *    copyright            : (C) 2013 by Henry de Valence

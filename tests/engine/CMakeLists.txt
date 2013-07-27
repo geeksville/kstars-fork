@@ -13,7 +13,7 @@ set( EngineTests_SRCS
     testconvertcoord.cpp 
     testastrovars.cpp 
     testclconvert.cpp
-    testksclcontext.cpp )
+    testkscontext.cpp )
 QT4_AUTOMOC( ${EngineTests_SRCS} )
 
 #
@@ -36,9 +36,9 @@ add_test( NAME AstroVarsTest COMMAND testastrovars )
 # Test context creation
 #
 
-add_executable( testksclcontext testksclcontext.cpp )
-target_link_libraries( testksclcontext ${TEST_LIBRARIES} )
-add_test( NAME KSClContextTest COMMAND testksclcontext )
+add_executable( testkscontext testkscontext.cpp )
+target_link_libraries( testkscontext ${TEST_LIBRARIES} )
+add_test( NAME KSContextTest COMMAND testkscontext )
 
 #
 # Test using CL to process points

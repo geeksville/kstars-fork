@@ -7,8 +7,8 @@ set(LibKSEngine_SRCS
     dms.cpp
     astrovars.cpp
     convertcoord.cpp
-    ksclcontext.cpp
-    ksclbuffer.cpp
+    kscontext.cpp
+    ksbuffer.cpp
 )
 
 kde4_add_library(LibKSEngine STATIC ${LibKSEngine_SRCS})

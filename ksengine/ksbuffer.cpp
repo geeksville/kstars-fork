@@ -21,8 +21,8 @@
  *
  */
 
-#include "ksclbuffer.h"
-#include "ksclbuffer_p.h"
+#include "ksbuffer.h"
+#include "ksbuffer_p.h"
 
 // OpenCL
 #define __NO_STD_VECTOR
@@ -36,15 +36,15 @@ using namespace Eigen;
 #include <KDebug>
 
 // Local
-#include "ksclcontext.h"
-#include "ksclcontext_p.h"
+#include "kscontext.h"
+#include "kscontext_p.h"
 
-KSClBufferPrivate::KSClBufferPrivate(const cl::Buffer& buf)
+KSBufferPrivate::KSBufferPrivate(const cl::Buffer& buf)
 {
     m_buf = buf;
 }
 
-bool KSClBufferPrivate::setData(const Matrix4Xd &data) {
+bool KSBufferPrivate::setData(const Matrix4Xd &data) {
     if( data.cols() != m_size )
         return false;
     cl_int err;
@@ -59,12 +59,12 @@ bool KSClBufferPrivate::setData(const Matrix4Xd &data) {
     return (err == CL_SUCCESS);
 }
 
-KSClBuffer::KSClBuffer(const BufferType        t,
+KSBuffer::KSBuffer(const BufferType        t,
                        const int               size,
                        const cl::Buffer       &buf,
-                       const KSClContext      *context,
+                       const KSContext      *context,
                        const cl::CommandQueue &queue)
-    : d(new KSClBufferPrivate(buf))
+    : d(new KSBufferPrivate(buf))
 {
     d->m_type = t;
     d->m_size = size;
@@ -72,22 +72,22 @@ KSClBuffer::KSClBuffer(const BufferType        t,
     d->m_queue = queue;
 }
 
-KSClBuffer::~KSClBuffer()
+KSBuffer::~KSBuffer()
 {
     delete d;
 }
 
-int KSClBuffer::size() const
+int KSBuffer::size() const
 {
     return d->m_size;
 }
 
-KSClBuffer::BufferType KSClBuffer::type() const
+KSBuffer::BufferType KSBuffer::type() const
 {
     return d->m_type;
 }
 
-Matrix4Xd KSClBuffer::data() const
+Matrix4Xd KSBuffer::data() const
 {
     Matrix4Xd mat(4,this->size());
     cl_int err = d->m_queue.enqueueReadBuffer(d->m_buf,
@@ -99,7 +99,7 @@ Matrix4Xd KSClBuffer::data() const
     return mat;
 }
 
-void KSClBuffer::applyConversion(const Matrix3d   &m,
+void KSBuffer::applyConversion(const Matrix3d   &m,
                                  const BufferType  newtype)
 {
     // We need to construct a 4x4 matrix in row-major order, since
@@ -131,7 +131,7 @@ void KSClBuffer::applyConversion(const Matrix3d   &m,
     d->m_type = newtype;
 }
 
-void KSClBuffer::aberrate(const double expRapidity)
+void KSBuffer::aberrate(const double expRapidity)
 {
     if( type() != EarthVelocityBuffer )
         kFatal() << "Can't aberrate without changing coord systems!";
@@ -150,7 +150,7 @@ void KSClBuffer::aberrate(const double expRapidity)
         kFatal() << "Failed executing kernel with error" << err;
 }
 
-void KSClBuffer::copyFrom(const KSClBuffer& other)
+void KSBuffer::copyFrom(const KSBuffer& other)
 {
     if( other.size() != this->size() ) {
         kFatal() << "Tried to copyFrom() buffers of different sizes!";

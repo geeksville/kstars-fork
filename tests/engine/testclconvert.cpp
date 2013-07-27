@@ -30,8 +30,8 @@ using namespace Eigen;
 #include <KDebug>
 
 // Local
-#include "ksengine/ksclcontext.h"
-#include "ksengine/ksclbuffer.h"
+#include "ksengine/kscontext.h"
+#include "ksengine/ksbuffer.h"
 #include "ksengine/convertcoord.h"
 #include "ksengine/astrovars.h"
 #include "kstars/oldengine/oldconversions.h"
@@ -108,13 +108,13 @@ void TestClConvert::testApparentCoord()
     for(int i = 0; i < NUM_TEST_POINTS; ++i) {
         bufferdata.col(i) = Convert::sphToVect4(dec,ra);
     }
-    KSClContext ctx;
+    KSContext ctx;
     QVERIFY(ctx.create());
-    KSClBuffer buf = ctx.createBuffer(KSClBuffer::J2000Buffer, bufferdata);
+    KSBuffer buf = ctx.createBuffer(KSBuffer::J2000Buffer, bufferdata);
     t.restart();
-        buf.applyConversion(toEarthVel, KSClBuffer::EarthVelocityBuffer);
+        buf.applyConversion(toEarthVel, KSBuffer::EarthVelocityBuffer);
         buf.aberrate(expRapidity);
-        buf.applyConversion(fromEarthVel, KSClBuffer::HorizontalBuffer);
+        buf.applyConversion(fromEarthVel, KSBuffer::HorizontalBuffer);
     time = t.elapsed();
     kDebug() << "OpenCL took" << time << "ms";
 
