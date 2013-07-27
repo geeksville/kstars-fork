@@ -23,15 +23,13 @@
 
 #include "ksbuffercl.h"
 
-// Eigen
-using namespace Eigen;
-
 // KDE
 #include <KDebug>
 
 // Local
-#include "kscontext.h"
-#include "kscontext_p.h"
+#include "kscontextcl.h"
+
+using namespace Eigen;
 
 bool KSBufferCL::setData(const Matrix4Xd &data) {
     if( data.cols() != m_size )
@@ -51,7 +49,7 @@ bool KSBufferCL::setData(const Matrix4Xd &data) {
 KSBufferCL::KSBufferCL(const KSBuffer::BufferType  t,
                        const int                   size,
                        const cl::Buffer           &buf,
-                       const KSContext            *context,
+                       const KSContextCL          *context,
                        const cl::CommandQueue     &queue)
 {
     m_type = t;
@@ -91,7 +89,7 @@ void KSBufferCL::applyConversion(const Matrix3d             &m,
     cl_double4 *clm2 = reinterpret_cast<cl_double4*>(&m2);
     cl_double4 *clm3 = reinterpret_cast<cl_double4*>(&m3);
     // Set kernel arguments and run the kernel
-    auto kern = m_context->d->m_kernel_applyMatrix;
+    auto kern = m_context->m_kernel_applyMatrix;
     kern.setArg(0,*clm1);
     kern.setArg(1,*clm2);
     kern.setArg(2,*clm3);
@@ -113,7 +111,7 @@ void KSBufferCL::aberrate(const double expRapidity)
 {
     if( m_type != KSBuffer::EarthVelocityBuffer )
         kFatal() << "Can't aberrate without changing coord systems!";
-    auto kern = m_context->d->m_kernel_aberrate;
+    auto kern = m_context->m_kernel_aberrate;
     kern.setArg(0,expRapidity);
     kern.setArg(1,m_buf);
     cl::Event event;

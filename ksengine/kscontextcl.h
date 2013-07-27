@@ -21,34 +21,51 @@
  *
  */
 
-#ifndef KSCONTEXT_H
-#define KSCONTEXT_H
+#ifndef KSCONTEXTCL_H
+#define KSCONTEXTCL_H
 
 // Eigen
 #include <Eigen/Core>
 
+// OPENCL
+#define __NO_STD_VECTOR // use cl vectors
+#include <CL/cl.hpp>
+
+#include "kscontext_p.h"
 #include "ksbuffer.h"
 
-class KSContextPrivate;
-
-class KSContext
+class KSContextCL : public KSContextPrivate
 {
 public:
-    KSContext();
-    ~KSContext();
+    friend class KSBufferCL;
+    KSContextCL();
+    virtual ~KSContextCL();
+
+    /**
+     * @return true if we were able to successfully create a context.
+     */
+    virtual bool isValid() override;
+
     /**
      * Create a buffer that lives in OpenCL.
      * @param t the type of coordinates that are in this buffer.
      * @param data a 4xN matrix whose columns are the points.
      */
     KSBuffer createBuffer(const KSBuffer::BufferType  t,
-                          const Eigen::Matrix4Xd     &data);
+                            const Eigen::Matrix4Xd       &data);
 
     //Disallow copy and assignment
-    KSContext &operator=(const KSContext &other) = delete;
-    KSContext(const KSContext &other) = delete;
+    KSContextCL &operator=(const KSContextCL &other) = delete;
+    KSContextCL(const KSContextCL &other) = delete;
 private:
-    KSContextPrivate *d;
+    bool create();
+    bool             m_valid;
+    cl::Context      m_context;
+    cl::Device       m_device;
+    cl::CommandQueue m_queue;
+    cl::Program      m_program;
+    cl::Kernel       m_kernel_applyMatrix;
+    cl::Kernel       m_kernel_aberrate;
 };
 
-#endif // KSCONTEXT_H
+#endif // KSCONTEXTCL_H

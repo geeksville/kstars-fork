@@ -109,7 +109,6 @@ void TestClConvert::testApparentCoord()
         bufferdata.col(i) = Convert::sphToVect4(dec,ra);
     }
     KSContext ctx;
-    QVERIFY(ctx.create());
     KSBuffer buf = ctx.createBuffer(KSBuffer::J2000Buffer, bufferdata);
     t.restart();
         buf.applyConversion(toEarthVel, KSBuffer::EarthVelocityBuffer);

@@ -21,22 +21,17 @@
  *
  */
 
-#ifndef KSCLCONTEXT_P_H
-#define KSCLCONTEXT_P_H
+#ifndef KSCONTEXT_P_H
+#define KSCONTEXT_P_H
 
-// OPENCL
-#define __NO_STD_VECTOR // use cl vectors
-#include <CL/cl.hpp>
+#include "kscontext.h"
 
 class KSContextPrivate {
 public:
-    bool m_Valid;
-    cl::Context m_context;
-    cl::Device m_device;
-    cl::CommandQueue m_queue;
-    cl::Program m_program;
-    cl::Kernel m_kernel_applyMatrix;
-    cl::Kernel m_kernel_aberrate;
+    virtual ~KSContextPrivate() {};
+    virtual bool isValid() = 0;
+    virtual KSBuffer createBuffer(const KSBuffer::BufferType  t,
+                                  const Eigen::Matrix4Xd     &data) =0;
 };
 
 #endif

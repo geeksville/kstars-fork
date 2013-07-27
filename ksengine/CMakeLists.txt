@@ -8,6 +8,7 @@ set(LibKSEngine_SRCS
     astrovars.cpp
     convertcoord.cpp
     kscontext.cpp
+    kscontextcl.cpp
     ksbuffer.cpp
     ksbuffercl.cpp
 )

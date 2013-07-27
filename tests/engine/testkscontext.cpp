@@ -36,13 +36,6 @@ void TestKSContext::initTestCase()
     KGlobal::dirs()->addResourceType("appdata","data","kstars");
 }
 
-void TestKSContext::testCreation()
-{
-    KSContext *c = new KSContext();
-    c->create();
-    QVERIFY(c->isValid());
-}
-
 void TestKSContext::testCreateBuffer()
 {
     Matrix4Xd bufferdata(4,1024);
@@ -50,7 +43,6 @@ void TestKSContext::testCreateBuffer()
         bufferdata.col(i) = Vector4d::UnitX();
     }
     KSContext c;
-    QVERIFY(c.create());
     KSBuffer buf = c.createBuffer(KSBuffer::J2000Buffer, bufferdata);
     QVERIFY(true);
 }
@@ -62,7 +54,6 @@ void TestKSContext::testApplyConversion()
         bufferdata.col(i) = Vector4d::UnitX();
     }
     KSContext c;
-    QVERIFY(c.create());
     KSBuffer buf = c.createBuffer(KSBuffer::J2000Buffer, bufferdata);
     Matrix3d m;
     m << 0, 1, 0,

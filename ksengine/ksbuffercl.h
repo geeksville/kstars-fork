@@ -31,10 +31,12 @@
 // Local
 #include "ksbuffer_p.h"
 
+class KSContextCL;
+
 class KSBufferCL : public KSBufferPrivate
 {
 public:
-    friend class KSContext;
+    friend class KSContextCL;
     KSBufferCL(const KSBufferCL &other);
     virtual ~KSBufferCL();
     KSBufferCL &operator=(const KSBufferCL &other);
@@ -55,11 +57,11 @@ private:
     KSBufferCL(const KSBuffer::BufferType  t,
                const int                   size,
                const cl::Buffer           &buf,
-               const KSContext            *context,
+               const KSContextCL          *context,
                const cl::CommandQueue     &queue);
-    const KSContext *m_context;
-    cl::CommandQueue m_queue;
-    cl::Buffer       m_buf;
+    const KSContextCL *m_context;
+    cl::CommandQueue   m_queue;
+    cl::Buffer         m_buf;
 };
 
 #endif // KSBUFFERCL_H

@@ -40,7 +40,7 @@ public:
         HorizontalBuffer,
         EarthVelocityBuffer
     };
-    friend class KSContext;
+    friend class KSContextCL;
     KSBuffer(const KSBuffer &other);
     ~KSBuffer();
     KSBuffer &operator=(const KSBuffer &other);
