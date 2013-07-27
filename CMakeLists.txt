@@ -12,7 +12,6 @@ configure_file( "${kstars_SOURCE_DIR}/kstars/version.h.cmake"
 
 find_package(Eigen3 REQUIRED)
 find_package(KDE4   REQUIRED)
-find_package(OpenCL REQUIRED)
 include(KDE4Defaults)
 include_directories (${CMAKE_SOURCE_DIR}
                      ${CMAKE_BINARY_DIR}
@@ -59,6 +58,12 @@ macro_log_feature(OPENGL_FOUND "OpenGL"
                                "http://www.opengl.org/"
                                FALSE "" "OpenGL rendering is generally faster on hardware with graphics acceleration.")
 
+macro_optional_find_package(OpenCL)
+macro_bool_to_01(OPENCL_FOUND HAVE_OPENCL)
+macro_log_feature(OPENCL_FOUND "OpenCL"
+                               "Support for GPU data-processing in KStars."
+                               "http://www.khronos.org/opencl/"
+                               FALSE "" "OpenCL allows KStars to compute sky positions on the GPU with massive parallelism.")
 enable_testing(true)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
