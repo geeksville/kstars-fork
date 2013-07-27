@@ -42,7 +42,7 @@ bool KSContextEigen::isValid()
 }
 
 KSBuffer KSContextEigen::createBuffer(const KSBuffer::BufferType  t,
-                                      const Eigen::Matrix4Xd     &data)
+                                      const Eigen::Matrix3Xd     &data)
 {
     KSBufferEigen *bufd = new KSBufferEigen(t,data);
     return KSBuffer(bufd);

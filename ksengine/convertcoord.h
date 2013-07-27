@@ -63,10 +63,6 @@ namespace Convert {
                         const dms &lon );
     Vector3d sphToVect( const Radian lat,
                         const Radian lon );
-    Vector4d sphToVect4( const dms &lat,
-                        const dms &lon );
-    Vector4d sphToVect4( const Radian lat,
-                        const Radian lon );
 
     /** Convert a vector to spherical coordinates.
      *  @param v the vector
@@ -77,12 +73,6 @@ namespace Convert {
                           dms      *lat,
                           dms      *lon );
     void vectToSph( const Vector3d &v,
-                          Radian   *lat,
-                          Radian   *lon );
-    void vectToSph( const Vector4d &v,
-                          dms      *lat,
-                          dms      *lon );
-    void vectToSph( const Vector4d &v,
                           Radian   *lat,
                           Radian   *lon );
 

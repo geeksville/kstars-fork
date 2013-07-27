@@ -35,9 +35,9 @@ public:
     virtual ~KSBufferEigen();
     KSBufferEigen &operator=(const KSBufferEigen &other);
 
-    virtual Eigen::Matrix4Xd data()
+    virtual Eigen::Matrix3Xd data()
                              const override;
-    virtual bool setData(const Eigen::Matrix4Xd &data)
+    virtual bool setData(const Eigen::Matrix3Xd &data)
                  override;
 
     virtual void applyConversion(const Eigen::Matrix3d      &m,
@@ -49,8 +49,8 @@ public:
 
 private:
     KSBufferEigen(const KSBuffer::BufferType  t,
-                  const Eigen::Matrix4Xd     &data);
-    Eigen::Matrix4Xd m_data;
+                  const Eigen::Matrix3Xd     &data);
+    Eigen::Matrix3Xd m_data;
 };
 
 #endif // KSBUFFEREIGEN_H

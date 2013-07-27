@@ -60,13 +60,15 @@ bool KSContextCL::isValid()
 }
 
 KSBuffer KSContextCL::createBuffer(const KSBuffer::BufferType  t,
-                                   const Eigen::Matrix4Xd     &data)
+                                   const Eigen::Matrix3Xd     &data)
 {
     cl_int err;
-    void *bufdata = CAST_INTO_THE_VOID(data.data());
+    Matrix4Xd padded(4,data.cols());
+    padded.block(0,0,3,data.cols()) = data;
+    void *bufdata = CAST_INTO_THE_VOID(padded.data());
     cl::Buffer clbuf(m_context,
     /* Type flags */ CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-    /* # of bytes */ data.size() * sizeof(double), 
+    /* # of bytes */ padded.size() * sizeof(double), 
     /* data ptr   */ bufdata, 
     /* error ptr  */ &err);
     if( err != CL_SUCCESS )

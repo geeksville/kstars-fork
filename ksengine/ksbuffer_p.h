@@ -38,8 +38,8 @@ public:
     /**
      * Try to set the data in this buffer from the data vector given.
      */
-    virtual bool setData(const Eigen::Matrix4Xd &data) = 0;
-    virtual Eigen::Matrix4Xd data() const = 0;
+    virtual bool setData(const Eigen::Matrix3Xd &data) = 0;
+    virtual Eigen::Matrix3Xd data() const = 0;
     virtual void applyConversion(const Eigen::Matrix3d      &m,
                                  const KSBuffer::BufferType  newtype) = 0;
     virtual void aberrate(const double expRapidity) = 0;

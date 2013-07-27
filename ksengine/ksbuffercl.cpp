@@ -31,7 +31,7 @@
 
 using namespace Eigen;
 
-bool KSBufferCL::setData(const Matrix4Xd &data) {
+bool KSBufferCL::setData(const Matrix3Xd &data) {
     if( data.cols() != m_size )
         return false;
     cl_int err;
@@ -63,7 +63,7 @@ KSBufferCL::~KSBufferCL()
 {
 }
 
-Matrix4Xd KSBufferCL::data() const
+Matrix3Xd KSBufferCL::data() const
 {
     Matrix4Xd mat(4,m_size);
     cl_int err = m_queue.enqueueReadBuffer(m_buf,
@@ -72,7 +72,8 @@ Matrix4Xd KSBufferCL::data() const
     /* Number of bytes to read          */ mat.size()*sizeof(double),
     /* Pointer to write to              */ mat.data());
     Q_ASSERT( err == CL_SUCCESS );
-    return mat;
+    Matrix3Xd small = mat.block(0,0,3,m_size);
+    return small;
 }
 
 void KSBufferCL::applyConversion(const Matrix3d             &m,

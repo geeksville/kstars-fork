@@ -60,7 +60,7 @@ public:
      * @return a matrix with the data for this buffer.
      * The columns of the matrix are the points of the buffer.
      */
-    Eigen::Matrix4Xd data() const;
+    Eigen::Matrix3Xd data() const;
 
     /**
      * Applies the matrix @p m to the points in the buffer in-place

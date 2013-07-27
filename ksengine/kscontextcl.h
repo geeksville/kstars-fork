@@ -52,7 +52,7 @@ public:
      * @param data a 4xN matrix whose columns are the points.
      */
     KSBuffer createBuffer(const KSBuffer::BufferType  t,
-                            const Eigen::Matrix4Xd       &data);
+                            const Eigen::Matrix3Xd       &data);
 
     //Disallow copy and assignment
     KSContextCL &operator=(const KSContextCL &other) = delete;

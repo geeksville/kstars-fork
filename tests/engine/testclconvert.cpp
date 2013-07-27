@@ -104,9 +104,9 @@ void TestClConvert::testApparentCoord()
     kDebug() << "Plain CPU took" << time << "ms";
 
     // Now use OpenCL
-    Matrix4Xd bufferdata(4,NUM_TEST_POINTS);
+    Matrix3Xd bufferdata(3,NUM_TEST_POINTS);
     for(int i = 0; i < NUM_TEST_POINTS; ++i) {
-        bufferdata.col(i) = Convert::sphToVect4(dec,ra);
+        bufferdata.col(i) = Convert::sphToVect(dec,ra);
     }
     KSContext ctx;
     KSBuffer buf = ctx.createBuffer(KSBuffer::J2000Buffer, bufferdata);
@@ -117,11 +117,11 @@ void TestClConvert::testApparentCoord()
     time = t.elapsed();
     kDebug() << "OpenCL took" << time << "ms";
 
-    Matrix4Xd opencl_output = buf.data();
+    Matrix3Xd opencl_output = buf.data();
     Vector3d v_skyp = Convert::sphToVect(skypoints[0].alt(),
                                          skypoints[1].az());
     Vector3d v_cpu  = cpu_output3.col(0);
-    Vector3d v_cl   = opencl_output.block(0,0,3,1);
+    Vector3d v_cl   = opencl_output.col(0);
 
     QVERIFY(v_skyp.isApprox(v_cpu));
     QVERIFY(v_cpu.isApprox(v_cl));

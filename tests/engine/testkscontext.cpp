@@ -38,9 +38,9 @@ void TestKSContext::initTestCase()
 
 void TestKSContext::testCreateBuffer()
 {
-    Matrix4Xd bufferdata(4,1024);
+    Matrix3Xd bufferdata(4,1024);
     for(int i = 0; i < 1024; ++i) {
-        bufferdata.col(i) = Vector4d::UnitX();
+        bufferdata.col(i) = Vector3d::UnitX();
     }
     KSContext c;
     KSBuffer buf = c.createBuffer(KSBuffer::J2000Buffer, bufferdata);
@@ -49,9 +49,9 @@ void TestKSContext::testCreateBuffer()
 
 void TestKSContext::testApplyConversion()
 {
-    Matrix4Xd bufferdata(4,1024);
+    Matrix3Xd bufferdata(4,1024);
     for(int i = 0; i < 1024; ++i) {
-        bufferdata.col(i) = Vector4d::UnitX();
+        bufferdata.col(i) = Vector3d::UnitX();
     }
     KSContext c;
     KSBuffer buf = c.createBuffer(KSBuffer::J2000Buffer, bufferdata);
@@ -60,10 +60,10 @@ void TestKSContext::testApplyConversion()
          1, 0, 0,
          0, 0, 1;
     buf.applyConversion(m,KSBuffer::J2000Buffer);
-    Matrix4Xd newdata = buf.data();
+    Matrix3Xd newdata = buf.data();
     bool ok = true;
     for( int i = 0; i < 1024; ++i) {
-        ok &= (newdata.col(i) == Vector4d::UnitY());
+        ok &= (newdata.col(i) == Vector3d::UnitY());
     }
     QVERIFY(ok);
 }

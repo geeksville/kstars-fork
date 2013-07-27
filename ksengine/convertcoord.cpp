@@ -37,19 +37,6 @@ Vector3d sphToVect(const dms &lat, const dms &lon)
     return sphToVect(lat.radians(),lon.radians());
 }
 
-Vector4d sphToVect4(const Radian lat, const Radian lon)
-{
-    return Vector4d( cos(lat)*sin(lon),
-                     sin(lat),
-                     cos(lat)*cos(lon),
-                     0 );
-}
-
-Vector4d sphToVect4(const dms &lat, const dms &lon)
-{
-    return sphToVect4(lat.radians(),lon.radians());
-}
-
 void vectToSph(const Vector3d &v, Radian *lat, Radian *lon)
 {
     *lat = asin(v.y());
@@ -57,18 +44,6 @@ void vectToSph(const Vector3d &v, Radian *lat, Radian *lon)
 }
 
 void vectToSph(const Vector3d &v, dms *lat, dms *lon)
-{
-    lat->setRadians(asin(v.y()));
-    lon->setRadians(atan2(v.x(), v.z()));
-}
-
-void vectToSph(const Vector4d &v, Radian *lat, Radian *lon)
-{
-    *lat = asin(v.y());
-    *lon = atan2(v.x(), v.z());
-}
-
-void vectToSph(const Vector4d &v, dms *lat, dms *lon)
 {
     lat->setRadians(asin(v.y()));
     lon->setRadians(atan2(v.x(), v.z()));

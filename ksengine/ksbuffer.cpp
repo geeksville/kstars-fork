@@ -46,7 +46,7 @@ KSBuffer::BufferType KSBuffer::type() const
     return d->m_type;
 }
 
-Matrix4Xd KSBuffer::data() const
+Matrix3Xd KSBuffer::data() const
 {
     return d->data();
 }

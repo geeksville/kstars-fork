@@ -49,7 +49,7 @@ KSContext::~KSContext()
 }
 
 KSBuffer KSContext::createBuffer(const KSBuffer::BufferType  t,
-                                 const Eigen::Matrix4Xd     &data)
+                                 const Eigen::Matrix3Xd     &data)
 {
     return d->createBuffer(t,data);
 }

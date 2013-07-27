@@ -41,9 +41,9 @@ public:
     virtual ~KSBufferCL();
     KSBufferCL &operator=(const KSBufferCL &other);
 
-    virtual Eigen::Matrix4Xd data()
+    virtual Eigen::Matrix3Xd data()
                              const override;
-    virtual bool setData(const Eigen::Matrix4Xd &data)
+    virtual bool setData(const Eigen::Matrix3Xd &data)
                  override;
 
     virtual void applyConversion(const Eigen::Matrix3d      &m,

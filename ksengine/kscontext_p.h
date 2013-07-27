@@ -31,7 +31,7 @@ public:
     virtual ~KSContextPrivate() {};
     virtual bool isValid() = 0;
     virtual KSBuffer createBuffer(const KSBuffer::BufferType  t,
-                                  const Eigen::Matrix4Xd     &data) =0;
+                                  const Eigen::Matrix3Xd     &data) =0;
 };
 
 #endif
