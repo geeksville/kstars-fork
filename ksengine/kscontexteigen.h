@@ -21,36 +21,38 @@
  *
  */
 
-#include "kscontext.h"
-#include "kscontextcl.h"
-#include "kscontexteigen.h"
+#ifndef KSCONTEXTEIGEN_H
+#define KSCONTEXTEIGEN_H
 
-// KDE
-#include <KDebug>
+// Eigen
+#include <Eigen/Core>
 
-using namespace Eigen;
+#include "kscontext_p.h"
+#include "ksbuffer.h"
 
-KSContext::KSContext()
+class KSContextEigen : public KSContextPrivate
 {
-    KSContextCL *d_cl = new KSContextCL();
-    if(d_cl->isValid()) {
-        d = d_cl;
-    } else {
-        delete d_cl;
-        KSContextEigen *d_eigen = new KSContextEigen();
-        d = d_eigen;
-        kDebug() << "Falling back to Eigen CPU implementation instead of OpenCL";
-    }
-}
+public:
+    friend class KSBufferEigen;
+    KSContextEigen();
+    virtual ~KSContextEigen();
 
-KSContext::~KSContext()
-{
-    delete d;
-}
+    /**
+     * @return true if we were able to successfully create a context.
+     */
+    virtual bool isValid() override;
 
-KSBuffer KSContext::createBuffer(const KSBuffer::BufferType  t,
-                                 const Eigen::Matrix4Xd     &data)
-{
-    return d->createBuffer(t,data);
-}
+    /**
+     * Create a buffer that lives in OpenCL.
+     * @param t the type of coordinates that are in this buffer.
+     * @param data a 4xN matrix whose columns are the points.
+     */
+    KSBuffer createBuffer(const KSBuffer::BufferType  t,
+                          const Eigen::Matrix4Xd       &data);
 
+    //Disallow copy and assignment
+    KSContextEigen &operator=(const KSContextEigen &other) = delete;
+    KSContextEigen(const KSContextEigen &other) = delete;
+};
+
+#endif // KSCONTEXTEIGEN_H

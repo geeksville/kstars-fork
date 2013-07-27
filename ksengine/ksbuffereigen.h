@@ -21,36 +21,36 @@
  *
  */
 
-#include "kscontext.h"
-#include "kscontextcl.h"
-#include "kscontexteigen.h"
+#ifndef KSBUFFEREIGEN_H
+#define KSBUFFEREIGEN_H
 
-// KDE
-#include <KDebug>
+// Local
+#include "ksbuffer_p.h"
 
-using namespace Eigen;
-
-KSContext::KSContext()
+class KSBufferEigen : public KSBufferPrivate
 {
-    KSContextCL *d_cl = new KSContextCL();
-    if(d_cl->isValid()) {
-        d = d_cl;
-    } else {
-        delete d_cl;
-        KSContextEigen *d_eigen = new KSContextEigen();
-        d = d_eigen;
-        kDebug() << "Falling back to Eigen CPU implementation instead of OpenCL";
-    }
-}
+public:
+    friend class KSContextEigen;
+    KSBufferEigen(const KSBufferEigen &other);
+    virtual ~KSBufferEigen();
+    KSBufferEigen &operator=(const KSBufferEigen &other);
 
-KSContext::~KSContext()
-{
-    delete d;
-}
+    virtual Eigen::Matrix4Xd data()
+                             const override;
+    virtual bool setData(const Eigen::Matrix4Xd &data)
+                 override;
 
-KSBuffer KSContext::createBuffer(const KSBuffer::BufferType  t,
-                                 const Eigen::Matrix4Xd     &data)
-{
-    return d->createBuffer(t,data);
-}
+    virtual void applyConversion(const Eigen::Matrix3d      &m,
+                                 const KSBuffer::BufferType  newtype) 
+                 override;
 
+    virtual void aberrate(const double expRapidity)
+                 override;
+
+private:
+    KSBufferEigen(const KSBuffer::BufferType  t,
+                  const Eigen::Matrix4Xd     &data);
+    Eigen::Matrix4Xd m_data;
+};
+
+#endif // KSBUFFEREIGEN_H

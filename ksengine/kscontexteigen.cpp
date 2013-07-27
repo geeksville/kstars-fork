@@ -21,36 +21,30 @@
  *
  */
 
-#include "kscontext.h"
-#include "kscontextcl.h"
 #include "kscontexteigen.h"
 
-// KDE
-#include <KDebug>
+// Local
+#include "ksbuffereigen.h"
 
 using namespace Eigen;
 
-KSContext::KSContext()
+KSContextEigen::KSContextEigen()
 {
-    KSContextCL *d_cl = new KSContextCL();
-    if(d_cl->isValid()) {
-        d = d_cl;
-    } else {
-        delete d_cl;
-        KSContextEigen *d_eigen = new KSContextEigen();
-        d = d_eigen;
-        kDebug() << "Falling back to Eigen CPU implementation instead of OpenCL";
-    }
 }
 
-KSContext::~KSContext()
+KSContextEigen::~KSContextEigen()
 {
-    delete d;
 }
 
-KSBuffer KSContext::createBuffer(const KSBuffer::BufferType  t,
-                                 const Eigen::Matrix4Xd     &data)
+bool KSContextEigen::isValid()
 {
-    return d->createBuffer(t,data);
+    return true;
+}
+
+KSBuffer KSContextEigen::createBuffer(const KSBuffer::BufferType  t,
+                                      const Eigen::Matrix4Xd     &data)
+{
+    KSBufferEigen *bufd = new KSBufferEigen(t,data);
+    return KSBuffer(bufd);
 }
 

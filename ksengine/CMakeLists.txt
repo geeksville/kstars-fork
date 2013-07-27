@@ -9,8 +9,10 @@ set(LibKSEngine_SRCS
     convertcoord.cpp
     kscontext.cpp
     kscontextcl.cpp
+    kscontexteigen.cpp
     ksbuffer.cpp
     ksbuffercl.cpp
+    ksbuffereigen.cpp
 )
 
 kde4_add_library(LibKSEngine STATIC ${LibKSEngine_SRCS})

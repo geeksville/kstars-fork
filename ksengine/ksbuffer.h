@@ -41,6 +41,7 @@ public:
         EarthVelocityBuffer
     };
     friend class KSContextCL;
+    friend class KSContextEigen;
     KSBuffer(const KSBuffer &other);
     ~KSBuffer();
     KSBuffer &operator=(const KSBuffer &other);
