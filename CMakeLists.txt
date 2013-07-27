@@ -1,4 +1,5 @@
 add_definitions(--std=c++11)
+add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 PROJECT(kstars CXX C)
 set (KStars_VERSION_MAJOR 2)
 set (KStars_VERSION_MINOR 1)
@@ -57,7 +58,6 @@ macro_log_feature(OPENGL_FOUND "OpenGL"
                                "Support for hardware rendering in KStars."
                                "http://www.opengl.org/"
                                FALSE "" "OpenGL rendering is generally faster on hardware with graphics acceleration.")
-add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 
 enable_testing(true)
 
