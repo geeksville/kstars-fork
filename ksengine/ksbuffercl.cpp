@@ -34,12 +34,14 @@ using namespace Eigen;
 bool KSBufferCL::setData(const Matrix3Xd &data) {
     if( data.cols() != m_size )
         return false;
+    Matrix4Xf cldata(4,data.cols());
+    cldata.block(0,0,3,data.cols()) = data.cast<float>();
     cl_int err;
-    void *ptr = CAST_INTO_THE_VOID(data.data());
+    void *ptr = CAST_INTO_THE_VOID(cldata.data());
     err = m_queue.enqueueWriteBuffer(m_buf,
     /* Blocking read              */ true,
     /* Zero offset                */ 0,
-    /* Size to copy               */ data.size() * sizeof(double),
+    /* Size to copy               */ cldata.size() * sizeof(float),
     /* Pointer to data            */ ptr,
     /* Events to wait on          */ nullptr,
     /* Result event               */ nullptr);
@@ -65,14 +67,14 @@ KSBufferCL::~KSBufferCL()
 
 Matrix3Xd KSBufferCL::data() const
 {
-    Matrix4Xd mat(4,m_size);
+    Matrix4Xf mat(4,m_size);
     cl_int err = m_queue.enqueueReadBuffer(m_buf,
     /* Blocking read                    */ true,
     /* Read offset                      */ 0,
-    /* Number of bytes to read          */ mat.size()*sizeof(double),
+    /* Number of bytes to read          */ mat.size()*sizeof(float),
     /* Pointer to write to              */ mat.data());
     Q_ASSERT( err == CL_SUCCESS );
-    Matrix3Xd small = mat.block(0,0,3,m_size);
+    Matrix3Xd small = mat.block(0,0,3,m_size).cast<double>();
     return small;
 }
 
@@ -80,15 +82,15 @@ void KSBufferCL::applyConversion(const Matrix3d             &m,
                                  const KSBuffer::BufferType  newtype)
 {
     // We need to construct a 4x4 matrix in row-major order, since
-    // our CL kernel expects it that way.
-    Matrix<double,4,4,RowMajor> big = Matrix4d::Identity();
-    big.block(0,0,3,3) = m;
-    Vector4d m1 = big.row(0); 
-    Vector4d m2 = big.row(1);
-    Vector4d m3 = big.row(2);
-    cl_double4 *clm1 = reinterpret_cast<cl_double4*>(&m1);
-    cl_double4 *clm2 = reinterpret_cast<cl_double4*>(&m2);
-    cl_double4 *clm3 = reinterpret_cast<cl_double4*>(&m3);
+    // we give its rows to the CL kernel as vectors.
+    Matrix<float,4,4,RowMajor> big = Matrix4f::Identity();
+    big.block(0,0,3,3) = m.cast<float>();
+    Vector4f m1 = big.row(0); 
+    Vector4f m2 = big.row(1);
+    Vector4f m3 = big.row(2);
+    cl_float4 *clm1 = reinterpret_cast<cl_float4*>(&m1);
+    cl_float4 *clm2 = reinterpret_cast<cl_float4*>(&m2);
+    cl_float4 *clm3 = reinterpret_cast<cl_float4*>(&m3);
     // Set kernel arguments and run the kernel
     auto kern = m_context->m_kernel_applyMatrix;
     kern.setArg(0,*clm1);
@@ -113,7 +115,7 @@ void KSBufferCL::aberrate(const double expRapidity)
     if( m_type != KSBuffer::EarthVelocityBuffer )
         kFatal() << "Can't aberrate without changing coord systems!";
     auto kern = m_context->m_kernel_aberrate;
-    kern.setArg(0,expRapidity);
+    kern.setArg(0,static_cast<float>(expRapidity));
     kern.setArg(1,m_buf);
     cl::Event event;
     cl_int err = m_queue.enqueueNDRangeKernel(kern,
