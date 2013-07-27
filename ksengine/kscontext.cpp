@@ -44,6 +44,7 @@
 // Local
 #include "ksbuffer.h"
 #include "ksbuffer_p.h"
+#include "ksbuffercl.h"
 
 using namespace Eigen;
 
@@ -75,7 +76,8 @@ KSBuffer KSContext::createBuffer(const KSBuffer::BufferType  t,
     /* error ptr  */ &err);
     if( err != CL_SUCCESS )
         kFatal() << "Could not create buffer with error" << err;
-    return KSBuffer(t, data.cols(), clbuf, this, d->m_queue);
+    KSBufferCL *bufd = new KSBufferCL(t, data.cols(), clbuf, this, d->m_queue);
+    return KSBuffer(bufd);
 }
 
 bool KSContext::create()

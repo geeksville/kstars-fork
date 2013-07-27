@@ -21,33 +21,45 @@
  *
  */
 
-#ifndef KSBUFFER_P_H
-#define KSBUFFER_P_H
+#ifndef KSBUFFERCL_H
+#define KSBUFFERCL_H
 
-#include "ksbuffer.h"
+// OpenCL
+#define __NO_STD_VECTOR
+#include <CL/cl.hpp>
 
-/* This is just some bullshit since CL C++ always takes void* */
-template<typename T> 
-void* CAST_INTO_THE_VOID(const T *t) { 
-    return const_cast<void*>(static_cast<const void*>(t)); 
-};
+// Local
+#include "ksbuffer_p.h"
 
-class KSBufferPrivate
+class KSBufferCL : public KSBufferPrivate
 {
 public:
-    /**
-     * Try to set the data in this buffer from the data vector given.
-     */
-    virtual bool setData(const Eigen::Matrix4Xd &data) = 0;
-    virtual Eigen::Matrix4Xd data() const = 0;
+    friend class KSContext;
+    KSBufferCL(const KSBufferCL &other);
+    virtual ~KSBufferCL();
+    KSBufferCL &operator=(const KSBufferCL &other);
+
+    virtual Eigen::Matrix4Xd data()
+                             const override;
+    virtual bool setData(const Eigen::Matrix4Xd &data)
+                 override;
+
     virtual void applyConversion(const Eigen::Matrix3d      &m,
-                                 const KSBuffer::BufferType  newtype) = 0;
-    virtual void aberrate(const double expRapidity) = 0;
-    virtual ~KSBufferPrivate() {};
-    //virtual void copyFrom(const KSBuffer& other) = 0;
-    KSBuffer::BufferType m_type;
-    int m_size;
+                                 const KSBuffer::BufferType  newtype) 
+                 override;
+
+    virtual void aberrate(const double expRapidity)
+                 override;
+
+private:
+    KSBufferCL(const KSBuffer::BufferType  t,
+               const int                   size,
+               const cl::Buffer           &buf,
+               const KSContext            *context,
+               const cl::CommandQueue     &queue);
+    const KSContext *m_context;
+    cl::CommandQueue m_queue;
+    cl::Buffer       m_buf;
 };
 
-#endif
-
+#endif // KSBUFFERCL_H

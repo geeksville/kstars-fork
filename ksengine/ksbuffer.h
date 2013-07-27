@@ -21,16 +21,10 @@
  *
  */
 
-#ifndef KSCLBUFFER_H
-#define KSCLBUFFER_H
+#ifndef KSBUFFER_H
+#define KSBUFFER_H
 
 #include <Eigen/Core>
-
-namespace cl {
-    class Buffer;
-    class Context;
-    class CommandQueue;
-}
 
 class KSBufferPrivate;
 class KSContext;
@@ -78,17 +72,17 @@ public:
      * Copies the coordinate data in @p other into this buffer
      * and also changes the type of this buffer to match @p other.
      */
-    void copyFrom(const KSBuffer& other);
+    //void copyFrom(const KSBuffer& other);
 
     void aberrate(const double expRapidity);
 
 private:
-    KSBuffer(const BufferType        t,
-               const int               size,
-               const cl::Buffer       &buf,
-               const KSContext      *context,
-               const cl::CommandQueue &queue);
+    /**
+     * Construct a buffer using the given d-pointer.
+     * The buffer takes ownership of the pointer.
+     */
+    KSBuffer(KSBufferPrivate *dptr);
     KSBufferPrivate *d;
 };
 
-#endif // KSCLBUFFER_H
+#endif // KSBUFFER_H

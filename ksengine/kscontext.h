@@ -34,7 +34,7 @@ class KSContextPrivate;
 class KSContext
 {
 public:
-    friend class KSBuffer;
+    friend class KSBufferCL;
     KSContext();
     ~KSContext();
 
@@ -55,7 +55,7 @@ public:
      * @param data a 4xN matrix whose columns are the points.
      */
     KSBuffer createBuffer(const KSBuffer::BufferType  t,
-                            const Eigen::Matrix4Xd       &data);
+                          const Eigen::Matrix4Xd       &data);
 
     //Disallow copy and assignment
     KSContext &operator=(const KSContext &other) = delete;
