@@ -54,14 +54,22 @@ void TestClConvert::testApparentCoord()
     
     // Parameters for the testing
     static const int NUM_TEST_POINTS = 1024*1024;
-    dms ra(10), dec(81);
     dms lat(43.7), LST(50.0);
     JulianDate jd = EpochJ2000 + 36525.0;
+
+    dms *ra = new dms[NUM_TEST_POINTS];
+    dms *dec = new dms[NUM_TEST_POINTS];
+    for(int i = 0; i < 1024; ++i) {
+        for(int j = 0; j < 1024; ++j) {
+            ra[i*1024 + j] = dms(360.0*double(i)/1024);
+            dec[i*1024 + j] = dms(-90.0 + 180*double(j)/1023);
+        }
+    }
 
     // Test with the old spherical trig method
     QVector<SkyPoint> skypoints(NUM_TEST_POINTS);
     for(int i = 0; i < NUM_TEST_POINTS; ++i) {
-        skypoints[i] = SkyPoint(ra,dec);
+        skypoints[i] = SkyPoint(ra[i],dec[i]);
     }
     KSNumbers num(jd);
     t.start();
@@ -75,6 +83,8 @@ void TestClConvert::testApparentCoord()
     int time = t.elapsed();
     kDebug() << "Old method took" << time << "ms";
 
+    // Test with KSBuffer
+
     // Get the coordinate conversion
     CoordConversion toEarthVel   = Convert::EclToEarthVel(jd)
                                  * Convert::EqToEcl(jd)
@@ -86,27 +96,10 @@ void TestClConvert::testApparentCoord()
                                  * Convert::EarthVelToEcl(jd);
     
     double expRapidity = AstroVars::expRapidity(AstroVars::earthVelocity(jd));
-    
-    // Test with newer CPU vector3d method
-    Matrix3Xd cpu_input3(3,NUM_TEST_POINTS);
-    Matrix3Xd cpu_output3(3,NUM_TEST_POINTS);
-    for(int i = 0; i < NUM_TEST_POINTS; ++i) {
-        cpu_input3.col(i) = Convert::sphToVect(dec,ra);
-    }
-    t.restart();
-        cpu_output3 = toEarthVel * cpu_input3;
-        for(int i = 0; i < NUM_TEST_POINTS; ++i) {
-            cpu_output3.col(i) = Convert::Aberrate( cpu_output3.col(i), 
-                                                    expRapidity);
-        }
-        cpu_output3 = fromEarthVel * cpu_output3;
-    time = t.elapsed();
-    kDebug() << "Plain CPU took" << time << "ms";
 
-    // Now use OpenCL
     Matrix3Xd bufferdata(3,NUM_TEST_POINTS);
     for(int i = 0; i < NUM_TEST_POINTS; ++i) {
-        bufferdata.col(i) = Convert::sphToVect(dec,ra);
+        bufferdata.col(i) = Convert::sphToVect(dec[i],ra[i]);
     }
     KSContext ctx;
     KSBuffer buf = ctx.createBuffer(KSBuffer::J2000Buffer, bufferdata);
@@ -115,16 +108,13 @@ void TestClConvert::testApparentCoord()
         buf.aberrate(expRapidity);
         buf.applyConversion(fromEarthVel, KSBuffer::HorizontalBuffer);
     time = t.elapsed();
-    kDebug() << "OpenCL took" << time << "ms";
+    kDebug() << "KSBuffer took" << time << "ms";
 
     Matrix3Xd opencl_output = buf.data();
     Vector3d v_skyp = Convert::sphToVect(skypoints[0].alt(),
                                          skypoints[1].az());
-    Vector3d v_cpu  = cpu_output3.col(0);
     Vector3d v_cl   = opencl_output.col(0);
 
-    QVERIFY(v_skyp.isApprox(v_cpu));
-    QVERIFY(v_cpu.isApprox(v_cl));
     QVERIFY(v_cl.isApprox(v_skyp));
 }
 
