@@ -61,7 +61,7 @@ Matrix3Xd KSBufferEigen::data() const
 void KSBufferEigen::applyConversion(const Matrix3d             &m,
                                  const KSBuffer::BufferType  newtype)
 {
-    m_data *= m;
+    m_data = m*m_data;
     m_type = newtype;
 }
 
