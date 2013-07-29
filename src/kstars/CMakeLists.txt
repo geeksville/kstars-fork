@@ -1,7 +1,5 @@
 add_subdirectory( tools/whatsinteresting/qml)
 
-Find_package(ZLIB REQUIRED)
-
 if (CFITSIO_FOUND)
   set (fits_SRCS
     fitsviewer/fitshistogram.cpp
