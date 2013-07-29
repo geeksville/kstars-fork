@@ -1,4 +1,3 @@
-add_subdirectory( data )
 add_subdirectory( icons )
 add_subdirectory( tools/whatsinteresting/qml)
 
