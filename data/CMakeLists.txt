@@ -1,4 +1,5 @@
 ########### install files ###############
+add_subdirectory(icons)
 
 install( FILES kstars.png geomap.png 
     Cities.dat
