@@ -7,8 +7,8 @@ set (KStars_VERSION_REVISION 0)
 
 set(CMAKE_MODULE_PATH ${kstars_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 
-configure_file( "${kstars_SOURCE_DIR}/kstars/version.h.cmake"
-                "${kstars_BINARY_DIR}/kstars/version.h" )
+configure_file( "${kstars_SOURCE_DIR}/version.h.cmake"
+                "${kstars_BINARY_DIR}/version.h" )
 
 find_package(Eigen3 REQUIRED)
 find_package(KDE4   REQUIRED)
@@ -72,9 +72,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-kstars.h.cmake
 
 add_subdirectory(doc)
 add_subdirectory(datahandlers)
-add_subdirectory(ksengine)
-add_subdirectory(kstars)
 add_subdirectory(tests)
+add_subdirectory(src)
 
 if (${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
    macro_display_feature_log()

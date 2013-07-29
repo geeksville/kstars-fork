@@ -107,12 +107,11 @@ if ( OPENGL_FOUND )
 endif( OPENGL_FOUND )
 
 include_directories(
-    ${kstars_SOURCE_DIR}/kstars/tools
-    ${kstars_SOURCE_DIR}/kstars/skyobjects
-    ${kstars_SOURCE_DIR}/kstars/skycomponents
-    ${kstars_SOURCE_DIR}/kstars/oldengine
-#    ${CMAKE_SOURCE_DIR}/kstars/kstars/htmesh
-#	${CMAKE_SOURCE_DIR}/libkdeedu/extdate
+    ${kstars_SOURCE_DIR}/src/
+    ${kstars_SOURCE_DIR}/src/kstars/tools
+    ${kstars_SOURCE_DIR}/src/kstars/skyobjects
+    ${kstars_SOURCE_DIR}/src/kstars/skycomponents
+    ${kstars_SOURCE_DIR}/src/kstars/oldengine
 	${ZLIB_INCLUDE_DIR}
 )
 

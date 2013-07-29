@@ -1,10 +1,10 @@
-include_directories( ${EIGEN2_INCLUDE_DIR} )
+include_directories( ${kstars_SOURCE_DIR}/src )
 
 set(LibKSDataHandlers_SRCS
-        ${kstars_SOURCE_DIR}/datahandlers/catalogentrydata.cpp
-        ${kstars_SOURCE_DIR}/datahandlers/catalogdata.cpp
-        ${kstars_SOURCE_DIR}/datahandlers/ksparser.cpp
-        ${kstars_SOURCE_DIR}/datahandlers/catalogdb.cpp
+        catalogentrydata.cpp
+        catalogdata.cpp
+        ksparser.cpp
+        catalogdb.cpp
 )
 
 kde4_add_library(LibKSDataHandlers STATIC ${LibKSDataHandlers_SRCS})

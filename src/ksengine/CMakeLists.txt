@@ -11,6 +11,8 @@ if( OPENCL_FOUND )
              DESTINATION ${DATA_INSTALL_DIR}/kstars/scripts )
 endif(OPENCL_FOUND)
 
+include_directories( ${kstars_SOURCE_DIR}/src )
+
 set(LibKSEngine_SRCS
     dms.cpp
     astrovars.cpp
