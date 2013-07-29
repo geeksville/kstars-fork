@@ -1,6 +1,5 @@
 add_subdirectory( data )
 add_subdirectory( icons )
-add_subdirectory( htmesh )
 add_subdirectory( tools/whatsinteresting/qml)
 
 Find_package(ZLIB REQUIRED)
