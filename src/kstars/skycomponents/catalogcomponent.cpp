@@ -24,7 +24,7 @@
 #include <QFile>
 #include <QPixmap>
 #include <QTextStream>
-#include "kstars/Options.h"
+#include "Options.h"
 #include "kstars/kstarsdata.h"
 #include "kstars/skymap.h"
 #include "skyobjects/starobject.h"

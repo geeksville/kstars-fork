@@ -21,7 +21,7 @@
 #include "skyqpainter.h"
 #include "fov.h"
 #include "skymapcomposite.h"
-#include "kstars/Options.h"
+#include "Options.h"
 
 SimpleFovExporter::SimpleFovExporter() :
         m_KSData(KStarsData::Instance()), m_Map(KStars::Instance()->map()),

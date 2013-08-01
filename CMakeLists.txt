@@ -68,7 +68,8 @@ macro_log_feature(OPENCL_FOUND "OpenCL"
                                FALSE "" "OpenCL allows KStars to compute sky positions on the GPU with massive parallelism.")
 enable_testing(true)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR}
+                    ${CMAKE_CURRENT_BINARY_DIR}/src/kstars/)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-kstars.h.cmake
                ${CMAKE_CURRENT_BINARY_DIR}/config-kstars.h )
 
