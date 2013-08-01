@@ -6,7 +6,6 @@ set( TEST_LIBRARIES
     KStarsLib
    )
 include_directories( ${kstars_SOURCE_DIR}
-                     ${OPENCL_INCLUDE_DIRS}
                      ${EIGEN3_INCLUDE_DIR} )
 
 set( EngineTests_SRCS 

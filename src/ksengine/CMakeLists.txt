@@ -7,6 +7,9 @@ if( OPENCL_FOUND )
         kscontextcl.cpp
         ksbuffercl.cpp
     )
+    set(LibKSEngine_OpenCL_LIBS
+        ${OPENCL_LIBRARIES}
+    )
     install( FILES kernels.cl 
              DESTINATION ${DATA_INSTALL_DIR}/kstars/scripts )
 endif(OPENCL_FOUND)
@@ -28,7 +31,7 @@ kde4_add_library(LibKSEngine STATIC
                  ${LibKSEngine_OpenCL_SRCS}
                 )
 target_link_libraries(LibKSEngine
-                      ${OPENCL_LIBRARIES}
+                      ${LibKSEngine_OpenCL_LIBS}
                       ${QT_QTCORE_LIBRARY}
                       ${KDE4_KDECORE_LIBS} #Needed only for KDebug
                      )
