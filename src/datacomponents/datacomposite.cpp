@@ -19,9 +19,11 @@
 
 using KSEngine::JulianDate;
 
-DataComposite::DataComposite( QObject *reciever ) 
+DataComposite::DataComposite( QObject *reciever, KSContext *context ) 
     : DataComponent( "DataComposite", nullptr )
 {
+    // Set context pointer for tree BEFORE initialising other objects.
+    this->m_context = context;
     // TODO: connect reciever
 }
 

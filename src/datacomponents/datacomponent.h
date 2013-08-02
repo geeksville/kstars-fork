@@ -24,6 +24,7 @@
 
 // KSEngine
 #include "src/ksengine/kstypes.h"
+class KSContext;
 
 /**
  * @class DataComponent
@@ -35,6 +36,9 @@
  *
  * The data components are organized as a tree structure; each
  * component has a parent and zero or more children.
+ *
+ * Each component has a unique id; all the components in the heirarchy
+ * share a common KSContext.
  *
  * @author Henry de Valence
  */
@@ -52,6 +56,8 @@ public:
     QVector<DataComponent*> children() const;
 
     QString id() const;
+
+    KSContext* context() const;
 
 protected:
 
@@ -102,8 +108,16 @@ protected:
 
     DataComponent(const DataComponent&) = delete;
     DataComponent& operator= (const DataComponent&) = delete;
+
+    // Normally, the m_context pointer is obtained from the parent.
+    // However, DataComposite is the root, so it needs to set it,
+    // but we don't want to have a way to set the context otherwise:
+    // it should be the same for the whole tree. So we just give
+    // access to DataComposite.
+    friend class DataComposite;
 private:
     DataComponent           *m_parent;
+    KSContext               *m_context;
     QVector<DataComponent*>  m_children;
     QString                  m_id;
 };

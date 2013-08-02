@@ -39,8 +39,9 @@ public:
      * @short Construct the data hierarchy.
      *
      * @param reciever an object that should recieve progress messages.
+     * @param context the KSContext object that this hierarchy should use.
      */
-    explicit DataComposite(QObject *reciever);
+    explicit DataComposite(QObject *reciever, KSContext *context);
 
     /**
      * @short Send progress message up the datacomponent tree.

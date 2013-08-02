@@ -23,8 +23,10 @@ DataComponent::DataComponent( const QString &id, DataComponent *parent )
     : m_parent( parent ),
       m_id( id )
 {
-    if( m_parent )
+    if( m_parent ) {
         m_parent->addChild( this );
+        m_context = m_parent->context();
+    }
 }
 
 DataComponent::~DataComponent()
@@ -42,6 +44,11 @@ void DataComponent::update( JulianDate jd )
 QString DataComponent::id() const
 {
     return m_id;
+}
+
+KSContext* DataComponent::context() const
+{
+    return m_context;
 }
 
 void DataComponent::sendProgressMessage( const QString &message ) const
