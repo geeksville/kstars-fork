@@ -59,6 +59,14 @@ public:
 
     KSContext* context() const;
 
+    /**
+     * @short Perform a DFS for the DataComponent with the given @p id.
+     * @return that component if found, otherwise nullptr.
+     * @note Behaviour is undefined if multiple components
+     *       have the same id.
+     */
+    DataComponent* findById(const QString &id);
+
 protected:
 
     /**

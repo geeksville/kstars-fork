@@ -35,6 +35,20 @@ DataComponent::~DataComponent()
         delete child;
 }
 
+DataComponent* DataComponent::findById(const QString &id)
+{
+    if( m_id == id )
+        return this;
+    // Search children by id, and return if found
+    for( auto child : m_children ) {
+        auto result = child->findById(id);
+        if( result )
+            return result;
+    }
+    // Not found in subtree, return nullptr
+    return nullptr;
+}
+
 void DataComponent::update( JulianDate jd )
 {
     for( auto child : m_children )
