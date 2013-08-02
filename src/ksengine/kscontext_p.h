@@ -30,7 +30,7 @@ class KSContextPrivate {
 public:
     virtual ~KSContextPrivate() {};
     virtual bool isValid() = 0;
-    virtual KSBuffer createBuffer(const KSBuffer::BufferType  t,
+    virtual KSBuffer createBuffer(const KSEngine::CoordType   t,
                                   const Eigen::Matrix3Xd     &data) =0;
 };
 

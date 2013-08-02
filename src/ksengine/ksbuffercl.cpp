@@ -29,6 +29,7 @@
 // Local
 #include "kscontextcl.h"
 
+using KSEngine::EarthVelocity_Type;
 using namespace Eigen;
 
 bool KSBufferCL::setData(const Matrix3Xd &data) {
@@ -48,7 +49,7 @@ bool KSBufferCL::setData(const Matrix3Xd &data) {
     return (err == CL_SUCCESS);
 }
 
-KSBufferCL::KSBufferCL(const KSBuffer::BufferType  t,
+KSBufferCL::KSBufferCL(const KSEngine::CoordType   t,
                        const int                   size,
                        const cl::Buffer           &buf,
                        const KSContextCL          *context,
@@ -79,7 +80,7 @@ Matrix3Xd KSBufferCL::data() const
 }
 
 void KSBufferCL::applyConversion(const Matrix3d             &m,
-                                 const KSBuffer::BufferType  newtype)
+                                 const KSEngine::CoordType   newtype)
 {
     // We need to construct a 4x4 matrix in row-major order, since
     // we give its rows to the CL kernel as vectors.
@@ -112,7 +113,7 @@ void KSBufferCL::applyConversion(const Matrix3d             &m,
 
 void KSBufferCL::aberrate(const double expRapidity)
 {
-    if( m_type != KSBuffer::EarthVelocityBuffer )
+    if( m_type != EarthVelocity_Type )
         kFatal() << "Can't aberrate without changing coord systems!";
     auto kern = m_context->m_kernel_aberrate;
     kern.setArg(0,static_cast<float>(expRapidity));

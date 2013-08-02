@@ -41,11 +41,11 @@ public:
     virtual bool setData(const Eigen::Matrix3Xd &data) = 0;
     virtual Eigen::Matrix3Xd data() const = 0;
     virtual void applyConversion(const Eigen::Matrix3d      &m,
-                                 const KSBuffer::BufferType  newtype) = 0;
+                                 const KSEngine::CoordType   newtype) = 0;
     virtual void aberrate(const double expRapidity) = 0;
     virtual ~KSBufferPrivate() {};
     //virtual void copyFrom(const KSBuffer& other) = 0;
-    KSBuffer::BufferType m_type;
+    KSEngine::CoordType m_type;
     int m_size;
 };
 

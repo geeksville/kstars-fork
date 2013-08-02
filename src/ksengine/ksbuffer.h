@@ -24,7 +24,7 @@
 #ifndef KSBUFFER_H
 #define KSBUFFER_H
 
-#include <Eigen/Core>
+#include "kstypes.h"
 
 class KSBufferPrivate;
 class KSContext;
@@ -32,14 +32,6 @@ class KSContext;
 class KSBuffer
 {
 public:
-    /** Describes the type of vector contained in the buffer. */
-    enum BufferType {
-        J2000Buffer,
-        EquatorialBuffer,
-        EclipticBuffer,
-        HorizontalBuffer,
-        EarthVelocityBuffer
-    };
     friend class KSContextCL;
     friend class KSContextEigen;
     KSBuffer(const KSBuffer &other);
@@ -49,7 +41,7 @@ public:
     /**
      * @return the type of vector contained in this buffer.
      */
-    BufferType type() const;
+    KSEngine::CoordType type() const;
 
     /**
      * @return the number of elements in this buffer.
@@ -66,8 +58,8 @@ public:
      * Applies the matrix @p m to the points in the buffer in-place
      * and changes the coordinate type to @p newtype.
      */
-    void applyConversion(const Eigen::Matrix3d &m,
-                         const BufferType       newtype);
+    void applyConversion(const Eigen::Matrix3d     &m,
+                         const KSEngine::CoordType  newtype);
 
     /**
      * Copies the coordinate data in @p other into this buffer

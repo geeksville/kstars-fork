@@ -51,7 +51,7 @@ public:
      * @param t the type of coordinates that are in this buffer.
      * @param data a 4xN matrix whose columns are the points.
      */
-    KSBuffer createBuffer(const KSBuffer::BufferType  t,
+    KSBuffer createBuffer(const KSEngine::CoordType     t,
                           const Eigen::Matrix3Xd       &data);
 
     //Disallow copy and assignment

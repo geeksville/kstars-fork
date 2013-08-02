@@ -53,6 +53,16 @@ using namespace Eigen;
  * 
  ***************************************************************************/
 
+enum CoordType {
+    Equatorial_Type,
+    Horizontal_Type,
+    Ecliptic_Type,
+    Galactic_Type,
+    J2000_Type,
+    B1950_Type,
+    EarthVelocity_Type
+};
+
 typedef Vector3d EquatorialCoord;
 typedef Vector3d HorizontalCoord;
 typedef Vector3d EclipticCoord;

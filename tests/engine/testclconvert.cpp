@@ -102,11 +102,11 @@ void TestClConvert::testApparentCoord()
         bufferdata.col(i) = Convert::sphToVect(dec[i],ra[i]);
     }
     KSContext ctx;
-    KSBuffer buf = ctx.createBuffer(KSBuffer::J2000Buffer, bufferdata);
+    KSBuffer buf = ctx.createBuffer(J2000_Type, bufferdata);
     t.restart();
-        buf.applyConversion(toEarthVel, KSBuffer::EarthVelocityBuffer);
+        buf.applyConversion(toEarthVel, EarthVelocity_Type);
         buf.aberrate(expRapidity);
-        buf.applyConversion(fromEarthVel, KSBuffer::HorizontalBuffer);
+        buf.applyConversion(fromEarthVel, Horizontal_Type);
     time = t.elapsed();
     kDebug() << "KSBuffer took" << time << "ms";
 

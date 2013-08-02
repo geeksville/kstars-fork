@@ -55,7 +55,7 @@ KSContext::~KSContext()
     delete d;
 }
 
-KSBuffer KSContext::createBuffer(const KSBuffer::BufferType  t,
+KSBuffer KSContext::createBuffer(const KSEngine::CoordType   t,
                                  const Eigen::Matrix3Xd     &data)
 {
     return d->createBuffer(t,data);

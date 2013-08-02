@@ -29,6 +29,8 @@ using namespace Eigen;
 #include "ksengine/kscontext.h"
 #include "ksengine/ksbuffer.h"
 
+using KSEngine::J2000_Type;
+
 void TestKSContext::initTestCase()
 {
     // We need to modify the directories, since we aren't running
@@ -43,7 +45,7 @@ void TestKSContext::testCreateBuffer()
         bufferdata.col(i) = Vector3d::UnitX();
     }
     KSContext c;
-    KSBuffer buf = c.createBuffer(KSBuffer::J2000Buffer, bufferdata);
+    KSBuffer buf = c.createBuffer(J2000_Type, bufferdata);
     QVERIFY(true);
 }
 
@@ -54,12 +56,12 @@ void TestKSContext::testApplyConversion()
         bufferdata.col(i) = Vector3d::UnitX();
     }
     KSContext c;
-    KSBuffer buf = c.createBuffer(KSBuffer::J2000Buffer, bufferdata);
+    KSBuffer buf = c.createBuffer(J2000_Type, bufferdata);
     Matrix3d m;
     m << 0, 1, 0,
          1, 0, 0,
          0, 0, 1;
-    buf.applyConversion(m,KSBuffer::J2000Buffer);
+    buf.applyConversion(m,J2000_Type);
     Matrix3Xd newdata = buf.data();
     bool ok = true;
     for( int i = 0; i < 1024; ++i) {

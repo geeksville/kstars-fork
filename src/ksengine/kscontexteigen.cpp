@@ -41,7 +41,7 @@ bool KSContextEigen::isValid()
     return true;
 }
 
-KSBuffer KSContextEigen::createBuffer(const KSBuffer::BufferType  t,
+KSBuffer KSContextEigen::createBuffer(const KSEngine::CoordType   t,
                                       const Eigen::Matrix3Xd     &data)
 {
     KSBufferEigen *bufd = new KSBufferEigen(t,data);

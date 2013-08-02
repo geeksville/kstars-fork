@@ -59,7 +59,7 @@ bool KSContextCL::isValid()
     return m_valid;
 }
 
-KSBuffer KSContextCL::createBuffer(const KSBuffer::BufferType  t,
+KSBuffer KSContextCL::createBuffer(const KSEngine::CoordType   t,
                                    const Eigen::Matrix3Xd     &data)
 {
     cl_int err;

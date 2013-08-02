@@ -41,14 +41,14 @@ public:
                  override;
 
     virtual void applyConversion(const Eigen::Matrix3d      &m,
-                                 const KSBuffer::BufferType  newtype) 
+                                 const KSEngine::CoordType   newtype) 
                  override;
 
     virtual void aberrate(const double expRapidity)
                  override;
 
 private:
-    KSBufferEigen(const KSBuffer::BufferType  t,
+    KSBufferEigen(const KSEngine::CoordType  t,
                   const Eigen::Matrix3Xd     &data);
     Eigen::Matrix3Xd m_data;
 };

@@ -41,7 +41,7 @@ bool KSBufferEigen::setData(const Matrix3Xd &data) {
     return true;
 }
 
-KSBufferEigen::KSBufferEigen(const KSBuffer::BufferType  t,
+KSBufferEigen::KSBufferEigen(const KSEngine::CoordType   t,
                              const Eigen::Matrix3Xd     &data)
 {
     m_type = t;
@@ -59,7 +59,7 @@ Matrix3Xd KSBufferEigen::data() const
 }
 
 void KSBufferEigen::applyConversion(const Matrix3d             &m,
-                                 const KSBuffer::BufferType  newtype)
+                                    const KSEngine::CoordType   newtype)
 {
     m_data = m*m_data;
     m_type = newtype;
@@ -67,7 +67,7 @@ void KSBufferEigen::applyConversion(const Matrix3d             &m,
 
 void KSBufferEigen::aberrate(const double expRapidity)
 {
-    if( m_type != KSBuffer::EarthVelocityBuffer )
+    if( m_type != EarthVelocity_Type )
         kFatal() << "Can't aberrate without changing coord systems!";
     for(int i = 0; i < m_size; ++i) {
         m_data.col(i) = Convert::Aberrate(m_data.col(i), expRapidity);

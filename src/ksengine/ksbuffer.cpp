@@ -24,7 +24,7 @@
 #include "ksbuffer.h"
 #include "ksbuffer_p.h"
 
-// Eigen
+using KSEngine::CoordType;
 using namespace Eigen;
 
 KSBuffer::KSBuffer(KSBufferPrivate *dptr)
@@ -41,7 +41,7 @@ int KSBuffer::size() const
     return d->m_size;
 }
 
-KSBuffer::BufferType KSBuffer::type() const
+KSEngine::CoordType KSBuffer::type() const
 {
     return d->m_type;
 }
@@ -51,8 +51,8 @@ Matrix3Xd KSBuffer::data() const
     return d->data();
 }
 
-void KSBuffer::applyConversion(const Matrix3d   &m,
-                               const BufferType  newtype)
+void KSBuffer::applyConversion(const Matrix3d  &m,
+                               const CoordType  newtype)
 {
     d->applyConversion(m,newtype);
 }
