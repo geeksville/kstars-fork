@@ -2,6 +2,7 @@ include_directories( ${kstars_SOURCE_DIR}/src )
 
 set(LibKSData_SRCS
     datacomponent.cpp
+    datacomposite.cpp
 )
 
 kde4_add_library(LibKSData STATIC 

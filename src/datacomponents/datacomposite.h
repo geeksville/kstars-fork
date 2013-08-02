@@ -1,5 +1,5 @@
 /***************************************************************************
-                datacomponent.cpp  -  K Desktop Planetarium
+                   datacomposite.h  -  K Desktop Planetarium
                              -------------------
     begin                : 2013-08-01
     copyright            : (C) 2013 Henry de Valence
@@ -15,53 +15,42 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef DATACOMPOSITE_H
+#define DATACOMPOSITE_H
+
+// Qt
+#include <QtCore/QObject>
+
+// Data Components
 #include "datacomponent.h"
 
-using KSEngine::JulianDate;
-
-DataComponent::DataComponent( const QString &id, DataComponent *parent ) 
-    : m_parent( parent ),
-      m_id( id )
+/**
+ * @class DataComposite
+ *
+ * The DataComposite is the root of the DataComponent hierarchy.
+ *
+ * @author Henry de Valence
+ */
+class DataComposite : public QObject, public DataComponent 
 {
-    if( m_parent )
-        m_parent->addChild( this );
-}
+    Q_OBJECT
+public:
+    /**
+     * @short Construct the data hierarchy.
+     *
+     * @param reciever an object that should recieve progress messages.
+     */
+    explicit DataComposite(QObject *reciever);
 
-DataComponent::~DataComponent()
-{
-    for( auto child : m_children )
-        delete child;
-}
+    /**
+     * @short Send progress message up the datacomponent tree.
+     */
+    virtual void sendProgressMessage(const QString &message) const override;
 
-void DataComponent::update( JulianDate jd )
-{
-    for( auto child : m_children )
-        child->update( jd );
-}
+    DataComposite(const DataComposite&) = delete;
+    DataComposite& operator= (const DataComposite&) = delete;
+signals:
+    void progressMessage(const QString &message) const;
+};
 
-QString DataComponent::id() const
-{
-    return m_id;
-}
-
-void DataComponent::sendProgressMessage( const QString &message ) const
-{
-    m_parent->sendProgressMessage( message );
-}
-
-DataComponent* DataComponent::parent() const
-{
-    return m_parent;
-}
-
-void DataComponent::addChild(DataComponent *child)
-{
-    m_children.push_back(child);
-}
-
-QVector<DataComponent*> DataComponent::children() const
-{
-    return m_children;
-}
-
-
+#endif

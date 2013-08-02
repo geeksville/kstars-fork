@@ -1,5 +1,5 @@
 /***************************************************************************
-                datacomponent.cpp  -  K Desktop Planetarium
+                datacomposite.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : 2013-08-01
     copyright            : (C) 2013 Henry de Valence
@@ -15,53 +15,19 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "datacomponent.h"
+#include "datacomposite.h"
 
 using KSEngine::JulianDate;
 
-DataComponent::DataComponent( const QString &id, DataComponent *parent ) 
-    : m_parent( parent ),
-      m_id( id )
+DataComposite::DataComposite( QObject *reciever ) 
+    : DataComponent( "DataComposite", nullptr )
 {
-    if( m_parent )
-        m_parent->addChild( this );
+    // TODO: connect reciever
 }
 
-DataComponent::~DataComponent()
+void DataComposite::sendProgressMessage( const QString &message ) const
 {
-    for( auto child : m_children )
-        delete child;
+    emit progressMessage(message);
 }
 
-void DataComponent::update( JulianDate jd )
-{
-    for( auto child : m_children )
-        child->update( jd );
-}
-
-QString DataComponent::id() const
-{
-    return m_id;
-}
-
-void DataComponent::sendProgressMessage( const QString &message ) const
-{
-    m_parent->sendProgressMessage( message );
-}
-
-DataComponent* DataComponent::parent() const
-{
-    return m_parent;
-}
-
-void DataComponent::addChild(DataComponent *child)
-{
-    m_children.push_back(child);
-}
-
-QVector<DataComponent*> DataComponent::children() const
-{
-    return m_children;
-}
-
-
+#include "datacomposite.moc"
