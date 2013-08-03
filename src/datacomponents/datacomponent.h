@@ -25,6 +25,7 @@
 // KSEngine
 #include "src/ksengine/kstypes.h"
 class KSContext;
+class dms;
 
 /**
  * @class DataComponent
@@ -85,8 +86,8 @@ protected:
      *
      * The contract for this function is: after it is called,
      * this component and all of its child components
-     * must have computed the Equatorial coordinates
-     * for the given Julian date. 
+     * must have computed the horizontal coordinates
+     * for the given Julian date and location. 
      *
      * Since the implementation for this class obeys the contract,
      * i.e., it just calls update() on its children,
@@ -102,8 +103,17 @@ protected:
      *     }
      *
      * @param jd the current Julian date
+     * @param lat the latitude of the observer
+     * @param LST the longitude of the observer
+     *
+     * FIXME: Should we use horizontal coordinates?
+     * In the long run I think that it would be better to just
+     * use equatorial coordinates, but it requires a good deal
+     * of refactoring.
      */
-    virtual void update( KSEngine::JulianDate jd );
+    virtual void update( const KSEngine::JulianDate  jd,
+                         const dms                  &lat,
+                         const dms                  &LST );
 
     /**
      * @short Send progress message up the datacomponent tree.
