@@ -33,6 +33,23 @@
 
 class KSContextCL;
 
+/**
+ * @short OpenCL backend for KSBuffer
+ *
+ * Notes:
+ *
+ * - Currently, we use floats instead of doubles for all the actual
+ *   computation with OpenCL, since GPUs don't have very fast 
+ *   double-precision arithmetic.
+ *
+ * - Currently, everything is done totally synchronously. It would 
+ *   probably be better to have the KSBuffer implementation actually use
+ *   the OpenCL event mechanism. This way, for instance, we can
+ *   return immediately from one of the conversion functions, and then
+ *   wait for the computation to finish when we actually want to use the
+ *   results. Hopefully, they've actually finished the computation by then.
+ *
+ */
 class KSBufferCL : public KSBufferPrivate
 {
 public:
@@ -40,17 +57,14 @@ public:
     virtual ~KSBufferCL();
     virtual KSBufferCL* clone() const override;
 
-    virtual Eigen::Matrix3Xd data()
-                             const override;
-    virtual bool setData(const Eigen::Matrix3Xd &data)
-                 override;
+    virtual Eigen::Matrix3Xd data() const override;
+    virtual bool setData(const Eigen::Matrix3Xd &data) override;
 
     virtual void applyConversion(const Eigen::Matrix3d      &m,
                                  const KSEngine::CoordType   newtype) 
                  override;
 
-    virtual void aberrate(const double expRapidity)
-                 override;
+    virtual void aberrate(const double expRapidity) override;
 
 private:
     KSBufferCL(const KSEngine::CoordType   t,
