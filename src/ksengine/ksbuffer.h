@@ -55,6 +55,15 @@ public:
     friend class KSContextEigen;
 
     ~KSBuffer();
+    /**
+     * Construct a buffer
+     * @param context a pointer to the parent context
+     * @param t       the type of the coordinates in the buffer
+     * @param data    a matrix whose columns are the points.
+     */
+    KSBuffer(      KSContext           *context,
+             const KSEngine::CoordType  t,
+             const Eigen::Matrix3Xd    &data);
     KSBuffer(const KSBuffer &other);
     KSBuffer &operator=(const KSBuffer &other);
 

@@ -36,18 +36,11 @@ class KSContext
 public:
     KSContext();
     ~KSContext();
-    /**
-     * Create a buffer that lives in OpenCL.
-     * @param t the type of coordinates that are in this buffer.
-     * @param data a 4xN matrix whose columns are the points.
-     */
-    KSBuffer createBuffer(const KSEngine::CoordType   t,
-                          const Eigen::Matrix3Xd     &data);
-
     //Disallow copy and assignment
     KSContext &operator=(const KSContext &other) = delete;
     KSContext(const KSContext &other) = delete;
 private:
+    friend class KSBuffer;
     KSContextPrivate *d;
 };
 

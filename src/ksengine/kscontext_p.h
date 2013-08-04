@@ -29,9 +29,17 @@
 class KSContextPrivate {
 public:
     virtual ~KSContextPrivate() {};
+    /**
+     * @return true if the context was successfully constructed.
+     */
     virtual bool isValid() = 0;
-    virtual KSBuffer createBuffer(const KSEngine::CoordType   t,
-                                  const Eigen::Matrix3Xd     &data) =0;
+    /**
+     * Create a buffer implementation with the correct backend.
+     * @param t the type of coordinates that are in this buffer.
+     * @param data a 3xN matrix whose columns are the points.
+     */
+    virtual KSBufferPrivate* createBuffer(const KSEngine::CoordType   t,
+                                          const Eigen::Matrix3Xd     &data) =0;
 };
 
 #endif

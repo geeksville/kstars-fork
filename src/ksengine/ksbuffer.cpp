@@ -24,8 +24,18 @@
 #include "ksbuffer.h"
 #include "ksbuffer_p.h"
 
+#include "kscontext.h"
+#include "kscontext_p.h"
+
 using KSEngine::CoordType;
 using namespace Eigen;
+
+KSBuffer::KSBuffer(      KSContext *context,
+                   const CoordType  t,
+                   const Matrix3Xd &data)
+{
+    d = context->d->createBuffer(t,data);
+}
 
 KSBuffer::KSBuffer(KSBufferPrivate *dptr)
 {

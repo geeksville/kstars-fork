@@ -45,7 +45,7 @@ void TestKSContext::testCreateBuffer()
         bufferdata.col(i) = Vector3d::UnitX();
     }
     KSContext c;
-    KSBuffer buf = c.createBuffer(J2000_Type, bufferdata);
+    KSBuffer buf(&c, J2000_Type, bufferdata);
     QVERIFY(true);
 }
 
@@ -56,7 +56,7 @@ void TestKSContext::testApplyConversion()
         bufferdata.col(i) = Vector3d::UnitX();
     }
     KSContext c;
-    KSBuffer buf = c.createBuffer(J2000_Type, bufferdata);
+    KSBuffer buf(&c, J2000_Type, bufferdata);
     Matrix3d m;
     m << 0, 1, 0,
          1, 0, 0,
@@ -77,7 +77,7 @@ void TestKSContext::testCloneBuffer()
         bufferdata.col(i) = Vector3d::UnitX();
     }
     KSContext c;
-    KSBuffer buf1 = c.createBuffer(J2000_Type, bufferdata);
+    KSBuffer buf1(&c, J2000_Type, bufferdata);
     KSBuffer buf2 = buf1;
     Matrix3Xd data2 = buf2.data();
     QVERIFY(data2.isApprox(bufferdata, 1e-7));
