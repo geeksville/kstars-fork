@@ -130,24 +130,35 @@ void KSBufferCL::aberrate(const double expRapidity)
         kFatal() << "Failed executing kernel with error" << err;
 }
 
-#if 0
-void KSBufferCL::copyFrom(const KSBuffer& other)
+KSBufferCL *KSBufferCL::clone() const
 {
-    if( other.size() != this->size() )
-        kFatal() << "Tried to copyFrom() buffers of different sizes!";
-    cl::Event event;
-    cl_int err = d->m_queue.enqueueCopyBuffer(other.d->m_buf,
-    /* Destination buffer                  */ d->m_buf,
-    /* Source offset                       */ 0,
-    /* Destination offset                  */ 0,
-    /* Num of bytes to copy                */ this->size()*sizeof(Vector4d),
-    /* Waitlist                            */ nullptr,
-    /* Completion event                    */ &event);
-    event.wait();
-    if( err != CL_SUCCESS ) {
-        kFatal() << "Failed to copy buffer with error" << err;
-    }
-    d->m_type = other.d->m_type;
-}
-#endif
+    // 1. Create a new buffer, the same size as the old one.
+    cl_int err;
+    // FIXME: maybe we should do some renaming?
+    // m_context is a KSContext*; it has a cl::Context member m_context.
+    cl::Buffer newBuf(m_context->m_context,
+    /* Type flags  */ CL_MEM_READ_WRITE,
+    /* # of bytes  */ m_size * 4 * sizeof(float),
+    /* data ptr    */ nullptr,
+    /* error ptr   */ &err);
+    if( err != CL_SUCCESS )
+        kFatal() << "Could not create buffer with error" << err;
 
+    // 2. Copy the old buffer into the new one.
+    cl::Event event;
+    err = m_queue.enqueueCopyBuffer(m_buf,
+    /* Dest buffer               */ newBuf,
+    /* Source offset             */ 0,
+    /* Dest offset               */ 0,
+    /* # of bytes                */ m_size * 4 * sizeof(float),
+    /* Event waitlist            */ nullptr,
+    /* Wait event                */ &event);
+
+    // 3. Wait for copy to finish.
+    event.wait();
+    if( err != CL_SUCCESS )
+        kFatal() << "Could not copy buffer with error" << err;
+
+    // 4. Create a new KSBufferCL object.
+    return new KSBufferCL(m_type, m_size, newBuf, m_context, m_queue);
+}

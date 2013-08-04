@@ -28,7 +28,8 @@
 #include <Eigen/Core>
 
 #include "kscontext_p.h"
-#include "ksbuffer.h"
+
+#include "ksbuffereigen.h"
 
 class KSContextEigen : public KSContextPrivate
 {
@@ -36,20 +37,9 @@ public:
     friend class KSBufferEigen;
     KSContextEigen();
     virtual ~KSContextEigen();
-
-    /**
-     * @return true if we were able to successfully create a context.
-     */
     virtual bool isValid() override;
-
-    /**
-     * Create a buffer that lives in OpenCL.
-     * @param t the type of coordinates that are in this buffer.
-     * @param data a 4xN matrix whose columns are the points.
-     */
-    KSBuffer createBuffer(const KSEngine::CoordType     t,
-                          const Eigen::Matrix3Xd       &data);
-
+    KSBufferEigen* createBuffer(const KSEngine::CoordType  t,
+                                const Eigen::Matrix3Xd    &data) override;
     //Disallow copy and assignment
     KSContextEigen &operator=(const KSContextEigen &other) = delete;
     KSContextEigen(const KSContextEigen &other) = delete;

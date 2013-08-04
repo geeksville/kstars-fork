@@ -29,13 +29,42 @@
 class KSBufferPrivate;
 class KSContext;
 
+/**
+ * @short A class to hold a buffer of points.
+ *
+ * KSBuffer holds an array of points and provides methods to 
+ * apply common astronomical calculations to the points. For example,
+ * it can compute the effects of aberration for every point in the
+ * array. The nice thing about KSBuffer is that the implementation
+ * details are hidden from the user. There are two backends; one 
+ * uses OpenCL, while the other uses Eigen.
+ *
+ * Buffers are created either from a KSContext instance or from another
+ * buffer. There is no implicit sharing, so buffers should either
+ * be passed by const reference or using a pointer (if they are to be
+ * modified).
+ *
+ * @author Henry de Valence
+ */
 class KSBuffer
 {
 public:
+    // The KSContext backends need access to the internals
+    // of the buffers that they are creating.
     friend class KSContextCL;
     friend class KSContextEigen;
-    KSBuffer(const KSBuffer &other);
+
     ~KSBuffer();
+    /**
+     * Construct a buffer
+     * @param context a pointer to the parent context
+     * @param t       the type of the coordinates in the buffer
+     * @param data    a matrix whose columns are the points.
+     */
+    KSBuffer(      KSContext           *context,
+             const KSEngine::CoordType  t,
+             const Eigen::Matrix3Xd    &data);
+    KSBuffer(const KSBuffer &other);
     KSBuffer &operator=(const KSBuffer &other);
 
     /**
@@ -62,17 +91,20 @@ public:
                          const KSEngine::CoordType  newtype);
 
     /**
-     * Copies the coordinate data in @p other into this buffer
-     * and also changes the type of this buffer to match @p other.
+     * @short Perform aberration calculation on this buffer (in-place).
+     * @param expRapidity @see AstroVars::expRapidity
+     * @see Convert::Aberrate
      */
-    //void copyFrom(const KSBuffer& other);
-
     void aberrate(const double expRapidity);
 
 private:
     /**
      * Construct a buffer using the given d-pointer.
      * The buffer takes ownership of the pointer.
+     *
+     * We use this in the KSContext backends to construct KSBuffers
+     * which have a particular backend implementation -- either 
+     * using Eigen or OpenCL.
      */
     KSBuffer(KSBufferPrivate *dptr);
     KSBufferPrivate *d;

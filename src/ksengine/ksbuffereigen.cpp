@@ -53,6 +53,12 @@ KSBufferEigen::~KSBufferEigen()
 {
 }
 
+KSBufferEigen* KSBufferEigen::clone() const
+{
+    KSBufferEigen *newBuf = new KSBufferEigen(m_type, m_data);
+    return newBuf;
+}
+
 Matrix3Xd KSBufferEigen::data() const
 {
     return m_data;

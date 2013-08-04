@@ -25,6 +25,7 @@ class TestKSContext : public QObject
     Q_OBJECT
 private slots:
     void initTestCase();
+    void testCloneBuffer();
     void testCreateBuffer();
     void testApplyConversion();
 };

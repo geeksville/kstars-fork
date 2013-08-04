@@ -32,7 +32,8 @@
 #include <CL/cl.hpp>
 
 #include "kscontext_p.h"
-#include "ksbuffer.h"
+
+#include "ksbuffercl.h"
 
 class KSContextCL : public KSContextPrivate
 {
@@ -46,13 +47,8 @@ public:
      */
     virtual bool isValid() override;
 
-    /**
-     * Create a buffer that lives in OpenCL.
-     * @param t the type of coordinates that are in this buffer.
-     * @param data a 4xN matrix whose columns are the points.
-     */
-    KSBuffer createBuffer(const KSEngine::CoordType     t,
-                          const Eigen::Matrix3Xd       &data);
+    virtual KSBufferCL* createBuffer(const KSEngine::CoordType  t,
+                                     const Eigen::Matrix3Xd    &data) override;
 
     //Disallow copy and assignment
     KSContextCL &operator=(const KSContextCL &other) = delete;

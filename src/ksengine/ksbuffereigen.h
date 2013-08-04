@@ -31,12 +31,15 @@ class KSBufferEigen : public KSBufferPrivate
 {
 public:
     friend class KSContextEigen;
-    KSBufferEigen(const KSBufferEigen &other);
     virtual ~KSBufferEigen();
-    KSBufferEigen &operator=(const KSBufferEigen &other);
 
-    virtual Eigen::Matrix3Xd data()
-                             const override;
+    /**
+     * Return a deep copy of this buffer.
+     */
+    virtual KSBufferEigen* clone() const override;
+
+    virtual Eigen::Matrix3Xd data() const override;
+
     virtual bool setData(const Eigen::Matrix3Xd &data)
                  override;
 

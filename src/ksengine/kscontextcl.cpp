@@ -59,8 +59,8 @@ bool KSContextCL::isValid()
     return m_valid;
 }
 
-KSBuffer KSContextCL::createBuffer(const KSEngine::CoordType   t,
-                                   const Eigen::Matrix3Xd     &data)
+KSBufferCL* KSContextCL::createBuffer(const KSEngine::CoordType   t,
+                                      const Eigen::Matrix3Xd     &data)
 {
     cl_int err;
     Matrix4Xf padded(4,data.cols());
@@ -74,7 +74,7 @@ KSBuffer KSContextCL::createBuffer(const KSEngine::CoordType   t,
     if( err != CL_SUCCESS )
         kFatal() << "Could not create buffer with error" << err;
     KSBufferCL *bufd = new KSBufferCL(t, data.cols(), clbuf, this, m_queue);
-    return KSBuffer(bufd);
+    return bufd;
 }
 
 bool KSContextCL::create()
