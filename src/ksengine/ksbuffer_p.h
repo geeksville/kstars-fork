@@ -44,7 +44,22 @@ public:
                                  const KSEngine::CoordType   newtype) = 0;
     virtual void aberrate(const double expRapidity) = 0;
     virtual ~KSBufferPrivate() {};
-    //virtual void copyFrom(const KSBuffer& other) = 0;
+
+    /**
+     * @short Used to implement copy ctors and assignment.
+     * 
+     * Performs a deep copy of the buffer. We can't use copy constructors
+     * here, since there's no way to have a "virtual copy constructor"
+     * in C++.
+     *
+     * See 
+     *  http://www.parashift.com/c++-faq/virtual-ctors.html
+     * and also in particular
+     *  http://yosefk.com/c++fqa/inheritance-virtual.html#fqa-20.8
+     * for an explanation.
+     */
+    virtual KSBufferPrivate* clone() const = 0;
+
     KSEngine::CoordType m_type;
     int m_size;
 };

@@ -32,8 +32,21 @@ KSBuffer::KSBuffer(KSBufferPrivate *dptr)
     d = dptr;
 }
 
+KSBuffer::KSBuffer(const KSBuffer &other)
+{
+    d = other.d->clone();
+}
+
+KSBuffer &KSBuffer::operator=(const KSBuffer &other)
+{
+    delete d;
+    d = other.d->clone();
+    return *this;
+}
+
 KSBuffer::~KSBuffer()
 {
+    delete d;
 }
 
 int KSBuffer::size() const

@@ -37,9 +37,8 @@ class KSBufferCL : public KSBufferPrivate
 {
 public:
     friend class KSContextCL;
-    KSBufferCL(const KSBufferCL &other);
     virtual ~KSBufferCL();
-    KSBufferCL &operator=(const KSBufferCL &other);
+    virtual KSBufferCL* clone() const override;
 
     virtual Eigen::Matrix3Xd data()
                              const override;
