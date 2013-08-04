@@ -27,7 +27,7 @@ private slots:
     void initTestCase();
     void testCloneBuffer();
     void testCreateBuffer();
-    void testApplyConversion();
+    void testApplyMatrix();
 };
 
 #endif 

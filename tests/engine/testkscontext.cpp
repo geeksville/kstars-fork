@@ -49,25 +49,43 @@ void TestKSContext::testCreateBuffer()
     QVERIFY(true);
 }
 
-void TestKSContext::testApplyConversion()
+void TestKSContext::testApplyMatrix()
 {
-    Matrix3Xd bufferdata(3,1024);
+    /*
+     * We make two buffers, one with X's and another
+     * with Y's. Then we convert one to the other.
+     * We are very loose with the checking because 
+     * isApprox uses some matrix norm that's not really
+     * relevant here, and we just want to make sure things
+     * are sane in this test.
+     */
+    // Input/Output data and transformation
+    Matrix3Xd xs(3,1024);
+    Matrix3Xd ys(3,1024);
+    Matrix3Xd newdata(3,1024);
     for(int i = 0; i < 1024; ++i) {
-        bufferdata.col(i) = Vector3d::UnitX();
+        xs.col(i) = Vector3d::UnitX();
+        ys.col(i) = Vector3d::UnitY();
     }
-    KSContext c;
-    KSBuffer buf(&c, J2000_Type, bufferdata);
     Matrix3d m;
     m << 0, 1, 0,
          1, 0, 0,
          0, 0, 1;
-    buf.applyConversion(m,J2000_Type);
-    Matrix3Xd newdata = buf.data();
-    bool ok = true;
-    for( int i = 0; i < 1024; ++i) {
-        ok &= (newdata.col(i) == Vector3d::UnitY());
-    }
-    QVERIFY(ok);
+
+    // Create context and buffers
+    KSContext c;
+    const KSBuffer bufA(&c, J2000_Type, ys);
+          KSBuffer bufB(&c, J2000_Type, xs);
+
+    // 1. Convert bufB in-place
+    bufB.applyConversion(m,J2000_Type);
+    newdata = bufB.data();
+    QVERIFY(newdata.isApprox(ys,1e-3));
+
+    // 2. Convert bufA into bufB
+    bufA.applyConversion(m,J2000_Type,&bufB);
+    newdata = bufB.data();
+    QVERIFY(newdata.isApprox(xs,1e-3));
 }
 
 void TestKSContext::testCloneBuffer()
