@@ -80,6 +80,42 @@ Matrix3Xd KSBufferCL::data() const
 }
 
 void KSBufferCL::applyConversion(const Matrix3d             &m,
+                                 const KSEngine::CoordType   newtype,
+                                       KSBuffer             *dest) const
+{
+    // Get CL buffer from dest
+    KSBufferCL *other = dynamic_cast<KSBufferCL*>(dest->d);
+    // We need to construct a 4x4 matrix in row-major order, since
+    // we give its rows to the CL kernel as vectors.
+    Matrix<float,4,4,RowMajor> big = Matrix4f::Identity();
+    big.block(0,0,3,3) = m.cast<float>();
+    Vector4f m1 = big.row(0); 
+    Vector4f m2 = big.row(1);
+    Vector4f m3 = big.row(2);
+    cl_float4 *clm1 = reinterpret_cast<cl_float4*>(&m1);
+    cl_float4 *clm2 = reinterpret_cast<cl_float4*>(&m2);
+    cl_float4 *clm3 = reinterpret_cast<cl_float4*>(&m3);
+    // Set kernel arguments and run the kernel
+    auto kern = m_context->m_kernel_applyMatrix;
+    kern.setArg(0,*clm1);
+    kern.setArg(1,*clm2);
+    kern.setArg(2,*clm3);
+    kern.setArg(3,m_buf);
+    kern.setArg(4,other->m_buf);
+    cl::Event event;
+    cl_int err = m_queue.enqueueNDRangeKernel(kern,
+    /* Work range offset -- no offset      */ cl::NullRange,
+    /* Global ID NDRange                   */ cl::NDRange(m_size),
+    /* Local  ID NDRange                   */ cl::NDRange(1),
+    /* Event waitlist                      */ nullptr,
+    /* Output event                        */ &event);
+    event.wait();
+    if( err != CL_SUCCESS )
+        kFatal() << "Failed executing kernel with error" << err;
+    other->m_type = newtype;
+}
+
+void KSBufferCL::applyConversion(const Matrix3d             &m,
                                  const KSEngine::CoordType   newtype)
 {
     // We need to construct a 4x4 matrix in row-major order, since
@@ -93,7 +129,7 @@ void KSBufferCL::applyConversion(const Matrix3d             &m,
     cl_float4 *clm2 = reinterpret_cast<cl_float4*>(&m2);
     cl_float4 *clm3 = reinterpret_cast<cl_float4*>(&m3);
     // Set kernel arguments and run the kernel
-    auto kern = m_context->m_kernel_applyMatrix;
+    auto kern = m_context->m_kernel_applyMatrixInPlace;
     kern.setArg(0,*clm1);
     kern.setArg(1,*clm2);
     kern.setArg(2,*clm3);

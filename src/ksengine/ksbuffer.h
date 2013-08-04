@@ -53,6 +53,10 @@ public:
     // of the buffers that they are creating.
     friend class KSContextCL;
     friend class KSContextEigen;
+    // The KSBuffer backends need access to the backends of
+    // other buffers.
+    friend class KSBufferCL;
+    friend class KSBufferEigen;
 
     ~KSBuffer();
     /**
@@ -89,6 +93,16 @@ public:
      */
     void applyConversion(const Eigen::Matrix3d     &m,
                          const KSEngine::CoordType  newtype);
+    /**
+     * Applies a conversion to the points in this buffer
+     * and writes them to @p other
+     * @param m       the conversion matrix
+     * @param newtype the new coordinate system
+     * @param dest    the destination buffer
+     */
+    void applyConversion(const Eigen::Matrix3d     &m,
+                         const KSEngine::CoordType  newtype,
+                               KSBuffer            *dest) const;
 
     /**
      * @short Perform aberration calculation on this buffer (in-place).

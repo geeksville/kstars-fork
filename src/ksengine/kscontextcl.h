@@ -61,6 +61,7 @@ private:
     cl::CommandQueue m_queue;
     cl::Program      m_program;
     cl::Kernel       m_kernel_applyMatrix;
+    cl::Kernel       m_kernel_applyMatrixInPlace;
     cl::Kernel       m_kernel_aberrate;
 };
 

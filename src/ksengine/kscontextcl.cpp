@@ -199,6 +199,11 @@ bool KSContextCL::create()
         kDebug() << "Failed to get a reference to __kernel applyMatrix";
         return false;
     }
+    m_kernel_applyMatrixInPlace = cl::Kernel(m_program,"applyMatrixInPlace",&err);
+    if( err != CL_SUCCESS ) {
+        kDebug() << "Failed to get a reference to __kernel applyMatrixInPlace";
+        return false;
+    }
     m_kernel_aberrate = cl::Kernel(m_program,"aberrate",&err);
     if( err != CL_SUCCESS ) {
         kDebug() << "Failed to get a reference to __kernel aberrate";

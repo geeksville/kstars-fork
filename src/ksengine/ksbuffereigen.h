@@ -46,6 +46,10 @@ public:
     virtual void applyConversion(const Eigen::Matrix3d      &m,
                                  const KSEngine::CoordType   newtype) 
                  override;
+    virtual void applyConversion(const Eigen::Matrix3d      &m,
+                                 const KSEngine::CoordType   newtype,
+                                       KSBuffer             *dest)
+                 const override;
 
     virtual void aberrate(const double expRapidity)
                  override;

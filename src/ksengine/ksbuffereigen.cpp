@@ -29,6 +29,7 @@
 // Local
 #include "kscontext.h"
 #include "kscontext_p.h"
+#include "ksbuffer.h"
 #include "convertcoord.h"
 
 using namespace KSEngine;
@@ -62,6 +63,15 @@ KSBufferEigen* KSBufferEigen::clone() const
 Matrix3Xd KSBufferEigen::data() const
 {
     return m_data;
+}
+
+void KSBufferEigen::applyConversion(const Matrix3d             &m,
+                                    const KSEngine::CoordType   newtype,
+                                          KSBuffer             *dest) const
+{
+    KSBufferEigen *other = dynamic_cast<KSBufferEigen*>(dest->d);
+    other->m_data = m*m_data;
+    other->m_type = newtype;
 }
 
 void KSBufferEigen::applyConversion(const Matrix3d             &m,

@@ -62,6 +62,9 @@ public:
     virtual Eigen::Matrix3Xd data() const = 0;
     virtual void applyConversion(const Eigen::Matrix3d      &m,
                                  const KSEngine::CoordType   newtype) = 0;
+    virtual void applyConversion(const Eigen::Matrix3d      &m,
+                                 const KSEngine::CoordType   newtype,
+                                       KSBuffer             *dest) const = 0;
     virtual void aberrate(const double expRapidity) = 0;
     virtual ~KSBufferPrivate() {};
 

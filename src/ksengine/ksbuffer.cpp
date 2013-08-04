@@ -75,6 +75,13 @@ Matrix3Xd KSBuffer::data() const
 }
 
 void KSBuffer::applyConversion(const Matrix3d  &m,
+                               const CoordType  newtype,
+                                     KSBuffer  *dest) const
+{
+    d->applyConversion(m,newtype,dest);
+}
+
+void KSBuffer::applyConversion(const Matrix3d  &m,
                                const CoordType  newtype)
 {
     d->applyConversion(m,newtype);
