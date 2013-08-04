@@ -49,10 +49,12 @@ DataComponent* DataComponent::findById(const QString &id)
     return nullptr;
 }
 
-void DataComponent::update( JulianDate jd )
+void DataComponent::update( const JulianDate  jd,
+                            const dms        &lat,
+                            const dms        &LST )
 {
     for( auto child : m_children )
-        child->update( jd );
+        child->update( jd, lat, LST );
 }
 
 QString DataComponent::id() const
