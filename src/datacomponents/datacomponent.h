@@ -86,8 +86,18 @@ protected:
      *
      * The contract for this function is: after it is called,
      * this component and all of its child components
-     * must have computed the horizontal coordinates
-     * for the given Julian date and location. 
+     * must have computed the correct coordinates
+     * for the given Julian date and location. The datacomponent
+     * may choose what coordinate system to use (e.g., horizontal,
+     * equatorial, ecliptic, etc.), but the coordinates must be valid
+     * for the given date and location.
+     *
+     * For instance, a data component holding stars would need to
+     * compute precession, nutation, aberration, proper motion, etc.,
+     * to obtain coordinates valid for the given Julian date.
+     * It is then the responsibility of the user of the component to
+     * perform the conversion from the coordinate system used by
+     * the component.
      *
      * Since the implementation for this class obeys the contract,
      * i.e., it just calls update() on its children,
@@ -104,12 +114,8 @@ protected:
      *
      * @param jd the current Julian date
      * @param lat the latitude of the observer
-     * @param LST the longitude of the observer
-     *
-     * FIXME: Should we use horizontal coordinates?
-     * In the long run I think that it would be better to just
-     * use equatorial coordinates, but it requires a good deal
-     * of refactoring.
+     * @param LST the local sidereal time of the observer
+     * @note Do we need the geographic location here?
      */
     virtual void update( const KSEngine::JulianDate  jd,
                          const dms                  &lat,
