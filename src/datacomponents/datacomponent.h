@@ -56,7 +56,15 @@ public:
 
     QVector<DataComponent*> children() const;
 
+    /**
+     * @return an internal id string unique to this component.
+     */
     QString id() const;
+
+    /**
+     * @return a user-visible name for this component. Purely cosmetic.
+     */
+    QString name() const;
 
     KSContext* context() const;
 
@@ -70,6 +78,16 @@ public:
 
 protected:
 
+    /**
+     * @short Constructor
+     * @p id a unique name for this component.
+     * @p name a user-visible name for the component.
+     * @p parent pointer to the parent DataComponent.
+     * @note The parent must not be null.
+     */
+    explicit DataComponent( const QString       &id,
+                            const QString       &name,
+                                  DataComponent *parent );
     /**
      * @short Constructor
      * @p id a unique name for this component.
@@ -144,6 +162,7 @@ private:
     KSContext               *m_context;
     QVector<DataComponent*>  m_children;
     QString                  m_id;
+    QString                  m_name;
 };
 
 #endif
