@@ -267,10 +267,10 @@ void DeepStarComponent::draw( SkyPainter *skyp ) {
         // TODO: Is there a better way? We may have to change the magnitude tolerance if the catalog changes
         // Static stars need not execute fillToMag
 
-	if( !staticStars && !m_starBlockList.at( currentRegion )->fillToMag( maglim ) && maglim <= m_FaintMagnitude * ( 1 - 1.5/16 ) ) {
+        if( !staticStars && !m_starBlockList.at( currentRegion )->fillToMag( maglim ) && maglim <= m_FaintMagnitude * ( 1 - 1.5/16 ) ) {
             kDebug() << "SBL::fillToMag( " << maglim << " ) failed for trixel " 
                      << currentRegion << " !"<< endl;
-	}
+        }
 
         t_dynamicLoad += t.restart();
 
