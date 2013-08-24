@@ -58,7 +58,10 @@ public:
     virtual KSBufferCL* clone() const override;
 
     virtual Eigen::Matrix3Xd data() const override;
+    virtual Eigen::Matrix4Xd data4() const override;
     virtual bool setData(const Eigen::Matrix3Xd &data) override;
+    virtual bool setData(const Eigen::Matrix4Xd &data) override;
+    virtual bool setData(const Eigen::Matrix4Xf &data);
 
     virtual void applyConversion(const Eigen::Matrix3d      &m,
                                  const KSEngine::CoordType   newtype) 

@@ -39,7 +39,10 @@ public:
     virtual KSBufferEigen* clone() const override;
 
     virtual Eigen::Matrix3Xd data() const override;
+    virtual Eigen::Matrix4Xd data4() const override;
 
+    virtual bool setData(const Eigen::Matrix4Xd &data)
+                 override;
     virtual bool setData(const Eigen::Matrix3Xd &data)
                  override;
 
@@ -55,9 +58,12 @@ public:
                  override;
 
 private:
+    /// Constructs a buffer of Quaternion_Type
+    KSBufferEigen(const Eigen::Matrix4Xd     &data);
+    /// Constructs a buffer of type @p t
     KSBufferEigen(const KSEngine::CoordType  t,
                   const Eigen::Matrix3Xd     &data);
-    Eigen::Matrix3Xd m_data;
+    Eigen::Matrix4Xd m_data;
 };
 
 #endif // KSBUFFEREIGEN_H

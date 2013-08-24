@@ -32,21 +32,33 @@
 using KSEngine::EarthVelocity_Type;
 using namespace Eigen;
 
+bool KSBufferCL::setData(const Matrix4Xf &data) {
+    if( data.cols() != m_size )
+        return false;
+    cl_int err;
+    void *ptr = CAST_INTO_THE_VOID(data.data());
+    err = m_queue.enqueueWriteBuffer(m_buf,
+    /* Blocking read              */ true,
+    /* Zero offset                */ 0,
+    /* Size to copy               */ data.size() * sizeof(float),
+    /* Pointer to data            */ ptr,
+    /* Events to wait on          */ nullptr,
+    /* Result event               */ nullptr);
+    return (err == CL_SUCCESS);
+}
+
+bool KSBufferCL::setData(const Matrix4Xd &data) {
+    if( data.cols() != m_size )
+        return false;
+    Matrix4Xf cldata = data.cast<float>();
+    return setData(cldata);
+}
 bool KSBufferCL::setData(const Matrix3Xd &data) {
     if( data.cols() != m_size )
         return false;
     Matrix4Xf cldata(4,data.cols());
     cldata.block(0,0,3,data.cols()) = data.cast<float>();
-    cl_int err;
-    void *ptr = CAST_INTO_THE_VOID(cldata.data());
-    err = m_queue.enqueueWriteBuffer(m_buf,
-    /* Blocking read              */ true,
-    /* Zero offset                */ 0,
-    /* Size to copy               */ cldata.size() * sizeof(float),
-    /* Pointer to data            */ ptr,
-    /* Events to wait on          */ nullptr,
-    /* Result event               */ nullptr);
-    return (err == CL_SUCCESS);
+    return setData(cldata);
 }
 
 KSBufferCL::KSBufferCL(const KSEngine::CoordType   t,
@@ -64,6 +76,18 @@ KSBufferCL::KSBufferCL(const KSEngine::CoordType   t,
 
 KSBufferCL::~KSBufferCL()
 {
+}
+
+Matrix4Xd KSBufferCL::data4() const
+{
+    Matrix4Xf mat(4,m_size);
+    cl_int err = m_queue.enqueueReadBuffer(m_buf,
+    /* Blocking read                    */ true,
+    /* Read offset                      */ 0,
+    /* Number of bytes to read          */ mat.size()*sizeof(float),
+    /* Pointer to write to              */ mat.data());
+    Q_ASSERT( err == CL_SUCCESS );
+    return mat.cast<double>();
 }
 
 Matrix3Xd KSBufferCL::data() const

@@ -44,6 +44,9 @@ class KSContext;
  * be passed by const reference or using a pointer (if they are to be
  * modified).
  *
+ * Internally, points are held as 4-d vectors. In case the buffer is holding
+ * points, the last coordinate is treated as a zero.
+ *
  * @author Henry de Valence
  */
 class KSBuffer
@@ -60,7 +63,7 @@ public:
 
     ~KSBuffer();
     /**
-     * Construct a buffer
+     * Construct a buffer of points
      * @param context a pointer to the parent context
      * @param t       the type of the coordinates in the buffer
      * @param data    a matrix whose columns are the points.
@@ -68,6 +71,14 @@ public:
     KSBuffer(      KSContext           *context,
              const KSEngine::CoordType  t,
              const Eigen::Matrix3Xd    &data);
+    /**
+     * Construct a buffer of quaternions
+     * @param context a pointer to the parent context
+     * @param data    a matrix whose columns are the points.
+     * @note the buffer type is set to KSEngine::Quaternion_Type
+     */
+    KSBuffer(      KSContext           *context,
+             const Eigen::Matrix4Xd    &data);
     KSBuffer(const KSBuffer &other);
     KSBuffer &operator=(const KSBuffer &other);
 
@@ -86,6 +97,7 @@ public:
      * The columns of the matrix are the points of the buffer.
      */
     Eigen::Matrix3Xd data() const;
+    Eigen::Matrix4Xd data4() const;
 
     /**
      * Applies the matrix @p m to the points in the buffer in-place

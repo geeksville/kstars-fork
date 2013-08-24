@@ -41,6 +41,12 @@ bool KSContextEigen::isValid()
     return true;
 }
 
+KSBufferEigen* KSContextEigen::createBuffer(const Eigen::Matrix4Xd    &data)
+{
+    KSBufferEigen *bufd = new KSBufferEigen(data);
+    return bufd;
+}
+
 KSBufferEigen* KSContextEigen::createBuffer(const KSEngine::CoordType  t,
                                             const Eigen::Matrix3Xd    &data)
 {

@@ -31,6 +31,12 @@ using KSEngine::CoordType;
 using namespace Eigen;
 
 KSBuffer::KSBuffer(      KSContext *context,
+                   const Matrix4Xd &data)
+{
+    d = context->d->createBuffer(data);
+}
+
+KSBuffer::KSBuffer(      KSContext *context,
                    const CoordType  t,
                    const Matrix3Xd &data)
 {
@@ -72,6 +78,11 @@ KSEngine::CoordType KSBuffer::type() const
 Matrix3Xd KSBuffer::data() const
 {
     return d->data();
+}
+
+Matrix4Xd KSBuffer::data4() const
+{
+    return d->data4();
 }
 
 void KSBuffer::applyConversion(const Matrix3d  &m,

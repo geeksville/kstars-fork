@@ -38,8 +38,9 @@ public:
     KSContextEigen();
     virtual ~KSContextEigen();
     virtual bool isValid() override;
-    KSBufferEigen* createBuffer(const KSEngine::CoordType  t,
-                                const Eigen::Matrix3Xd    &data) override;
+    virtual KSBufferEigen* createBuffer(const Eigen::Matrix4Xd    &data) override;
+    virtual KSBufferEigen* createBuffer(const KSEngine::CoordType  t,
+                                        const Eigen::Matrix3Xd    &data) override;
     //Disallow copy and assignment
     KSContextEigen &operator=(const KSContextEigen &other) = delete;
     KSContextEigen(const KSContextEigen &other) = delete;

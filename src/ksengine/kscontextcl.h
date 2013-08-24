@@ -47,6 +47,7 @@ public:
      */
     virtual bool isValid() override;
 
+    virtual KSBufferCL* createBuffer(const Eigen::Matrix4Xd    &data) override;
     virtual KSBufferCL* createBuffer(const KSEngine::CoordType  t,
                                      const Eigen::Matrix3Xd    &data) override;
 

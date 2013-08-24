@@ -40,6 +40,11 @@ public:
      */
     virtual KSBufferPrivate* createBuffer(const KSEngine::CoordType   t,
                                           const Eigen::Matrix3Xd     &data) =0;
+    /**
+     * Create a buffer implementation with the correct backend.
+     * @param data a 4xN matrix whose columns are quaternions.
+     */
+    virtual KSBufferPrivate* createBuffer(const Eigen::Matrix4Xd     &data) =0;
 };
 
 #endif

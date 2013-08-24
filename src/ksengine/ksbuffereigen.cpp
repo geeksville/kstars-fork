@@ -35,11 +35,25 @@
 using namespace KSEngine;
 using namespace Eigen;
 
-bool KSBufferEigen::setData(const Matrix3Xd &data) {
+bool KSBufferEigen::setData(const Matrix4Xd &data) {
     if( data.cols() != m_size )
         return false;
     m_data = data;
     return true;
+}
+
+bool KSBufferEigen::setData(const Matrix3Xd &data) {
+    if( data.cols() != m_size )
+        return false;
+    m_data.block(0,0,3,m_size) = data;
+    return true;
+}
+
+KSBufferEigen::KSBufferEigen(const Eigen::Matrix4Xd     &data)
+{
+    m_type = Quaternion_Type;
+    m_size = data.cols();
+    m_data = data;
 }
 
 KSBufferEigen::KSBufferEigen(const KSEngine::CoordType   t,
@@ -47,7 +61,7 @@ KSBufferEigen::KSBufferEigen(const KSEngine::CoordType   t,
 {
     m_type = t;
     m_size = data.cols();
-    m_data = data;
+    m_data.block(0,0,3,m_size) = data;
 }
 
 KSBufferEigen::~KSBufferEigen()
@@ -56,28 +70,35 @@ KSBufferEigen::~KSBufferEigen()
 
 KSBufferEigen* KSBufferEigen::clone() const
 {
-    KSBufferEigen *newBuf = new KSBufferEigen(m_type, m_data);
-    return newBuf;
+    KSBufferEigen *newbuf = new KSBufferEigen(m_data);
+    newbuf->m_type = this->m_type;
+    return newbuf;
+}
+
+Matrix4Xd KSBufferEigen::data4() const
+{
+    return m_data;
 }
 
 Matrix3Xd KSBufferEigen::data() const
 {
-    return m_data;
+    return m_data.block(0,0,3,m_size);
 }
 
 void KSBufferEigen::applyConversion(const Matrix3d             &m,
                                     const KSEngine::CoordType   newtype,
                                           KSBuffer             *dest) const
 {
+    Q_ASSERT( dest->m_size != m_size );
     KSBufferEigen *other = dynamic_cast<KSBufferEigen*>(dest->d);
-    other->m_data = m*m_data;
+    other->m_data.block(0,0,3,m_size) = m*m_data.block(0,0,3,m_size);
     other->m_type = newtype;
 }
 
 void KSBufferEigen::applyConversion(const Matrix3d             &m,
                                     const KSEngine::CoordType   newtype)
 {
-    m_data = m*m_data;
+    m_data.block(0,0,3,m_size) = m*m_data.block(0,0,3,m_size);
     m_type = newtype;
 }
 
@@ -86,7 +107,7 @@ void KSBufferEigen::aberrate(const double expRapidity)
     if( m_type != EarthVelocity_Type )
         kFatal() << "Can't aberrate without changing coord systems!";
     for(int i = 0; i < m_size; ++i) {
-        m_data.col(i) = Convert::Aberrate(m_data.col(i), expRapidity);
+        m_data.col(i).head<3>() = Convert::Aberrate(m_data.col(i).head<3>(), expRapidity);
     }
 }
 

@@ -60,7 +60,8 @@ enum CoordType {
     Galactic_Type,
     J2000_Type,
     B1950_Type,
-    EarthVelocity_Type
+    EarthVelocity_Type,
+    Quaternion_Type
 };
 
 typedef Vector3d EquatorialCoord;

@@ -59,6 +59,29 @@ bool KSContextCL::isValid()
     return m_valid;
 }
 
+// TODO: These should probably both use setData to reduce code duplication.
+
+KSBufferCL* KSContextCL::createBuffer(const Eigen::Matrix4Xd     &data)
+{
+    cl_int err;
+    Matrix4Xf cldata = data.cast<float>(); 
+    void *bufdata = CAST_INTO_THE_VOID(cldata.data());
+    cl::Buffer clbuf(m_context,
+    /* Type flags */ CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+    /* # of bytes */ cldata.size() * sizeof(float), 
+    /* data ptr   */ bufdata, 
+    /* error ptr  */ &err);
+    if( err != CL_SUCCESS )
+        kFatal() << "Could not create buffer with error" << err;
+    KSBufferCL *bufd = new KSBufferCL(KSEngine::Quaternion_Type, 
+                                      data.cols(), 
+                                      clbuf, 
+                                      this, 
+                                      m_queue);
+    return bufd;
+}
+
+
 KSBufferCL* KSContextCL::createBuffer(const KSEngine::CoordType   t,
                                       const Eigen::Matrix3Xd     &data)
 {
