@@ -19,9 +19,25 @@
 
 using KSEngine::JulianDate;
 
+DataComponent::DataComponent( const QString       &id,
+                              const QString       &name,
+                                    DataComponent *parent ) 
+    : m_parent( parent )
+    , m_id( id )
+    , m_name( name )
+{
+    if( m_parent ) {
+        m_parent->addChild( this );
+        m_context = m_parent->context();
+    }
+    m_name = "";
+}
+
+
 DataComponent::DataComponent( const QString &id, DataComponent *parent ) 
-    : m_parent( parent ),
-      m_id( id )
+    : m_parent( parent )
+    , m_id( id )
+    , m_name( "" )
 {
     if( m_parent ) {
         m_parent->addChild( this );
@@ -62,6 +78,11 @@ QString DataComponent::id() const
     return m_id;
 }
 
+QString DataComponent::name() const
+{
+    return m_name;
+}
+
 KSContext* DataComponent::context() const
 {
     return m_context;
@@ -86,5 +107,4 @@ QVector<DataComponent*> DataComponent::children() const
 {
     return m_children;
 }
-
 
