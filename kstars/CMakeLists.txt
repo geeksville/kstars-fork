@@ -446,12 +446,16 @@ set(printingui_SRCS
     printing/pwizwelcome.ui
 )
 
+set(logging_SRCS
+    logging/logdatabase.cpp
+)
+
 ##set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
 set(kstars_SRCS ${indi_SRCS} ${fits_SRCS} ${ekos_SRCS} ${align_SRCS}
 	${libkstarswidgets_SRCS} ${libkstarscomponents_SRCS} ${libkstarstools_SRCS}
 	${kstars_extra_SRCS}  ${kstars_gl_SRCS} ${kstars_projection_SRCS} ${xplanet_SRCS}
 	${kstars_options_SRCS} ${kstars_skyobjects_SRCS} ${kstars_dialogs_SRCS} ${oal_SRCS}
-        ${printing_SRCS}
+        ${printing_SRCS} ${logging_SRCS}
 )
 
 qt4_add_dbus_adaptor(kstars_SRCS org.kde.kstars.xml kstars.h KStars)

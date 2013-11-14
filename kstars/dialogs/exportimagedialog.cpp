@@ -29,7 +29,6 @@
 #include <QDir>
 #include <QDesktopWidget>
 
-
 ExportImageDialogUI::ExportImageDialogUI(QWidget *parent)
     : QFrame(parent)
 {
