@@ -104,18 +104,22 @@ bool LogDatabase::createTables()
 
     queries.append("create table targets("
                    "id int primary key not null,"
+                   "targetObjectType int not null,"
                    "datasource text,"
                    "observer text,"
                    "name text not null,"
                    "position text,"
                    "constellation text,"
-                   "notes text);");
+                   "notes text,"
+                   "starApparentMag real,"
+                   "starClassification text,"
+                   "varStarType text,"
+                   "varStarMaxApparentMag real,"
+                   "varStarPeriod real");
 
     queries.append("create table targetAliases("
                    "targetId int not null,"
                    "alias text not null);");
-
-    // star targets
 
     queries.append("create table optics("
                    "id int primary key not null,"
@@ -193,8 +197,27 @@ bool LogDatabase::createTables()
 
     queries.append("create table observationFindings("
                    "observationId int not null,"
+                   "observationObjectType int not null,"
                    "description text not null,"
-                   "language text);");
+                   "language text,"
+                   "varStarVisMagValue real,"
+                   "varStarVisMagFainterThan int,"
+                   "varStarVisMagUncertain int,"
+                   "varStarChartId text,"
+                   "varStarChartIdNonAavso int,"
+                   "varStarBrightSky int,"
+                   "varStarClouds int,"
+                   "varStarPoorSeeing int,"
+                   "varStarNearHorizon int,"
+                   "varStarUnusualActivity int,"
+                   "varStarOutburst int,"
+                   "varStarComparismSeqProblem int,"
+                   "varStarIdentificationUncertain int,"
+                   "varStarFaint int);");
+
+    queries.append("create table varStarComparisonStars("
+                   "varStarFindingsId int not null,"
+                   "comparisonStar text not null);");
 
     QSqlQuery query(m_LogDatabase);
     foreach(QString queryString, queries) {
