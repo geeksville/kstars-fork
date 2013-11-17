@@ -110,12 +110,90 @@ bool LogDatabase::createTables()
                    "name text not null,"
                    "position text,"
                    "constellation text,"
-                   "notes text,"
-                   "starApparentMag real,"
-                   "starClassification text,"
-                   "varStarType text,"
-                   "varStarMaxApparentMag real,"
-                   "varStarPeriod real");
+                   "notes text);");
+
+    queries.append("create table starTargets("
+                   "id int primary key not null,"
+                   "apparentMag real,"
+                   "classification text);");
+
+    queries.append("create table varStarTargets("
+                   "id int primary key not null,"
+                   "type text,"
+                   "maxApparentMag real,"
+                   "period real);");
+
+    queries.append("create table dsMsTargets("
+                   "id int primary key not null);");
+
+    queries.append("create table dsMsComponents("
+                   "targetId int not null,"
+                   "componentTargetId int not null);");
+
+    queries.append("create table dsTarget("
+                   "id int primary key not null,"
+                   "smallDiameterAngleValue real,"
+                   "smallDiameterAngleUnit text"
+                   "largeDiameterAngleValue real,"
+                   "largeDiameterAngleUnit text,"
+                   "visMag double,"
+                   "surfaceBrightnessValue real,"
+                   "surfaceBrightnessUnit text);");
+
+    queries.append("create table dsMiscTarget("
+                   "id int primary key not null);");
+
+    queries.append("create table dsAsterismTargets("
+                   "id int primary key not null,"
+                   "laPosAngleValue real,"
+                   "laPosAngleUnit text);");
+
+    queries.append("create table dsGalaxyClusterTargets("
+                   "id int primary key not null,"
+                   "mag10 real);");
+
+    queries.append("create table dsDarkNebulaTargets("
+                   "id int primary key not null,"
+                   "laPosAngleValue real,"
+                   "laPosAngleUnit text,"
+                   "opacity int);");
+
+    queries.append("create table dsDoubleStarTargets("
+                   "id int primary key not null,"
+                   "separationAngleValue real,"
+                   "separationAngleUnit text,"
+                   "posAngleValue real,"
+                   "posAngleUnit text,"
+                   "companionStarMag real);");
+
+    queries.append("create table dsGlobularClusterTargets("
+                   "id int primary key not null,"
+                   "brightestStarsMag real,"
+                   "concentrationDegree text);");
+
+    queries.append("create table dsGalacticNebulaTargets("
+                   "id int primary key not null,"
+                   "nebulaType text,"
+                   "laPosAngleValue real,"
+                   "laPosAngleUnit text)");
+
+    queries.append("create table dsGalaxyTargets("
+                   "id int primary key not null,"
+                   "hubbleType text,"
+                   "laPosAngleValue real,"
+                   "laPosAngleUnit text);");
+
+    queries.append("create table dsPlanetaryNebulaTargets("
+                   "id int primary key not null,"
+                   "centralStarMag real);");
+
+    queries.append("create table dsQuasarTargets("
+                   "id int primary key not null);");
+
+    queries.append("create table dsStarCloudTargets("
+                   "id int primary key not null,"
+                   "laPosAngleValue real,"
+                   "laPosAngleUnit text);");
 
     queries.append("create table targetAliases("
                    "targetId int not null,"
