@@ -277,25 +277,55 @@ bool LogDatabase::createTables()
                    "observationId int not null,"
                    "observationObjectType int not null,"
                    "description text not null,"
-                   "language text,"
-                   "varStarVisMagValue real,"
-                   "varStarVisMagFainterThan int,"
-                   "varStarVisMagUncertain int,"
-                   "varStarChartId text,"
-                   "varStarChartIdNonAavso int,"
-                   "varStarBrightSky int,"
-                   "varStarClouds int,"
-                   "varStarPoorSeeing int,"
-                   "varStarNearHorizon int,"
-                   "varStarUnusualActivity int,"
-                   "varStarOutburst int,"
-                   "varStarComparismSeqProblem int,"
-                   "varStarIdentificationUncertain int,"
-                   "varStarFaint int);");
+                   "language text);");
+
+    queries.append("create table varStarObservationFindings("
+                   "id int primary key not null,"
+                   "visMagValue real,"
+                   "visMagFainterThan int,"
+                   "visMagUncertain int,"
+                   "chartId text,"
+                   "chartIdNonAavso int,"
+                   "brightSky int,"
+                   "clouds int,"
+                   "poorSeeing int,"
+                   "nearHorizon int,"
+                   "unusualActivity int,"
+                   "outburst int,"
+                   "comparismSeqProblem int,"
+                   "identificationUncertain int,"
+                   "faint int);");
+
+    queries.append("create table dsObservationFindings("
+                   "id int primary key not null,"
+                   "smallDiameterAngleValue real,"
+                   "smallDiameterAngleUnit text,"
+                   "largeDiameterAngleValue real,"
+                   "largeDiameterAngleUnit text,"
+                   "rating integer,"
+                   "stellar int,"
+                   "extended int,"
+                   "resolved int,"
+                   "mottled int);");
+
+    queries.append("create table dsOcObservationFindingsType("
+                   "id int primary key not null,"
+                   "character text,"
+                   "unusualShape int,"
+                   "partlyUnresolved int,"
+                   "colorConstrasts int);");
+
+    queries.append("create table dsDsObservationFindingsType("
+                   "id int primary key not null,"
+                   "colorMain text,"
+                   "colorCompanion text,"
+                   "equalBrightness int,"
+                   "niceSurrounding int);");
 
     queries.append("create table varStarComparisonStars("
                    "varStarFindingsId int not null,"
                    "comparisonStar text not null);");
+
 
     QSqlQuery query(m_LogDatabase);
     foreach(QString queryString, queries) {
