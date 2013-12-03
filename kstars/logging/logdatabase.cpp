@@ -56,6 +56,19 @@ LogDatabase::~LogDatabase()
 
 bool LogDatabase::createTables()
 {
+    QStringList dbCreationQueries = baseTableCreationQueries();
+    dbCreationQueries += equipmentTableCreationQueries();
+    dbCreationQueries += varStarTableCreationQueries();
+    dbCreationQueries += dsoTableCreationQueries();
+    dbCreationQueries += solarSystemTableCreationQueries();
+    dbCreationQueries += imagerTableCreationQueries();
+
+    QSqlQuery query(m_LogDatabase);
+    return executeQueries(dbCreationQueries, query);
+}
+
+QStringList LogDatabase::baseTableCreationQueries()
+{
     QStringList queries;
 
     queries.append("create table observers("
@@ -112,10 +125,96 @@ bool LogDatabase::createTables()
                    "constellation text,"
                    "notes text);");
 
+    queries.append("create table targetAliases("
+                   "targetId int not null,"
+                   "alias text not null);");
+
     queries.append("create table starTargets("
                    "id int primary key not null,"
                    "apparentMag real,"
                    "classification text);");
+
+    queries.append("create table observations("
+                   "id int primary key not null,"
+                   "observer int not null,"
+                   "site int,"
+                   "session int,"
+                   "target int not null,"
+                   "begin text not null,"
+                   "end text,"
+                   "faintestStar real,"
+                   "skyQualityValue int not null,"
+                   "skyQualityUnit text not null,"
+                   "seeing int,"
+                   "scope int,"
+                   "accessories text,"
+                   "eyepiece int,"
+                   "lens int,"
+                   "filter int,"
+                   "magnification real,"
+                   "imager int);");
+
+    queries.append("create table observationImages("
+                   "observationId int not null,"
+                   "imageUrl text not null);");
+
+    queries.append("create table findings("
+                   "observationId int not null,"
+                   "observationObjectType int not null,"
+                   "description text not null,"
+                   "language text);");
+
+    return queries;
+}
+
+QStringList LogDatabase::equipmentTableCreationQueries()
+{
+    QStringList queries;
+
+    queries.append("create table optics("
+                   "id int primary key not null,"
+                   "opticObjectType int not null,"
+                   "type text,"
+                   "vendor text,"
+                   "aperture real,"
+                   "lightGrasp real,"
+                   "orientationErect int,"
+                   "orientationTruesided int,"
+                   "scopeFocalLength real,"
+                   "fixedMagMagnification real,"
+                   "fixedMagTrueFieldValue real,"
+                   "fixedMagTrueFieldUnit text);");
+
+    queries.append("create table eyepieces("
+                   "id int primary key not null,"
+                   "model text not null,"
+                   "vendor text,"
+                   "focalLength real not null,"
+                   "maxFocalLength real,"
+                   "apparentFovValue real,"
+                   "apparentFovUnit text);");
+
+    queries.append("create table lenses("
+                   "id int primary key not null,"
+                   "model text not null,"
+                   "vendor text,"
+                   "factor real not null);");
+
+    queries.append("create table filters("
+                   "id int primary key not null,"
+                   "model text not null,"
+                   "vendor text,"
+                   "type text not null,"
+                   "color text,"
+                   "wratten text,"
+                   "schott text);");
+
+    return queries;
+}
+
+QStringList LogDatabase::varStarTableCreationQueries()
+{
+    QStringList queries;
 
     queries.append("create table varStarTargets("
                    "id int primary key not null,"
@@ -123,10 +222,38 @@ bool LogDatabase::createTables()
                    "maxApparentMag real,"
                    "period real);");
 
-    queries.append("create table dsMsTargets("
+    queries.append("create table varStarFindings("
+                   "id int primary key not null,"
+                   "visMagValue real,"
+                   "visMagFainterThan int,"
+                   "visMagUncertain int,"
+                   "chartId text,"
+                   "chartIdNonAavso int,"
+                   "brightSky int,"
+                   "clouds int,"
+                   "poorSeeing int,"
+                   "nearHorizon int,"
+                   "unusualActivity int,"
+                   "outburst int,"
+                   "comparismSeqProblem int,"
+                   "identificationUncertain int,"
+                   "faint int);");
+
+    queries.append("create table varStarComparisonStars("
+                   "varStarFindingsId int not null,"
+                   "comparisonStar text not null);");
+
+    return queries;
+}
+
+QStringList LogDatabase::dsoTableCreationQueries()
+{
+    QStringList queries;
+
+    queries.append("create table dsMultipleStarTargets("
                    "id int primary key not null);");
 
-    queries.append("create table dsMsComponents("
+    queries.append("create table dsMultipleStarComponents("
                    "targetId int not null,"
                    "componentTargetId int not null);");
 
@@ -195,141 +322,48 @@ bool LogDatabase::createTables()
                    "laPosAngleValue real,"
                    "laPosAngleUnit text);");
 
-    queries.append("create table targetAliases("
-                   "targetId int not null,"
-                   "alias text not null);");
+    return queries;
+}
 
-    queries.append("create table optics("
-                   "id int primary key not null,"
-                   "opticObjectType int not null,"
-                   "type text,"
-                   "vendor text,"
-                   "aperture real,"
-                   "lightGrasp real,"
-                   "orientationErect int,"
-                   "orientationTruesided int,"
-                   "scopeFocalLength real,"
-                   "fixedMagMagnification real,"
-                   "fixedMagTrueFieldValue real,"
-                   "fixedMagTrueFieldUnit text);");
+QStringList LogDatabase::solarSystemTableCreationQueries()
+{
+    QStringList queries;
 
-    queries.append("create table eyepieces("
+    queries.append("create table solarSystemTargets("
                    "id int primary key not null,"
-                   "model text not null,"
-                   "vendor text,"
-                   "focalLength real not null,"
-                   "maxFocalLength real,"
-                   "apparentFovValue real,"
-                   "apparentFovUnit text);");
+                   "objectType int not null);");
 
-    queries.append("create table lenses("
-                   "id int primary key not null,"
-                   "model text not null,"
-                   "vendor text,"
-                   "factor real not null);");
+    return queries;
+}
 
-    queries.append("create table filters("
-                   "id int primary key not null,"
-                   "model text not null,"
-                   "vendor text,"
-                   "type text not null,"
-                   "color text,"
-                   "wratten text,"
-                   "schott text);");
+QStringList LogDatabase::imagerTableCreationQueries()
+{
+    QStringList queries;
 
     queries.append("create table imagers("
                    "id int primary key not null,"
                    "imagerObjectType int not null,"
                    "model text not null,"
                    "vendor text,"
-                   "remarks text,"
+                   "remarks text);");
+
+    queries.append("create table ccdCameras("
+                   "id int primary key not null,"
                    "pixelsX integer,"
                    "pixelXSize real,"
                    "pixelsY integer,"
                    "pixelYSize real,"
                    "binning int);");
 
-    queries.append("create table observations("
-                   "id int primary key not null,"
-                   "observer int not null,"
-                   "site int,"
-                   "session int,"
-                   "target int not null,"
-                   "begin text not null,"
-                   "end text,"
-                   "faintestStar real,"
-                   "skyQualityValue int not null,"
-                   "skyQualityUnit text not null,"
-                   "seeing int,"
-                   "scope int,"
-                   "accessories text,"
-                   "eyepiece int,"
-                   "lens int,"
-                   "filter int,"
-                   "magnification real,"
-                   "imager int);");
+    return queries;
+}
 
-    queries.append("create table observationImages("
-                   "observationId int not null,"
-                   "imageUrl text not null);");
-
-    queries.append("create table observationFindings("
-                   "observationId int not null,"
-                   "observationObjectType int not null,"
-                   "description text not null,"
-                   "language text);");
-
-    queries.append("create table varStarObservationFindings("
-                   "id int primary key not null,"
-                   "visMagValue real,"
-                   "visMagFainterThan int,"
-                   "visMagUncertain int,"
-                   "chartId text,"
-                   "chartIdNonAavso int,"
-                   "brightSky int,"
-                   "clouds int,"
-                   "poorSeeing int,"
-                   "nearHorizon int,"
-                   "unusualActivity int,"
-                   "outburst int,"
-                   "comparismSeqProblem int,"
-                   "identificationUncertain int,"
-                   "faint int);");
-
-    queries.append("create table dsObservationFindings("
-                   "id int primary key not null,"
-                   "smallDiameterAngleValue real,"
-                   "smallDiameterAngleUnit text,"
-                   "largeDiameterAngleValue real,"
-                   "largeDiameterAngleUnit text,"
-                   "rating integer,"
-                   "stellar int,"
-                   "extended int,"
-                   "resolved int,"
-                   "mottled int);");
-
-    queries.append("create table dsOcObservationFindingsType("
-                   "id int primary key not null,"
-                   "character text,"
-                   "unusualShape int,"
-                   "partlyUnresolved int,"
-                   "colorConstrasts int);");
-
-    queries.append("create table dsDsObservationFindingsType("
-                   "id int primary key not null,"
-                   "colorMain text,"
-                   "colorCompanion text,"
-                   "equalBrightness int,"
-                   "niceSurrounding int);");
-
-    queries.append("create table varStarComparisonStars("
-                   "varStarFindingsId int not null,"
-                   "comparisonStar text not null);");
-
-
-    QSqlQuery query(m_LogDatabase);
-    foreach(QString queryString, queries) {
-        query.exec(queryString);
+bool LogDatabase::executeQueries(const QStringList &queries, QSqlQuery &query)
+{
+    foreach(const QString &queryString, queries) {
+        if(!query.exec(queryString)) {
+            return false;
+        }
     }
 
     kWarning() << query.lastError().databaseText();

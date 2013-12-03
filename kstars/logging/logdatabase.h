@@ -21,15 +21,27 @@
 
 #include "QtSql/QSqlDatabase"
 
+QT_BEGIN_NAMESPACE
+class QSqlQuery;
+QT_END_NAMESPACE
+
 class LogDatabase
 {
 public:
     LogDatabase();
     ~LogDatabase();
 
-private:
-
     bool createTables();
+
+private:
+    QStringList baseTableCreationQueries();
+    QStringList equipmentTableCreationQueries();
+    QStringList varStarTableCreationQueries();
+    QStringList dsoTableCreationQueries();
+    QStringList solarSystemTableCreationQueries();
+    QStringList imagerTableCreationQueries();
+
+    bool executeQueries(const QStringList &queries, QSqlQuery &query);
 
     QSqlDatabase m_LogDatabase;
 };
