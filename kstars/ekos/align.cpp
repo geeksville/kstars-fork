@@ -61,6 +61,10 @@ Align::Align()
     connect(correctAltB, SIGNAL(clicked()), this, SLOT(correctAltError()));
     connect(correctAzB, SIGNAL(clicked()), this, SLOT(correctAzError()));
 
+    kcfg_solverXBin->setValue(Options::solverXBin());
+    kcfg_solverYBin->setValue(Options::solverYBin());
+    kcfg_solverUpdateCoords->setChecked(Options::solverUpdateCoords());
+
     syncBoxesB->setIcon(KIcon("edit-copy"));
     clearBoxesB->setIcon(KIcon("edit-clear"));
 
@@ -98,6 +102,16 @@ Align::Align()
     astrometryIndex[1400] = "index-4218";
     astrometryIndex[2000] = "index-4219";
 
+    if (astrometryNetOK() == false)
+    {
+        KMessageBox::information(NULL, i18n("Failed to find astrometry.net binaries. Please ensure astrometry.net is installed and try again."),
+                                 i18n("Missing astrometry files"), "missing_astrometry_binaries_warning");
+
+        setEnabled(false);
+
+    }
+
+
 }
 
 Align::~Align()
@@ -128,7 +142,7 @@ void Align::setCCD(ISD::GDInterface *newCCD)
 
 void Align::setTelescope(ISD::GDInterface *newTelescope)
 {
-    currentTelescope = (ISD::Telescope*) newTelescope;
+    currentTelescope = static_cast<ISD::Telescope*> (newTelescope);
 
     connect(currentTelescope, SIGNAL(numberUpdated(INumberVectorProperty*)), this, SLOT(updateScopeCoords(INumberVectorProperty*)));
 
@@ -343,10 +357,10 @@ void Align::verifyIndexFiles()
     {
         if (missingIndexes == 1)
             KMessageBox::information(0, i18n("Index file %1 is missing. Astrometry.net would not be able to adequately solve plates until you install the missing index files. Download the index files from http://www.astrometry.net",
-                                             startIndex), i18n("Missing index files"), i18n("Do not show again"));
+                                             startIndex), i18n("Missing index files"), "missing_astrometry_indexs_warning");
         else
             KMessageBox::information(0, i18n("Index files %1 to %2 are missing. Astrometry.net would not be able to adequately solve plates until you install the missing index files. Download the index files from http://www.astrometry.net",
-                                             startIndex, lastIndex), i18n("Missing index files"), i18n("Do not show again"));
+                                             startIndex, lastIndex), i18n("Missing index files"), "missing_astrometry_indexs_warning");
 
     }
 }
@@ -369,7 +383,7 @@ void Align::generateArgs()
     QString fov_low,fov_high;
     QStringList solver_args;
 
-    // let's strech the boundaries by 5%
+    // let's stretch the boundaries by 5%
     fov_lower = ((fov_x < fov_y) ? (fov_x *0.95) : (fov_y *0.95));
     fov_upper = ((fov_x > fov_y) ? (fov_x * 1.05) : (fov_y * 1.05));
 
@@ -465,7 +479,7 @@ bool Align::capture()
    connect(currentCCD, SIGNAL(BLOBUpdated(IBLOB*)), this, SLOT(newFITS(IBLOB*)));
 
    targetChip->setCaptureMode(FITS_WCSM);
-
+   targetChip->setBinning(kcfg_solverXBin->value(), kcfg_solverYBin->value());
    targetChip->setFrameType(ccdFrame);
 
    targetChip->capture(seqExpose);
@@ -500,6 +514,10 @@ void Align::startSovling(const QString &filename)
     double ra,dec;
 
     fitsFile = filename;
+
+    Options::setSolverXBin(kcfg_solverXBin->value());
+    Options::setSolverYBin(kcfg_solverYBin->value());
+    Options::setSolverUpdateCoords(kcfg_solverUpdateCoords->isChecked());
 
     currentTelescope->getEqCoords(&ra, &dec);
 
@@ -655,6 +673,7 @@ void Align::clearLog()
 void Align::updateScopeCoords(INumberVectorProperty *coord)
 {
     QString ra_dms, dec_dms;
+    static bool slew_dirty=false;
 
     if (!strcmp(coord->name, "EQUATORIAL_EOD_COORD"))
     {        
@@ -665,6 +684,17 @@ void Align::updateScopeCoords(INumberVectorProperty *coord)
 
         ScopeRAOut->setText(ra_dms);
         ScopeDecOut->setText(dec_dms);
+
+        if (kcfg_solverUpdateCoords->isChecked())
+        {
+            if (currentTelescope->isSlewing() && slew_dirty == false)
+                slew_dirty = true;
+            else if (currentTelescope->isSlewing() == false && slew_dirty)
+            {
+                slew_dirty = false;
+                copyCoordsToBoxes();
+            }
+        }
 
         switch (azStage)
         {
@@ -684,8 +714,12 @@ void Align::updateScopeCoords(INumberVectorProperty *coord)
         case AZ_CORRECTING:
          if (currentTelescope->isSlewing() == false)
          {
-             appendLogText(i18n("Slew complete. Please adjust your mount's' azimuth knob %1 until the target is in the center of the view.",
-                           (decDeviation > 0 ? i18n("eastward") : i18n("westward"))));
+             if(decDeviation > 0){
+                 appendLogText(i18n("Slew complete. Please adjust your mount's' azimuth knob eastward until the target is in the center of the view."));
+             }
+             else{
+                 appendLogText(i18n("Slew complete. Please adjust your mount's' azimuth knob westward until the target is in the center of the view."));
+             }
              azStage = AZ_INIT;
          }
          break;
@@ -712,8 +746,12 @@ void Align::updateScopeCoords(INumberVectorProperty *coord)
            case ALT_CORRECTING:
             if (currentTelescope->isSlewing() == false)
             {
-                appendLogText(i18n("Slew complete. Please %1 the altitude knob on your mount until the target is in the center of the view.",
-                              (decDeviation > 0 ? i18n("lower") : i18n("raise"))));
+                if(decDeviation > 0){
+                    appendLogText(i18n("Slew complete. Please lower the altitude knob on your mount until the target is in the center of the view."));
+                }
+                else{
+                    appendLogText(i18n("Slew complete. Please raise the altitude knob on your mount until the target is in the center of the view."));
+                }
                 altStage = ALT_INIT;
             }
             break;
@@ -1094,7 +1132,7 @@ void Align::correctAltError()
     SkyPoint currentCoord (telescopeCoord);
     dms      targetLat;
 
-    targetLat.setD(KStars::Instance()->data()->geo()->lat()->Degrees() - altDeviation);
+    targetLat.setD(KStars::Instance()->data()->geo()->lat()->Degrees() + altDeviation);
 
     currentCoord.EquatorialToHorizontal(KStars::Instance()->data()->lst(), &targetLat );
 
@@ -1155,6 +1193,16 @@ void Align::getFormattedCoords(double ra, double dec, QString &ra_str, QString &
         dec_str = QString("-%1:%2:%3").arg(abs(dec_s.degree()), 2, 10, QChar('0')).arg(abs(dec_s.arcmin()), 2, 10, QChar('0')).arg(dec_s.arcsec(), 2, 10, QChar('0'));
     else
         dec_str = QString("%1:%2:%3").arg(dec_s.degree(), 2, 10, QChar('0')).arg(dec_s.arcmin(), 2, 10, QChar('0')).arg(dec_s.arcsec(), 2, 10, QChar('0'));
+}
+
+bool Align::astrometryNetOK()
+{
+    bool solverOK=false, wcsinfoOK=false;
+
+    solverOK   = (0==access(Options::astrometrySolver().toLatin1(), 0));
+    wcsinfoOK  = (0==access(Options::astrometryWCSInfo().toLatin1(), 0));
+
+    return (solverOK && wcsinfoOK);
 }
 
 }

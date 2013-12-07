@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>961</width>
-    <height>418</height>
+    <height>441</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -453,40 +453,74 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <layout class="QFormLayout" name="formLayout">
-            <item row="0" column="0">
-             <widget class="QPushButton" name="captureB">
-              <property name="text">
-               <string>Capture</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <layout class="QFormLayout" name="formLayout">
+              <item row="0" column="0">
+               <widget class="QPushButton" name="captureB">
+                <property name="text">
+                 <string>Capture</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QPushButton" name="pushButton_StartStop">
+                <property name="text">
+                 <string>Start Autoguide</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="l_18">
+                <property name="text">
+                 <string>Square size</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="comboBox_SquareSize"/>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="l_19">
+                <property name="text">
+                 <string>Algorithm</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QComboBox" name="comboBox_ThresholdAlg"/>
+              </item>
+              <item row="3" column="0">
+               <widget class="QCheckBox" name="kfcg_guideSubFrame">
+                <property name="toolTip">
+                 <string>Subframe the image around the guide star</string>
+                </property>
+                <property name="text">
+                 <string>Subframe</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QCheckBox" name="kfcg_useRapidGuide">
+                <property name="text">
+                 <string>Use Rapid Guide</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="pushButton_StartStop">
-              <property name="text">
-               <string>Start Autoguide</string>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
               </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="l_18">
-              <property name="text">
-               <string>Square size</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="comboBox_SquareSize"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="l_19">
-              <property name="text">
-               <string>Algorithm</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QComboBox" name="comboBox_ThresholdAlg"/>
+             </spacer>
             </item>
            </layout>
           </item>

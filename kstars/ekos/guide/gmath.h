@@ -128,6 +128,7 @@ public:
 	bool get_reticle_params( double *x, double *y, double *ang ) const;
 	int  get_square_index( void ) const;
 	int  get_square_algorithm_index( void ) const;
+    int  get_square_size() { return square_size; }
 	void set_square_algorithm( int alg_idx );
 	cproc_in_params *get_in_params( void );
 	void set_in_params( const cproc_in_params *v );
@@ -144,6 +145,9 @@ public:
 	ovr_params_t *prepare_overlays( void );
 	void move_square( double newx, double newy );
 	void resize_square( int size_idx );
+
+    void setRapidGuide(bool enable);
+    void setRapidStarData(double dx, double dy);
 	
 	// proc
 	void start( void );
@@ -155,7 +159,7 @@ public:
 	void do_processing( void );
 	static double precalc_proportional_gain( double g_rate );
 	bool calc_and_set_reticle( double start_x, double start_y, double end_x, double end_y );
-	bool calc_and_set_reticle2( double start_ra_x, double start_ra_y, double end_ra_x, double end_ra_y, double start_dec_x, double start_dec_y, double end_dec_x, double end_dec_y);
+    bool calc_and_set_reticle2( double start_ra_x, double start_ra_y, double end_ra_x, double end_ra_y, double start_dec_x, double start_dec_y, double end_dec_x, double end_dec_y, bool *swap_dec);
 	double calc_phi( double start_x, double start_y, double end_x, double end_y ) const;
 
 private:
@@ -204,6 +208,10 @@ private:
 	Vector find_star_local_pos( void ) const;
 	void process_axes( void );
 	void calc_square_err( void );
+
+    // rapid guide
+    bool useRapidGuide;
+    double rapidDX, rapidDY;
 	
 };
 

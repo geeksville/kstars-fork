@@ -42,6 +42,7 @@ class KUndoStack;
 class KTabWidget;
 class KUrl;
 class KAction;
+class KLed;
 
 class FITSView;
 class FITSHistogram;
@@ -70,7 +71,6 @@ public:
 
     static QStringList filterTypes;
 
-
 protected:
 
     virtual void closeEvent(QCloseEvent *ev);
@@ -85,6 +85,7 @@ public slots:
     void headerFITS();
     void slotClose();
     void histoFITS();
+    void stretchFITS();
     void tabFocusUpdated(int currentIndex);
     void updateStatusBar(const QString &msg, FITSBar id);
     void ZoomIn();
@@ -102,6 +103,7 @@ private:
     KTabWidget *fitsTab;
     QUndoGroup *undoGroup;
 
+    KLed *led;
     KAction *saveFileAction, *saveFileAsAction;
     QList<FITSTab*> fitsImages;
     int fitsID;
