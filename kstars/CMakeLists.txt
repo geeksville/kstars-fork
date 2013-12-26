@@ -446,6 +446,19 @@ set(printingui_SRCS
 
 set(logging_SRCS
     logging/logdatabase.cpp
+    logging/dsobstargets.cpp
+    logging/eyepiece.cpp
+    logging/filter.cpp
+    logging/optics.cpp
+    logging/scope.cpp
+    logging/fixedmagnificationoptics.cpp
+    logging/imagers.cpp
+    logging/lens.cpp
+    logging/obstarget.cpp
+    logging/starobstarget.cpp
+    logging/observer.cpp
+    logging/session.cpp
+    logging/site.cpp
 )
 
 ##set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}

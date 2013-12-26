@@ -117,9 +117,8 @@ QStringList LogDatabase::baseTableCreationQueries()
 
     queries.append("create table targets("
                    "id int primary key not null,"
-                   "targetObjectType int not null,"
                    "datasource text,"
-                   "observer text,"
+                   "observer int,"
                    "name text not null,"
                    "position text,"
                    "constellation text,"
@@ -173,14 +172,14 @@ QStringList LogDatabase::equipmentTableCreationQueries()
 
     queries.append("create table optics("
                    "id int primary key not null,"
-                   "opticObjectType int not null,"
+                   "opticsObjectType int not null,"
                    "type text,"
                    "vendor text,"
                    "aperture real,"
                    "lightGrasp real,"
                    "orientationErect int,"
                    "orientationTruesided int,"
-                   "scopeFocalLength real,"
+                   "scopeFocalLength real," // TODO: fixed mag optics
                    "fixedMagMagnification real,"
                    "fixedMagTrueFieldValue real,"
                    "fixedMagTrueFieldUnit text);");
