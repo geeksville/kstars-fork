@@ -12,6 +12,8 @@
 #ifndef GMATH_H_
 #define GMATH_H_
 
+#include <QObject>
+
 #include <stdint.h>
 #include <sys/types.h>
 #include "vect.h"
@@ -113,8 +115,10 @@ typedef struct
 }info_params_t;
 
 
-class cgmath
+class cgmath : public QObject
 {
+    Q_OBJECT
+
 public:
 	cgmath();
 	virtual ~cgmath();
@@ -130,6 +134,7 @@ public:
 	int  get_square_algorithm_index( void ) const;
     int  get_square_size() { return square_size; }
 	void set_square_algorithm( int alg_idx );
+    Matrix get_ROTZ() { return ROT_Z; }
 	cproc_in_params *get_in_params( void );
 	void set_in_params( const cproc_in_params *v );
 	const cproc_out_params *get_out_params( void ) const;
@@ -140,7 +145,9 @@ public:
 	bool reset( void );
     void set_buffer(float *buffer);
     void set_image(FITSView *image);
+    bool get_dec_swap() { return dec_swap;}
     FITSView *get_image() { return pimage; }
+    void set_preview_mode(bool enable) { preview_mode = enable;}
 	
 	ovr_params_t *prepare_overlays( void );
 	void move_square( double newx, double newy );
@@ -158,9 +165,13 @@ public:
     void set_lost_star(bool is_lost);
 	void do_processing( void );
 	static double precalc_proportional_gain( double g_rate );
-	bool calc_and_set_reticle( double start_x, double start_y, double end_x, double end_y );
-    bool calc_and_set_reticle2( double start_ra_x, double start_ra_y, double end_ra_x, double end_ra_y, double start_dec_x, double start_dec_y, double end_dec_x, double end_dec_y, bool *swap_dec);
+    bool calc_and_set_reticle( double start_x, double start_y, double end_x, double end_y, int totalPulse=-1);
+    bool calc_and_set_reticle2( double start_ra_x, double start_ra_y, double end_ra_x, double end_ra_y, double start_dec_x, double start_dec_y, double end_dec_x, double end_dec_y, bool *swap_dec, int totalPulse=-1);
 	double calc_phi( double start_x, double start_y, double end_x, double end_y ) const;
+    double get_dither_rate(int axis);
+
+signals:
+    void newAxisDelta(double delta_ra, double delta_dec);
 
 private:
 	// sys...
@@ -170,7 +181,7 @@ private:
 	int video_width, video_height;	// video frame dimensions
 	double ccd_pixel_width, ccd_pixel_height, aperture, focal;
 	Matrix	ROT_Z;
-    bool preview_mode, suspended, lost_star;
+    bool preview_mode, suspended, lost_star, dec_swap;
 	
 	// square variables
 	int square_size;	// size of analysing square
@@ -212,6 +223,9 @@ private:
     // rapid guide
     bool useRapidGuide;
     double rapidDX, rapidDY;
+
+    // dithering
+    double ditherRate[2];
 	
 };
 

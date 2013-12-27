@@ -22,8 +22,11 @@
 
 #include "fitsviewer/fitsview.h"
 
+#include "Options.h"
+
 #define DRIFT_GRAPH_WIDTH	300
 #define DRIFT_GRAPH_HEIGHT	300
+#define MAX_DITHER_RETIRES  20
 
 rguider::rguider(Ekos::Guide *parent)
     : QWidget(parent)
@@ -40,8 +43,9 @@ rguider::rguider(Ekos::Guide *parent)
 
     useRapidGuide = false;
     first_frame = false;
+    is_subframed = false;
 
-    lost_star_try=0;
+    lost_star_try=0;       
 
 	ui.comboBox_SquareSize->clear();
 	for( i = 0;guide_squares[i].size != -1;++i )
@@ -75,11 +79,13 @@ rguider::rguider(Ekos::Guide *parent)
 	connect( ui.spinBox_MinPulseRA, 	SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
 	connect( ui.spinBox_MinPulseDEC, 	SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
     connect( ui.kfcg_useRapidGuide,     SIGNAL(toggled(bool)), this, SLOT(onRapidGuideChanged(bool)));
-    connect( ui.kfcg_guideSubFrame,     SIGNAL(toggled(bool)), this, SLOT(onSubFrameClick(bool)));
 
     connect(ui.captureB, SIGNAL(clicked()), this, SLOT(capture()));
 
 	connect( ui.pushButton_StartStop, SIGNAL(clicked()), this, SLOT(onStartStopButtonClick()) );
+
+    connect( ui.kcfg_useDither, SIGNAL(toggled(bool)), this, SIGNAL(ditherToggled(bool)));
+
 
 	pmath = NULL;
 
@@ -101,8 +107,11 @@ rguider::rguider(Ekos::Guide *parent)
 	is_started = false;
     is_ready   = false;
 	half_refresh_rate = false;
+    isDithering = false;
 
-    //fill_interface();
+    ui.kcfg_useDither->setChecked(Options::useDither());
+    ui.kcfg_ditherPixels->setValue(Options::ditherPixels());
+    ui.spinBox_AOLimit->setValue(Options::aOLimit());
 
 }
 
@@ -131,6 +140,15 @@ void rguider::set_math( cgmath *math )
 	pmath = math;
 }
 
+void rguider::set_ao(bool enable)
+{
+    ui.spinBox_AOLimit->setEnabled(enable);
+}
+
+double rguider::get_ao_limit()
+{
+    return ui.spinBox_AOLimit->value();
+}
 
 void rguider::fill_interface( void )
 {
@@ -355,46 +373,7 @@ void rguider::set_target_chip(ISD::CCDChip *chip)
 {
     targetChip = chip;
     targetChip->getFrame(&fx, &fy, &fw, &fh);
-
-}
-
-void rguider::onSubFrameClick(bool enable)
-{
-    if (targetChip == NULL)
-        return;
-
-    if (enable)
-    {
-        int x,y,w,h, square_size, binx, biny;
-        targetChip->getBinning(&binx, &biny);
-        pmath->get_reticle_params(&ret_x, &ret_y, &ret_angle);
-        square_size = pmath->get_square_size();
-        x = ret_x - square_size*2*binx ;
-        y = ret_y - square_size*2*biny;
-        w=square_size*4*binx;
-        h=square_size*4*biny;
-
-        first_frame = true;
-
-        if (x<0)
-            x=0;
-        if (y<0)
-            y=0;
-        if (w>fw)
-            w=fw;
-        if (h>fh)
-            h=fh;
-
-        pmath->set_video_params(w, h);
-
-        targetChip->setFrame(x, y, w, h);
-    }
-    else
-    {
-        first_frame = false;
-        targetChip->setFrame(fx, fy, fw, fh);
-    }
-
+    ui.kfcg_guideSubFrame->setEnabled(targetChip->canSubframe());
 }
 
 // processing stuff
@@ -406,6 +385,11 @@ void rguider::onStartStopButtonClick()
 	// start
 	if( !is_started )
 	{
+
+        Options::setUseDither(ui.kcfg_useDither->isChecked());
+        Options::setDitherPixels(ui.kcfg_ditherPixels->value());
+        Options::setAOLimit(ui.spinBox_AOLimit->value());
+
         if (pimage)
             disconnect(pimage, SIGNAL(guideStarSelected(int,int)), 0, 0);
 
@@ -415,10 +399,16 @@ void rguider::onStartStopButtonClick()
 		pmath->start();
         lost_star_try=0;
 		is_started = true;
+        useRapidGuide = ui.kfcg_useRapidGuide->isChecked();
         if (useRapidGuide)
             pmain_wnd->startRapidGuide();
 
-        pmain_wnd->capture();
+        emit autoGuidingToggled(true, ui.kcfg_useDither->isChecked());
+
+        if (ui.kfcg_guideSubFrame->isEnabled() && ui.kfcg_guideSubFrame->isChecked() && is_subframed == false)
+            first_frame = true;
+
+        capture();
 	}
 	// stop
 	else
@@ -434,12 +424,46 @@ void rguider::onStartStopButtonClick()
         if (useRapidGuide)
             pmain_wnd->stopRapidGuide();
 
+        emit autoGuidingToggled(false, ui.kcfg_useDither->isChecked());
+
 		is_started = false;
 	}
 }
 
 void rguider::capture()
 {
+    if (ui.kfcg_guideSubFrame->isChecked() && is_subframed == false)
+    {
+        int x,y,w,h, square_size, binx, biny;
+        targetChip->getBinning(&binx, &biny);
+        pmath->get_reticle_params(&ret_x, &ret_y, &ret_angle);
+        square_size = pmath->get_square_size();
+        x = ret_x - square_size*2;
+        y = ret_y - square_size*2;
+        w=square_size*4*binx;
+        h=square_size*4*biny;
+
+        is_subframed = true;
+
+        if (x<0)
+            x=0;
+        if (y<0)
+            y=0;
+        if (w>fw)
+            w=fw;
+        if (h>fh)
+            h=fh;
+
+        pmath->set_video_params(w, h);
+
+        targetChip->setFrame(x, y, w, h);
+    }
+    else if (ui.kfcg_guideSubFrame->isChecked() == false && is_subframed == true)
+    {
+        is_subframed = false;
+        targetChip->setFrame(fx, fy, fw, fh);
+    }
+
     pmain_wnd->capture();
 }
 
@@ -453,15 +477,16 @@ void rguider::guide( void )
 
  	 assert( pmath );
 
-     if (first_frame && ui.kfcg_guideSubFrame->isChecked())
+     if (first_frame)
      {
-        int x,y,w,h;
+        int x,y,w,h,binx, biny;
         targetChip->getFrame(&x, &y, &w, &h);
+        targetChip->getBinning(&binx, &biny);
         int square_size = pmath->get_square_size();
         double ret_x,ret_y,ret_angle;
         pmath->get_reticle_params(&ret_x, &ret_y, &ret_angle);
-        pmath->move_square((w-square_size)/2, (h-square_size)/2);
-        pmath->set_reticle_params(w/2, h/2, ret_angle);
+        pmath->move_square((w-square_size)/(2*binx), (h-square_size)/(2*biny));
+        pmath->set_reticle_params(w/(2*binx), h/(2*biny), ret_angle);
         first_frame = false;
      }
 
@@ -483,11 +508,10 @@ void rguider::guide( void )
 	 // do pulse
 	 out = pmath->get_out_params();
 
-
-     //qDebug() << "Guide is sending pulse command now ... " << endl;
      pmain_wnd->do_pulse( out->pulse_dir[GUIDE_RA], out->pulse_length[GUIDE_RA], out->pulse_dir[GUIDE_DEC], out->pulse_length[GUIDE_DEC] );
-     //qDebug() << "#######################################" << endl;
 
+     if (isDithering)
+         return;
 
 	 pmath->get_star_drift( &drift_x, &drift_y );
 
@@ -568,6 +592,86 @@ void rguider::abort()
     if (is_started == true)
         onStartStopButtonClick();
 }
+
+bool rguider::dither()
+{
+    static Vector target_pos;
+    static unsigned int retries=0;
+
+    if (ui.kcfg_useDither->isChecked() == false)
+        return false;
+
+    double cur_x, cur_y, ret_angle;
+    pmath->get_reticle_params(&cur_x, &cur_y, &ret_angle);
+    pmath->get_star_screen_pos( &cur_x, &cur_y );
+    Matrix ROT_Z = pmath->get_ROTZ();
+
+    //kDebug() << "Star Pos X " << cur_x << " Y " << cur_y << endl;
+
+    if (isDithering == false)
+    {
+        retries =0;
+        targetChip->abortExposure();
+        double ditherPixels = ui.kcfg_ditherPixels->value();
+        int polarity = (rand() %2 == 0) ? 1 : -1;
+        double angle = ((double) rand() / RAND_MAX) * M_PI/2.0;
+        double diff_x = ditherPixels * cos(angle);
+        double diff_y = ditherPixels * sin(angle);
+
+        isDithering = true;
+
+        if (pmath->get_dec_swap())
+            diff_y *= -1;
+
+        if (polarity > 0)
+             target_pos = Vector( cur_x, cur_y, 0 ) + Vector( diff_x, diff_y, 0 );
+        else
+            target_pos = Vector( cur_x, cur_y, 0 ) - Vector( diff_x, diff_y, 0 );
+
+        //kDebug() << "Target Pos X " << target_pos.x << " Y " << target_pos.y << endl;
+
+        pmath->set_reticle_params(target_pos.x, target_pos.y, ret_angle);
+
+        guide();
+
+        pmain_wnd->capture();
+
+        return true;
+    }
+
+    if (isDithering == false)
+        return false;
+
+    Vector star_pos = Vector( cur_x, cur_y, 0 ) - Vector( target_pos.x, target_pos.y, 0 );
+    star_pos.y = -star_pos.y;
+    star_pos = star_pos * ROT_Z;
+
+    //kDebug() << "Diff star X " << star_pos.x << " Y " << star_pos.y << endl;
+
+    if (fabs(star_pos.x) < 1 && fabs(star_pos.y) < 1)
+    {
+        pmath->set_reticle_params(cur_x, cur_y, ret_angle);
+
+        isDithering = false;
+
+        emit ditherComplete();
+    }
+    else
+    {
+        if (++retries > MAX_DITHER_RETIRES)
+        {
+            isDithering = false;
+            return false;
+        }
+
+        guide();
+    }
+
+    pmain_wnd->capture();
+
+    return true;
+}
+
 
 
 

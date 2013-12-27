@@ -1225,6 +1225,9 @@
     <entry name="AuxDriver" type="String">
       <label>Default Auxiliary driver</label>
     </entry>
+    <entry name="AODriver" type="String">
+      <label>Default Adaptive Optics driver</label>
+    </entry>
     <entry name="remoteScopeName" type="String">
       <label>Remote Scope Name</label>
       <whatsthis>Name of the remote INDI telescope device.</whatsthis>
@@ -1248,6 +1251,10 @@
     <entry name="remoteAuxName" type="String">
       <label>Remote Auxiliary Name</label>
       <whatsthis>Name of the remote INDI Auxiliary device.</whatsthis>
+    </entry>
+    <entry name="remoteAOName" type="String">
+      <label>Remote Adaptive Optics Name</label>
+      <whatsthis>Name of the remote INDI Adaptive Optics device.</whatsthis>
     </entry>
     <entry name="remoteHost" type="String">
       <label>Remote INDI host</label>
@@ -1293,6 +1300,26 @@
       <label>astrometry.net configuration file</label>
       <whatsthis>Path to astrometry.net file location.</whatsthis>
       <default>/etc/astrometry.cfg</default>
+    </entry>
+    <entry name="astrometryAPIKey" type="String">
+      <label>astrometry.net API Key</label>
+      <whatsthis>Key to access astrometry.net online web services. You must register with astrometry.net to obtain a key.</whatsthis>
+      <default>iczikaqstszeptgs</default>
+    </entry>
+    <entry name="astrometryAPIURL" type="String">
+      <label>astrometry.net API URL</label>
+      <default>http://nova.astrometry.net</default>
+    </entry>
+   </group>
+   <group name="Capture">
+    <entry name="GuideDeviation" type="Double">
+      <label>Default maximum permittable guide deviation</label>
+         <whatsthis>If guide deviation exceeds this limit, the exposure will be automatically aborted and only resumed when the deviation is within this limit.</whatsthis>
+         <default>2</default>
+    </entry>
+    <entry name="EnforceGuideDeviation" type="Bool">
+      <label>Enforce guiding deviation limit.</label>
+      <default>false</default>
     </entry>
    </group>
    <group name="Focus">
@@ -1361,5 +1388,23 @@
               <whatsthis>Automatically update the solver RA and Declination coordinates after telescope slew is completed.</whatsthis>
               <default>false</default>
           </entry>
+          <entry name="SolverOnline" type="Bool">
+              <label>Use astrometry.net online solver.</label>
+              <default>true</default>
+          </entry>
+    </group>
+    <group name="Guide">
+    <entry name="UseDither" type="Bool">
+        <label>Use Auto Dithering when guiding.</label>
+        <default>false</default>
+    </entry>
+    <entry name="DitherPixels" type="Double">
+       <label>How many pixels to move between subsequent exposures under auto dithering mode.</label>
+       <default>2</default>
+     </entry>
+     <entry name="AOLimit" type="Double">
+        <label>The Adaptive Optics unit is utilized if the guiding deviation is less than this limit in arcseconds. Once exceeded, mechanical guiding is utilized.</label>
+        <default>2</default>
+      </entry>
     </group>
 </kcfg>

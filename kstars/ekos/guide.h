@@ -27,6 +27,7 @@ class QTabWidget;
 class cgmath;
 class rcalibration;
 class rguider;
+class FITSImage;
 
 namespace Ekos
 {
@@ -46,6 +47,7 @@ public:
     void setCCD(ISD::GDInterface *newCCD);
     void setTelescope(ISD::GDInterface *newTelescope);
     void addST4(ISD::ST4 *newST4);
+    void setAO(ISD::ST4 *newAO);
 
     void addGuideHead(ISD::GDInterface *ccd);
     void syncTelescopeInfo();
@@ -71,19 +73,29 @@ public slots:
         void newFITS(IBLOB*);
         void newST4(int index);
         void processRapidStarData(ISD::CCDChip *targetChip, double dx, double dy, double fit);
+        void setUseDarkFrame(bool enable) { useDarkFrame = enable;}
+        void updateGuideDriver(double delta_ra, double delta_dec);
         bool capture();
         void viewerClosed();
+        void dither();
 
 signals:
         void newLog();
+        void guideReady();
+        void newAxisDelta(double delta_ra, double delta_dec);
+        void autoGuidingToggled(bool, bool);
+        void ditherComplete();
+        void ditherFailed();
+        void ditherToggled(bool);
+
 
 private:
-
-
     void updateGuideParams();
     ISD::CCD *currentCCD;
     ISD::Telescope *currentTelescope;
     ISD::ST4* ST4Driver;
+    ISD::ST4* AODriver;
+    ISD::ST4* GuideDriver;
 
     QList<ISD::ST4*> ST4List;
 
@@ -96,6 +108,11 @@ private:
     rguider *guider;
 
     bool useGuideHead;
+
+
+    bool useDarkFrame;
+    double darkExposure;
+    FITSImage *darkImage;
 
     QStringList logText;
 

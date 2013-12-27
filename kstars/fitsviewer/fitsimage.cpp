@@ -46,11 +46,12 @@
 
 const int MINIMUM_ROWS_PER_CENTER=3;
 
-#define JM_LOWER_LIMIT  5
-#define JM_UPPER_LIMIT  500
+#define JM_UPPER_LIMIT  .5
 
 #define LOW_EDGE_CUTOFF_1   50
 #define LOW_EDGE_CUTOFF_2   10
+#define DIFFUSE_THRESHOLD   0.2
+#define MINIMUM_EDGE_LIMIT  3
 
 //#define FITS_DEBUG
 
@@ -58,8 +59,6 @@ bool greaterThan(Edge *s1, Edge *s2)
 {
     return s1->width > s2->width;
 }
-
-
 
 FITSImage::FITSImage(FITSMode fitsMode)
 {
@@ -162,6 +161,13 @@ bool FITSImage::loadFITS ( const QString &inFilename, QProgressDialog *progress 
     {
         if (progress)
             KMessageBox::error(0, i18n("1D FITS images are not supported in KStars."), i18n("FITS Open"));
+        return false;
+    }
+
+    if (naxes[0] == 0 || naxes[1] == 0)
+    {
+        if (progress)
+            KMessageBox::error(0, i18n("Image has invalid dimensions %1x%2", naxes[0], naxes[1]), i18n("FITS Open"));
         return false;
     }
 
@@ -307,6 +313,10 @@ int FITSImage::saveFITS( const QString &newFilename )
     filename = newFilename;
 
     fptr = new_fptr;
+
+    // For color images, we return for now.
+    if (stats.ndim > 2)
+        return status;
 
     /* Write Data */
     if (fits_write_pix(fptr, TFLOAT, fpixel, nelements, image_buffer, &status))
@@ -493,17 +503,38 @@ void FITSImage::findCentroid(int initStdDev, int minEdgeWidth)
     double threshold=0;
     double avg = 0;
     double sum=0;
+    double min=0;
     int pixelRadius =0;
     int pixVal=0;
     int badPix=0;
+
+    double JMIndex = histogram->getJMIndex();
+    int badPixLimit=0;
 
     QList<Edge*> edges;
 
     while (initStdDev >= 1)
     {
-       threshold = stats.stddev* initStdDev;
+       if (JMIndex > DIFFUSE_THRESHOLD)
+       {
+           threshold = stats.max - stats.stddev* (MINIMUM_STDVAR - initStdDev);
+           min =stats.min;
+           badPixLimit=10;
+       }
+       else
+       {
+           threshold = (stats.max - stats.min)/2.0 + stats.min  + stats.stddev* (MINIMUM_STDVAR - initStdDev);
+           if ( (stats.max - stats.min)/2.0 > (stats.average+stats.stddev*5))
+               threshold = stats.average+stats.stddev*initStdDev;
+           min = stats.min;
+           badPixLimit =2;
+       }
+
+
+       threshold -= stats.min;
 
        #ifdef FITS_DEBUG
+       qDebug() << "JMIndex: " << JMIndex << endl;
        qDebug() << "The threshold level is " << threshold << endl;
        #endif
 
@@ -514,11 +545,10 @@ void FITSImage::findCentroid(int initStdDev, int minEdgeWidth)
 
         for(int j=0; j < stats.dim[0]; j++)
         {
-            pixVal = image_buffer[j+(i*stats.dim[0])] - stats.min;
-
+            pixVal = image_buffer[j+(i*stats.dim[0])] - min;
 
             // If pixel value > threshold, let's get its weighted average
-            if ( pixVal >= threshold || (sum > 0 && badPix <= 2))
+            if ( pixVal >= threshold || (sum > 0 && badPix <= badPixLimit))
             {
                 if (pixVal < threshold)
                     badPix++;
@@ -537,11 +567,7 @@ void FITSImage::findCentroid(int initStdDev, int minEdgeWidth)
                 // We found a potential centroid edge
                 if (pixelRadius >= (minEdgeWidth - (MINIMUM_STDVAR - initStdDev)))
                 {
-                    //int center = round(avg/sum);
-
                     float center = avg/sum;
-
-
                     if (center > 0)
                     {
                         int i_center = round(center);
@@ -551,7 +577,7 @@ void FITSImage::findCentroid(int initStdDev, int minEdgeWidth)
                         newEdge->x          = center;
                         newEdge->y          = i;
                         newEdge->scanned    = 0;
-                        newEdge->val        = image_buffer[i_center+(i*stats.dim[0])] - stats.min;
+                        newEdge->val        = image_buffer[i_center+(i*stats.dim[0])] - min;
                         newEdge->width      = pixelRadius;
                         newEdge->HFR        = 0;
                         newEdge->sum        = sum;
@@ -570,15 +596,13 @@ void FITSImage::findCentroid(int initStdDev, int minEdgeWidth)
 
             }
          }
-
-
      }
 
     #ifdef FITS_DEBUG
     qDebug() << "Total number of edges found is: " << edges.count() << endl;
     #endif
 
-    if (edges.count() >= MINIMUM_STDVAR)
+    if (edges.count() >= MINIMUM_EDGE_LIMIT)
         break;
 
       qDeleteAll(edges);
@@ -670,7 +694,7 @@ void FITSImage::findCentroid(int initStdDev, int minEdgeWidth)
              << cen_limit << endl;
     #endif
 
-        if (cen_limit < 1)// || (cen_w > (0.2 * stats.dim[0])))
+        if (cen_limit < 1)
             continue;
 
         // If centroid count is within acceptable range
@@ -680,15 +704,9 @@ void FITSImage::findCentroid(int initStdDev, int minEdgeWidth)
             // We detected a centroid, let's init it
             Edge *rCenter = new Edge();
 
-            //rCenter->x = edges[rc_index]->x;
             rCenter->x = avg_x/sum;
             rCenter->y = avg_y/sum;
-
             width_sum += rCenter->width;
-
-            //rCenter->y = edges[rc_index]->y;
-
-
             rCenter->width = cen_w;
 
            #ifdef FITS_DEBUG
@@ -715,21 +733,21 @@ void FITSImage::findCentroid(int initStdDev, int minEdgeWidth)
             // Complete sum along the radius
             //for (int k=0; k < rCenter->width; k++)
             for (int k=rCenter->width/2; k >= -(rCenter->width/2) ; k--)
-                FSum += image_buffer[cen_x-k+(cen_y*stats.dim[0])] - stats.min;
+                FSum += image_buffer[cen_x-k+(cen_y*stats.dim[0])] - min;
 
             // Half flux
             HF = FSum / 2.0;
 
             // Total flux starting from center
-            TF = image_buffer[cen_y * stats.dim[0] + cen_x] - stats.min;
+            TF = image_buffer[cen_y * stats.dim[0] + cen_x] - min;
 
             int pixelCounter = 1;
 
             // Integrate flux along radius axis until we reach half flux
             for (int k=1; k < rCenter->width/2; k++)
             {
-                TF += image_buffer[cen_y * stats.dim[0] + cen_x + k] - stats.min;
-                TF += image_buffer[cen_y * stats.dim[0] + cen_x - k] - stats.min;
+                TF += image_buffer[cen_y * stats.dim[0] + cen_x + k] - min;
+                TF += image_buffer[cen_y * stats.dim[0] + cen_x - k] - min;
 
                 if (TF >= HF)
                 {
@@ -995,7 +1013,7 @@ int FITSImage::findStars()
         qDeleteAll(starCenters);
         starCenters.clear();
 
-        if (histogram->getJMIndex() > JM_LOWER_LIMIT && histogram->getJMIndex() < JM_UPPER_LIMIT)
+        if (histogram->getJMIndex() < JM_UPPER_LIMIT)
         {
              findCentroid();
              getHFR();

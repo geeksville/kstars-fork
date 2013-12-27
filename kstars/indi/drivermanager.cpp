@@ -328,9 +328,6 @@ bool DriverManager::startDevices(QList<DriverInfo*> & dList)
         serverManager->setMode(connectionMode);
 
        connect(serverManager, SIGNAL(newServerLog()), this, SLOT(updateLocalTab()));
-       //connect(serverManager, SIGNAL(serverFailure(ServerManager*)), this, SLOT(processServerTermination(ServerManager*)));
-
-
 
          if (serverManager->start())
            servers.append(serverManager);
@@ -347,6 +344,7 @@ bool DriverManager::startDevices(QList<DriverInfo*> & dList)
               {
                   servers.removeOne(serverManager);
                   serverManager->stop();
+                  emit serverTerminated(serverManager->getHost(), serverManager->getPort());
                   delete serverManager;
                   return false;
               }
@@ -361,9 +359,7 @@ bool DriverManager::startDevices(QList<DriverInfo*> & dList)
          foreach(DriverInfo *dv, qdv)
             clientManager->appendManagedDriver(dv);
 
-
          connect(clientManager, SIGNAL(connectionFailure(ClientManager*)), this, SLOT(processClientTermination(ClientManager*)));
-         //connect(clientManager, SIGNAL(newINDIDevice(DriverInfo*)), this, SIGNAL(newINDIDevice(DriverInfo*)));
 
          clientManager->setServer(qdv.at(0)->getHost().toLatin1().constData(), ((uint) port));
 
@@ -441,7 +437,7 @@ void DriverManager::stopDevices(const QList<DriverInfo*> & dList)
           if (sm->size() == 0)
           {
                 sm->stop();
-                servers.removeOne(sm);
+                servers.removeOne(sm);                
                 delete sm;
                 sm = NULL;
           }
@@ -581,9 +577,11 @@ void DriverManager::processClientTermination(ClientManager *client)
 
     if (manager)
     {
-        servers.removeOne(manager);
+        servers.removeOne(manager);        
         delete manager;
     }
+
+    emit serverTerminated(client->getHost(), QString("%1").arg(client->getPort()));
 
     GUIManager::Instance()->removeClient(client);
     INDIListener::Instance()->removeClient(client);
@@ -615,6 +613,7 @@ void DriverManager::processServerTermination(ServerManager* server)
         KMessageBox::error(NULL, errMsg);
     }
 
+    emit serverTerminated(server->getHost(), server->getPort());
     servers.removeOne(server);
     delete server;
 
@@ -999,6 +998,8 @@ bool DriverManager::buildDeviceGroup(XMLEle *root, char errmsg[])
         groupType = KSTARS_VIDEO;
     else if (groupName.indexOf("Focusers") != -1)
         groupType = KSTARS_FOCUSER;
+    else if (groupName.indexOf("Adaptive Optics") != -1)
+        groupType = KSTARS_ADAPTIVE_OPTICS;
     else if (groupName.indexOf("Domes") != -1)
         groupType = KSTARS_DOME;
     else if (groupName.indexOf("Receivers") != -1)
@@ -1045,7 +1046,8 @@ bool DriverManager::buildDriverElement(XMLEle *root, QTreeWidgetItem *DGroup, De
     QString name;
     QString port;
     QString skel;
-    //double focal_length (-1), aperture (-1);
+    QVariantMap vMap;
+    double focal_length (-1), aperture (-1);
 
 
         ap = findXMLAtt(root, "label");
@@ -1069,13 +1071,21 @@ bool DriverManager::buildDriverElement(XMLEle *root, QTreeWidgetItem *DGroup, De
             skel = valuXMLAtt(ap);
 
         // Let's look for telescope-specific attributes: focal length and aperture
-        /*ap = findXMLAtt(root, "focal_length");
+        ap = findXMLAtt(root, "focal_length");
         if (ap)
+        {
             focal_length = QString(valuXMLAtt(ap)).toDouble();
+            if (focal_length > 0)
+                vMap.insert("TELESCOPE_FOCAL_LENGTH", focal_length);
+        }
 
         ap = findXMLAtt(root, "aperture");
         if (ap)
-            aperture = QString(valuXMLAtt(ap)).toDouble();*/
+        {
+            aperture = QString(valuXMLAtt(ap)).toDouble();
+            if (aperture > 0)
+                vMap.insert("TELESCOPE_APERTURE", aperture);
+        }
 
         el = findXMLEle(root, "driver");
 
@@ -1101,7 +1111,6 @@ bool DriverManager::buildDriverElement(XMLEle *root, QTreeWidgetItem *DGroup, De
         version = pcdataXMLEle(el);
 
         QTreeWidgetItem *device = new QTreeWidgetItem(DGroup);
-        //, lastDevice);
 
     device->setText(LOCAL_NAME_COLUMN, label);
     device->setIcon(LOCAL_STATUS_COLUMN, ui->stopPix);
@@ -1110,7 +1119,8 @@ bool DriverManager::buildDriverElement(XMLEle *root, QTreeWidgetItem *DGroup, De
 
     lastDevice = device;
 
-    if ((driverSource == PRIMARY_XML) && driversStringList.contains(driver) == false)
+    //if ((driverSource == PRIMARY_XML) && driversStringList.contains(driver) == false)
+    if (groupType == KSTARS_TELESCOPE && driversStringList.contains(driver) == false)
         driversStringList.append(driver);
 
     dv = new DriverInfo(name);
@@ -1120,16 +1130,16 @@ bool DriverManager::buildDriverElement(XMLEle *root, QTreeWidgetItem *DGroup, De
     dv->setDriver(driver);
     dv->setSkeletonFile(skel);
     dv->setType(groupType);
-
     dv->setDriverSource(driverSource);
-
     dv->setUserPort(port);
+
+    if (vMap.isEmpty() == false)
+        dv->setAuxInfo(vMap);
 
     connect(dv, SIGNAL(deviceStateChanged(DriverInfo*)), this, SLOT(processDeviceStatus(DriverInfo*)));
 
     driversList.append(dv);
 
-    // SLOTS/SIGNAL, pop menu, indi server logic
     return true;
 }
 
@@ -1141,7 +1151,8 @@ void DriverManager::updateCustomDrivers()
     QString version;
     QString name;
     QTreeWidgetItem *group, *widgetDev;
-    //double focal_length (-1), aperture (-1);
+    QVariantMap vMap;
+    DriverInfo *drv=NULL;
 
     // Find if the group already exists
     QList<QTreeWidgetItem *> treeList = ui->localTreeWidget->findItems("Telescopes", Qt::MatchExactly);
@@ -1150,13 +1161,28 @@ void DriverManager::updateCustomDrivers()
     else return;
 
 
-    // Find custom telescope to ADD
+    // Find custom telescope to ADD/UPDATE
     foreach(OAL::Scope *s, *(KStarsData::Instance()->logObject()->scopeList()))
         {
             name = label = s->name();
 
-            if (findDriverByLabel(label) || s->driver() == i18n("None"))
+            if (s->driver() == i18n("None"))
                 continue;
+
+            // If driver already exists, just update values
+            if ( (drv = findDriverByLabel(label)) )
+            {
+                if (s->aperture() > 0 && s->focalLength() > 0)
+                {
+                    vMap.insert("TELESCOPE_APERTURE", s->aperture());
+                    vMap.insert("TELESCOPE_FOCAL_LENGTH", s->focalLength());
+                    drv->setAuxInfo(vMap);
+                }
+
+                drv->setDriver(s->driver());
+
+                continue;
+            }
 
             driver = s->driver();
             version = QString("1.0");
@@ -1173,6 +1199,13 @@ void DriverManager::updateCustomDrivers()
             dv->setVersion(version);
             dv->setType(KSTARS_TELESCOPE);
             dv->setDriverSource(EM_XML);
+
+            if (s->aperture() > 0 && s->focalLength() > 0)
+            {
+                vMap.insert("TELESCOPE_APERTURE", s->aperture());
+                vMap.insert("TELESCOPE_FOCAL_LENGTH", s->focalLength());
+                dv->setAuxInfo(vMap);
+            }
 
             connect(dv, SIGNAL(deviceStateChanged(DriverInfo*)), this, SLOT(processDeviceStatus(DriverInfo*)));
             driversList.append(dv);

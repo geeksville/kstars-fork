@@ -73,6 +73,8 @@ rcalibration::rcalibration(Ekos::Guide *parent)
     connect( ui.pushButton_StartCalibration, SIGNAL(clicked()), 		this, SLOT(onStartReticleCalibrationButtonClick()) );
 	connect( ui.checkBox_AutoMode, 		SIGNAL(stateChanged(int)), 		this, SLOT(onEnableAutoMode(int)) );
 
+    connect (ui.checkBox_DarkFrame, SIGNAL(toggled(bool)), pmain_wnd, SLOT(setUseDarkFrame(bool)));
+
     connect( ui.captureB, SIGNAL(clicked()), this, SLOT(capture()));
 
     idleColor.setRgb(200,200,200);
@@ -263,6 +265,8 @@ void rcalibration::onStartReticleCalibrationButtonClick()
 
     ui.progressBar->setVisible(true);
 
+    pmain_wnd->setUseDarkFrame(ui.checkBox_DarkFrame->isChecked());
+
 	// automatic
 	if( ui.checkBox_TwoAxis->checkState() == Qt::Checked )
         calibrate_reticle_by_ra_dec(false);
@@ -290,7 +294,7 @@ void rcalibration::process_calibration()
         break;
 
         case CAL_MANUAL:
-            //calibrate_reticle_manual();
+            calibrate_reticle_manual();
             break;
 
         case CAL_RA_AUTO:
@@ -415,6 +419,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( bool ra_only )
         return;
 
     int pulseDuration = ui.spinBox_Pulse->value();
+    int totalPulse    = pulseDuration * auto_drift_time;
 
     if (ra_only)
         calibrationType = CAL_RA_AUTO;
@@ -478,14 +483,6 @@ void rcalibration::calibrate_reticle_by_ra_dec( bool ra_only )
         {
             if (iterations == auto_drift_time)
             {
-                pmain_wnd->do_pulse( RA_DEC_DIR, pulseDuration );
-                iterations++;
-
-                ui.progressBar->setValue( iterations );
-                break;
-            }
-            else if (iterations == (auto_drift_time+1))
-            {
                 pmath->get_star_screen_pos( &end_x1, &end_y1 );
                 //qDebug() << "End X1 " << end_x1 << " End Y1 " << end_y1 << endl;
 
@@ -493,10 +490,8 @@ void rcalibration::calibrate_reticle_by_ra_dec( bool ra_only )
                 ROT_Z = RotateZ( -M_PI*phi/180.0 ); // derotates...
 
                 pmain_wnd->appendLogText(i18n("Running..."));
-            }
 
-            // accelerate GUIDE_RA drive to return to start position
-            //pmain_wnd->do_pulse( RA_DEC_DIR, turn_back_time*1000 );
+            }
 
             //----- Z-check (new!) -----
             double cur_x, cur_y;
@@ -552,7 +547,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( bool ra_only )
             break;
         }
         // calc orientation
-        if( pmath->calc_and_set_reticle( start_x1, start_y1, end_x1, end_y1 ) )
+        if( pmath->calc_and_set_reticle( start_x1, start_y1, end_x1, end_y1, totalPulse) )
         {
             calibrationStage = CAL_FINISH;
             fill_interface();
@@ -640,7 +635,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( bool ra_only )
 
     bool swap_dec=false;
     // calc orientation
-    if( pmath->calc_and_set_reticle2( start_x1, start_y1, end_x1, end_y1, start_x2, start_y2, end_x2, end_y2, &swap_dec ) )
+    if( pmath->calc_and_set_reticle2( start_x1, start_y1, end_x1, end_y1, start_x2, start_y2, end_x2, end_y2, &swap_dec, totalPulse ) )
     {
         calibrationStage = CAL_FINISH;
         fill_interface();

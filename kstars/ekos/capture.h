@@ -51,6 +51,7 @@ class SequenceJob
     int getCount() { return count;}
     unsigned int getCompleted() { return completed; }
     const QString & getPrefix() { return prefix;}
+    double getExposure() const { return exposure;}
 
     void setActiveCCD(ISD::CCD *ccd) { activeCCD = ccd; }
     ISD::CCD *getActiveCCD() { return activeCCD;}
@@ -77,9 +78,10 @@ class SequenceJob
     void setStatusCell(QTableWidgetItem *cell) { statusCell = cell; }
     void setCompleted(unsigned int in_completed) { completed = in_completed;}
 
+    double getExposeLeft() const;
+    void setExposeLeft(double value);
 
-
-    private:
+private:
 
     QStringList statusStrings;
     ISD::CCDChip *activeChip;
@@ -101,6 +103,7 @@ class SequenceJob
     bool preview;
     bool showFITS;
     unsigned int completed;
+    double exposeLeft;
     FITSScale captureFilter;
     QTableWidgetItem *statusCell;
 
@@ -149,12 +152,18 @@ public slots:
     void moveJobUp();
     void moveJobDown();
 
+    void enableGuideLimits();
+    void setGuideDeviation(double delta_ra, double delta_dec);
+    void setGuideDither(bool enable);
+    void setAutoguiding(bool enable, bool isDithering);
+    void resumeCapture();
 
     void updateCaptureProgress(ISD::CCDChip *tChip, double value);
     void checkSeqBoundary(const KFileItemList & items);
 
 signals:
         void newLog();
+        void exposureComplete();
 
 private:
 
@@ -194,6 +203,13 @@ private:
     QStringList logText;
 
     QProgressIndicator *pi;
+
+    // Guide Deviation
+    bool deviationDetected;
+
+    // Dither
+    bool guideDither;
+    bool isAutoGuiding;
 
 };
 

@@ -4,6 +4,7 @@ add_subdirectory( htmesh )
 add_subdirectory( tools/whatsinteresting/qml)
 
 Find_package(ZLIB REQUIRED)
+Find_package(Threads REQUIRED)
 
 if (CFITSIO_FOUND)
   set (fits_SRCS
@@ -13,13 +14,13 @@ if (CFITSIO_FOUND)
     fitsviewer/fitsviewer.cpp
     fitsviewer/fitshistogramdraw.cpp
     fitsviewer/fitstab.cpp
-)
+    )
   set (fitsui_SRCS
     fitsviewer/fitsheaderdialog.ui
     fitsviewer/statform.ui
     indi/streamform.ui
     fitsviewer/fitshistogramui.ui
-)
+    )
   include_directories(${CFITSIO_INCLUDE_DIR})
 endif(CFITSIO_FOUND)
 
@@ -46,7 +47,6 @@ if (INDI_FOUND)
     indi/streamwg.cpp
     )
   set(indiui_SRCS
-    indi/devmanager.ui
     indi/drivermanager.ui
     indi/opsindi.ui
     indi/indihostconf.ui
@@ -72,6 +72,8 @@ if (CFITSIO_FOUND)
       ekos/focus.cpp
       ekos/guide.cpp
       ekos/align.cpp
+      ekos/astrometryparser.cpp
+      ekos/offlineastrometryparser.cpp
       ekos/opsekos.cpp
       ekos/QProgressIndicator.cpp
       ekos/guide/common.cpp
@@ -85,6 +87,11 @@ if (CFITSIO_FOUND)
    )
 
 endif(CFITSIO_FOUND)
+
+if (QJSON_FOUND)
+   include_directories( ${QJSON_INCLUDE_DIR} )
+   set(onlineparser_SRCS ekos/onlineastrometryparser.cpp)
+endif(QJSON_FOUND)
 
   include_directories(${INDI_INCLUDE_DIR})
 endif(INDI_FOUND)
@@ -117,7 +124,6 @@ include_directories(
 #    ${CMAKE_SOURCE_DIR}/kstars/kstars/htmesh
 #	${CMAKE_SOURCE_DIR}/libkdeedu/extdate
 	${ZLIB_INCLUDE_DIR}
-	${EIGEN2_INCLUDE_DIR}
 )
 
 ########### next target ###############
@@ -159,6 +165,7 @@ set(libkstarstools_SRCS
 	tools/whatsinteresting/wilpsettings.cpp
 	tools/whatsinteresting/wiequipsettings.cpp
 	tools/whatsinteresting/obsconditions.cpp
+        tools/whatsinteresting/skyobjdescription.cpp
 	tools/flagmanager.cpp
 	tools/moonphasetool.cpp
 	tools/starhopper.cpp
@@ -462,7 +469,7 @@ set(logging_SRCS
 )
 
 ##set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
-set(kstars_SRCS ${indi_SRCS} ${fits_SRCS} ${ekos_SRCS}
+set(kstars_SRCS ${indi_SRCS} ${fits_SRCS} ${ekos_SRCS} ${onlineparser_SRCS}
 	${libkstarswidgets_SRCS} ${libkstarscomponents_SRCS} ${libkstarstools_SRCS}
 	${kstars_extra_SRCS}  ${kstars_gl_SRCS} ${kstars_projection_SRCS} ${xplanet_SRCS}
 	${kstars_options_SRCS} ${kstars_skyobjects_SRCS} ${kstars_dialogs_SRCS} ${oal_SRCS}
@@ -510,19 +517,20 @@ if (CFITSIO_FOUND)
   target_link_libraries(KStarsLib ${CFITSIO_LIBRARIES})
 endif (CFITSIO_FOUND)
 if (INDI_FOUND)
-  target_link_libraries(KStarsLib ${INDI_LIBRARIES} ${INDI_CLIENT_LIBRARIES} z)
+  target_link_libraries(KStarsLib ${CMAKE_THREAD_LIBS_INIT} ${INDI_LIBRARIES} ${INDI_CLIENT_LIBRARIES} z)
 endif (INDI_FOUND)
 if (WCSLIB_FOUND)
     target_link_libraries(KStarsLib ${WCSLIB_LIBRARIES})
 endif (WCSLIB_FOUND)
-
 if( OPENGL_FOUND )
     target_link_libraries(KStarsLib
     ${OPENGL_LIBRARIES}
     ${QT_QTOPENGL_LIBRARY}
     )
 endif( OPENGL_FOUND )
-
+if (QJSON_FOUND)
+    target_link_libraries(KStarsLib ${QJSON_LIBRARIES})
+endif(QJSON_FOUND)
 
 target_link_libraries(kstars KStarsLib)
 

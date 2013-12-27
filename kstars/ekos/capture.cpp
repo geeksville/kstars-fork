@@ -43,7 +43,8 @@ void SequenceJob::abort()
     status = JOB_ABORTED;
     if (preview == false)
         statusCell->setText(statusStrings[status]);
-    activeChip->abortExposure();
+    if (activeChip->canAbort())
+        activeChip->abortExposure();
     activeChip->setBatchMode(false);
 }
 
@@ -73,7 +74,7 @@ void SequenceJob::prepareCapture()
 
 SequenceJob::CAPTUREResult SequenceJob::capture(bool isDark)
 {
-   if (activeChip->setFrame(x, y, w, h) == false)
+   if (activeChip->canSubframe() && activeChip->setFrame(x, y, w, h) == false)
    {
         status = JOB_ERROR;
 
@@ -84,7 +85,7 @@ SequenceJob::CAPTUREResult SequenceJob::capture(bool isDark)
 
    }
 
-    if (activeChip->setBinning(binX, binY) == false)
+    if (activeChip->canBin() && activeChip->setBinning(binX, binY) == false)
     {
         status = JOB_ERROR;
 
@@ -115,6 +116,8 @@ SequenceJob::CAPTUREResult SequenceJob::capture(bool isDark)
     if (preview == false)
         statusCell->setText(statusStrings[status]);
 
+    exposeLeft = exposure;
+
     activeChip->capture(exposure);
 
     return CAPTURE_OK;
@@ -133,6 +136,17 @@ void SequenceJob::setFrameType(int type, const QString & name)
     frameTypeName = name;
 }
 
+double SequenceJob::getExposeLeft() const
+{
+    return exposeLeft;
+}
+
+void SequenceJob::setExposeLeft(double value)
+{
+    exposeLeft = value;
+}
+
+
 Capture::Capture()
 {
     setupUi(this);
@@ -145,6 +159,11 @@ Capture::Capture()
     activeJob  = NULL;
 
     targetChip = NULL;
+
+    deviationDetected = false;
+
+    isAutoGuiding = false;
+    guideDither   = false;
 
     calibrationState = CALIBRATE_NONE;
 
@@ -184,11 +203,14 @@ Capture::Capture()
     seqCurrentCount = 0;
     seqDelay = 0;
     useGuideHead = false;
+    guideDither = false;
 
     foreach(QString filter, FITSViewer::filterTypes)
         filterCombo->addItem(filter);
 
     displayCheck->setEnabled(Options::showFITS());
+    guideDeviationCheck->setChecked(Options::enforceGuideDeviation());
+    guideDeviation->setValue(Options::guideDeviation());
 }
 
 Capture::~Capture()
@@ -238,6 +260,9 @@ void Capture::startSequence()
         return;
     }
 
+    Options::setGuideDeviation(guideDeviation->value());
+    Options::setEnforceGuideDeviation(guideDeviationCheck->isChecked());
+
     if (queueTable->rowCount() ==0)
         addJob();
 
@@ -257,6 +282,8 @@ void Capture::startSequence()
         appendLogText(i18n("No pending jobs found. Please add a job to the sequence queue."));
         return;
     }
+
+    deviationDetected = false;
 
     executeJob(first_job);
 
@@ -320,6 +347,14 @@ void Capture::checkCCD(int ccdNum)
             useGuideHead = false;
         }
 
+        frameWIN->setEnabled(targetChip->canSubframe());
+        frameHIN->setEnabled(targetChip->canSubframe());
+        frameXIN->setEnabled(targetChip->canSubframe());
+        frameYIN->setEnabled(targetChip->canSubframe());
+
+        binXCombo->setEnabled(targetChip->canBin());
+        binYCombo->setEnabled(targetChip->canBin());
+
         if (currentCCD->getMinMaxStep(frameProp, "WIDTH", &min, &max, &step))
         {
             if (step == 0)
@@ -364,11 +399,8 @@ void Capture::checkCCD(int ccdNum)
             frameYIN->setSingleStep(step);
         }
 
-
-
         if (targetChip->getFrame(&x,&y,&w,&h))
         {
-
             frameXIN->setValue(x);
             frameYIN->setValue(y);
             frameWIN->setValue(w);
@@ -506,6 +538,8 @@ void Capture::newFITS(IBLOB *bp)
             image_data->subtract(calibrateImage->getImageData()->getImageBuffer());
     }
 
+    secondsLabel->setText(i18n("Complete."));
+
     if (seqTotalCount <= 0)
     {
        jobs.removeOne(activeJob);
@@ -544,9 +578,10 @@ void Capture::newFITS(IBLOB *bp)
         if (next_job)
             executeJob(next_job);
     }
+    else if (isAutoGuiding && guideDither)
+        emit exposureComplete();
     else
         seqTimer->start(seqDelay);
-
 
 }
 
@@ -565,6 +600,7 @@ void Capture::captureImage()
 
     if (useGuideHead == false && darkSubCheck->isChecked() && calibrationState == CALIBRATE_NONE)
         isDark = true;
+
 
      rc = activeJob->capture(isDark);
 
@@ -592,6 +628,11 @@ void Capture::captureImage()
      }
 
 
+}
+
+void Capture::resumeCapture()
+{
+    seqTimer->start(seqDelay);
 }
 
 /*******************************************************************************/
@@ -679,7 +720,12 @@ void Capture::updateCaptureProgress(ISD::CCDChip * tChip, double value)
 
     exposeOUT->setText(QString::number(value, 'd', 2));
 
-    if (value <= 1)
+    if (activeJob)
+        activeJob->setExposeLeft(value);
+
+    if (value == 0)
+        secondsLabel->setText(i18n("Downloading..."));
+    else if (value <= 1)
         secondsLabel->setText(i18n("second left"));
     else
         secondsLabel->setText(i18n("seconds left"));
@@ -822,7 +868,11 @@ void Capture::removeJob()
     int currentRow = queueTable->currentRow();
 
     if (currentRow < 0)
-        return;
+    {
+        currentRow = queueTable->rowCount()-1;
+        if (currentRow < 0)
+            return;
+    }
 
     queueTable->removeRow(currentRow);
 
@@ -885,7 +935,7 @@ void Capture::moveJobDown()
 
     int columnCount = queueTable->columnCount();
 
-    if (currentRow+1 >= queueTable->rowCount() || queueTable->rowCount() == 1)
+    if (currentRow < 0 || queueTable->rowCount() == 1)
         return;
 
     int destinationRow = currentRow + 1;
@@ -954,6 +1004,60 @@ void Capture::executeJob(SequenceJob *job)
 
     captureImage();
 
+}
+
+void Capture::enableGuideLimits()
+{
+    guideDeviationCheck->setEnabled(true);
+    guideDeviation->setEnabled(true);
+}
+
+void Capture::setGuideDeviation(double delta_ra, double delta_dec)
+{
+    if (guideDeviationCheck->isChecked() == false || activeJob == NULL)
+        return;
+
+    // We don't enforce limit on previews
+    if (activeJob->isPreview() || activeJob->getExposeLeft() == 0)
+        return;
+
+    double deviation_rms = sqrt(delta_ra*delta_ra + delta_dec*delta_dec);
+
+    QString deviationText = QString("%1").arg(deviation_rms, 0, 'g', 3);
+
+    if (activeJob->getStatus() == SequenceJob::JOB_BUSY)
+    {
+        if (deviation_rms > guideDeviation->value())
+        {
+            deviationDetected = true;
+            appendLogText(i18n("Guiding deviation %1 exceeded limit value of %2 arcsecs, aborting exposure.", deviationText, guideDeviation->value()));
+            stopSequence();
+        }
+        return;
+    }
+
+    if (activeJob->getStatus() == SequenceJob::JOB_ABORTED && deviationDetected)
+    {
+        if (deviation_rms <= guideDeviation->value())
+        {
+            deviationDetected = false;
+            appendLogText(i18n("Guiding deviation %1 is now lower than limit value of %2 arcsecs, resuming exposure.", deviationText, guideDeviation->value()));
+            startSequence();
+            return;
+        }
+    }
+
+}
+
+void Capture::setGuideDither(bool enable)
+{
+    guideDither = enable;
+}
+
+void Capture::setAutoguiding(bool enable, bool isDithering)
+{
+    isAutoGuiding = enable;
+    guideDither   = isDithering;
 }
 
 }
