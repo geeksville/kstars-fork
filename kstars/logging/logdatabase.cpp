@@ -105,7 +105,7 @@ QStringList LogDatabase::baseTableCreationQueries()
                    "weather text,"
                    "equipment text,"
                    "comments text,"
-                   "language text);"); // is it really required?
+                   "lang text);");
 
     queries.append("create table sessionCoObservers("
                    "sessionId int not null,"
@@ -178,11 +178,17 @@ QStringList LogDatabase::equipmentTableCreationQueries()
                    "aperture real,"
                    "lightGrasp real,"
                    "orientationErect int,"
-                   "orientationTruesided int,"
-                   "scopeFocalLength real," // TODO: fixed mag optics
-                   "fixedMagMagnification real,"
-                   "fixedMagTrueFieldValue real,"
-                   "fixedMagTrueFieldUnit text);");
+                   "orientationTruesided int);");
+
+    queries.append("create table scopes("
+                   "id int primary key not null,"
+                   "scopeFocalLength real not null);");
+
+    queries.append("create table fixedMagOptics("
+                   "id int primary key not null,"
+                   "magnification real not null,"
+                   "trueFieldValue real,"
+                   "trueFieldUnit text);");
 
     queries.append("create table eyepieces("
                    "id int primary key not null,"
