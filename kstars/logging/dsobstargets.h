@@ -15,8 +15,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef DSOBSERVATIONTARGETS_H
-#define DSOBSERVATIONTARGETS_H
+#ifndef DSOBSTARGETS_H
+#define DSOBSTARGETS_H
 
 #include "obstarget.h"
 
@@ -401,4 +401,4 @@ private:
 
 }
 
-#endif // DSOBSERVATIONTARGETS_H
+#endif // DSOBSTARGETS_H

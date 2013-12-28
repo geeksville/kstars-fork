@@ -15,8 +15,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef OBSERVATIONTARGET_H
-#define OBSERVATIONTARGET_H
+#ifndef OBSTARGET_H
+#define OBSTARGET_H
 
 #include "dms.h"
 #include "QStringList"
@@ -131,4 +131,4 @@ private:
 
 }
 
-#endif // OBSERVATIONTARGET_H
+#endif // OBSTARGET_H

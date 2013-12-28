@@ -15,8 +15,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef STAROBSERVATIONTARGET_H
-#define STAROBSERVATIONTARGET_H
+#ifndef STAROBSTARGET_H
+#define STAROBSTARGET_H
 
 #include "obstarget.h"
 
@@ -59,4 +59,4 @@ private:
 
 }
 
-#endif // STAROBSERVATIONTARGET_H
+#endif // STAROBSTARGET_H
