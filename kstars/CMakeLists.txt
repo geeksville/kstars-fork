@@ -466,6 +466,8 @@ set(logging_SRCS
     logging/observer.cpp
     logging/session.cpp
     logging/site.cpp
+    logging/observation.cpp
+    logging/obsfindings.cpp
 )
 
 ##set(kstars_SRCS ${indi_SRCS} ${ekos_SRCS} ${fits_SRCS}
