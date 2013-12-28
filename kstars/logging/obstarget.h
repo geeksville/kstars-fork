@@ -29,11 +29,7 @@ class ObsTarget
 public:
     ObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
               const int discovererObserverId, const dms &ra, const dms &dec,
-              const QString &constellation, const QString &notes) :
-        m_Id(id), m_Name(name), m_Aliases(aliases), m_Datasource(datasource),
-        m_DiscovererObserverId(discovererObserverId), m_Ra(ra), m_Dec(dec), m_Constellation(constellation),
-        m_Notes(notes)
-    { }
+              const QString &constellation, const QString &notes);
 
     QString name() const
     {
