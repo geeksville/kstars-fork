@@ -19,6 +19,10 @@
 
 using namespace Logging;
 
+Lens::Lens(const int id, const QString &model, const double factor) :
+    m_Id(id), m_Model(model), m_Factor(factor)
+{ }
+
 Lens::Lens(const int id, const QString &model, const QString &vendor, const double factor) :
     m_Id(id), m_Model(model), m_Vendor(vendor), m_Factor(factor)
 { }

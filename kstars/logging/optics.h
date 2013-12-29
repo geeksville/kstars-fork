@@ -18,6 +18,7 @@
 #ifndef OPTICS_H
 #define OPTICS_H
 
+#include "optional.h"
 #include "QString"
 
 namespace Logging
@@ -26,6 +27,8 @@ namespace Logging
 class Optics
 {
 public:
+    Optics(const int id, const QString &model, const double aperture);
+
     Optics(const int id, const QString &model, const QString &type, const QString &vendor,
            const double aperture, const double lightGrasp, const bool orientationErect,
            const bool orientationTruesided);
@@ -55,17 +58,17 @@ public:
         return m_Aperture;
     }
 
-    double lightGrasp() const
+    Optional<double> lightGrasp() const
     {
         return m_LightGrasp;
     }
 
-    bool orientationErect() const
+    Optional<bool> orientationErect() const
     {
         return m_OrientationErect;
     }
 
-    bool orientationTruesided() const
+    Optional<bool> orientationTruesided() const
     {
         return m_OrientationTruesided;
     }
@@ -90,17 +93,17 @@ public:
         m_Aperture = aperture;
     }
 
-    void setLightGrasp(const double lightGrasp)
+    void setLightGrasp(const Optional<double> &lightGrasp)
     {
         m_LightGrasp = lightGrasp;
     }
 
-    void setOrientationTruesided(const bool isTruesided)
+    void setOrientationTruesided(const Optional<bool> &isTruesided)
     {
         m_OrientationTruesided = isTruesided;
     }
 
-    void setOrientationErect(const bool isErect)
+    void setOrientationErect(const Optional<bool> &isErect)
     {
         m_OrientationErect = isErect;
     }
@@ -112,9 +115,9 @@ private:
     QString m_Type;
     QString m_Vendor;
     double m_Aperture;
-    double m_LightGrasp;
-    bool m_OrientationErect;
-    bool m_OrientationTruesided;
+    Optional<double> m_LightGrasp;
+    Optional<bool> m_OrientationErect;
+    Optional<bool> m_OrientationTruesided;
 };
 
 }

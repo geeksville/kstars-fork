@@ -1,7 +1,7 @@
 /***************************************************************************
-                    session.cpp - K Desktop Planetarium
+                    optional.h - K Desktop Planetarium
                              -------------------
-    begin                : Tue Nov 12 2013
+    begin                : Mon Dec 23 2013
     copyright            : (C) 2013 by Rafal Kulaga
     email                : rl.kulaga@gmail.com
  ***************************************************************************/
@@ -15,22 +15,54 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "session.h"
 
-using namespace Logging;
+#ifndef OPTIONAL_H
+#define OPTIONAL_H
 
-Session::Session(const int id, const QDateTime &begin, const QDateTime &end, const int siteId) :
-    m_Id(id), m_Begin(begin), m_End(end), m_SiteId(siteId)
-{ }
+template <class T>
+class Optional
+{
+public:
+    Optional(T value) :
+        m_Value(value), m_Defined(true)
+    { }
 
-Session::Session(const int id, const QDateTime &begin, const QDateTime &end, const int siteId,
-                 const QList<int> &observersIds, const QString &weatherDesc,
-                 const QString &equipmentDesc, const QString &comments, const QString &language,
-                 const QStringList &images) :
-    m_Id(id), m_Begin(begin), m_End(end), m_SiteId(siteId), m_ObserversIds(observersIds),
-    m_WeatherDescription(weatherDesc), m_EquipmentDescription(equipmentDesc),
-    m_Comments(comments), m_Language(language), m_Images(images)
-{ }
+    Optional(T value, bool defined) :
+        m_Value(value), m_Defined(defined)
+    { }
 
+    Optional() :
+        m_Value(T()), m_Defined(false)
+    { }
 
+    T value() const
+    {
+        return m_Value;
+    }
 
+    bool defined() const
+    {
+        return m_Defined;
+    }
+
+    void setValue(const T &value)
+    {
+        m_Value = value;
+    }
+
+    void setDefined(const bool defined)
+    {
+        m_Defined = defined;
+    }
+
+    operator T() const
+    {
+        return m_Value;
+    }
+
+private:
+    T m_Value;
+    bool m_Defined;
+};
+
+#endif // OPTIONAL_H

@@ -19,9 +19,14 @@
 
 using namespace Logging;
 
+Observer::Observer(const int id, const QString &name, const QString &surname) :
+    m_Id(id), m_Name(name), m_Surname(surname)
+{ }
+
 Observer::Observer(const int id, const QString &name, const QString &surname,
                    const double fstOffset, const QStringList &contacts,
                    const QList<Account> &accounts) :
-    m_Id(id), m_Name(name), m_Surname(surname), m_FstOffset(fstOffset),
-    m_Contacts(contacts), m_Accounts(accounts)
+    m_Id(id), m_Name(name), m_Surname(surname), m_Contacts(contacts),
+    m_Accounts(accounts), m_FstOffset(fstOffset)
 { }
+

@@ -21,12 +21,16 @@
 #include "QDateTime"
 #include "QStringList"
 
+#include "optional.h"
+
 namespace Logging
 {
 
 class Session
 {
 public:
+    Session(const int id, const QDateTime &begin, const QDateTime &end, const int siteId);
+
     Session(const int id, const QDateTime &begin, const QDateTime &end, const int siteId,
             const QList<int> &observersIds, const QString &weatherDesc,
             const QString &equipmentDesc, const QString &comments, const QString &language,
@@ -126,7 +130,6 @@ public:
     {
         m_Images = images;
     }
-
 
 private:
     int m_Id;

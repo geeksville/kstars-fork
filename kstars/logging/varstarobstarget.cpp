@@ -20,10 +20,10 @@
 using namespace Logging;
 
 VarStarObsTarget::VarStarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                                   const int discovererObserverId, const dms &ra, const dms &dec,
-                                   const QString &constellation, const QString &notes, const double apparentMag,
-                                   const QString &classification, const QString &type, const double maxApparentMag,
-                                   const double period) :
-    StarObsTarget(id, name, aliases, datasource, discovererObserverId, ra, dec, constellation, notes, apparentMag,
-                  classification), m_Type(type), m_MaxApparentMag(maxApparentMag), m_Period(period)
+                                   const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                                   const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                                   const double apparentMag, const QString &classification, const QString &type,
+                                   const double maxApparentMag, const double period) :
+    StarObsTarget(id, name, aliases, datasource, discovererObserverId, ra, dec, origin, equinox, constellation,
+                  notes, apparentMag, classification), m_Type(type), m_MaxApparentMag(maxApparentMag), m_Period(period)
 { }

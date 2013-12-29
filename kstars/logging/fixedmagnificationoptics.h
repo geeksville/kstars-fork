@@ -18,7 +18,8 @@
 #ifndef FIXEDMAGNIFICATIONOPTICS_H
 #define FIXEDMAGNIFICATIONOPTICS_H
 
-#include "logging/optics.h"
+#include "optional.h"
+#include "optics.h"
 #include "dms.h"
 
 namespace Logging
@@ -27,6 +28,8 @@ namespace Logging
 class FixedMagnificationOptics : public Optics
 {
 public:
+    FixedMagnificationOptics(const int id, const QString &model, const double aperture, const double magnification);
+
     FixedMagnificationOptics(const int id, const QString &model, const QString &type, const QString &vendor,
                              const double aperture, const double lightGrasp, const bool orientationErect,
                              const bool orientationTruesided, const double magnification, const dms &trueField);
@@ -36,7 +39,7 @@ public:
         return m_Magnification;
     }
 
-    dms trueField() const
+    Optional<dms> trueField() const
     {
         return m_TrueField;
     }
@@ -46,14 +49,14 @@ public:
         m_Magnification = magnification;
     }
 
-    void setTrueField(const dms &trueField)
+    void setTrueField(const Optional<dms> &trueField)
     {
         m_TrueField = trueField;
     }
 
 private:
     double m_Magnification;
-    dms m_TrueField;
+    Optional<dms> m_TrueField;
 };
 
 }

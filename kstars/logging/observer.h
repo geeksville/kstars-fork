@@ -19,6 +19,7 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
+#include "optional.h"
 #include "QString"
 #include "QStringList"
 
@@ -61,6 +62,8 @@ public:
     };
 
 
+    Observer(const int id, const QString &name, const QString &surname);
+
     Observer(const int id, const QString &name, const QString &surname,
              const double fstOffset, const QStringList &contacts,
              const QList<Account> &accounts);
@@ -80,11 +83,6 @@ public:
         return m_Surname;
     }
 
-    double fstOffset() const
-    {
-        return m_FstOffset;
-    }
-
     QStringList contacts() const
     {
         return m_Contacts;
@@ -93,6 +91,11 @@ public:
     QList<Account> accounts() const
     {
         return m_Accounts;
+    }
+
+    Optional<double> fstOffset() const
+    {
+        return m_FstOffset;
     }
 
     void setName(const QString &name)
@@ -105,11 +108,6 @@ public:
         m_Surname = surname;
     }
 
-    void setFstOffset(const double fstOffset)
-    {
-        m_FstOffset = fstOffset;
-    }
-
     void setContacts(const QStringList &contacts)
     {
         m_Contacts = contacts;
@@ -120,13 +118,18 @@ public:
         m_Accounts = accounts;
     }
 
+    void setFstOffset(const Optional<double> fstOffset)
+    {
+        m_FstOffset = fstOffset;
+    }
+
 private:
     int m_Id;
     QString m_Name;
     QString m_Surname;
-    double m_FstOffset;
     QStringList m_Contacts;
     QList<Account> m_Accounts;
+    Optional<double> m_FstOffset;
 };
 
 }

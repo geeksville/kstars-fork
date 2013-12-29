@@ -18,6 +18,7 @@
 #ifndef OBSTARGET_H
 #define OBSTARGET_H
 
+#include "optional.h"
 #include "dms.h"
 #include "QStringList"
 
@@ -27,9 +28,24 @@ namespace Logging
 class ObsTarget
 {
 public:
+    enum REF_FRAME_ORIGIN
+    {
+        RFO_GEOCENTRIC = 0,
+        RFO_TOPOCENTRIC = 1
+    };
+
+    enum REF_FRAME_EQUINOX
+    {
+        RFT_J2000 = 0,
+        RFT_B1950 = 1,
+        RFT_EQ_OF_DATE = 2
+    };
+
+    ObsTarget(const int id, const QString &name);
+
     ObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-              const int discovererObserverId, const dms &ra, const dms &dec,
-              const QString &constellation, const QString &notes);
+              const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+              const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes);
 
     QString name() const
     {
@@ -51,17 +67,25 @@ public:
         return m_DiscovererObserverId;
     }
 
-    dms ra() const
+    Optional<dms> ra() const
     {
         return m_Ra;
     }
 
-    dms dec() const
+    Optional<dms> dec() const
     {
         return m_Dec;
     }
 
-    // reference frame type
+    Optional<REF_FRAME_ORIGIN> refFrameOrigin() const
+    {
+        return m_RefFrameOrigin;
+    }
+
+    Optional<REF_FRAME_EQUINOX> refFrameEquinox() const
+    {
+        return m_RefFrameEquinox;
+    }
 
     QString constellation() const
     {
@@ -93,17 +117,25 @@ public:
         m_DiscovererObserverId = observerId;
     }
 
-    void setRa(const dms &ra)
+    void setRa(const Optional<dms> &ra)
     {
         m_Ra = ra;
     }
 
-    void setDec(const dms &dec)
+    void setDec(const Optional<dms> &dec)
     {
         m_Dec = dec;
     }
 
-    // set reference frame type
+    void setRefFrameOrigin(const Optional<REF_FRAME_ORIGIN> &origin)
+    {
+        m_RefFrameOrigin = origin;
+    }
+
+    void setRefFrameEquinox(const Optional<REF_FRAME_EQUINOX> &equinox)
+    {
+        m_RefFrameEquinox = equinox;
+    }
 
     void setConstellation(const QString &constellation)
     {
@@ -115,15 +147,16 @@ public:
         m_Notes = notes;
     }
 
-
 private:
     int m_Id;
     QString m_Name;
     QStringList m_Aliases;
     QString m_Datasource;
     int m_DiscovererObserverId;
-    dms m_Ra;
-    dms m_Dec;
+    Optional<dms> m_Ra;
+    Optional<dms> m_Dec;
+    Optional<REF_FRAME_ORIGIN> m_RefFrameOrigin;
+    Optional<REF_FRAME_EQUINOX> m_RefFrameEquinox;
     QString m_ReferenceFrameType;
     QString m_Constellation;
     QString m_Notes;

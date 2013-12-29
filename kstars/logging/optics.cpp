@@ -19,6 +19,10 @@
 
 using namespace Logging;
 
+Optics::Optics(const int id, const QString &model, const double aperture) :
+    m_Id(id), m_Model(model), m_Aperture(aperture)
+{ }
+
 Optics::Optics(const int id, const QString &model, const QString &type, const QString &vendor,
                const double aperture, const double lightGrasp, const bool orientationErect,
                const bool orientationTruesided) :

@@ -19,6 +19,10 @@
 
 using namespace Logging;
 
+Eyepiece::Eyepiece(const int id, const double focalLength) :
+    m_Id(id), m_FocalLength(focalLength)
+{ }
+
 Eyepiece::Eyepiece(const int id, const QString &model, const QString &vendor, const double focalLength,
                    const double maxFocalLength, const dms &apparentFov) :
     m_Id(id), m_Model(model), m_Vendor(vendor), m_FocalLength(focalLength),

@@ -26,6 +26,8 @@ namespace Logging
 class Scope : public Optics
 {
 public:
+    Scope(const int id, const QString &model, const double aperture, const double focalLength);
+
     Scope(const int id, const QString &model, const QString &type, const QString &vendor,
           const double aperture, const double lightGrasp, const bool orientationErect,
           const bool orientationTruesided, const double focalLength);

@@ -18,6 +18,7 @@
 #ifndef SITE_H
 #define SITE_H
 
+#include "optional.h"
 #include "dms.h"
 
 namespace Logging
@@ -26,6 +27,8 @@ namespace Logging
 class Site
 {
 public:
+    Site(const int id, const QString &name, const dms &longitude, const dms &latitude);
+
     Site(const int id, const QString &name, const dms &longitude, const dms &latitude,
          const double elevation, const int timezone, const int code);
 
@@ -49,19 +52,19 @@ public:
         return m_Latitude;
     }
 
-    double elevation() const
+    Optional<double> elevation() const
     {
         return m_Elevation;
     }
 
-    int timezone() const
+    Optional<int> timezone() const
     {
         return m_Timezone;
     }
 
-    int code() const
+    Optional<int> IAUCode() const
     {
-        return m_Code;
+        return m_IAUCode;
     }
 
     void setName(const QString &name)
@@ -79,19 +82,19 @@ public:
         m_Latitude = latitude;
     }
 
-    void setElevation(const double elevation)
+    void setElevation(const Optional<double> &elevation)
     {
         m_Elevation = elevation;
     }
 
-    void setTimezone(const int timezone)
+    void setTimezone(const Optional<int> &timezone)
     {
         m_Timezone = timezone;
     }
 
-    void setCode(const int code)
+    void setIAUCode(const Optional<int> &code)
     {
-        m_Code = code;
+        m_IAUCode = code;
     }
 
 private:
@@ -99,9 +102,9 @@ private:
     QString m_Name;
     dms m_Longitude;
     dms m_Latitude;
-    double m_Elevation;
-    int m_Timezone;
-    int m_Code;
+    Optional<double> m_Elevation;
+    Optional<int> m_Timezone;
+    Optional<int> m_IAUCode;
 };
 
 }

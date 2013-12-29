@@ -26,6 +26,8 @@ namespace Logging
 class Filter
 {
 public:
+    Filter(const int id, const QString &model, const QString &type);
+
     Filter(const int id, const QString &model, const QString &vendor, const QString &type,
            const QString &color, const QString &wratten, const QString &schott);
 

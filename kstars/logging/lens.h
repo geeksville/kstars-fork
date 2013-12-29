@@ -26,6 +26,8 @@ namespace Logging
 class Lens
 {
 public:
+    Lens(const int id, const QString &model, const double factor);
+
     Lens(const int id, const QString &model, const QString &vendor, const double factor);
 
     int id() const

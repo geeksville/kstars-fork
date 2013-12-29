@@ -18,6 +18,7 @@
 #ifndef EYEPIECE_H
 #define EYEPIECE_H
 
+#include "optional.h"
 #include "dms.h"
 #include "QString"
 
@@ -27,6 +28,8 @@ namespace Logging
 class Eyepiece
 {
 public:
+    Eyepiece(const int id, const double focalLength);
+
     Eyepiece(const int id, const QString &model, const QString &vendor, const double focalLength,
              const double maxFocalLength, const dms &apparentFov);
 
@@ -50,7 +53,7 @@ public:
         return m_FocalLength;
     }
 
-    double maxFocalLength() const
+    Optional<double> maxFocalLength() const
     {
         return m_MaxFocalLength;
     }
@@ -75,7 +78,7 @@ public:
         m_FocalLength = focalLength;
     }
 
-    void setMaxFocalLength(const double maxFocalLength)
+    void setMaxFocalLength(const Optional<double> maxFocalLength)
     {
         m_MaxFocalLength = maxFocalLength;
     }
@@ -85,13 +88,12 @@ public:
         m_ApparentFov = apparentFov;
     }
 
-
 private:
     int m_Id;
     QString m_Model;
     QString m_Vendor;
     double m_FocalLength;
-    double m_MaxFocalLength;
+    Optional<double> m_MaxFocalLength;
     dms m_ApparentFov;
 };
 

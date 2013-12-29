@@ -19,8 +19,13 @@
 
 using namespace Logging;
 
+Site::Site(const int id, const QString &name, const dms &longitude, const dms &latitude) :
+    m_Id(id), m_Name(name), m_Longitude(longitude), m_Latitude(latitude)
+{ }
+
 Site::Site(const int id, const QString &name, const dms &longitude, const dms &latitude,
            const double elevation, const int timezone, const int code) :
     m_Id(id), m_Name(name), m_Longitude(longitude), m_Latitude(latitude),
-    m_Elevation(elevation), m_Timezone(timezone), m_Code(code)
+    m_Elevation(elevation), m_Timezone(timezone), m_IAUCode(code)
 { }
+

@@ -20,10 +20,10 @@
 using namespace Logging;
 
 StarObsTarget::StarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                             const int discovererObserverId, const dms &ra, const dms &dec,
-                             const QString &constellation, const QString &notes, const double apparentMag,
-                             const QString &classification) :
-    ObsTarget(id, name, aliases, datasource, discovererObserverId, ra, dec, constellation, notes),
+                             const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                             const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                             const double apparentMag, const QString &classification) :
+    ObsTarget(id, name, aliases, datasource, discovererObserverId, ra, dec, origin, equinox, constellation, notes),
     m_ApparentMag(apparentMag), m_Classification(classification)
 { }
 

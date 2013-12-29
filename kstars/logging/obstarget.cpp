@@ -19,10 +19,14 @@
 
 using namespace Logging;
 
+ObsTarget::ObsTarget(const int id, const QString &name) :
+    m_Id(id), m_Name(name)
+{ }
+
 ObsTarget::ObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                     const int discovererObserverId, const dms &ra, const dms &dec,
-                     const QString &constellation, const QString &notes) :
+                     const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                     const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes) :
     m_Id(id), m_Name(name), m_Aliases(aliases), m_Datasource(datasource),
-    m_DiscovererObserverId(discovererObserverId), m_Ra(ra), m_Dec(dec), m_Constellation(constellation),
-    m_Notes(notes)
+    m_DiscovererObserverId(discovererObserverId), m_Ra(ra), m_Dec(dec), m_RefFrameOrigin(origin),
+    m_RefFrameEquinox(equinox), m_Constellation(constellation), m_Notes(notes)
 { }

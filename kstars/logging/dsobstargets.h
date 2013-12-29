@@ -27,9 +27,10 @@ class DsObsTarget : public ObsTarget
 {
 public:
     DsObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                const int discovererObserverId, const dms &ra, const dms &dec,
-                const QString &constellation, const QString &notes, const dms &smallDiameter,
-                const dms &largeDiameter, const double visMagnitude, const double surfBrightness);
+                const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                const double surfBrightness);
 
     dms smallDiameter() const
     {
@@ -83,7 +84,7 @@ class DsMultipleStarObsTarget : public ObsTarget
 {
 public:
     DsMultipleStarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                            const int discovererObserverId, const dms &ra, const dms &dec,
+                            const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin, const REF_FRAME_EQUINOX equinox,
                             const QString &constellation, const QString &notes, const QList<int> &componentsTargetIds);
 
     QList<int> componentsTargetId() const
@@ -105,10 +106,10 @@ class DsAsterismObsTarget : public DsObsTarget
 {
 public:
     DsAsterismObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                        const int discovererObserverId, const dms &ra, const dms &dec,
-                        const QString &constellation, const QString &notes, const dms &smallDiameter,
-                        const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                        const double posAngle);
+                        const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                        const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                        const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                        const double surfBrightness, const double posAngle);
 
     double positionAngle() const
     {
@@ -129,10 +130,10 @@ class DsGalaxyClusterObsTarget : public DsObsTarget
 {
 public:
     DsGalaxyClusterObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                             const int discovererObserverId, const dms &ra, const dms &dec,
-                             const QString &constellation, const QString &notes, const dms &smallDiameter,
-                             const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                             const double brightest10thMag);
+                             const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                             const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                             const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                             const double surfBrightness, const double brightest10thMag);
 
     double brightest10thMag() const
     {
@@ -153,10 +154,10 @@ class DsDarkNebulaeObsTarget : public DsObsTarget
 {
 public:
     DsDarkNebulaeObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                           const int discovererObserverId, const dms &ra, const dms &dec,
-                           const QString &constellation, const QString &notes, const dms &smallDiameter,
-                           const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                           const double posAngle, const int opacity);
+                           const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                           const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                           const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                           const double surfBrightness, const double posAngle, const int opacity);
 
     double positionAngle() const
     {
@@ -188,10 +189,11 @@ class DsDoubleStarObsTarget : public DsObsTarget
 {
 public:
     DsDoubleStarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                          const int discovererObserverId, const dms &ra, const dms &dec,
-                          const QString &constellation, const QString &notes, const dms &smallDiameter,
-                          const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                          const dms &separation, const double posAngle, const double companionMag);
+                          const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                          const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                          const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                          const double surfBrightness, const dms &separation, const double posAngle,
+                          const double companionMag);
 
     dms separation() const
     {
@@ -233,10 +235,10 @@ class DsGalacticNebulaObsTarget : public DsObsTarget
 {
 public:
     DsGalacticNebulaObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                              const int discovererObserverId, const dms &ra, const dms &dec,
-                              const QString &constellation, const QString &notes, const dms &smallDiameter,
-                              const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                              const QString &nebulaType, double posAngle);
+                              const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                              const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                              const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                              const double surfBrightness, const QString &nebulaType, double posAngle);
 
     QString nebulaType() const
     {
@@ -267,10 +269,10 @@ class DsGalaxyObsTarget : public DsObsTarget
 {
 public:
     DsGalaxyObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                      const int discovererObserverId, const dms &ra, const dms &dec,
-                      const QString &constellation, const QString &notes, const dms &smallDiameter,
-                      const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                      const QString &hubbleType, const double posAngle);
+                      const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                      const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                      const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                      const double surfBrightness, const QString &hubbleType, const double posAngle);
 
     QString hubbleType() const
     {
@@ -302,10 +304,11 @@ class DsOpenClusterObsTarget : public DsObsTarget
 {
 public:
     DsOpenClusterObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                           const int discovererObserverId, const dms &ra, const dms &dec,
-                           const QString &constellation, const QString &notes, const dms &smallDiameter,
-                           const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                           const int starCount, const double brightestStarMag, const QString &classification);
+                           const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                           const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                           const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                           const double surfBrightness, const int starCount, const double brightestStarMag,
+                           const QString &classification);
 
     int starCount() const
     {
@@ -347,10 +350,10 @@ class DsPlanetaryNebulaObsTarget : public DsObsTarget
 {
 public:
     DsPlanetaryNebulaObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                      const int discovererObserverId, const dms &ra, const dms &dec,
-                      const QString &constellation, const QString &notes, const dms &smallDiameter,
-                      const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                      const double centralStarMag);
+                               const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                               const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                               const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                               const double surfBrightness, const double centralStarMag);
 
     double centralStarMagnitude() const
     {
@@ -370,9 +373,10 @@ class DsQuasarObsTarget : public DsObsTarget
 {
 public:
     DsQuasarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                      const int discovererObserverId, const dms &ra, const dms &dec,
-                      const QString &constellation, const QString &notes, const dms &smallDiameter,
-                      const dms &largeDiameter, const double visMagnitude, const double surfBrightness);
+                      const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                      const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                      const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                      const double surfBrightness);
 
 };
 
@@ -380,10 +384,10 @@ class DsStarCloudObsTarget : public DsObsTarget
 {
 public:
     DsStarCloudObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
-                         const int discovererObserverId, const dms &ra, const dms &dec,
-                         const QString &constellation, const QString &notes, const dms &smallDiameter,
-                         const dms &largeDiameter, const double visMagnitude, const double surfBrightness,
-                         const double posAngle);
+                         const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                         const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                         const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                         const double surfBrightness, const double posAngle);
 
     double positionAngle() const
     {
