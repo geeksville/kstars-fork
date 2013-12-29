@@ -19,6 +19,10 @@
 
 using namespace Logging;
 
+DsObsTarget::DsObsTarget(const int id, const QString &name) :
+    ObsTarget(id, name)
+{ }
+
 DsObsTarget::DsObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                          const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                          const REF_FRAME_EQUINOX equinox, const QString &constellation,
@@ -31,6 +35,10 @@ DsObsTarget::DsObsTarget(const int id, const QString &name, const QStringList &a
 
 
 
+DsMultipleStarObsTarget::DsMultipleStarObsTarget(const int id, const QString &name, const QList<int> &componentsTargetIds) :
+    ObsTarget(id, name), m_ComponentsTargetIds(componentsTargetIds)
+{ }
+
 DsMultipleStarObsTarget::DsMultipleStarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                                  const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                                                  const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -40,6 +48,10 @@ DsMultipleStarObsTarget::DsMultipleStarObsTarget(const int id, const QString &na
 { }
 
 
+
+DsAsterismObsTarget::DsAsterismObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
 
 DsAsterismObsTarget::DsAsterismObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                          const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
@@ -52,6 +64,10 @@ DsAsterismObsTarget::DsAsterismObsTarget(const int id, const QString &name, cons
 
 
 
+DsGalaxyClusterObsTarget::DsGalaxyClusterObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
+
 DsGalaxyClusterObsTarget::DsGalaxyClusterObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                                    const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                                                    const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -63,7 +79,11 @@ DsGalaxyClusterObsTarget::DsGalaxyClusterObsTarget(const int id, const QString &
 
 
 
-DsDarkNebulaeObsTarget::DsDarkNebulaeObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
+DsDarkNebulaObsTarget::DsDarkNebulaObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
+
+DsDarkNebulaObsTarget::DsDarkNebulaObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                                const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                                                const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
                                                const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
@@ -73,6 +93,10 @@ DsDarkNebulaeObsTarget::DsDarkNebulaeObsTarget(const int id, const QString &name
 { }
 
 
+
+DsDoubleStarObsTarget::DsDoubleStarObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
 
 DsDoubleStarObsTarget::DsDoubleStarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                              const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
@@ -85,6 +109,10 @@ DsDoubleStarObsTarget::DsDoubleStarObsTarget(const int id, const QString &name, 
 { }
 
 
+
+DsGalacticNebulaObsTarget::DsGalacticNebulaObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
 
 DsGalacticNebulaObsTarget::DsGalacticNebulaObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                                      const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
@@ -108,6 +136,10 @@ DsGalaxyObsTarget::DsGalaxyObsTarget(const int id, const QString &name, const QS
 
 
 
+DsOpenClusterObsTarget::DsOpenClusterObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
+
 DsOpenClusterObsTarget::DsOpenClusterObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                                const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                                                const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -121,6 +153,10 @@ DsOpenClusterObsTarget::DsOpenClusterObsTarget(const int id, const QString &name
 
 
 
+DsPlanetaryNebulaObsTarget::DsPlanetaryNebulaObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
+
 DsPlanetaryNebulaObsTarget::DsPlanetaryNebulaObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                                        const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                                                        const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -132,6 +168,10 @@ DsPlanetaryNebulaObsTarget::DsPlanetaryNebulaObsTarget(const int id, const QStri
 
 
 
+DsQuasarObsTarget::DsQuasarObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
+
 DsQuasarObsTarget::DsQuasarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                      const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                                      const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -142,6 +182,10 @@ DsQuasarObsTarget::DsQuasarObsTarget(const int id, const QString &name, const QS
 { }
 
 
+
+DsStarCloudObsTarget::DsStarCloudObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
 
 DsStarCloudObsTarget::DsStarCloudObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                            const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,

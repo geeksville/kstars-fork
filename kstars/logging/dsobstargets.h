@@ -18,6 +18,7 @@
 #ifndef DSOBSTARGETS_H
 #define DSOBSTARGETS_H
 
+#include "optional.h"
 #include "obstarget.h"
 
 namespace Logging
@@ -26,63 +27,67 @@ namespace Logging
 class DsObsTarget : public ObsTarget
 {
 public:
+    DsObsTarget(const int id, const QString &name);
+
     DsObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                 const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                 const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
                 const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
                 const double surfBrightness);
 
-    dms smallDiameter() const
+    Optional<dms> smallDiameter() const
     {
         return m_SmallDiameter;
     }
 
-    dms largeDiameter() const
+    Optional<dms> largeDiameter() const
     {
         return m_LargeDiameter;
     }
 
-    double visualMagnitude() const
+    Optional<double> visualMagnitude() const
     {
         return m_VisualMagnitude;
     }
 
-    double surfaceBrightness() const
+    Optional<double> surfaceBrightness() const
     {
         return m_SurfaceBrightness;
     }
 
-    void setSmallDiameter(const dms &smallDiameter)
+    void setSmallDiameter(const Optional<dms> &smallDiameter)
     {
         m_SmallDiameter = smallDiameter;
     }
 
-    void setLargeDiameter(const dms &largeDiameter)
+    void setLargeDiameter(const Optional<dms> &largeDiameter)
     {
         m_LargeDiameter = largeDiameter;
     }
 
-    void setVisualMagnitude(const double visualMagnitude)
+    void setVisualMagnitude(const Optional<double> visualMagnitude)
     {
         m_VisualMagnitude = visualMagnitude;
     }
 
-    void setSurfaceBrightness(const double surfaceBrightness)
+    void setSurfaceBrightness(const Optional<double> surfaceBrightness)
     {
         m_SurfaceBrightness = surfaceBrightness;
     }
 
 private:
-    dms m_SmallDiameter;
-    dms m_LargeDiameter;
-    double m_VisualMagnitude;
-    double m_SurfaceBrightness;
+    Optional<dms> m_SmallDiameter;
+    Optional<dms> m_LargeDiameter;
+    Optional<double> m_VisualMagnitude;
+    Optional<double> m_SurfaceBrightness;
 };
 
 
 class DsMultipleStarObsTarget : public ObsTarget
 {
 public:
+    DsMultipleStarObsTarget(const int id, const QString &name, const QList<int> &componentsTargetIds);
+
     DsMultipleStarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                             const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin, const REF_FRAME_EQUINOX equinox,
                             const QString &constellation, const QString &notes, const QList<int> &componentsTargetIds);
@@ -105,89 +110,97 @@ private:
 class DsAsterismObsTarget : public DsObsTarget
 {
 public:
+    DsAsterismObsTarget(const int id, const QString &name);
+
     DsAsterismObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                         const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                         const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
                         const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
                         const double surfBrightness, const double posAngle);
 
-    double positionAngle() const
+    Optional<double> positionAngle() const
     {
         return m_PositionAngle;
     }
 
-    void setPositionAngle(const double posAngle)
+    void setPositionAngle(const Optional<double> &posAngle)
     {
         m_PositionAngle = posAngle;
     }
 
 private:
-    double m_PositionAngle;
+    Optional<double> m_PositionAngle;
 };
 
 
 class DsGalaxyClusterObsTarget : public DsObsTarget
 {
 public:
+    DsGalaxyClusterObsTarget(const int id, const QString &name);
+
     DsGalaxyClusterObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                              const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                              const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
                              const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
                              const double surfBrightness, const double brightest10thMag);
 
-    double brightest10thMag() const
+    Optional<double> brightest10thMag() const
     {
         return m_Brightest10thMag;
     }
 
-    void setBrightest10thMag(const double mag)
+    void setBrightest10thMag(const Optional<double> &mag)
     {
         m_Brightest10thMag = mag;
     }
 
 private:
-    double m_Brightest10thMag;
+    Optional<double> m_Brightest10thMag;
 };
 
 
-class DsDarkNebulaeObsTarget : public DsObsTarget
+class DsDarkNebulaObsTarget : public DsObsTarget
 {
 public:
-    DsDarkNebulaeObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
+    DsDarkNebulaObsTarget(const int id, const QString &name);
+
+    DsDarkNebulaObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                            const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                            const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
                            const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
                            const double surfBrightness, const double posAngle, const int opacity);
 
-    double positionAngle() const
+    Optional<double> positionAngle() const
     {
         return m_PositionAngle;
     }
 
-    int opacity() const
+    Optional<int> opacity() const
     {
         return m_Opacity;
     }
 
-    void setPositionAngle(const double posAngle)
+    void setPositionAngle(const Optional<double> &posAngle)
     {
         m_PositionAngle = posAngle;
     }
 
-    void setOpacity(const int opacity)
+    void setOpacity(const Optional<int> &opacity)
     {
         m_Opacity = opacity;
     }
 
 private:
-    double m_PositionAngle;
-    int m_Opacity;
+    Optional<double> m_PositionAngle;
+    Optional<int> m_Opacity;
 };
 
 
 class DsDoubleStarObsTarget : public DsObsTarget
 {
 public:
+    DsDoubleStarObsTarget(const int id, const QString &name);
+
     DsDoubleStarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                           const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                           const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -195,45 +208,48 @@ public:
                           const double surfBrightness, const dms &separation, const double posAngle,
                           const double companionMag);
 
-    dms separation() const
+    Optional<dms> separation() const
     {
         return m_Separation;
     }
 
-    double positionAngle() const
+    Optional<double> positionAngle() const
     {
         return m_PositionAngle;
     }
 
-    double companionMagnitude() const
+    Optional<double> companionMagnitude() const
     {
         return m_CompanionMagnitude;
     }
 
-    void setSeparation(const dms &separation)
+    void setSeparation(const Optional<dms> &separation)
     {
         m_Separation = separation;
     }
 
-    void setPositionAngle(const double posAngle)
+    void setPositionAngle(const Optional<double> &posAngle)
     {
         m_PositionAngle = posAngle;
     }
 
-    void setCompanionMagnitude(const double companionMag)
+    void setCompanionMagnitude(const Optional<double> &companionMag)
     {
         m_CompanionMagnitude = companionMag;
     }
 
 private:
-    dms m_Separation;
-    double m_PositionAngle;
-    double m_CompanionMagnitude;
+    Optional<dms> m_Separation;
+    Optional<double> m_PositionAngle;
+    Optional<double> m_CompanionMagnitude;
 };
+
 
 class DsGalacticNebulaObsTarget : public DsObsTarget
 {
 public:
+    DsGalacticNebulaObsTarget(const int id, const QString &name);
+
     DsGalacticNebulaObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                               const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                               const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -245,7 +261,7 @@ public:
         return m_NebulaType;
     }
 
-    double positionAngle() const
+    Optional<double> positionAngle() const
     {
         return m_PositionAngle;
     }
@@ -255,19 +271,22 @@ public:
         m_NebulaType = nebulaType;
     }
 
-    void setPositionAngle(const double posAngle)
+    void setPositionAngle(const Optional<double> &posAngle)
     {
         m_PositionAngle = posAngle;
     }
 
 private:
     QString m_NebulaType;
-    double m_PositionAngle;
+    Optional<double> m_PositionAngle;
 };
+
 
 class DsGalaxyObsTarget : public DsObsTarget
 {
 public:
+    DsGalaxyObsTarget(const int id, const QString &name);
+
     DsGalaxyObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                       const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                       const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -279,7 +298,7 @@ public:
         return m_HubbleType;
     }
 
-    double positionAngle() const
+    Optional<double> positionAngle() const
     {
         return m_PositionAngle;
     }
@@ -289,20 +308,23 @@ public:
         m_HubbleType = hubbleType;
     }
 
-    void setPositionAngle(const double posAngle)
+    void setPositionAngle(const Optional<double> &posAngle)
     {
         m_PositionAngle = posAngle;
     }
 
 private:
     QString m_HubbleType;
-    double m_PositionAngle;
+    Optional<double> m_PositionAngle;
 
 };
+
 
 class DsOpenClusterObsTarget : public DsObsTarget
 {
 public:
+    DsOpenClusterObsTarget(const int id, const QString &name);
+
     DsOpenClusterObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                            const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                            const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -310,12 +332,12 @@ public:
                            const double surfBrightness, const int starCount, const double brightestStarMag,
                            const QString &classification);
 
-    int starCount() const
+    Optional<int> starCount() const
     {
         return m_StarCount;
     }
 
-    double brightestStarMagnitude() const
+    Optional<double> brightestStarMagnitude() const
     {
         return m_BrightestStarMag;
     }
@@ -325,12 +347,12 @@ public:
         return m_Classification;
     }
 
-    void setStarCount(const int starCount)
+    void setStarCount(const Optional<int> &starCount)
     {
         m_StarCount = starCount;
     }
 
-    void setBrightestStarMagnitude(const double brightestStarMag)
+    void setBrightestStarMagnitude(const Optional<double> &brightestStarMag)
     {
         m_BrightestStarMag = brightestStarMag;
     }
@@ -341,37 +363,43 @@ public:
     }
 
 private:
-    int m_StarCount;
-    double m_BrightestStarMag;
+    Optional<int> m_StarCount;
+    Optional<double> m_BrightestStarMag;
     QString m_Classification;
 };
+
 
 class DsPlanetaryNebulaObsTarget : public DsObsTarget
 {
 public:
+    DsPlanetaryNebulaObsTarget(const int id, const QString &name);
+
     DsPlanetaryNebulaObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                                const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                                const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
                                const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
                                const double surfBrightness, const double centralStarMag);
 
-    double centralStarMagnitude() const
+    Optional<double> centralStarMagnitude() const
     {
         return m_CentralStarMag;
     }
 
-    void setCentralStarMagnitude(const double centralStarMag)
+    void setCentralStarMagnitude(const Optional<double> &centralStarMag)
     {
         m_CentralStarMag = centralStarMag;
     }
 
 private:
-    double m_CentralStarMag;
+    Optional<double> m_CentralStarMag;
 };
+
 
 class DsQuasarObsTarget : public DsObsTarget
 {
 public:
+    DsQuasarObsTarget(const int id, const QString &name);
+
     DsQuasarObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                       const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                       const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
@@ -383,24 +411,26 @@ public:
 class DsStarCloudObsTarget : public DsObsTarget
 {
 public:
+    DsStarCloudObsTarget(const int id, const QString &name);
+
     DsStarCloudObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
                          const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
                          const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
                          const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
                          const double surfBrightness, const double posAngle);
 
-    double positionAngle() const
+    Optional<double> positionAngle() const
     {
         return m_PositionAngle;
     }
 
-    void setPositionAngle(const double posAngle)
+    void setPositionAngle(const Optional<double> &posAngle)
     {
         m_PositionAngle = posAngle;
     }
 
 private:
-    double m_PositionAngle;
+    Optional<double> m_PositionAngle;
 };
 
 }
