@@ -18,6 +18,7 @@
 #ifndef IMAGERS_H
 #define IMAGERS_H
 
+#include "optional.h"
 #include "QString"
 
 namespace Logging
@@ -26,6 +27,8 @@ namespace Logging
 class Imager
 {
 public:
+    Imager(const int id, const QString &model);
+
     Imager(const int id, const QString &model, const QString &vendor, const QString &remarks);
 
     int id() const
@@ -74,6 +77,9 @@ private:
 class CcdCamera : public Imager
 {
 public:
+    CcdCamera(const int id, const QString &model, const unsigned int pixelsX,
+              const unsigned int pixelsY, const unsigned int binning = 1);
+
     CcdCamera(const int id, const QString &model, const QString &vendor, const QString &remarks,
               const unsigned int pixelsX, const unsigned int pixelsY, const double pixelXSize,
               const double pixelYSize, const unsigned int binning);
@@ -88,12 +94,12 @@ public:
         return m_PixelsY;
     }
 
-    double pixelXSize() const
+    Optional<double> pixelXSize() const
     {
         return m_PixelXSize;
     }
 
-    double pixelYSize() const
+    Optional<double> pixelYSize() const
     {
         return m_PixelYSize;
     }
@@ -113,12 +119,12 @@ public:
         m_PixelsY = pixelsY;
     }
 
-    void setPixelXSize(const double pixelXSize)
+    void setPixelXSize(const Optional<double> pixelXSize)
     {
         m_PixelXSize = pixelXSize;
     }
 
-    void setPixelYSize(const double pixelYSize)
+    void setPixelYSize(const Optional<double> pixelYSize)
     {
         m_PixelYSize = pixelYSize;
     }
@@ -132,8 +138,8 @@ public:
 private:
     unsigned int m_PixelsX;
     unsigned int m_PixelsY;
-    double m_PixelXSize;
-    double m_PixelYSize;
+    Optional<double> m_PixelXSize;
+    Optional<double> m_PixelYSize;
     unsigned int m_Binning;
 };
 

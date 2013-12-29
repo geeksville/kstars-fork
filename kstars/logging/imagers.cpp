@@ -19,11 +19,20 @@
 
 using namespace Logging;
 
+Imager::Imager(const int id, const QString &model) :
+    m_Id(id), m_Model(model)
+{ }
+
 Imager::Imager(const int id, const QString &model, const QString &vendor, const QString &remarks) :
     m_Id(id), m_Model(model), m_Vendor(vendor), m_Remarks(remarks)
 { }
 
 
+
+CcdCamera::CcdCamera(const int id, const QString &model, const unsigned int pixelsX, const unsigned int pixelsY,
+                     const unsigned int binning) :
+    Imager(id, model), m_PixelsX(pixelsX), m_PixelsY(pixelsY), m_Binning(binning)
+{ }
 
 CcdCamera::CcdCamera(const int id, const QString &model, const QString &vendor, const QString &remarks,
                      const unsigned int pixelsX, const unsigned int pixelsY, const double pixelXSize,
