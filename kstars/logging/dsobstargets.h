@@ -245,6 +245,43 @@ private:
 };
 
 
+class DsGlobularClusterObsTarget : public DsObsTarget
+{
+public:
+    DsGlobularClusterObsTarget(const int id, const QString &name);
+
+    DsGlobularClusterObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
+                      const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                      const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                      const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                      const double surfBrightness, const double brightestMag, const QString &concentrationDeg);
+
+    Optional<double> brightestStarMag() const
+    {
+        return m_BrightestStarMag;
+    }
+
+    QString concentrationDeg() const
+    {
+        return m_ConcentrationDeg;
+    }
+
+    void setBrightestStarMag(const Optional<double> &brightestMag)
+    {
+        m_BrightestStarMag = brightestMag;
+    }
+
+    void setConcentrationDeg(const QString &concentrationDeg)
+    {
+        m_ConcentrationDeg = concentrationDeg;
+    }
+
+private:
+    Optional<double> m_BrightestStarMag;
+    QString m_ConcentrationDeg;
+};
+
+
 class DsGalacticNebulaObsTarget : public DsObsTarget
 {
 public:

@@ -110,6 +110,21 @@ DsDoubleStarObsTarget::DsDoubleStarObsTarget(const int id, const QString &name, 
 
 
 
+DsGlobularClusterObsTarget::DsGlobularClusterObsTarget(const int id, const QString &name) :
+    DsObsTarget(id, name)
+{ }
+
+DsGlobularClusterObsTarget::DsGlobularClusterObsTarget(const int id, const QString &name, const QStringList &aliases, const QString &datasource,
+                                                       const int discovererObserverId, const dms &ra, const dms &dec, const REF_FRAME_ORIGIN origin,
+                                                       const REF_FRAME_EQUINOX equinox, const QString &constellation, const QString &notes,
+                                                       const dms &smallDiameter, const dms &largeDiameter, const double visMagnitude,
+                                                       const double surfBrightness, const double brightestMag, const QString &concentrationDeg) :
+    DsObsTarget(id, name, aliases, datasource, discovererObserverId, ra, dec, origin, equinox, constellation, notes, smallDiameter,
+                largeDiameter, visMagnitude, surfBrightness), m_BrightestStarMag(brightestMag), m_ConcentrationDeg(concentrationDeg)
+{ }
+
+
+
 DsGalacticNebulaObsTarget::DsGalacticNebulaObsTarget(const int id, const QString &name) :
     DsObsTarget(id, name)
 { }
