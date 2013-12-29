@@ -19,6 +19,10 @@
 
 using namespace Logging;
 
+Observation::Observation(const int id, const int observerId, const int targetId, const QDateTime &begin) :
+    m_Id(id), m_ObserverId(observerId), m_TargetId(targetId), m_Begin(begin)
+{ }
+
 Observation::Observation(const int id, const int observerId, const int sessionId, const int targetId,
                          const QDateTime &begin, const QDateTime &end, const double nakedEyeMagLim,
                          const double skyQuality, const int seeing, const int scopeId,

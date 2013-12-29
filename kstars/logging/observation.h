@@ -18,6 +18,7 @@
 #ifndef OBSERVATION_H
 #define OBSERVATION_H
 
+#include "optional.h"
 #include "QString"
 #include "QStringList"
 #include "QDateTime"
@@ -28,6 +29,8 @@ namespace Logging
 class Observation
 {
 public:
+    Observation(const int id, const int observerId, const int targetId, const QDateTime &begin);
+
     Observation(const int id, const int observerId, const int sessionId, const int targetId,
                 const QDateTime &begin, const QDateTime &end, const double nakedEyeMagLim,
                 const double skyQuality, const int seeing, const int scopeId,
@@ -45,7 +48,7 @@ public:
         return m_ObserverId;
     }
 
-    int sessionId() const
+    Optional<int> sessionId() const
     {
         return m_SessionId;
     }
@@ -60,27 +63,27 @@ public:
         return m_Begin;
     }
 
-    QDateTime end() const
+    Optional<QDateTime> end() const
     {
         return m_End;
     }
 
-    double nakedEyeStarMagLimit() const
+    Optional<double> nakedEyeStarMagLimit() const
     {
         return m_NakedEyeStarMagLimit;
     }
 
-    double skyQuality() const
+    Optional<double> skyQuality() const
     {
         return m_SkyQuality;
     }
 
-    int seeingAntoniadi() const
+    Optional<int> seeingAntoniadi() const
     {
         return m_SeeingAntoniadi;
     }
 
-    int scopeId() const
+    Optional<int> scopeId() const
     {
         return m_ScopeId;
     }
@@ -90,27 +93,27 @@ public:
         return m_Accessories;
     }
 
-    int eyepieceId() const
+    Optional<int> eyepieceId() const
     {
         return m_EyepieceId;
     }
 
-    int lensId() const
+    Optional<int> lensId() const
     {
         return m_LensId;
     }
 
-    int filterId() const
+    Optional<int> filterId() const
     {
         return m_FilterId;
     }
 
-    double magnificationUsed() const
+    Optional<double> magnificationUsed() const
     {
         return m_MagnificationUsed;
     }
 
-    int imagerId() const
+    Optional<int> imagerId() const
     {
         return m_ImagerId;
     }
@@ -130,7 +133,7 @@ public:
         m_ObserverId = observerId;
     }
 
-    void setSessionId(const int sessionId)
+    void setSessionId(const Optional<int> &sessionId)
     {
         m_SessionId = sessionId;
     }
@@ -145,27 +148,27 @@ public:
         m_Begin = begin;
     }
 
-    void setEnd(const QDateTime &end)
+    void setEnd(const Optional<QDateTime> &end)
     {
         m_End = end;
     }
 
-    void setNakedEyeStarMagLimit(const double magLimit)
+    void setNakedEyeStarMagLimit(const Optional<double> &magLimit)
     {
         m_NakedEyeStarMagLimit = magLimit;
     }
 
-    void setSkyQuality(const double quality)
+    void setSkyQuality(const Optional<double> &quality)
     {
         m_SkyQuality = quality;
     }
 
-    void setSeeingAntoniadi(const int seeing)
+    void setSeeingAntoniadi(const Optional<int> &seeing)
     {
         m_SeeingAntoniadi = seeing;
     }
 
-    void setScopeId(const int scopeId)
+    void setScopeId(const Optional<int> &scopeId)
     {
         m_ScopeId = scopeId;
     }
@@ -175,27 +178,27 @@ public:
         m_Accessories = accessories;
     }
 
-    void setEyepieceId(const int eyepieceId)
+    void setEyepieceId(const Optional<int> &eyepieceId)
     {
         m_EyepieceId = eyepieceId;
     }
 
-    void setLensId(const int lensId)
+    void setLensId(const Optional<int> &lensId)
     {
         m_LensId = lensId;
     }
 
-    void setFilterId(const int filterId)
+    void setFilterId(const Optional<int> &filterId)
     {
         m_FilterId = filterId;
     }
 
-    void setMagnificationUsed(const double magnification)
+    void setMagnificationUsed(const Optional<double> &magnification)
     {
         m_MagnificationUsed = magnification;
     }
 
-    void setImagerId(const int imagerId)
+    void setImagerId(const Optional<int> &imagerId)
     {
         m_ImagerId = imagerId;
     }
@@ -213,20 +216,20 @@ public:
 private:
     int m_Id;
     int m_ObserverId;
-    int m_SessionId;
+    Optional<int> m_SessionId;
     int m_TargetId;
     QDateTime m_Begin;
-    QDateTime m_End;
-    double m_NakedEyeStarMagLimit;
-    double m_SkyQuality;
-    int m_SeeingAntoniadi;
-    int m_ScopeId;
+    Optional<QDateTime> m_End;
+    Optional<double> m_NakedEyeStarMagLimit;
+    Optional<double> m_SkyQuality;
+    Optional<int> m_SeeingAntoniadi;
+    Optional<int> m_ScopeId;
     QString m_Accessories;
-    int m_EyepieceId;
-    int m_LensId;
-    int m_FilterId;
-    double m_MagnificationUsed;
-    int m_ImagerId;
+    Optional<int> m_EyepieceId;
+    Optional<int> m_LensId;
+    Optional<int> m_FilterId;
+    Optional<double> m_MagnificationUsed;
+    Optional<int> m_ImagerId;
     QStringList m_Images;
     QList<int> m_FindingsIds;
 };
