@@ -83,7 +83,7 @@ build-and-test:
     - apt update && apt install ninja-build
     - mkdir -p kstars-build
     - cd kstars-build
-    - cmake -Gninja -DCMAKE_BUILD_TYPE=Release ..
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
     - ninja clean all install
     - rm -rf Testing
     - xvfb-run make test QT_TEST_TIMEOUT_FUNCTION=600000 QT_QPA_PLATFORM=eglfs ARGS='-T test -V --output-on-failure --no-compress-output' || true
