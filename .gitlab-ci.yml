@@ -80,10 +80,11 @@ build-and-test:
   #    - *install_build_dependencies
   #    - *install_test_dependencies
   script:
+    - apt update && apt install ninja-build
     - mkdir -p kstars-build
     - cd kstars-build
-    - cmake -DCMAKE_BUILD_TYPE=Release ..
-    - make -j$(nproc) clean all install
+    - cmake -Gninja -DCMAKE_BUILD_TYPE=Release ..
+    - ninja clean all install
     - rm -rf Testing
     - xvfb-run make test QT_TEST_TIMEOUT_FUNCTION=600000 QT_QPA_PLATFORM=eglfs ARGS='-T test -V --output-on-failure --no-compress-output' || true
     - apt install -y --no-install-recommends libsaxon-java openjdk-11-jre-headless
