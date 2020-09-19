@@ -86,7 +86,7 @@ build-and-test:
     - cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
     - ninja all install
     - rm -rf Testing
-    - xvfb-run ninja test QT_TEST_TIMEOUT_FUNCTION=600000 QT_QPA_PLATFORM=eglfs ARGS='-T test -V --output-on-failure --no-compress-output' || true
+    - QT_TEST_TIMEOUT_FUNCTION=600000 QT_QPA_PLATFORM=eglfs ARGS='-T test -V --output-on-failure --no-compress-output' xvfb-run ninja test || true
     - apt install -y --no-install-recommends libsaxon-java openjdk-11-jre-headless
     - saxon-xslt -u $(find ./Testing -name Test.xml) https://raw.githubusercontent.com/rpavlik/jenkins-ctest-plugin/master/ctest-to-junit.xsl > ./junit_result.xml
   artifacts:
