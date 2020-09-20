@@ -9,7 +9,7 @@ stages:
 
 # We cache the ccache folder
 cache:
-  key: "CCACHE-DB-$CI_JOB_ID"
+  key: "CCACHE-DB-$CI_PROJECT_ID"
   paths:
     - .ccache
 # Unfortunately, cache:when is not available in the KDE version of gitlab
