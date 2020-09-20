@@ -18,10 +18,10 @@ cache:
 #    - always
 
 variables:
-  CCACHE_BASEDIR: ${CI_PROJECT_DIR}
-  CCACHE_DIR: ${CCACHE_BASEDIR}/.ccache
-  QT_TEST_TIMEOUT_FUNCTION: 600000
-  QT_QPA_PLATFORM: eglfs
+  CCACHE_BASEDIR: "$CI_PROJECT_DIR"
+  CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
+  QT_TEST_TIMEOUT_FUNCTION: "600000"
+  QT_QPA_PLATFORM: "eglfs"
 
 .build_recipe: &build_recipe
   - apt update && apt install ninja-build
