@@ -7,21 +7,21 @@ stages:
   - build
   - test
 
-# We cache the ccache folder
-cache:
-  key: "CCACHE-DB-$CI_PROJECT_ID"
-  paths:
-    - .ccache
-# Unfortunately, cache:when is not available in the KDE version of gitlab
-# Impact: we need a first build to succeed before the cache is available on the runner for further builds
-#  when:
-#    - always
-
 variables:
   CCACHE_BASEDIR: "$CI_PROJECT_DIR"
   CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
   QT_TEST_TIMEOUT_FUNCTION: "600000"
   QT_QPA_PLATFORM: "eglfs"
+
+# We cache the ccache folder
+cache:
+  key: "CCACHE-DB-$CI_PROJECT_ID"
+  paths:
+    - "$CCACHE_DIR"
+# Unfortunately, cache:when is not available in the KDE version of gitlab
+# Impact: we need a first build to succeed before the cache is available on the runner for further builds
+#  when:
+#    - always
 
 .build_recipe: &build_recipe
   - apt update && apt install ninja-build
