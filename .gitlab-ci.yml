@@ -27,7 +27,7 @@ cache:
   - apt update && apt install ninja-build
   - mkdir -p kstars-build
   - cd kstars-build
-  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. -DCCACHE_SUPPORT=ON -DENABLE_TESTING=OFF -DBUILD_TESTING=OFF -DBUILD_DOC=OFF -DKDE_SKIP_TEST_SETTINGS=ON
+  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. -DCCACHE_SUPPORT=ON -DBUILD_TESTING=${BUILD_TESTING:-OFF} -DBUILD_DOC=${BUILD_DOC:-OFF}
   - ninja all install
 
 build:
@@ -50,6 +50,8 @@ build-and-test:
   stage: test
   interruptible: true
   image: tallfurryman/kstars-ci
+  variables:
+    BUILD_TESTING: "ON"
   before_script:
     - apt update && apt install -y --no-install-recommends ccache && update-ccache-symlinks && mkdir -p ${CCACHE_DIR}
     - *build_recipe
