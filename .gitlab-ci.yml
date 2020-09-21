@@ -64,78 +64,21 @@ build-and-test:
       junit:
         kstars-build/junit_result.xml
 
-# This part kept for reference, does not work on our gitlab instance
-# Mainly because of the propagation of artifact from stage build to stage test
-# Probably because the upload uses a webdav REST API, and there are many large files in the list
-# In the meantime, following up on the many gitlab issues reporting that problem
-
-# We build and test
-#stages:
-#  - build
-#  - test
-
-# We cache the build folder per job and per branch
-# cache:
-#   key: "$CI_COMMIT_REF_SLUG"
-#   paths:
-#     - kstars-build/
-
-# Consolidate runner with build packages and build
-#build-kstars:
-#  stage: build
-#  interruptible: true
-#  before_script:
-#    - *install_build_dependencies
-#  script:
-#    - mkdir -p kstars-build
-#    - cd kstars-build
-#    - cmake -DCMAKE_BUILD_TYPE=Release ..
-#    - make -j$(nproc) clean all
-#  artifacts:
-#    expire_in: 3600 sec
-#    paths:
-#      - kstars-build/
-#    exclude:
-#      - kstars-build/**/*.o
-
-# Consolidate runner with test packages and test
-#test-kstars:
-#  stage: test
-#  interruptible: true
-#  needs:
-#    - build-kstars
-#  dependencies:
-#    - build-kstars
-#  before_script:
-#    - *install_test_dependencies
-#  script:
-#    - cd kstars-build
-#    - rm -rf Testing
-#    - xvfb-run -a make test QT_TEST_TIMEOUT_FUNCTION=600000 ARGS='-T test --no-compress-output'
-#  artifacts:
-#    reports:
-#      junit:
-#        kstars-build/Testing/**.xml
-
-#build-appimage:
-#  image: tallfurryman/kstars-ci
-#  before_script:
-#    - apt-get install -y python3-pip python3-setuptools patchelf desktop-file-utils libgdk-pixbuf2.0-dev fakeroot wget gpg-agent
-#    - python3 -m pip install appimage-builder
-#
-#    - wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /opt/appimagetool
-#    - chmod +x /opt/appimagetool
-#    - pushd /opt/; /opt/appimagetool --appimage-extract
-#    - mv /opt/squashfs-root /opt/appimagetool.AppDir
-#    - ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool
-#    - popd
-#  script:
-#    - mkdir -p kstars-build
-#    - cd kstars-build
-#    - cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=OFF -DBUILD_TESTING=OFF -DBUILD_DOC=OFF -DKDE_SKIP_TEST_SETTINGS=ON
-#    - make -j$(nproc)
-#    - appimage-builder --recipe ../appimage/appimage-builder.yml --skip-test
-#  artifacts:
-#    paths:
-#      - 'kstars-build/*.AppImage*'
+build-appimage:
+  stage: test
+  interruptible: true
+  before_script:
+    - python3 -m pip install appimage-builder
+    - wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /opt/appimagetool
+    - chmod +x /opt/appimagetool
+    - pushd /opt/; /opt/appimagetool --appimage-extract
+    - mv /opt/squashfs-root /opt/appimagetool.AppDir
+    - ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool
+    - popd
+  script:
+    - *build_recipe
+    - appimage-builder --recipe ../appimage/appimage-builder.yml --skip-test
+  artifacts:
+    paths:
+      - 'kstars-build/*.AppImage*'
 
