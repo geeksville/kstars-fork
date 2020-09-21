@@ -7,9 +7,10 @@ stages:
   - build
   - test
 
+image: tallfurryman/kstars-ci:0.4
+
 variables:
   CCACHE_BASEDIR: "$CI_PROJECT_DIR"
-  CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
   QT_TEST_TIMEOUT_FUNCTION: "600000"
   QT_QPA_PLATFORM: "eglfs"
 
@@ -24,7 +25,6 @@ cache:
 #    - always
 
 .build_recipe: &build_recipe
-  - apt update && apt install ninja-build
   - mkdir -p kstars-build
   - cd kstars-build
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release .. -DCCACHE_SUPPORT=ON -DBUILD_TESTING=${BUILD_TESTING:-OFF} -DBUILD_DOC=${BUILD_DOC:-OFF}
@@ -33,9 +33,7 @@ cache:
 build:
   stage: build
   interruptible: true
-  image: tallfurryman/kstars-ci
   before_script:
-    - apt update && apt install -y --no-install-recommends ccache && update-ccache-symlinks && mkdir -p ${CCACHE_DIR}
     - du -hs ${CCACHE_DIR}
   script:
     - *build_recipe
@@ -49,16 +47,13 @@ build:
 build-and-test:
   stage: test
   interruptible: true
-  image: tallfurryman/kstars-ci
   variables:
     BUILD_TESTING: "ON"
   before_script:
-    - apt update && apt install -y --no-install-recommends ccache && update-ccache-symlinks && mkdir -p ${CCACHE_DIR}
     - *build_recipe
   script:
     - rm -rf Testing
     - xvfb-run ctest -T test -V --output-on-failure --no-compress-output || true
-    - apt install -y --no-install-recommends libsaxon-java openjdk-11-jre-headless
     - saxon-xslt -u $(find ./Testing -name Test.xml) https://raw.githubusercontent.com/rpavlik/jenkins-ctest-plugin/master/ctest-to-junit.xsl > ./junit_result.xml
   after_script:
     - ccache -s
