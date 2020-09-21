@@ -7,7 +7,7 @@ stages:
   - build
   - test
 
-image: tallfurryman/kstars-ci:0.4
+image: tallfurryman/kstars-ci:latest
 
 variables:
   CCACHE_BASEDIR: "$CI_PROJECT_DIR"
@@ -19,10 +19,10 @@ cache:
   key: "CCACHE-DB-$CI_PROJECT_ID"
   paths:
     - "$CCACHE_DIR"
-# Unfortunately, cache:when is not available in the KDE version of gitlab
-# Impact: we need a first build to succeed before the cache is available on the runner for further builds
-#  when:
-#    - always
+  # Unfortunately, cache:when is not available in the KDE version of gitlab
+  # Impact: we need a first build to succeed before the cache is available on the runner for further builds
+  # when:
+  #   - always
 
 .build_recipe: &build_recipe
   - mkdir -p kstars-build
