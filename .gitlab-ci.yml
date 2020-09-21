@@ -13,14 +13,14 @@ variables:
   CCACHE_BASEDIR: "$CI_PROJECT_DIR"
   QT_TEST_TIMEOUT_FUNCTION: "600000"
   QT_QPA_PLATFORM: "eglfs"
+  # In order to be cached successfully, the ccache folder must reside *inside* $CI_PROJECT_DIR
+  CCACHE_DIR: "$CI_PROJECT_DIR/.ccache"
 
 # We cache the ccache folder
 cache:
   key: "CCACHE-DB-$CI_PROJECT_ID"
   paths:
-  # We cannot use variable expansion here, so use what is defined in the dockerfile
-  # - "${CCACHE_DIR}"
-    - /var/ccache
+    - "${CCACHE_DIR}"
   # Unfortunately, cache:when is not available in the KDE version of gitlab
   # Impact: we need a first build to succeed before the cache is available on the runner for further builds
   # when:
