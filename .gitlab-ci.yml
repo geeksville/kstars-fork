@@ -18,7 +18,9 @@ variables:
 cache:
   key: "CCACHE-DB-$CI_PROJECT_ID"
   paths:
-    - "$CCACHE_DIR"
+  # We cannot use variable expansion here, so use what is defined in the dockerfile
+  # - "${CCACHE_DIR}"
+    - /var/ccache
   # Unfortunately, cache:when is not available in the KDE version of gitlab
   # Impact: we need a first build to succeed before the cache is available on the runner for further builds
   # when:
