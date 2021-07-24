@@ -228,7 +228,8 @@ class DBManager
      *
      * \return a list of matching objects
      */
-    CatalogObjectList find_objects_by_name(const QString &name, const int limit = -1, const bool exactMatchOnly=false);
+    CatalogObjectList find_objects_by_name(const QString &name, const int limit = -1,
+                                           const bool exactMatchOnly = false);
 
     /**
      * \brief Find an objects by name in the catalog with \p `catalog_id`.
