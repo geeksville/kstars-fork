@@ -382,19 +382,24 @@ bool StarObject::getIndexCoords(const KSNumbers *num, CachingDms &ra, CachingDms
     double net_pmRA = pmRA() * scale, net_pmDec = pmDec() * scale;
     dec0().SinCos(sinDec, cosDec);
     ra0().SinCos(sinRa, cosRa);
-    ra.setUsing_atan2(
-        cosDec * sinRa + net_pmRA * cosDec * cosRa - net_pmDec * sinDec * cosRa,
-        cosDec * cosRa - net_pmRA * cosDec * sinRa - net_pmDec * sinDec * cosRa
-    );
-    // FIXME:
-    if(fabs(sinDec + net_pmDec * cosRa) > 1.)
-    {
-        qDebug() << "Oops! Will have NaN dec due to proper motion overflow: " << sinDec + net_pmDec * cosRa;
-    }
-    dec.setUsing_asin(sinDec + net_pmDec * cosRa);
 
-    //    *ra = ra0().Degrees() + dra;
-    //    *dec = dec0().Degrees() + ddec;
+    double x0 = cosDec * cosRa, y0 = cosDec * sinRa, z0 = sinDec;
+    double dX = - net_pmRA * cosDec * sinRa - net_pmDec * sinDec * cosRa;
+    double dY = net_pmRA * cosDec * cosRa - net_pmDec * sinDec * sinRa;
+    double dZ = net_pmDec * cosDec;
+    double x = x0 + dX, y = y0 + dY, z = z0 + dZ;
+
+    ra.setUsing_atan2(y, x);
+
+    // Note: dec = asin(z) is a poor choice, because we aren't
+    // guaranteed that (x, y, z) lies on the unit sphere due to the
+    // first-order approximation. Therefore, we must "project" out any
+    // change in the length of the vector to get our best estimate,
+    // and this is achieved by using atan. In fact atan gives the
+    // least-squares estimate for an angle given both its sin and
+    // cosine components.
+    dec.setUsing_atan2(z, sqrt(x * x + y * y));
+
     return true;
 }
 
@@ -476,23 +481,31 @@ bool StarObject::getIndexCoords(const KSNumbers *num, double *ra, double *dec)
 
     double cosDec, sinDec, cosRa, sinRa;
     // Note: Below assumes that pmRA is already pre-scaled by cos(delta), as it is for Hipparcos
-    double scale = num->julianMillenia() * (M_PI / 180.0 * 3600.0);
+    double scale = num->julianMillenia() * (M_PI / (180.0 * 3600.0));
     double net_pmRA = pmRA() * scale, net_pmDec = pmDec() * scale;
     dec0().SinCos(sinDec, cosDec);
     ra0().SinCos(sinRa, cosRa);
+
+    double x0 = cosDec * cosRa, y0 = cosDec * sinRa, z0 = sinDec;
+    double dX = - net_pmRA * cosDec * sinRa - net_pmDec * sinDec * cosRa;
+    double dY = net_pmRA * cosDec * cosRa - net_pmDec * sinDec * sinRa;
+    double dZ = net_pmDec * cosDec;
+    double x = x0 + dX, y = y0 + dY, z = z0 + dZ;
+
     dms alpha, delta;
-    alpha.setRadians(atan2(
-        cosDec * sinRa + net_pmRA * cosDec * cosRa - net_pmDec * sinDec * cosRa,
-        cosDec * cosRa - net_pmRA * cosDec * sinRa - net_pmDec * sinDec * cosRa
-    ));
-    delta.setRadians(asin(sinDec + net_pmDec * cosRa));
+    alpha.setRadians(atan2(y, x));
+
+    // Note: dec = asin(z) is a poor choice, because we aren't
+    // guaranteed that (x, y, z) lies on the unit sphere due to the
+    // first-order approximation. Therefore, we must "project" out any
+    // change in the length of the vector to get our best estimate,
+    // and this is achieved by using atan. In fact atan gives the
+    // least-squares estimate for an angle given both its sin and
+    // cosine components.
+    delta.setRadians(atan2(z, sqrt(x * x + y * y)));
     *ra = alpha.reduce().Degrees();
     *dec = delta.Degrees();
 
-
-
-    //    *ra = ra0().Degrees() + dra;
-    //    *dec = dec0().Degrees() + ddec;
     return true;
 }
 
