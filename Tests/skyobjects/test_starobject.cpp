@@ -226,7 +226,7 @@ void TestStarObject::testUpdateCoords()
         }
     }; // FIXME: Move to TestStarObject::testUpdateCoords_data()
 
-    constexpr double few_arcsecond_tolerance = 2.2/3600.0;
+    constexpr double few_arcsecond_tolerance = 1.5/3600.0;
 
     QList<TestCase> testCases;
 
