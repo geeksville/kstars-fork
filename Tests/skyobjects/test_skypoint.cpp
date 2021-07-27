@@ -154,7 +154,7 @@ void TestSkyPoint::compareNovas()
     double decn2 = ac.dec().Degrees();
     qDebug() << "SkyPoint J2000 to JNow" << ran2 << ", " << decn2;
     // get the error, this appears as the align error
-    qDebug() << "Error " << (raN - ran2) * 3600 << ", " << (decN - decn2) * 3600;
+    qDebug() << "Error (arcsec)" << (raN - ran2) * 3600 << ", " << (decN - decn2) * 3600;
 
     // check the difference
     //QVERIFY(fabs(decN - decn2) * 3600. < 1);
@@ -178,7 +178,7 @@ void TestSkyPoint::compareNovas()
     ln_get_equ_prec2(&J2kPos, JD2000, lnJd, &Jnow2Pos);
     qDebug() << "libnova J2000 to JNow " << Jnow2Pos.ra << ", " << Jnow2Pos.dec;
 
-    qDebug() << "Error " << (JnowPos.ra - Jnow2Pos.ra) * 3600 << ", " << (JnowPos.dec - Jnow2Pos.dec) * 3600;
+    qDebug() << "Error (arcsec)" << (JnowPos.ra - Jnow2Pos.ra) * 3600 << ", " << (JnowPos.dec - Jnow2Pos.dec) * 3600;
 
     // Using SkyPoint won't help:
     qDebug();
