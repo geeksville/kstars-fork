@@ -323,10 +323,6 @@ bool StarObject::getIndexCoords(const KSNumbers *num, CachingDms &ra, CachingDms
     //    double dra = pmRA() * num->julianMillenia() / ( cos( dec0().radians() ) * 3600.0 );
     //    double ddec = pmDec() * num->julianMillenia() / 3600.0;
 
-    // Proper Motion Correction should be implemented as motion along a great
-    // circle passing through the given (ra0, dec0) in a direction of
-    // atan2( pmRA(), pmDec() ) to an angular distance given by the Magnitude of
-    // PM times the number of Julian millenia since J2000.0
 
     pmms = pmMagnitudeSquared();
 
@@ -338,11 +334,19 @@ bool StarObject::getIndexCoords(const KSNumbers *num, CachingDms &ra, CachingDms
         return false;
     }
 
+    /*
+
+    // Proper Motion Correction should be implemented as motion along a great
+    // circle passing through the given (ra0, dec0) in a direction of
+    // atan2( pmRA(), pmDec() ) to an angular distance given by the Magnitude of
+    // PM times the number of Julian millenia since J2000.0
+
     double pm = pmMagnitude() * num->julianMillenia(); // Proper Motion in arcseconds
 
     double dir0 = ((pm > 0) ? atan2(pmRA(), pmDec()) : atan2(-pmRA(), -pmDec())); // Bearing, in radian
 
-    (pm < 0) && (pm = -pm);
+    if (pm < 0)
+        pm = -pm;
 
     double dst = (pm * M_PI / (180.0 * 3600.0));
     //    double phi = M_PI / 2.0 - dec0().radians();
@@ -363,6 +367,31 @@ bool StarObject::getIndexCoords(const KSNumbers *num, CachingDms &ra, CachingDms
 
     ra  = ra0() + dtheta; // Use operator + to avoid trigonometry
     dec = lat1;           // Need variable lat1 because dec may refer to dec0, so cannot construct result in-place
+
+    */
+
+    // Use the formula given in Seidelmann (Explanatory Supplement to
+    // the Astronomical Almanac) instead. The formulas used here are
+    // the combination of (3.23-1), (3.23-3), (3.23-5). Not only does
+    // it reduce trigonometry use, it is more likely to be correct
+    // than the stuff we came up with on our own above
+
+    double cosDec, sinDec, cosRa, sinRa;
+    // Note: Below assumes that pmRA is already pre-scaled by cos(delta), as it is for Hipparcos
+    double scale = num->julianMillenia() * (M_PI / (180.0 * 3600.0));
+    double net_pmRA = pmRA() * scale, net_pmDec = pmDec() * scale;
+    dec0().SinCos(sinDec, cosDec);
+    ra0().SinCos(sinRa, cosRa);
+    ra.setUsing_atan2(
+        cosDec * sinRa + net_pmRA * cosDec * cosRa - net_pmDec * sinDec * cosRa,
+        cosDec * cosRa - net_pmRA * cosDec * sinRa - net_pmDec * sinDec * cosRa
+    );
+    // FIXME:
+    if(fabs(sinDec + net_pmDec * cosRa) > 1.)
+    {
+        qDebug() << "Oops! Will have NaN dec due to proper motion overflow: " << sinDec + net_pmDec * cosRa;
+    }
+    dec.setUsing_asin(sinDec + net_pmDec * cosRa);
 
     //    *ra = ra0().Degrees() + dra;
     //    *dec = dec0().Degrees() + ddec;
@@ -413,6 +442,7 @@ bool StarObject::getIndexCoords(const KSNumbers *num, double *ra, double *dec)
         return false;
     }
 
+    /*
     double pm = pmMagnitude() * num->julianMillenia(); // Proper Motion in arcseconds
 
     double dir0 = ((pm > 0) ? atan2(pmRA(), pmDec()) : atan2(-pmRA(), -pmDec())); // Bearing, in radian
@@ -442,6 +472,24 @@ bool StarObject::getIndexCoords(const KSNumbers *num, double *ra, double *dec)
 
     *ra  = finalRA.Degrees();
     *dec = lat1.Degrees();
+    */
+
+    double cosDec, sinDec, cosRa, sinRa;
+    // Note: Below assumes that pmRA is already pre-scaled by cos(delta), as it is for Hipparcos
+    double scale = num->julianMillenia() * (M_PI / 180.0 * 3600.0);
+    double net_pmRA = pmRA() * scale, net_pmDec = pmDec() * scale;
+    dec0().SinCos(sinDec, cosDec);
+    ra0().SinCos(sinRa, cosRa);
+    dms alpha, delta;
+    alpha.setRadians(atan2(
+        cosDec * sinRa + net_pmRA * cosDec * cosRa - net_pmDec * sinDec * cosRa,
+        cosDec * cosRa - net_pmRA * cosDec * sinRa - net_pmDec * sinDec * cosRa
+    ));
+    delta.setRadians(asin(sinDec + net_pmDec * cosRa));
+    *ra = alpha.reduce().Degrees();
+    *dec = delta.Degrees();
+
+
 
     //    *ra = ra0().Degrees() + dra;
     //    *dec = dec0().Degrees() + ddec;
