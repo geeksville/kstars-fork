@@ -591,13 +591,13 @@ void TestSkyPoint::testUpdateCoords()
     Options::setUseRelativistic(false);
 
     dms ra, dec;
-//    ra.setH(11, 50, 3, 0); Min RA
+    //    ra.setH(11, 50, 3, 0); Min RA
     ra.setH(11, 55, 28, 0);
-//    ra.setH(12, 00, 53, 0); Max RA
+    //    ra.setH(12, 00, 53, 0); Max RA
 
-//    dec.setD(-89,52,41,0); Min abs(dec)
-    dec.setD(-89,53,02,0);
-//    dec.setD(-89,53,23,0); Max abs(Dec)
+    //    dec.setD(-89,52,41,0); Min abs(dec)
+    dec.setD(-89, 53, 02, 0);
+    //    dec.setD(-89,53,23,0); Max abs(Dec)
 
     auto dt = KStarsDateTime::fromString("2021-01-24T00:00");
     int numtest = 100;
@@ -609,16 +609,16 @@ void TestSkyPoint::testUpdateCoords()
     SkyPoint sp;
     sp.setRA0(ra);
     sp.setDec0(dec);
-    for(int i=0; i< numtest; i++)
+    for(int i = 0; i < numtest; i++)
     {
         sp.updateCoordsNow(&num);
         jdfrac = modf(static_cast<double>(dt.djd()), &jdint);
         if (fabs(sp.dec().Degrees()) > 90.0)
             qDebug() << "i" << i << " jdfrac" << jdfrac << ": sp ra0 " << sp.ra0().Degrees() << ", dec " << sp.dec0().Degrees() <<
-             " ra " << sp.ra().Degrees() << ", dec " << sp.dec().Degrees();
+                     " ra " << sp.ra().Degrees() << ", dec " << sp.dec().Degrees();
         QVERIFY(fabs(sp.dec().Degrees()) <= 90.0);
 
-        dt = dt.addSecs(numdays*86400/numtest);
+        dt = dt.addSecs(numdays * 86400 / numtest);
         jd = dt.djd();
         num.updateValues(jd);
     }
