@@ -80,7 +80,7 @@ void TestStarObject::testUpdateCoordsStepByStep()
     // time for the purposes of this check.
 
     // We check most results to arcsecond tolerance
-    constexpr double arcsecond_tolerance = 1.0/3600.0;
+    constexpr double subarcsecond_tolerance = 0.1/3600.0;
 
     KStarsDateTime dt = KStarsDateTime::fromString("2028-11-13T04:33");
     const KSNumbers num(dt.djd());
@@ -105,7 +105,7 @@ void TestStarObject::testUpdateCoordsStepByStep()
         "Results of proper motion application",
         ra0.Degrees(), dec0.Degrees(),
         41.054063, 49.227750,
-        arcsecond_tolerance
+        subarcsecond_tolerance
         );
 
     // Set the proper motion corrected coordinates into the StarObject
@@ -122,19 +122,12 @@ void TestStarObject::testUpdateCoordsStepByStep()
         "Mean equatorial coordinates",
         p.ra().Degrees(), p.dec().Degrees(),
         41.547214, 49.348483,
-        arcsecond_tolerance
+        subarcsecond_tolerance
         );
 
     /* Example 23.a */
-    // We now "reset" the ra, dec of the StarObject to match the
-    // values in Meeus, so we can proceed to check the
-    // implementation with a higher tolerance, unencumbered by the
-    // fact that our implementation of proper motion differs from
-    // Meeus' approximation.
     dms ra = dms::fromString("02:46:11.331", false); // Meeus 23.a mean equatorial coordinates
     dms dec = dms::fromString("+49:20:54.54", true); // Meeus 23.a mean equatorial coordinates
-    p.setRA(ra);
-    p.setDec(dec);
 
     // Proceed to compute the nutation and aberration, checking the inputs to the computation as well
     compare("Obliquity of the Ecliptic, ε in degrees", num.obliquity()->Degrees(), 23.436, 1e-3); // epsilon
@@ -190,7 +183,7 @@ void TestStarObject::testUpdateCoordsStepByStep()
         "End-to-end computation of StarObject::updateCoords on Meeus Example 21.b + 23.a",
         p.ra().Degrees(), p.dec().Degrees(),
         dms::fromString("02:46:14.390", false).Degrees(), dms::fromString("+49:21:07.45", true).Degrees(),
-        arcsecond_tolerance
+        subarcsecond_tolerance
         );
 }
 
