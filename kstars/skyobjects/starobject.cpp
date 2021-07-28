@@ -326,7 +326,7 @@ bool StarObject::getIndexCoords(const KSNumbers *num, CachingDms &ra, CachingDms
 
     pmms = pmMagnitudeSquared();
 
-    if (std::isnan(pmms) || pmms * num->julianMillenia() * num->julianMillenia() < 1.)
+    if (std::isnan(pmms) || pmms * num->julianMillenia() * num->julianMillenia() < .01)
     {
         // Ignore corrections
         ra  = ra0();
@@ -376,16 +376,25 @@ bool StarObject::getIndexCoords(const KSNumbers *num, CachingDms &ra, CachingDms
     // it reduce trigonometry use, it is more likely to be correct
     // than the stuff we came up with on our own above
 
+    // Although it is not explained in the above reference, a formula
+    // that reduces to α' = α + μ_α * t must have μ_α be the rate of
+    // change of the angle at the center of the declination circle,
+    // and not the rate of change of arclength, i.e. μ_α must _not_
+    // include the cos(δ) factor. I have checked that the formulas
+    // used here do reduce to the above, and therefore expect μ_α =
+    // pmRa / cos(δ)
+
     double cosDec, sinDec, cosRa, sinRa;
-    // Note: Below assumes that pmRA is already pre-scaled by cos(delta), as it is for Hipparcos
     double scale = num->julianMillenia() * (M_PI / (180.0 * 3600.0));
-    double net_pmRA = pmRA() * scale, net_pmDec = pmDec() * scale;
     dec0().SinCos(sinDec, cosDec);
     ra0().SinCos(sinRa, cosRa);
 
+    // Note: Below assumes that pmRA is already pre-scaled by cos(delta), as it is for Hipparcos
+    double net_pmRA = pmRA() * scale, net_pmDec = pmDec() * scale;
+
     double x0 = cosDec * cosRa, y0 = cosDec * sinRa, z0 = sinDec;
-    double dX = - net_pmRA * cosDec * sinRa - net_pmDec * sinDec * cosRa;
-    double dY = net_pmRA * cosDec * cosRa - net_pmDec * sinDec * sinRa;
+    double dX = - net_pmRA * sinRa - net_pmDec * sinDec * cosRa;
+    double dY = net_pmRA * cosRa - net_pmDec * sinDec * sinRa;
     double dZ = net_pmDec * cosDec;
     double x = x0 + dX, y = y0 + dY, z = z0 + dZ;
 
@@ -439,7 +448,7 @@ bool StarObject::getIndexCoords(const KSNumbers *num, double *ra, double *dec)
 
     pmms = pmMagnitudeSquared();
 
-    if (std::isnan(pmms) || pmms * num->julianMillenia() * num->julianMillenia() < 1.)
+    if (std::isnan(pmms) || pmms * num->julianMillenia() * num->julianMillenia() < .01)
     {
         // Ignore corrections
         *ra  = ra0().Degrees();
@@ -479,16 +488,27 @@ bool StarObject::getIndexCoords(const KSNumbers *num, double *ra, double *dec)
     *dec = lat1.Degrees();
     */
 
+
+    // Although it is not explained in the above reference, a formula
+    // that reduces to α' = α + μ_α * t must have μ_α be the rate of
+    // change of the angle at the center of the declination circle,
+    // and not the rate of change of arclength, i.e. μ_α must _not_
+    // include the cos(δ) factor. I have checked that the formulas
+    // used in Seidelmann do reduce to the above, and therefore expect
+    // μ_α = pmRa / cos(δ). Therefore, I'm absorbing the factor in the
+    // implementation here.
+
     double cosDec, sinDec, cosRa, sinRa;
-    // Note: Below assumes that pmRA is already pre-scaled by cos(delta), as it is for Hipparcos
     double scale = num->julianMillenia() * (M_PI / (180.0 * 3600.0));
-    double net_pmRA = pmRA() * scale, net_pmDec = pmDec() * scale;
     dec0().SinCos(sinDec, cosDec);
     ra0().SinCos(sinRa, cosRa);
 
+    // Note: Below assumes that pmRA is already pre-scaled by cos(delta), as it is for Hipparcos
+    double net_pmRA = pmRA() * scale, net_pmDec = pmDec() * scale;
+
     double x0 = cosDec * cosRa, y0 = cosDec * sinRa, z0 = sinDec;
-    double dX = - net_pmRA * cosDec * sinRa - net_pmDec * sinDec * cosRa;
-    double dY = net_pmRA * cosDec * cosRa - net_pmDec * sinDec * sinRa;
+    double dX = - net_pmRA * sinRa - net_pmDec * sinDec * cosRa;
+    double dY = net_pmRA * cosRa - net_pmDec * sinDec * sinRa;
     double dZ = net_pmDec * cosDec;
     double x = x0 + dX, y = y0 + dY, z = z0 + dZ;
 
