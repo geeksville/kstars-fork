@@ -370,8 +370,7 @@ void TestSkyPoint::testApparentCatalogue()
     QFETCH(double, RaOut);
     QFETCH(double, DecOut);
 
-    // error relaxed as we are comparing with an extermal catalogue - suspicous!
-    compare("J2000 to aparrent", RaOut, DecOut, sp.ra().Hours(), sp.dec().Degrees(), 0.0015);
+    compare("J2000 to aparrent", RaOut, DecOut, sp.ra().Hours(), sp.dec().Degrees());
 
     SkyPoint spn = SkyPoint(sp.ra(), sp.dec());
     qDebug() << "spn ra0 " << spn.ra0().Degrees() << ", dec0 " << spn.dec0().Degrees() <<
@@ -381,6 +380,47 @@ void TestSkyPoint::testApparentCatalogue()
     spn.catalogueCoord(jd);
 
     compare("J2K to app to catalogue", sp.ra0().Degrees(), sp.dec0().Degrees(), spn.ra0().Degrees(), spn.dec0().Degrees());
+}
+
+void TestSkyPoint::testApparentCatalogueInversion_data()
+{
+    QTest::addColumn<double>("Ra");
+    QTest::addColumn<double>("Dec");
+    QTest::addColumn<double>("Epoch");
+
+    QTest::newRow("Random1") << 15.32 << 34.50 << 2012.34;
+    QTest::newRow("Random2") << 72.96 << 24.10 << 2022.39;
+    QTest::newRow("Random3") << 188.52 << -36.58 << 2042.86;
+    QTest::newRow("Random4") << 239.22 << -47.32 << 2139.23;
+    QTest::newRow("Random5") << 278.78 << 01.68 << 2058.62;
+    QTest::newRow("Near J2000 NCP") << 172.59 << 88.95 << 2029.88;
+    QTest::newRow("Near J2000 SCP") << 145.22 << -88.86 << 2034.72;
+    QTest::newRow("Near Current NEP") << 280.74 << 70.81 << 2021.23;
+}
+
+void TestSkyPoint::testApparentCatalogueInversion()
+{
+    Options::setUseRelativistic(false);
+
+    // This test tests the conversion of J2000 -> arbitrary ICRS epoch -> back to J2000 by inversion
+    constexpr double sub_arcsecond_tolerance = 0.1 / 3600.0;
+    SkyPoint sp_forward;
+    QFETCH(double, Ra);
+    QFETCH(double, Dec);
+    QFETCH(double, Epoch);
+    long double targetJd = KStarsDateTime::epochToJd(Epoch);
+    dms dms_ra {Ra};
+    KSNumbers num(targetJd);
+    sp_forward.setRA0(dms_ra);
+    sp_forward.setDec0(Dec);
+    sp_forward.updateCoordsNow(&num);
+    SkyPoint sp_backward {sp_forward.catalogueCoord(targetJd)};
+    compare(
+        QString("Apparent to Catalogue Inversion Check for epoch %1").arg(Epoch, 7, 'f', 2),
+        sp_backward.ra0().reduce().Degrees(), sp_backward.dec0().Degrees(),
+        dms_ra.reduce().Degrees(), Dec,
+        sub_arcsecond_tolerance
+    );
 }
 
 void TestSkyPoint::compareSkyPointLibNova_data()
