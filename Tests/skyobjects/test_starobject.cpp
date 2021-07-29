@@ -94,7 +94,7 @@ void TestStarObject::testUpdateCoordsStepByStep()
     CachingDms dec0 = dms::fromString("+49:13:42.48", true);
     p.setRA0(ra0);
     p.setDec0(dec0);
-    p.setProperMotion(0.03425 * 15.0 * 1000.0, -0.0895 * 1000.0); // in mas/yr
+    p.setProperMotion(0.03425 * 15.0 * 1000.0 * dec0.cos(), -0.0895 * 1000.0); // in mas/yr
 
     // Mean equatorial coordinates
     p.getIndexCoords(&num, ra0, dec0);
@@ -182,7 +182,11 @@ void TestStarObject::testUpdateCoordsStepByStep()
     dec0 = dms::fromString("+49:13:42.48", true);
     p.setRA0(ra0);
     p.setDec0(dec0);
-    p.setProperMotion(0.03425 * 15.0 * 1000.0, -0.0895 * 1000.0); // in mas/yr
+
+    // Note: Since Meeus directly adds the proper motion correction to
+    // the RA, it must be without the cos(dec) factor, whereas KStars
+    // expects it WITH the cos(dec) factor
+    p.setProperMotion(0.03425 * 15.0 * 1000.0 * dec0.cos(), -0.0895 * 1000.0); // in mas/yr
     p.updateCoordsNow(&num);
     compare(
         "End-to-end computation of StarObject::updateCoords on Meeus Example 21.b + 23.a",
@@ -225,7 +229,7 @@ void TestStarObject::testUpdateCoords()
         }
     }; // FIXME: Move to TestStarObject::testUpdateCoords_data()
 
-    constexpr double few_arcsecond_tolerance = 1.5 / 3600.0;
+    constexpr double subarcsecond_tolerance = 0.5 / 3600.0;
 
     QList<TestCase> testCases;
 
@@ -280,11 +284,11 @@ void TestStarObject::testUpdateCoords()
     {
         StarObject s {testCase.RA0, testCase.Dec0, 0.0, "", "", "K0", testCase.pmRa, testCase.pmDec, 0.0, false, false, 0};
         KSNumbers num(testCase.dt.djd());
-        qDebug() << "Computing apparent position for (" << testCase.RA0.toHMSString() << ", " << testCase.Dec0.toDMSString() << ")";
+        qDebug() << "Computing apparent position for (" << testCase.RA0.Degrees() << ", " << testCase.Dec0.Degrees() << ")";
         s.updateCoordsNow(&num);
         compare(
             QString("Testcase %1").arg(i), s.ra().Degrees(), s.dec().Degrees(), testCase.RA.Degrees(), testCase.Dec.Degrees(),
-            few_arcsecond_tolerance
+            subarcsecond_tolerance
         );
         i++;
     }
