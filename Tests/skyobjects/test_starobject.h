@@ -24,6 +24,7 @@
 #define UNIT_TEST
 
 #include "skyobjects/starobject.h"
+#include "config-kstars.h"
 
 /**
  * @class TestStarObject
@@ -46,7 +47,10 @@ class TestStarObject : public QObject
     private slots:
         void testUpdateCoordsStepByStep();
         void testUpdateCoords();
-
+#ifdef HAVE_LIBERFA
+        void compareProperMotionAgainstErfa_data();
+        void compareProperMotionAgainstErfa();
+#endif
     private:
         bool useRelativistic {false};
 };
