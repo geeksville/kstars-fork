@@ -23,7 +23,15 @@
 #include "ksnumbers.h"
 #include "time/kstarsdatetime.h"
 #include "auxiliary/dms.h"
+#include "nan.h"
 #include "Options.h"
+#include "config-kstars.h"
+
+#ifdef HAVE_LIBERFA
+#include <erfa.h>
+#endif
+
+#include <utility>
 
 TestStarObject::TestStarObject() : QObject()
 {
@@ -294,5 +302,114 @@ void TestStarObject::testUpdateCoords()
     }
 
 }
+
+#ifdef HAVE_LIBERFA
+void TestStarObject::compareProperMotionAgainstErfa_data()
+{
+    QTest::addColumn<QString>("ra");
+    QTest::addColumn<QString>("dec");
+    QTest::addColumn<double>("pmRA");
+    QTest::addColumn<double>("pmDec");
+    QTest::addColumn<double>("epoch");
+
+    // A selection of real stars spread across the sky
+    QTest::newRow("Star 1") << "22 10 11.9852752" << "+06 11 52.307750" << 282.18 << 30.46   << 2028.3;
+    QTest::newRow("Star 2") << "02 44 11.9870420" << "+49 13 42.411120" << 334.66 << -89.99  << 2074.8;
+    QTest::newRow("Star 3") << "00 01 35.7015845" << "-77 03 56.609236" << -57.30 << -177.06 << 1934.2;
+    QTest::newRow("Star 4") << "06 23 57.10988"   << "-52 41 44.3810"   << 19.93  << 23.24   << 1901.5;
+    QTest::newRow("Star 5") << "14 51 38.3028905" << "-43 34 31.296546" << -25.20 << -27.13  << 1995.2;
+    QTest::newRow("Star 6") << "01 09 43.92388"   << "+35 37 14.0075"   << 175.90 << -112.20 << 2140.3;
+    QTest::newRow("Star 7") << "04 16 01.588231"  << "-51 29 11.919063" << 99.463 << 183.353 << 2093.8;
+    QTest::newRow("Star 8") << "14 39 29.71993"   << "-60 49 55.9990"   << -3608. << 686.0   << 2023.0;
+}
+
+void TestStarObject::compareProperMotionAgainstErfa()
+{
+    QFETCH(QString, ra);
+    QFETCH(QString, dec);
+    QFETCH(double, pmRA);
+    QFETCH(double, pmDec);
+    QFETCH(double, epoch);
+
+    dms _ra, _dec;
+    bool result = _ra.setFromString(ra, false);
+    result = result && _dec.setFromString(dec, true);
+    Q_ASSERT(result);
+
+    auto startPoint = std::make_pair(_ra, _dec);
+    long double jdf = KStarsDateTime::epochToJd(epoch);
+
+    std::pair<dms, dms> erfaResult;
+    {
+        /*
+         * startPoint : pair of dms: (ra, dec)
+         * pmRA       : mas/yr, inclusive of cos(dec) factor
+         * pmDec      : mas/yr
+         * jdf        : final (target) epoch
+         */
+
+        constexpr double masToRad = dms::DegToRad / (3600.0 * 1000.0);
+        double ra1 = startPoint.first.reduce().radians();
+        double dec1 = startPoint.second.radians();
+        double pmr1 = pmRA * masToRad / cos(dec1);
+        double pmd1 = pmDec * masToRad;
+
+        double resRa {NaN::d}, resDec {NaN::d}, resPmRa {NaN::d}, resPmDec {NaN::d}, resPx, resRv;
+        /*
+         * Note: eraStarpm does not like a zero parallax. It replaces
+         * it with a 1e-7 parallax (which would be fine), but then
+         * concludes that the spatial velocity corresponding to the
+         * provided proper motions is relativistic as a result. So a
+         * typical parallax needs to be provided that is reasonable
+         * for most high-PM stars. I've chosen to set that to 0.1,
+         * which should correspond to 10pc ~ 30ly. This distance `r`
+         * will divide out as long as the radial velocity is zero: in
+         * other words, it does not matter what size of sphere we pick
+         *
+         * Another note: The documentation reads "The RA proper motion
+         * is in terms of coordinate angle, not true angle.  If the
+         * catalog uses arcseconds for both RA and Dec proper motions,
+         * the RA proper motion will need to be divided by cos(Dec)
+         * before use."
+         */
+        int result = eraStarpm(
+            ra1, dec1, pmr1, pmd1,
+            0.1, 0., // No parallax, radial velocity info
+            J2000, 0, // Starting epoch is J2000
+            double(jdf), 0, // Ending epoch is jdf
+            &resRa, &resDec, &resPmRa, &resPmDec,
+            &resPx, &resRv
+            ); // return value irrelevant to us
+
+        if (result > 0)
+        {
+            qDebug() << "ERFA reports status " << result << ", correction (degrees) dRA = " << (resRa - ra1) / dms::DegToRad << ", dDec = " << (resDec - dec1) / dms::DegToRad;
+        }
+
+        erfaResult = std::make_pair(dms { resRa / dms::DegToRad }, dms { resDec / dms::DegToRad });
+    }
+
+    CachingDms ra_f, dec_f;
+    KSNumbers num(jdf);
+    StarObject s {startPoint.first, startPoint.second, 0.0, "", "", "K0", pmRA, pmDec, 0.0, false, false, 0};
+    s.getIndexCoords(&num, ra_f, dec_f); // dms version
+    double ra_fd, dec_fd;
+    s.getIndexCoords(&num, &ra_fd, &dec_fd); // Degrees version
+
+    compare("KStars internal consistency: getIndexCoords degree vs dms implementation",
+            ra_f.reduce().Degrees(), dec_f.Degrees(),
+            dms(ra_fd).reduce().Degrees(), dec_fd,
+            1e-8); // Same algorithm, should match exactly!
+
+    constexpr double arcsecond_tolerance = 1.0/3600.0;
+    compare(
+        "Proper Motion KStars vs ERFA",
+        ra_f.reduce().Degrees(), dec_f.Degrees(),
+        erfaResult.first.reduce().Degrees(), erfaResult.second.Degrees(),
+        arcsecond_tolerance
+    );
+
+}
+#endif
 
 QTEST_GUILESS_MAIN(TestStarObject)
