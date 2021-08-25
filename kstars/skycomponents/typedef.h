@@ -1,7 +1,4 @@
 /*
-    typedef.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 2007-07-03
     SPDX-FileCopyrightText: 2007 James B. Bowlin <bowlin@mindspring.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

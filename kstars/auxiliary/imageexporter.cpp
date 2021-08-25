@@ -1,7 +1,4 @@
 /*
-    imageexporter.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun 13 Jan 2013 00:53:50 CST
     SPDX-FileCopyrightText: 2013 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

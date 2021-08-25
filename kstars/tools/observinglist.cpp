@@ -1,7 +1,4 @@
 /*
-    observinglist.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : 29 Nov 2004
     SPDX-FileCopyrightText: 2004-2020 Jeff Woods Jason Harris,
     Prakash Mohan, Akarsh Simha
     email                : jcwoods@bellsouth.net, jharris@30doradus.org,

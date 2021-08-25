@@ -1,7 +1,4 @@
 /*
-    kspluto.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Mon Sep 24 2001
     SPDX-FileCopyrightText: 2001 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
