@@ -1,7 +1,4 @@
 /*
-    starblocklist.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Mon 9 Jun 2008
     SPDX-FileCopyrightText: 2008 Akarsh Simha <akarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

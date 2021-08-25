@@ -1,7 +1,4 @@
 /*
-    opssatellites.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Mon 21 Mar 2011
     SPDX-FileCopyrightText: 2011 Jérôme SONRIER <jsid@emor3j.fr.eu.org>
 */
 /***************************************************************************

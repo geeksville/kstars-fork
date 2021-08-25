@@ -1,7 +1,4 @@
 /*
-    ksearthshadow.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Fri Aug 24 2018
     SPDX-FileCopyrightText: 2018 Valentin Boettcher <valentin@boettcher.cf>
 
     SPDX-License-Identifier: GPL-2.0-or-later

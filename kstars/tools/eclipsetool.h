@@ -1,7 +1,4 @@
 /*
-    eclipsetool.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Tue 18/09/2018
     SPDX-FileCopyrightText: 2018 Valentin Boettcher <valentin@boettcher.cf>
 
     SPDX-License-Identifier: GPL-2.0-or-later
