@@ -4,9 +4,6 @@
     begin                : Mon Jan  7 10:48:09 EST 2002
     copyright            : (C) 2002 by Mark Hollomon
     email                : mhh@mindspring.com
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

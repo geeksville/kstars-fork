@@ -4,9 +4,6 @@
     begin                : Fri 1st Aug 2008
     copyright            : (C) 2008 Akarsh Simha, Thomas Kabelmann
     email                : akarshsimha@gmail.com, thomas.kabelmann@gmx.de
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
