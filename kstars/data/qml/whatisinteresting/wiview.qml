@@ -1,10 +1,11 @@
 
-// SPDX-FileCopyrightText: 2017 Robert Lancaster <rlancaste@gmail.com> based on work in 2013 by Samikshan Bairagya <samikshan@gmail.com>
-/***************************************************************************
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
+// SPDX-FileCopyrightText: 2017 Robert Lancaster <rlancaste@gmail.com>
+
+// based on work of:
+// SPDX-FileCopyrightText: 2013 Samikshan Bairagya <samikshan@gmail.com>
+
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 import QtQuick 2.5
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 1.4
