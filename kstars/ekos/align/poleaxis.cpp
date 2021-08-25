@@ -1,5 +1,4 @@
-/*  poleaxis.cpp  determines the mount polar axis position
-
+/*
     SPDX-FileCopyrightText: 2020 Chris Rowland <chris.rowland@cherryfield.me.uk>
 
     SPDX-License-Identifier: GPL-2.0-or-later
