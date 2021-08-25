@@ -1,24 +1,24 @@
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-*
-* This file is part of SEP
-*
-* Copyright 1993-2011 Emmanuel Bertin -- IAP/CNRS/UPMC
-* Copyright 2014 SEP developers
-*
-* SEP is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* SEP is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with SEP.  If not, see <http://www.gnu.org/licenses/>.
-*
-*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+
+    This file is part of SEP
+
+    SPDX-FileCopyrightText: 1993-2011 Emmanuel Bertin -- IAP /CNRS/UPMC
+    SPDX-FileCopyrightText: 2014 SEP developers
+
+    SEP is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SEP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with SEP.  If not, see <http://www.gnu.org/licenses/>.
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 #include <math.h>
 #include <stdio.h>
@@ -31,9 +31,9 @@
 #ifndef	RAND_MAX
 #define	RAND_MAX 2147483647
 #endif
-#define	NSONMAX	1024  /* max. number per level */
-#define NSONMAX_STR "1024" /* just for error message */
-#define	NBRANCH	16    /* starting number per branch */
+#define	NSONMAX	1024  /* max. number per level*/
+#define NSONMAX_STR "1024" /* just for error message*/
+#define	NBRANCH	16    /* starting number per branch*/
 
 
 
@@ -44,11 +44,11 @@ int gatherup(objliststruct *, objliststruct *);
 static objliststruct *objlist=NULL;
 static short	     *son=NULL, *ok=NULL;
 
-/******************************** deblend ************************************/
+/* deblend ************************************/
 /*
 Divide a list of isophotal detections in several parts (deblending).
 NOTE: Even if the object is not deblended, the output objlist threshold is
-      recomputed if a variable threshold is used.
+    recomputed if a variable threshold is used.
 
 This can return two error codes: DEBLEND_OVERFLOW or MEMORY_ALLOC_ERROR
 */
