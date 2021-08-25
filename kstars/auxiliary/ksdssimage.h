@@ -3,9 +3,6 @@
                              -------------------
     begin                : Tue 05 Jan 2016 00:24:07 CST
     copyright            : (C) 2016 by Akarsh Simha <akarsh@kde.org>
-***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
