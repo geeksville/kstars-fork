@@ -1,4 +1,4 @@
-/*  KStars UI tests
+/*
     SPDX-FileCopyrightText: 2017 Csaba Kertesz <csaba.kertesz@gmail.com>
     SPDX-FileCopyrightText: 2020 Eric Dejouhanet <eric.dejouhanet@gmail.com>
 
