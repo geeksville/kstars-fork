@@ -2,8 +2,7 @@
                starhopper.cpp  -  Star Hopping Guide for KStars
                              -------------------
     begin                : Mon 23rd Aug 2010
-    copyright            : (C) 2010 Akarsh Simha
-    email                : akarshsimha@gmail.com
+    copyright            : (C) 2010 Akarsh Simha <akarshsimha@gmail.com>
 ***************************************************************************/
 
 /***************************************************************************

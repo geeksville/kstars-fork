@@ -2,8 +2,7 @@
                           flagmanager.h  -  Flag manager
                              -------------------
     begin                : Mon Feb 01 2009
-    copyright            : (C) 2009 by Jerome SONRIER
-    email                : jsid@emor3j.fr.eu.org
+    copyright            : (C) 2009 by Jerome SONRIER <jsid@emor3j.fr.eu.org>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

@@ -2,8 +2,7 @@
                   starblocklist.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Mon 9 Jun 2008
-    copyright            : (C) 2008 by Akarsh Simha
-    email                : akarshsimha@gmail.com
+    copyright            : (C) 2008 by Akarsh Simha <akarshsimha@gmail.com>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
