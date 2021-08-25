@@ -1,7 +1,4 @@
 /*
-    dmsbox.cpp  -  description
-    -------------------
-    begin                : wed Dec 19 2001
     SPDX-FileCopyrightText: 2001-2002 Pablo de Vicente <vicente@oan.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later

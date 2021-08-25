@@ -1,7 +1,4 @@
 /*
-    scriptfunction.cpp  -  description
-    -------------------
-    begin                : Thu Apr 17 2003
     SPDX-FileCopyrightText: 2003 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

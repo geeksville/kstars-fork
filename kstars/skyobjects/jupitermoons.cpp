@@ -1,7 +1,4 @@
 /*
-    jupitermoons.cpp  -  description
-    -------------------
-    begin                : Fri Oct 18 2002
     SPDX-FileCopyrightText: 2002 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
