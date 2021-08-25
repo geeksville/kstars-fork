@@ -1,7 +1,4 @@
 /*
-    infoboxwidget.h  -  description
-    -------------------
-    begin                : 20 Aug 2009
     SPDX-FileCopyrightText: 2009 Khudyakov Alexey <alexey.skladnoy@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

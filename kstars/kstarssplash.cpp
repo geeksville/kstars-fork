@@ -1,7 +1,4 @@
 /*
-    kstarssplash.cpp  -  description
-    -------------------
-    begin                : Thu Jul 26 2001
     SPDX-FileCopyrightText: 2001 Heiko Evermann <heiko@evermann.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later
