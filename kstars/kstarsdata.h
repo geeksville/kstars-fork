@@ -1,7 +1,4 @@
 /*
-    kstarsdata.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun Jul 29 2001
     SPDX-FileCopyrightText: 2001 Heiko Evermann <heiko@evermann.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later

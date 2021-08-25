@@ -1,7 +1,4 @@
 /*
-    TestFWParser.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : 2012/24/07
     SPDX-FileCopyrightText: 2012 Rishab Arora <ra.rishab@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,7 +1,4 @@
 /*
-    ksdssdownloader.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Tue 05 Jan 2016 03:22:50 CST
     SPDX-FileCopyrightText: 2016 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,7 +1,4 @@
 /*
-    ksconjunct.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Sat Mar 22 2008
     SPDX-FileCopyrightText: 2008 Akarsh Simha <kstar@bas.org.in>
 
     SPDX-License-Identifier: GPL-2.0-or-later

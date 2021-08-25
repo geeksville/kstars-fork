@@ -1,7 +1,4 @@
 /*
-    catalogobject.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Jun 2021
     SPDX-FileCopyrightText: 2021 Valentin Boettcher Jason Harris <hiro at protagon.space; @hiro98:tchncs.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later

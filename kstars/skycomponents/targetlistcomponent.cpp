@@ -1,7 +1,4 @@
 /*
-    targetlistcomponent.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Oct 14 2010 9:59 PM CDT
     SPDX-FileCopyrightText: 2010 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

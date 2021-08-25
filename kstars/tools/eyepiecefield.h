@@ -1,7 +1,4 @@
 /*
-    eyepiecefield.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Fri 30 May 2014 14:39:37 CDT
     SPDX-FileCopyrightText: 2014 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,7 +1,4 @@
 /*
-    kstars.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Mon Feb  5 01:11:45 PST 2001
     SPDX-FileCopyrightText: 2001 Jason Harris <jharris@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
