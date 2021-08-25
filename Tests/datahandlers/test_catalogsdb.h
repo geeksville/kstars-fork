@@ -29,7 +29,7 @@ class TestCatalogsDB_DBManager : public QObject
     TestCatalogsDB_DBManager() : m_manager{ getTestSqliteFile() } {}
 
   private:
-    const QString db_file_og = QFINDTESTDATA("data/test_orig.sqlite");
+    const QString db_file_og = QFINDTESTDATA("data/test.sqlite");
     DBManager m_manager;
     CatalogObject some_object() { return m_manager.get_objects(99, 1).front(); }
     QString getTestSqliteFile()
