@@ -1,7 +1,4 @@
 /*
-    unitspinboxwidget.cpp  - A widget for providing multiple units
-    -------------------
-    begin                : Sun 18th Jan 2015
     SPDX-FileCopyrightText: 2015 Utkarsh Simha <utkarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
