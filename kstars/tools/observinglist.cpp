@@ -1,5 +1,5 @@
 /*
-    SPDX-FileCopyrightText: 2004-2020 Jeff Woods Jason Harris,
+    SPDX-FileCopyrightText: 2004-2020 Jeff Woods Jason Harris
     Prakash Mohan, Akarsh Simha
     email                : jcwoods@bellsouth.net, jharris@30doradus.org,
     prakash.mohan@kdemail.net, akarsh@kde.org

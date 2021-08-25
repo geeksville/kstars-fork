@@ -1,11 +1,8 @@
 /*
     SPDX-FileCopyrightText: 2010 Akarsh Simha <akarsh.simha@kdemail.net>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
 */
-/***************************************************************************
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
 
 #ifdef _WIN32
 #include <windows.h>
