@@ -1,4 +1,4 @@
-/*  StarProfileViewer
+/*
     SPDX-FileCopyrightText: 2017 Robert Lancaster <rlancaste@gmail.com>
 
     Based on the QT Surface Example https://doc.qt.io/qt-5.9/qtdatavisualization-surface-example.html

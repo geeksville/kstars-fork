@@ -1,4 +1,4 @@
-/*  Ekos guide drift graph
+/*
     SPDX-FileCopyrightText: 2012 Jasem Mutlaq <mutlaqja@ikarustech.com>
     2021 Wolfgang Reissenberger <sterne-jaeger@openfuture.de>
 
