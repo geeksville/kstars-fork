@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2014 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "eyepiecefield.h"

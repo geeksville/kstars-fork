@@ -3,7 +3,6 @@
     SPDX-FileCopyrightText: 2010 Henry de Valence <hdevalence@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "skypainter.h"

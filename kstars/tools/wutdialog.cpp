@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2003 Thomas Kabelmann <tk78@gmx.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "wutdialog.h"
