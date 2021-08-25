@@ -1,4 +1,4 @@
-/*  GUI Device Manager
+/*
     SPDX-FileCopyrightText: 2012 Jasem Mutlaq (mutlaqja AT ikarustech DOT com)
 
     SPDX-License-Identifier: GPL-2.0-or-later
