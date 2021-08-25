@@ -4,9 +4,6 @@
     begin                : Tue 27 Sep 2016 20:51:21 CDT
     copyright            : (c) 2020 by Chris Rowland
     email                :
-***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
