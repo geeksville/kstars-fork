@@ -2,8 +2,7 @@
                           modcalcvlsr.cpp  -  description
                              -------------------
     begin                : sun mar 13 2005
-    copyright            : (C) 2005 by Pablo de Vicente
-    email                : p.devicente@wanadoo.es
+    copyright            : (C) 2005 by Pablo de Vicente <p.devicente@wanadoo.es>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

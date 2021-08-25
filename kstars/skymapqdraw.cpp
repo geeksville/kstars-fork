@@ -2,8 +2,7 @@
                   skymapqdraw.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Tue Dec 21 2010 08:36 AM UTC-6
-    copyright            : (C) 2010 Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2010 Akarsh Simha <akarsh.simha@kdemail.net>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

@@ -2,8 +2,7 @@
                           pvplotwidget.h
                              -------------------
     begin                : Sat 17 Dec 2005
-    copyright            : (C) 2005 by Jason Harris
-    email                : kstars@30doradus.org
+    copyright            : (C) 2005 by Jason Harris <kstars@30doradus.org>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *
