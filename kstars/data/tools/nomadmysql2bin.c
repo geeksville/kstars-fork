@@ -1,10 +1,8 @@
-
-/***************************************************************************
+/*
     SPDX-FileCopyrightText: 2008 Akarsh Simha <akarshsimha@gmail.com>
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+*/
 
 // Program to convert star data stored in a MySQL database into
 // the binary file format used by KStars
