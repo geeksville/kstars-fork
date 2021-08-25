@@ -1,8 +1,6 @@
 
 /***************************************************************************
-                          XPlanetImageviewer.cpp  -  Based on: KStars Image Viwer by Thomas Kabelmann
-                             -------------------
-    begin                : Sun Aug 12, 2018
+    SPDX-FileCopyrightText: Thomas Kabelmann
     SPDX-FileCopyrightText: 2018 Robert Lancaster <rlancaste@gmail.com>
  **************************************************************************
  *   SPDX-License-Identifier: GPL-2.0-or-later
