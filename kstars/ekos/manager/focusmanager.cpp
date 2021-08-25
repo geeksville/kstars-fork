@@ -1,4 +1,4 @@
-/*  Ekos
+/*
     SPDX-FileCopyrightText: 2012 Jasem Mutlaq <mutlaqja@ikartech.com>
     2021 Wolfgang Reissenberger <sterne-jaeger@openfuture.de>
 

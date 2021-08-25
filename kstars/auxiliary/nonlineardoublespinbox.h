@@ -1,4 +1,4 @@
-/*  Non Linear Spin Box
+/*
     SPDX-FileCopyrightText: 2017 Robert Lancaster <rlancaste@gmail.com>
 
     Based on an idea discussed in the QT Centre: https://www.qtcentre.org/threads/47535-QDoubleSpinBox-with-nonlinear-values
