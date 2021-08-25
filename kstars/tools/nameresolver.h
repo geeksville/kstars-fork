@@ -2,8 +2,7 @@
                   nameresolver.h  -  K Desktop Planetarium
                              -------------------
     begin                : Sat 23 Aug 2014 23:38:42 CDT
-    copyright            : (c) 2014 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2014 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************

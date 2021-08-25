@@ -2,8 +2,7 @@
                           FITSViewer.cpp  -  A FITSViewer for KStars
                              -------------------
     begin                : Thu Jan 22 2004
-    copyright            : (C) 2004 by Jasem Mutlaq
-    email                : mutlaqja@ikarustech.com
+    copyright            : (C) 2004 by Jasem Mutlaq <mutlaqja@ikarustech.com>
 
  2006-03-03	Using CFITSIO, Porting to Qt4
  *                                                                         *

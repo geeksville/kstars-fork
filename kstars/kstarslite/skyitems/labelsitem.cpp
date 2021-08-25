@@ -2,8 +2,7 @@
                           labelsitem.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : 10/06/2016
-    copyright            : (C) 2016 by Artem Fedoskin
-    email                : afedoskin3@gmail.com
+    copyright            : (C) 2016 by Artem Fedoskin <afedoskin3@gmail.com>
  ***************************************************************************/
 /** *************************************************************************
  *                                                                         *

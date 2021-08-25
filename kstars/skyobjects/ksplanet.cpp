@@ -2,8 +2,7 @@
                           ksplanet.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Sun Jul 22 2001
-    copyright            : (C) 2001 by Jason Harris
-    email                : jharris@30doradus.org
+    copyright            : (C) 2001 by Jason Harris <jharris@30doradus.org>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

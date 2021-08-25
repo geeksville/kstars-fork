@@ -2,8 +2,7 @@
                           kstars.h  -  K Desktop Planetarium
                              -------------------
     begin                : Mon Jan 7 2002
-    copyright            : (C) 2002 by Mark Hollomon
-    email                : mhh@mindspring.com
+    copyright            : (C) 2002 by Mark Hollomon <mhh@mindspring.com>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

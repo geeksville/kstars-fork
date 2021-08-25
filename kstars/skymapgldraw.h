@@ -2,8 +2,7 @@
                    skymapgldraw.h  -  K Desktop Planetarium
                              -------------------
     begin                : Wed Dec 29 2010 03:24 AM UTC -06:00
-    copyright            : (C) 2010 Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2010 Akarsh Simha <akarsh.simha@kdemail.net>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
