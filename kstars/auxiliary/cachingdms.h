@@ -2,8 +2,7 @@
                         cachingdms.h  - KStars Planetarium
                              -------------------
     begin                : Sat 24 Sep 2016 02:18:26 CDT
-    copyright            : (c) 2016 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2016 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************

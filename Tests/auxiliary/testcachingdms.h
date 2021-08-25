@@ -2,8 +2,7 @@
                            testcachingdms.h  -
                              -------------------
     begin                : Sun 25 Sep 2016 03:56:35 CDT
-    copyright            : (c) 2016 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2016 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************

@@ -2,8 +2,7 @@
 nomadbinfile2mysql.cpp -- Convert USNO NOMAD binary file to a MySQL database
                              -------------------
     begin                : Sat Jul 2 2011
-    copyright            : (C) 2011 by Akarsh Simha
-    email                : akarshsimha@gmail.com
+    copyright            : (C) 2011 by Akarsh Simha <akarshsimha@gmail.com>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
