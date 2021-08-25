@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2012 Jerome SONRIER <jsid@emor3j.fr.eu.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "localmeridiancomponent.h"

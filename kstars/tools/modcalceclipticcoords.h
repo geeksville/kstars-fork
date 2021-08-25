@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2004 Pablo de Vicente <p.devicente@wanadoo.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #pragma once
