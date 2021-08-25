@@ -1,7 +1,4 @@
 /*
-    ksnumbers.h  -  description
-    -------------------
-    begin                : Sun Jan 13 2002
     SPDX-FileCopyrightText: 2002-2005 Jason Harris <kstars@30doradus.org>
     SPDX-FileCopyrightText: 2004-2005 Pablo de Vicente <p.devicente@wanadoo.es>
 
