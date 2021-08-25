@@ -2,8 +2,7 @@
                           kstarsdata.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Sun Jul 29 2001
-    copyright            : (C) 2001 by Heiko Evermann
-    email                : heiko@evermann.de
+    copyright            : (C) 2001 by Heiko Evermann <heiko@evermann.de>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

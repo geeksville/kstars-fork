@@ -2,8 +2,7 @@
                           detaildialoglite.h  -  K Desktop Planetarium
                              -------------------
     begin                : Aug Jul 13 2016
-    copyright            : (C) 2016 by Artem Fedoskin
-    email                : afedoskin3@gmail.com
+    copyright            : (C) 2016 by Artem Fedoskin <afedoskin3@gmail.com>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

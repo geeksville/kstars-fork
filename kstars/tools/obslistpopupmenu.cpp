@@ -2,8 +2,7 @@
                           obslistpopupmenu.h  -  K Desktop Planetarium
                              -------------------
     begin                : Sun July 5 2009
-    copyright            : (C) 2008 by Prakash Mohan
-    email                : prakash.mohan@kdemail.net
+    copyright            : (C) 2008 by Prakash Mohan <prakash.mohan@kdemail.net>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

@@ -2,8 +2,7 @@
          angconversion.h -- Functions for converting angle formats
                              -------------------
     begin                : Sat Jul 9 2011
-    copyright            : (C) 2011 by Akarsh Simha
-    email                : akarshsimha@gmail.com
+    copyright            : (C) 2011 by Akarsh Simha <akarshsimha@gmail.com>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

@@ -2,8 +2,7 @@
                           opscatalog.h  -  K Desktop Planetarium
                              -------------------
     begin                : Sun Feb 29 2004
-    copyright            : (C) 2004 by Jason Harris
-    email                : jharris@30doradus.org
+    copyright            : (C) 2004 by Jason Harris <jharris@30doradus.org>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *
