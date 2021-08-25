@@ -1,9 +1,11 @@
+/*
+	SPDX-FileCopyrightText: 2011 See AUTHORS file.
+
+	SPDX-License-Identifier: Apache-2.0
+*/
+
 package org.kde.kstars.math;
-/*******************************************************************************
- * SPDX-FileCopyrightText: 2011 See AUTHORS file.
- * 
- * SPDX-License-Identifier: Apache-2.0
- ******************************************************************************/
+
 /** from libgdx: https://github.com/libgdx/libgdx */
 
 import java.util.Random;
