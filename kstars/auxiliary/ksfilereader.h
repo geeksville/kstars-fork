@@ -1,7 +1,4 @@
 /*
-    ksfilereader.h  -  description
-    -------------------
-    begin                : 2007-07-16
     SPDX-FileCopyrightText: 2007 James B. Bowlin <bowlin@mindspring.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
