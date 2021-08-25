@@ -1,8 +1,7 @@
 /*
     KStars UI tests for meridian flip - special cases.
 
-    Copyright (C) 2020
-    Wolfgang Reissenberger <sterne-jaeger@openfuture.de>
+    SPDX-FileCopyrightText: 2020 Wolfgang Reissenberger <sterne-jaeger@openfuture.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
