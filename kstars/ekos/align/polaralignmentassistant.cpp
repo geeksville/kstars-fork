@@ -1,6 +1,6 @@
 /*  Ekos Polar Alignment Assistant Tool
-    SPDX-FileCopyrightText: 2018-2021 by Jasem Mutlaq
-    SPDX-FileCopyrightText: 2020-2021 by Hy Murveit
+    SPDX-FileCopyrightText: 2018-2021 Jasem Mutlaq
+    SPDX-FileCopyrightText: 2020-2021 Hy Murveit
 
     SPDX-License-Identifier: GPL-2.0-or-later
  */
