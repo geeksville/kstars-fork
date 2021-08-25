@@ -1,7 +1,7 @@
 /* used by FPACK and FUNPACK
- * R. Seaman, NOAO
- * W. Pence, NASA/GSFC
- */
+    R. Seaman, NOAO
+    W. Pence, NASA/GSFC
+*/
 
 #pragma once
 

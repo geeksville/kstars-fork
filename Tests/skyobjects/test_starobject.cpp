@@ -1,15 +1,12 @@
-/***************************************************************************
-                 test_starobject.cpp  -  KStars Planetarium
-                             -------------------
+/*
+    test_starobject.cpp  -  KStars Planetarium
+    -------------------
     begin                : Mon 26 Jul 2021 22:55:07 PDT
-    copyright            : (C) 2021 by Akarsh Simha <akarsh@kde.org>
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    SPDX-FileCopyrightText: 2021 Akarsh Simha <akarsh@kde.org>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+*/
 
 
 #include "test_starobject.h"
