@@ -1,7 +1,4 @@
 /*
-    flagmanager.cpp  -  Flags manager
-    -------------------
-    begin                : Mon Feb 01 2009
     SPDX-FileCopyrightText: 2009 Jerome SONRIER <jsid@emor3j.fr.eu.org>
 */
 /***************************************************************************

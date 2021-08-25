@@ -1,7 +1,4 @@
 /*
-    placeholderpath.cpp  -  KStars Ekos
-    -------------------
-    begin                : Tue 19 Jan 2021 15:06:21 CDT
     SPDX-FileCopyrightText: 2021 Kwon-Young Choi <kwon-young.choi@hotmail.fr>
 
     SPDX-License-Identifier: GPL-2.0-or-later

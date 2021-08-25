@@ -1,7 +1,4 @@
 /*
-    modcalcLSRVel.h  -  description
-    -------------------
-    begin                : dom mar 13 2005
     SPDX-FileCopyrightText: 2005 Pablo de Vicente <pvicentea@wanadoo.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later

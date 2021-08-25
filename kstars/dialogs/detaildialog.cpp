@@ -1,7 +1,4 @@
 /*
-    detaildialog.cpp  -  description
-    -------------------
-    begin                : Sun May 5 2002
     SPDX-FileCopyrightText: 2002 Jason Harris and Jasem Mutlaq <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
