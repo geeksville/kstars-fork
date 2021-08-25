@@ -4,9 +4,6 @@
     begin                : 04 Nov. 2008
     copyright            : (C) 2008 by Jerome SONRIER
     email                : jsid@emor3j.fr.eu.org
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
