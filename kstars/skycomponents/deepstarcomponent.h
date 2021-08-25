@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2008 Akarsh Simha Thomas Kabelmann <akarshsimha@gmail.com, thomas.kabelmann@gmx.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #pragma once
