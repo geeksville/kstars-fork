@@ -15,7 +15,7 @@
 # http://archive.stsci.edu/data_use.html
 #
 # The script itself is released under GNU General Public License v3.
-# Copyright (c) 2015 Akarsh Simha <akarsh@kde.org>
+# SPDX-FileCopyrightText: 2015 Akarsh Simha <akarsh@kde.org>
 
 
 # Dependencies:

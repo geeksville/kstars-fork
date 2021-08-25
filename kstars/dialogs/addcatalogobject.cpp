@@ -1,15 +1,12 @@
-/***************************************************************************
-                  addcatalogobject.cpp  -  K Desktop Planetarium
-                             -------------------
+/*
+    addcatalogobject.cpp  -  K Desktop Planetarium
+    -------------------
     begin                : 2021-06-03
-    copyright            : (C) 2021 by Valentin Boettcher <hiro at protagon.space; @hiro98:tchncs.de>
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    SPDX-FileCopyrightText: 2021 Valentin Boettcher <hiro at protagon.space; @hiro98:tchncs.de>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+*/
 
 #include "addcatalogobject.h"
 #include "ui_addcatalogobject.h"

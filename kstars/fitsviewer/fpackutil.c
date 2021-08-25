@@ -1,5 +1,5 @@
 /* FPACK utility routines
-   R. Seaman, NOAO & W. Pence, NASA/GSFC
+    R. Seaman, NOAO & W. Pence, NASA/GSFC
 */
 
 #include <time.h>
