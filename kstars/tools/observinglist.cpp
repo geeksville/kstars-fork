@@ -6,9 +6,6 @@
                            Prakash Mohan, Akarsh Simha
     email                : jcwoods@bellsouth.net, jharris@30doradus.org,
                            prakash.mohan@kdemail.net, akarsh@kde.org
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
