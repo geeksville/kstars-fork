@@ -31,8 +31,7 @@ class TestCatalogsDB_DBManager : public QObject
   private:
     const QString db_file = QCoreApplication::applicationDirPath() +
                             "/../Tests/datahandlers/data/test.sqlite";
-    const QString db_file_og = QCoreApplication::applicationDirPath() +
-                               "/../Tests/datahandlers/data/test_orig.sqlite";
+    const QString db_file_og = QFINDTESTDATA("data/test_orig.sqlite");
     DBManager m_manager;
     CatalogObject some_object() { return m_manager.get_objects(99, 1).front(); }
 
