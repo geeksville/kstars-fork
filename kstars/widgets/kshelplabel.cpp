@@ -4,9 +4,6 @@
     begin                : Wed 1 Dec 2010
     copyright            : (C) 2010 by Valery Kharitonov
     email                : kharvd@gmail.com
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
