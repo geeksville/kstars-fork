@@ -4,9 +4,6 @@
     begin                : 12 Nov. 2005
     copyright            : (C) 2005 by Jason Harris
     email                : kstars@30doradus.org
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

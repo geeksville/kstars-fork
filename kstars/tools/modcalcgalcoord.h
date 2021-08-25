@@ -4,9 +4,6 @@
     begin                : Thu Jan 17 2002
     copyright            : (C) 2002 by Pablo de Vicente
     email                : vicente@oan.es
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

@@ -4,9 +4,6 @@
     begin                : Fri Aug 24 2018
     copyright            : (C) 2018 by Valentin Boettcher
     email                : valentin@boettcher.cf
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
