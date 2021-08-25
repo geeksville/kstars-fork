@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2002-2003 Pablo de Vicente <vicente@oan.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "altvstime.h"
