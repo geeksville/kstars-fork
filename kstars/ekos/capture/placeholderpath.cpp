@@ -3,9 +3,6 @@
                              -------------------
     begin                : Tue 19 Jan 2021 15:06:21 CDT
     copyright            : (C) 2021 by Kwon-Young Choi <kwon-young.choi@hotmail.fr>
-***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
