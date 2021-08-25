@@ -1,9 +1,5 @@
 // SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
-/***************************************************************************
-*                                                                         *
-*   SPDX-License-Identifier: GPL-2.0-or-later
-*                                                                         *
-***************************************************************************/
+// SPDX-License-Identifier: GPL-2.0-or-later
 
 import QtQuick.Controls 2.0
 import QtQuick 2.6
