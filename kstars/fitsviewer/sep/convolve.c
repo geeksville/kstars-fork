@@ -1,24 +1,24 @@
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-*
-* This file is part of SEP
-*
-* Copyright 1993-2011 Emmanuel Bertin -- IAP/CNRS/UPMC
-* Copyright 2014 SEP developers
-*
-* SEP is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* SEP is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+    This file is part of SEP
+
+    SPDX-FileCopyrightText: 1993-2011 Emmanuel Bertin -- IAP /CNRS/UPMC
+    SPDX-FileCopyrightText: 2014 SEP developers
+
+    SEP is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SEP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 f* GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with SEP.  If not, see <http://www.gnu.org/licenses/>.
-*
-*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with SEP.  If not, see <http://www.gnu.org/licenses/>.
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,13 +29,13 @@ f* GNU Lesser General Public License for more details.
 #include "extract.h"
 
 /* Convolve one line of an image with a given kernel.
- *
- * buf : arraybuffer struct containing buffer of data to convolve, and image
-         dimension metadata.
- * conv : convolution kernel
- * convw, convh : width and height of conv
- * buf : output convolved line (buf->dw elements long)
- */
+
+    buf : arraybuffer struct containing buffer of data to convolve, and image
+    dimension metadata.
+    conv : convolution kernel
+    convw, convh : width and height of conv
+    buf : output convolved line (buf->dw elements long)
+*/
 int convolve(arraybuffer *buf, int y, float *conv, int convw, int convh,
              PIXTYPE *out)
 {

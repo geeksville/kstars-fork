@@ -2,7 +2,7 @@
 
 # Script to generate data dumps for each trixel
 #
-# Copyright: (c) 2008 Akarsh Simha <akarshsimha@gmail.com>
+# SPDX-FileCopyrightText: 2008 Akarsh Simha <akarshsimha@gmail.com>
 # License: GPL
 
 #
