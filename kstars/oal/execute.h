@@ -1,8 +1,4 @@
 /*
-    execute.h  -  description
-
-    -------------------
-    begin                : Friday July 21, 2009
     SPDX-FileCopyrightText: 2009 Prakash Mohan <prakash.mohan*@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later
