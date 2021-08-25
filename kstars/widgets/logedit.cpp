@@ -1,7 +1,4 @@
 /*
-    logedit.cpp  -  description
-    -------------------
-    begin                : Sat 03 Dec 2005
     SPDX-FileCopyrightText: 2005 Jason Harris and Jasem Mutlaq <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

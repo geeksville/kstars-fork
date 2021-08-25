@@ -1,7 +1,4 @@
 /*
-    draglistbox.cpp  -  description
-    -------------------
-    begin                : Sun May 29 2005
     SPDX-FileCopyrightText: 2005 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

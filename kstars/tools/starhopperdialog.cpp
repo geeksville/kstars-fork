@@ -1,7 +1,4 @@
 /*
-    starhopperdialog.cpp  -  UI of Star Hopping Guide for KStars
-    -------------------
-    begin                : Sat 15th Nov 2014
     SPDX-FileCopyrightText: 2014 Utkarsh Simha <utkarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

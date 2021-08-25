@@ -1,7 +1,4 @@
 /*
-    planetmoons.cpp  -  description
-    -------------------
-    begin                : Sat Mar 13 2009
     : by Vipul Kumar Singh, Médéric Boquien
     email                : vipulkrsingh@gmail.com, mboquien@free.fr
 

@@ -1,7 +1,4 @@
 /*
-    jmoontool.h  -  Display overhead view of the solar system
-    -------------------
-    begin                : Sun May 25 2003
     SPDX-FileCopyrightText: 2003 Jason Harris <jharris@30doradus.org>
 */
 /***************************************************************************

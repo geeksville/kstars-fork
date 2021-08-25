@@ -1,7 +1,4 @@
 /*
-    cachingdms.cpp  -  KStars Planetarium
-    -------------------
-    begin                : Sat 24 Sep 2016 23:16:25 CDT
     SPDX-FileCopyrightText: 2016 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,7 +1,4 @@
 /*
-    modcalcgal.cpp  -  description
-    -------------------
-    begin                : Thu Jan 17 2002
     SPDX-FileCopyrightText: 2002 Pablo de Vicente <vicente@oan.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later
