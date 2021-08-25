@@ -1,8 +1,4 @@
 /*
-    ksalmanac.cpp  -  description
-
-    -------------------
-    begin                : Friday May 8, 2009
     SPDX-FileCopyrightText: 2009 Prakash Mohan <prakash.mohan@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

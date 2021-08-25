@@ -1,7 +1,4 @@
 /*
-    modcalcvlsr.cpp  -  description
-    -------------------
-    begin                : sun mar 13 2005
     SPDX-FileCopyrightText: 2005 Pablo de Vicente <p.devicente@wanadoo.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later

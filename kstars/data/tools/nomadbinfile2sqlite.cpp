@@ -1,7 +1,4 @@
 /*
-nomadbinfile2sqlite.cpp -- Convert USNO NOMAD binary file to a SQLite database
-    -------------------
-    begin                : Sat Jul 2 2011
     copyright            : (C) 2011--2016 by Akarsh Simha <akarsh@kde.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
