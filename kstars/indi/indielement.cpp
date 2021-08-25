@@ -1,4 +1,4 @@
-/*  INDI Element
+/*
     SPDX-FileCopyrightText: 2003 Jasem Mutlaq (mutlaqja@ikarustech.com)
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,4 +1,4 @@
-/*  Correspondence class.
+/*
     SPDX-FileCopyrightText: 2020 Hy Murveit
 
     SPDX-License-Identifier: GPL-2.0-or-later
