@@ -1,7 +1,4 @@
 /*
-    astrocalc.h  -  description
-    -------------------
-    begin                : wed dec 19 16:20:11 CET 2002
     SPDX-FileCopyrightText: 2001-2002 Pablo de Vicente <vicente@oan.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later

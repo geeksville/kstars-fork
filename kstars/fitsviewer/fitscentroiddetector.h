@@ -1,7 +1,4 @@
 /*
-    fitscentroiddetector.h  -  FITS Image
-    -------------------
-    begin                : Sat March 28 2020
     SPDX-FileCopyrightText: 2004 Jasem Mutlaq (C) 2020 by Eric Dejouhanet <eric.dejouhanet@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

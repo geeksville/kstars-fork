@@ -1,7 +1,4 @@
 /*
-    simclock.h  -  description
-    -------------------
-    begin                : Mon Feb 18 2002
     SPDX-FileCopyrightText: 2002 Mark Hollomon
     email                : mhh@mindspring.com
 
