@@ -1,12 +1,12 @@
+/*
+	SPDX-FileCopyrightText: 2011 See AUTHORS file.
+
+	SPDX-License-Identifier: Apache-2.0
+*/
+
 package org.kde.kstars.math;
 
 import java.io.Serializable;
-
-/*******************************************************************************
- * SPDX-FileCopyrightText: 2011 See AUTHORS file.
- * 
- * SPDX-License-Identifier: Apache-2.0
- ******************************************************************************/
 
 /** Encapsulates a 3D vector. Allows chaining operations by returning a reference to itself in all modification methods.
  * @author badlogicgames@gmail.com */
