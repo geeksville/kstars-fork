@@ -1,7 +1,4 @@
 /*
-    kshelplabel.h - Help label used to document astronomical terms
-    -------------------
-    begin                : Wed 1 Dec 2010
     SPDX-FileCopyrightText: 2010 Valery Kharitonov <kharvd@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
