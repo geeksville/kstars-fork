@@ -1,4 +1,4 @@
-/*  Ekos Scheduler Module
+/*
     SPDX-FileCopyrightText: 2015 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     DBus calls from GSoC 2015 Ekos Scheduler project by Daniel Leu <daniel_mihai.leu@cti.pub.ro>

@@ -1,4 +1,4 @@
-/*  Astrometry.net Options Editor
+/*
     SPDX-FileCopyrightText: 2017 Jasem Mutlaq <mutlaqja@ikarustech.com>
     SPDX-FileCopyrightText: 2017 Robert Lancaster <rlancaste@gmail.com>
 

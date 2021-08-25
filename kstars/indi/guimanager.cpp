@@ -1,4 +1,4 @@
-/*  INDI frontend for KStars
+/*
     SPDX-FileCopyrightText: 2012 Jasem Mutlaq
 
     SPDX-License-Identifier: GPL-2.0-or-later

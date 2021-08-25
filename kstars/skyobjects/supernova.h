@@ -1,4 +1,4 @@
-/*  Supernova Object
+/*
     SPDX-FileCopyrightText: 2016 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     Based on Samikshan Bairagya GSoC work.
