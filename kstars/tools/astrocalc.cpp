@@ -1,7 +1,4 @@
 /*
-    astrocalc.cpp  -  description
-    -------------------
-    begin                : wed dec 19 16:20:11 CET 2002
     SPDX-FileCopyrightText: 2001-2005 Pablo de Vicente <p.devicente@wanadoo.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later
