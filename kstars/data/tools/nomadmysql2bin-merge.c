@@ -1,7 +1,4 @@
 /*
-    nomadmysql2bin-merge.c - Compile a single binary file from trixel dumps
-    -------------------
-    begin                : Mon May 26 2008
     SPDX-FileCopyrightText: 2008 Akarsh Simha <akarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
