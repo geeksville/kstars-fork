@@ -2,8 +2,7 @@
                           opssatellites.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Mon 21 Mar 2011
-    copyright            : (C) 2011 by Jérôme SONRIER
-    email                : jsid@emor3j.fr.eu.org
+    copyright            : (C) 2011 by Jérôme SONRIER <jsid@emor3j.fr.eu.org>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

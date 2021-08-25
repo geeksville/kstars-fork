@@ -2,8 +2,7 @@
                           obslistwizard.h  -  Display overhead view of the solar system
                              -------------------
     begin                : Thu 23 Jun 2005
-    copyright            : (C) 2005 by Jason Harris
-    email                : jharris@30doradus.org
+    copyright            : (C) 2005 by Jason Harris <jharris@30doradus.org>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

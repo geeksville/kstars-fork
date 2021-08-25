@@ -2,8 +2,7 @@
                 imageexporter.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Sun 13 Jan 2013 00:53:50 CST
-    copyright            : (c) 2013 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2013 by Akarsh Simha <akarsh.simha@kdemail.net>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

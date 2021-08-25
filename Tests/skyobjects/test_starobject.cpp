@@ -2,8 +2,7 @@
                  test_starobject.cpp  -  KStars Planetarium
                              -------------------
     begin                : Mon 26 Jul 2021 22:55:07 PDT
-    copyright            : (c) 2021 by Akarsh Simha
-    email                : akarsh@kde.org
+    copyright            : (C) 2021 by Akarsh Simha <akarsh@kde.org>
 ***************************************************************************/
 
 /***************************************************************************

@@ -2,8 +2,7 @@
                exporteyepieceview.h  -  K Desktop Planetarium
                              -------------------
     begin                : Sun 17 Jan 2016 21:36:25 CST
-    copyright            : (c) 2016 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2016 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************

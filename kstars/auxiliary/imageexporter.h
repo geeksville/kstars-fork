@@ -2,8 +2,7 @@
                  imageexporter.h  -  K Desktop Planetarium
                              -------------------
     begin                : Sun 13 Jan 2013 00:44:47 CST
-    copyright            : (c) 2013 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2013 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************
