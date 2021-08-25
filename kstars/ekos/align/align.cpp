@@ -2,7 +2,7 @@
     SPDX-FileCopyrightText: 2013 Jasem Mutlaq <mutlaqja@ikarustech.com>
     SPDX-FileCopyrightText: 2013-2021 Jasem Mutlaq <mutlaqja@ikarustech.com>
     SPDX-FileCopyrightText: 2018-2020 Robert Lancaster <rlancaste@gmail.com>
-    SPDX-FileCopyrightText: 2019-2021 Hy Murveit
+    SPDX-FileCopyrightText: 2019-2021 Hy Murveit <hy@murveit.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
