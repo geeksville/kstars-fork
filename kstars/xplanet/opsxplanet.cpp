@@ -1,11 +1,8 @@
 /*
     SPDX-FileCopyrightText: 2008 Jerome SONRIER <jsid@emor3j.fr.eu.org>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
 */
-/***************************************************************************
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
 
 #include "opsxplanet.h"
 

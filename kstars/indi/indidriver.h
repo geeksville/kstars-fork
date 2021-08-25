@@ -3,12 +3,9 @@
     -------------------
     begin                : Wed May 7th 2003
     SPDX-FileCopyrightText: 2001 Jasem Mutlaq <mutlaqja@ikarustech.com>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
 */
-/***************************************************************************
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
 
 #pragma once
 
