@@ -2,8 +2,7 @@
                      test_placeholderpath.h  -  KStars Planetarium
                              -------------------
     begin                : Mon 18 Jan 2021 11:51:21 CDT
-    copyright            : (c) 2021 by Kwon-Young Choi
-    email                : kwon-young.choi@hotmail.fr
+    copyright            : (C) 2021 by Kwon-Young Choi <kwon-young.choi@hotmail.fr>
 ***************************************************************************/
 
 /***************************************************************************

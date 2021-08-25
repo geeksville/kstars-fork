@@ -2,8 +2,7 @@
                           fitsskyobject.cpp  -  FITS Image
                              -------------------
     begin                : Tue Apr 07 2020
-    copyright            : (C) 2004 by Jasem Mutlaq, (C) 2020 by Eric Dejouhanet
-    email                : mutlaqja@ikarustech.com
+    copyright            : (C) 2004 by Jasem Mutlaq, (C) 2020 by Eric Dejouhanet <mutlaqja@ikarustech.com>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

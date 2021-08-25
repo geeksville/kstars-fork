@@ -2,8 +2,7 @@
                           deviceorientation.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : 13/02/2017
-    copyright            : (C) 2017 by Artem Fedoskin
-    email                : afedoskin3@gmail.com
+    copyright            : (C) 2017 by Artem Fedoskin <afedoskin3@gmail.com>
  ***************************************************************************/
 /** *************************************************************************
  *                                                                         *

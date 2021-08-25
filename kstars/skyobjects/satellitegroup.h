@@ -2,8 +2,7 @@
                           satellitegroup.h  -  K Desktop Planetarium
                              -------------------
     begin                : Tue 22 Mar 2011
-    copyright            : (C) 2011 by Jerome SONRIER
-    email                : jsid@emor3j.fr.eu.org
+    copyright            : (C) 2011 by Jerome SONRIER <jsid@emor3j.fr.eu.org>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

@@ -2,8 +2,7 @@
                      placeholderpath.cpp  -  KStars Ekos
                              -------------------
     begin                : Tue 19 Jan 2021 15:06:21 CDT
-    copyright            : (c) 2021 by Kwon-Young Choi
-    email                : kwon-young.choi@hotmail.fr
+    copyright            : (C) 2021 by Kwon-Young Choi <kwon-young.choi@hotmail.fr>
 ***************************************************************************/
 
 /***************************************************************************

@@ -2,8 +2,7 @@
                           jmoontool.h  -  Display overhead view of the solar system
                              -------------------
     begin                : Sun May 25 2003
-    copyright            : (C) 2003 by Jason Harris
-    email                : jharris@30doradus.org
+    copyright            : (C) 2003 by Jason Harris <jharris@30doradus.org>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *
