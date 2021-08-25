@@ -1,5 +1,4 @@
-/*  Ekos Live Client
-
+/*
     SPDX-FileCopyrightText: 2018 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     Cloud Channel

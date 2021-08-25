@@ -1,4 +1,4 @@
-/*  FITS Histogram
+/*
     SPDX-FileCopyrightText: 2015 Jasem Mutlaq (mutlaqja@ikarustech.com)
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,4 +1,4 @@
-/*  INDI Options (subclass)
+/*
     SPDX-FileCopyrightText: 2005 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
