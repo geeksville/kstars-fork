@@ -1,9 +1,8 @@
-    /***************************************************************************
+/*
     SPDX-FileCopyrightText: 2007 James B. Bowlin <bowlin@mindspring.com>
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+*/
 
 /****************************************************************************
  * The filled polygon code in the innermost loops below in drawFilled*() below
