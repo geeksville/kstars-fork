@@ -1,7 +1,4 @@
 /*
-    test_placeholderpath.h  -  KStars Planetarium
-    -------------------
-    begin                : Mon 18 Jan 2021 11:51:21 CDT
     SPDX-FileCopyrightText: 2021 Kwon-Young Choi <kwon-young.choi@hotmail.fr>
 
     SPDX-License-Identifier: GPL-2.0-or-later

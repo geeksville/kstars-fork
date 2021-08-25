@@ -1,7 +1,4 @@
 /*
-    dmsbox.h  -  description
-    -------------------
-    begin                : Wed Dec 19 2002
     SPDX-FileCopyrightText: 2001-2002 Pablo de Vicente <vicente@oan.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later

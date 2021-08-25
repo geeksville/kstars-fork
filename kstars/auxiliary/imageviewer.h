@@ -1,7 +1,4 @@
 /*
-    imageviewer.h  -  An ImageViewer for KStars
-    -------------------
-    begin                : Mon Aug 27 2001
     SPDX-FileCopyrightText: 2001 Thomas Kabelmann <tk78@gmx.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later

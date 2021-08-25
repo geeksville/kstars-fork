@@ -1,7 +1,4 @@
 /*
-    avtplotwidget.cpp  -  description
-    -------------------
-    begin                : Sat Nov 10 2007
     SPDX-FileCopyrightText: 2007 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
