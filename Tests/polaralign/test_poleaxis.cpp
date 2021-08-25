@@ -4,9 +4,6 @@
     begin                : Tue 27 Sep 2016 20:54:28 CDT
     copyright            : (c) 2016 by Akarsh Simha
     email                : akarsh.simha@kdemail.net
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

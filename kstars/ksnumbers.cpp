@@ -6,9 +6,6 @@
     email                : kstars@30doradus.org
     copyright            : (C) 2004-2005 by Pablo de Vicente
     email                : p.devicente@wanadoo.es
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
