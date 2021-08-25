@@ -1,24 +1,24 @@
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-*
-* This file is part of SEP
-*
-* Copyright 1993-2011 Emmanuel Bertin -- IAP/CNRS/UPMC
-* Copyright 2014 SEP developers
-*
-* SEP is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* SEP is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with SEP.  If not, see <http://www.gnu.org/licenses/>.
-*
-*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+
+    This file is part of SEP
+
+    SPDX-FileCopyrightText: 1993-2011 Emmanuel Bertin -- IAP /CNRS/UPMC
+    SPDX-FileCopyrightText: 2014 SEP developers
+
+    SEP is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SEP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with SEP.  If not, see <http://www.gnu.org/licenses/>.
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 #include <math.h>
 #include <stdio.h>
@@ -30,15 +30,15 @@
 
 #define FLUX_RADIUS_BUFSIZE 64
 
-#define WINPOS_NITERMAX 16      /* Maximum number of steps */
-#define WINPOS_NSIG     4       /* Measurement radius */
-#define WINPOS_STEPMIN  0.0001  /* Minimum change in position for continuing */
-#define WINPOS_FAC      2.0     /* Centroid offset factor (2 for a Gaussian) */
+#define WINPOS_NITERMAX 16      /* Maximum number of steps*/
+#define WINPOS_NSIG     4       /* Measurement radius*/
+#define WINPOS_STEPMIN  0.0001  /* Minimum change in position for continuing*/
+#define WINPOS_FAC      2.0     /* Centroid offset factor (2 for a Gaussian)*/
 
 /*
-  Adding (void *) pointers is a GNU C extension, not part of standard C. 
-  When compiling on Windows with MS VIsual C compiler need to cast the
-  (void *) to something the size of one byte.
+    Adding (void *) pointers is a GNU C extension, not part of standard C.
+    When compiling on Windows with MS VIsual C compiler need to cast the
+    (void *) to something the size of one byte.
 */
 #if defined(_MSC_VER)
   #define MSVC_VOID_CAST (char *)

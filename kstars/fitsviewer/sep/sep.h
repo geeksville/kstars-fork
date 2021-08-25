@@ -1,36 +1,36 @@
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-*
-* This file is part of SEP
-*
-* Copyright 1993-2011 Emmanuel Bertin -- IAP/CNRS/UPMC
-* Copyright 2014 SEP developers
-*
-* SEP is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* SEP is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with SEP.  If not, see <http://www.gnu.org/licenses/>.
-*
-*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+
+    This file is part of SEP
+
+    SPDX-FileCopyrightText: 1993-2011 Emmanuel Bertin -- IAP /CNRS/UPMC
+    SPDX-FileCopyrightText: 2014 SEP developers
+
+    SEP is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SEP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with SEP.  If not, see <http://www.gnu.org/licenses/>.
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 /* datatype codes */
-#define SEP_TBYTE        11  /* 8-bit unsigned byte */
-#define SEP_TINT         31  /* native int type */
+#define SEP_TBYTE        11  /* 8-bit unsigned byte*/
+#define SEP_TINT         31  /* native int type*/
 #define SEP_TFLOAT       42
 #define SEP_TDOUBLE      82
 
 /* object & aperture flags */
-#define SEP_OBJ_MERGED       0x0001  /* object is result of deblending */
-#define SEP_OBJ_TRUNC        0x0002  /* object truncated at image boundary */
-#define SEP_OBJ_DOVERFLOW    0x0004  /* not currently used, but could be */
-#define SEP_OBJ_SINGU        0x0008  /* x,y fully correlated */
+#define SEP_OBJ_MERGED       0x0001  /* object is result of deblending*/
+#define SEP_OBJ_TRUNC        0x0002  /* object truncated at image boundary*/
+#define SEP_OBJ_DOVERFLOW    0x0004  /* not currently used, but could be*/
+#define SEP_OBJ_SINGU        0x0008  /* x,y fully correlated*/
 #define SEP_APER_TRUNC       0x0010
 #define SEP_APER_HASMASKED   0x0020
 #define SEP_APER_ALLMASKED   0x0040
@@ -45,8 +45,8 @@
 #define SEP_MASK_IGNORE      0x0004
 
 /* threshold interpretation for sep_extract */
-#define SEP_THRESH_REL 0  /* in units of standard deviations (sigma) */
-#define SEP_THRESH_ABS 1  /* absolute data values */
+#define SEP_THRESH_REL 0  /* in units of standard deviations (sigma)*/
+#define SEP_THRESH_ABS 1  /* absolute data values*/
 
 /* filter types for sep_extract */
 #define SEP_FILTER_CONV    0
@@ -55,10 +55,10 @@
 /* structs ------------------------------------------------------------------*/
 
 /* sep_image
- *
- * Represents an image, including data, noise and mask arrays, and
- * gain.
- */
+
+    Represents an image, including data, noise and mask arrays, and
+    gain.
+*/
 typedef struct {
   void *data;        /* data array                */
   void *noise;       /* noise array (can be NULL) */
