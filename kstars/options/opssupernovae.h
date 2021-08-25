@@ -1,7 +1,4 @@
 /*
-    opssupernovae.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Thu, 25 Aug 2011
     SPDX-FileCopyrightText: 2011 Samikshan Bairagya <samikshan@gmail.com>
 */
 /***************************************************************************

@@ -1,7 +1,4 @@
 /*
-    horizontalcoordinategrid.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Tue 01 Mar 2012
     SPDX-FileCopyrightText: 2012 Jerome SONRIER <jsid@emor3j.fr.eu.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,7 +1,4 @@
 /*
-    simplefovexporter.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Thu Jul 7 2011
     SPDX-FileCopyrightText: 2011 Rafał Kułaga <rl.kulaga@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

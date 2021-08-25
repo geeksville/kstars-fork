@@ -1,7 +1,4 @@
 /*
-    opsadvanced.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun 14 Mar 2004
     SPDX-FileCopyrightText: 2004 Jason Harris <jharris@30doradus.org>
 */
 /***************************************************************************

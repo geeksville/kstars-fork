@@ -1,7 +1,4 @@
 /*
-    trailobject.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Sat Oct 27 2007
     SPDX-FileCopyrightText: 2007 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

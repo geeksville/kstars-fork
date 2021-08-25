@@ -1,7 +1,4 @@
 /*
-    constellationsart.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 2015-05-27
     SPDX-FileCopyrightText: 2015 M.S.Adityan <msadityan@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
