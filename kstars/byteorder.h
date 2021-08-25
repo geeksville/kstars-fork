@@ -1,7 +1,4 @@
 /*
-    byteorder.h - Define byteswapping macros if required
-    -------------------
-    begin                : Mon Aug 10 2009 15:29 IST
     SPDX-FileCopyrightText: 2009 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later
