@@ -1,7 +1,4 @@
 /*
-    starcomponent.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : 2005/14/08
     SPDX-FileCopyrightText: 2005 Thomas Kabelmann <thomas.kabelmann@gmx.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later

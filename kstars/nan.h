@@ -1,7 +1,4 @@
 /*
-    nan.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sat 16 Mar 2013 17:50:49 CDT
     SPDX-FileCopyrightText: 2013 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

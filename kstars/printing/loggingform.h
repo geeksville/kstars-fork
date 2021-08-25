@@ -1,7 +1,4 @@
 /*
-    loggingform.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Wed Jul 20 2011
     SPDX-FileCopyrightText: 2011 Rafał Kułaga <rl.kulaga@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

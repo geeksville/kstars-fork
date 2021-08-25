@@ -1,7 +1,4 @@
 /*
-    deepstarcomponent.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Fri 1st Aug 2008
     SPDX-FileCopyrightText: 2008 Akarsh Simha Thomas Kabelmann <akarshsimha@gmail.com, thomas.kabelmann@gmx.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later

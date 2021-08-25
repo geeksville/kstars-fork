@@ -1,7 +1,4 @@
 /*
-    mapcanvas.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Tue Apr 10 2001
     SPDX-FileCopyrightText: 2001 Jason Harris <jharris@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
