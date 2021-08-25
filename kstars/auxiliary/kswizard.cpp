@@ -1,7 +1,4 @@
 /*
-    kswizard.cpp  -  description
-    -------------------
-    begin                : Wed 28 Jan 2004
     SPDX-FileCopyrightText: 2004 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

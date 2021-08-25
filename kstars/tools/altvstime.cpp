@@ -1,7 +1,4 @@
 /*
-    altvstime.cpp  -  description
-    -------------------
-    begin                : wed nov 17 08:05:11 CET 2002
     SPDX-FileCopyrightText: 2002-2003 Pablo de Vicente <vicente@oan.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later

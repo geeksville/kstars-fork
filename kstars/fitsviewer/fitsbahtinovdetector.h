@@ -1,7 +1,4 @@
 /*
-    fitsbahtinovdetector.h  -  FITS Image
-    -------------------
-    begin                : Wed April 15 2020
     SPDX-FileCopyrightText: 2020 Patrick Molenaar <pr_molenaar@hotmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
