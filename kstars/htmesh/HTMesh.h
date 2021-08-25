@@ -1,9 +1,9 @@
-/***************************************************************************
-               HTMesh.h  -  K Desktop Planetarium
-                             -------------------
+/*
+    HTMesh.h  -  K Desktop Planetarium
+    -------------------
     begin                : 2007-06-14
-    copyright            : (C) 2007 James B. Bowlin <bowlin@mindspring.com>
-***************************************************************************/
+    SPDX-FileCopyrightText: 2007 James B. Bowlin <bowlin@mindspring.com>
+*/
 
 // FIXME? We are needlessly copying the trixel data into the buffer during
 // indexing.  One way to fix this is to give HTMesh next() and hasNext()
