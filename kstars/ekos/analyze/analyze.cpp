@@ -1,4 +1,4 @@
-/*  Ekos Analyze
+/*
     SPDX-FileCopyrightText: 2020 Hy Murveit <hy@murveit.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

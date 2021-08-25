@@ -1,5 +1,4 @@
-/*  KStars File Downloader
-
+/*
     SPDX-FileCopyrightText: 2016 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     Adapted from https://wiki.qt.io/Download_Data_from_URL
