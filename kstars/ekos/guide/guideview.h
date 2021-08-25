@@ -1,7 +1,7 @@
 /*  Ekos GuideView
     Child of FITSView with few additions necessary for Internal Guider
 
-    SPDX-FileCopyrightText: 2020 Hy Murveit
+    SPDX-FileCopyrightText: 2020 Hy Murveit <hy@murveit.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
