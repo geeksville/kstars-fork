@@ -6,9 +6,6 @@
     email                : mutlaqja@ikarustech.com
 
  2006-03-03	Using CFITSIO, Porting to Qt4
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
