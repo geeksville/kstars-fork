@@ -2,8 +2,7 @@
                           kstarslite.h  -  K Desktop Planetarium
                              -------------------
     begin                : 30/04/2016
-    copyright            : (C) 2016 by Artem Fedoskin
-    email                : afedoskin3@gmail.com
+    copyright            : (C) 2016 by Artem Fedoskin <afedoskin3@gmail.com>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

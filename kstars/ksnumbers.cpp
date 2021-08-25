@@ -2,10 +2,8 @@
                           ksnumbers.cpp  -  description
                              -------------------
     begin                : Sun Jan 13 2002
-    copyright            : (C) 2002-2005 by Jason Harris
-    email                : kstars@30doradus.org
-    copyright            : (C) 2004-2005 by Pablo de Vicente
-    email                : p.devicente@wanadoo.es
+    copyright            : (C) 2002-2005 by Jason Harris <kstars@30doradus.org>
+    copyright            : (C) 2004-2005 by Pablo de Vicente <p.devicente@wanadoo.es>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

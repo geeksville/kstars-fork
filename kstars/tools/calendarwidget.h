@@ -2,8 +2,7 @@
                           calendarwidget.h  -  description
                              -------------------
     begin                : Wed Jul 16 2008
-    copyright            : (C) 2008 by Jason Harris
-    email                : kstars@30doradus.org
+    copyright            : (C) 2008 by Jason Harris <kstars@30doradus.org>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

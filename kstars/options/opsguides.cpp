@@ -2,8 +2,7 @@
                           opsguides.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Sun 6 Feb 2005
-    copyright            : (C) 2005 by Jason Harris
-    email                : jharris@30doradus.org
+    copyright            : (C) 2005 by Jason Harris <jharris@30doradus.org>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

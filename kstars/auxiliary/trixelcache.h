@@ -2,8 +2,7 @@
                         trixelcache.h  -  K Desktop Planetarium
                              -------------------
     begin                : Jun 2021
-    copyright            : (C) 2021 by Valentin Boettcher, Jason Harris
-    email                : hiro at protagon.space; @hiro98:tchncs.de
+    copyright            : (C) 2021 by Valentin Boettcher, Jason Harris <hiro at protagon.space; @hiro98:tchncs.de>
 ***************************************************************************/
 
 /***************************************************************************

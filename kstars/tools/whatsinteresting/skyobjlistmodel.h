@@ -2,8 +2,7 @@
                           skyobjlistmodel.h  -  K Desktop Planetarium
                              -------------------
     begin                : 2012/26/05
-    copyright            : (C) 2012 by Samikshan Bairagya
-    email                : samikshan@gmail.com
+    copyright            : (C) 2012 by Samikshan Bairagya <samikshan@gmail.com>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
