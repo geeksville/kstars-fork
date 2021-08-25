@@ -5,9 +5,6 @@
     begin                : Sun Aug 12, 2018
     copyright            : (C) 2018 by Robert Lancaster
     email                : rlancaste@gmail.com
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

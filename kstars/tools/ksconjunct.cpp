@@ -4,9 +4,6 @@
     begin                : Sat Mar 22 2008
     copyright            : (C) 2008 by Akarsh Simha
     email                : kstar@bas.org.in
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
