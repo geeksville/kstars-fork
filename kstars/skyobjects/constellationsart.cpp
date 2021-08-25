@@ -4,9 +4,6 @@
     begin                : 2015-05-27
     copyright            : (C) 2015 by M.S.Adityan
     email                : msadityan@gmail.com
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

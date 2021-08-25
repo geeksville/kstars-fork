@@ -4,9 +4,6 @@
     begin                : 29 Nov 2004
     copyright            : (C) 2004 by Jeff Woods, Jason Harris
     email                : jcwoods@bellsouth.net, jharris@30doradus.org
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

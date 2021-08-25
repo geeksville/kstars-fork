@@ -4,9 +4,6 @@
     begin                : wed dec 19 16:20:11 CET 2002
     copyright            : (C) 2001-2005 by Pablo de Vicente
     email                : p.devicente@wanadoo.es
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

@@ -4,9 +4,6 @@
     begin                : 2012/10/07
     copyright            : (C) 2012 by Samikshan Bairagya
     email                : samikshan@gmail.com
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
