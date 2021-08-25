@@ -1,8 +1,7 @@
 /*
     KStars UI tests for verifying correct counting of the capture module
 
-    Copyright (C) 2020
-    Wolfgang Reissenberger <sterne-jaeger@openfuture.de>
+    SPDX-FileCopyrightText: 2020 Wolfgang Reissenberger <sterne-jaeger@openfuture.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
