@@ -1,7 +1,4 @@
 /*
-    FITSViewer.cpp  -  A FITSViewer for KStars
-    -------------------
-    begin                : Thu Jan 22 2004
     SPDX-FileCopyrightText: 2004 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     2006-03-03	Using CFITSIO, Porting to Qt4

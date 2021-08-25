@@ -1,7 +1,4 @@
 /*
-    modcalceclipticcoords.h  -  description
-    -------------------
-    begin                : Fri May 14 2004
     SPDX-FileCopyrightText: 2004 Pablo de Vicente <p.devicente@wanadoo.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later

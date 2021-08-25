@@ -1,7 +1,4 @@
 /*
-    test_poleaxis.cpp  -  KStars Planetarium
-    -------------------
-    begin                : Tue 27 Sep 2016 20:54:28 CDT
     SPDX-FileCopyrightText: 2016 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

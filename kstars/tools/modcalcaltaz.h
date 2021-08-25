@@ -1,7 +1,4 @@
 /*
-    modcalcaltaz.h  -  description
-    -------------------
-    begin                : sáb oct 26 2002
     SPDX-FileCopyrightText: 2002 Pablo de Vicente <pvicentea@wanadoo.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later
