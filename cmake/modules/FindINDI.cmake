@@ -12,7 +12,9 @@
 #  INDI_CLIENT_ANDROID_LIBRARIES - Link to these to build INDI clients with Qt5 backend on Android
 # SPDX-FileCopyrightText: 2012-2017 Jasem Mutlaq <mutlaqja@ikarustech.com>
 # SPDX-FileCopyrightText: 2012 Pino Toscano <pino@kde.org>
-# Based on FindLibfacile by Carsten Niehaus, <cniehaus@gmx.de>
+#
+# Based on FindLibfacile:
+# SPDX-FileCopyrightText: Carsten Niehaus, <cniehaus@gmx.de>
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
