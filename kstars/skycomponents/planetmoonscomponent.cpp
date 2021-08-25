@@ -2,8 +2,7 @@
                          planetmoonscomponent.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Sat Mar 13 2009
-    copyright            : (C) 2009 by Vipul Kumar Singh, Médéric Boquien
-    email                : vipulkrsingh@gmail.com, mboquien@free.fr
+    copyright            : (C) 2009 by Vipul Kumar Singh, Médéric Boquien <vipulkrsingh@gmail.com, mboquien@free.fr>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

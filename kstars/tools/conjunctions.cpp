@@ -2,8 +2,7 @@
                           conjunctions.cpp  -  Conjunctions Tool
                              -------------------
     begin                : Sun 20th Apr 2008
-    copyright            : (C) 2008 Akarsh Simha
-    email                : akarshsimha@gmail.com
+    copyright            : (C) 2008 Akarsh Simha <akarshsimha@gmail.com>
 ***************************************************************************/
 
 /***************************************************************************

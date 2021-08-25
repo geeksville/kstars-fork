@@ -2,8 +2,7 @@
                starhopperdialog.cpp  -  UI of Star Hopping Guide for KStars
                              -------------------
     begin                : Sat 15th Nov 2014
-    copyright            : (C) 2014 Utkarsh Simha
-    email                : utkarshsimha@gmail.com
+    copyright            : (C) 2014 Utkarsh Simha <utkarshsimha@gmail.com>
 ***************************************************************************/
 
 /***************************************************************************

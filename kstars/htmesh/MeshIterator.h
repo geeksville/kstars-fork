@@ -2,8 +2,7 @@
                MeshIterator.h  -  K Desktop Planetarium
                              -------------------
     begin                : 2007-07-13
-    copyright            : (C) 2007 James B. Bowlin
-    email                : bowlin@mindspring.com
+    copyright            : (C) 2007 James B. Bowlin <bowlin@mindspring.com>
 ***************************************************************************/
 
 #pragma once

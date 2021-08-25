@@ -2,8 +2,7 @@
    nomadmysql2bin-merge.c - Compile a single binary file from trixel dumps
                              -------------------
     begin                : Mon May 26 2008
-    copyright            : (C) 2008 by Akarsh Simha
-    email                : akarshsimha@gmail.com
+    copyright            : (C) 2008 by Akarsh Simha <akarshsimha@gmail.com>
 ***************************************************************************/
 
 /***************************************************************************

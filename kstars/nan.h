@@ -2,8 +2,7 @@
                       nan.h  -  K Desktop Planetarium
                              -------------------
     begin                : Sat 16 Mar 2013 17:50:49 CDT
-    copyright            : (c) 2013 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2013 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************

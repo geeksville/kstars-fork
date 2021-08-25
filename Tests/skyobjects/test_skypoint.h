@@ -2,8 +2,7 @@
                      test_skypoint.h  -  KStars Planetarium
                              -------------------
     begin                : Tue 27 Sep 2016 20:51:21 CDT
-    copyright            : (c) 2016 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2016 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************
