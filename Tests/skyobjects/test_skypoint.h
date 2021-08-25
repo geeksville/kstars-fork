@@ -1,7 +1,4 @@
 /*
-    test_skypoint.h  -  KStars Planetarium
-    -------------------
-    begin                : Tue 27 Sep 2016 20:51:21 CDT
     SPDX-FileCopyrightText: 2016 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

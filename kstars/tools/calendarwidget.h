@@ -1,7 +1,4 @@
 /*
-    calendarwidget.h  -  description
-    -------------------
-    begin                : Wed Jul 16 2008
     SPDX-FileCopyrightText: 2008 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
