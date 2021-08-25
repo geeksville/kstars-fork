@@ -4,9 +4,6 @@
     begin                : 2007-08-04
     copyright            : (C) 2007 James B. Bowlin
     email                : kstars@30doradus.org
- ***************************************************************************/
-
-/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
