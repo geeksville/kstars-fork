@@ -1,7 +1,4 @@
 /*
-    kscomet.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Wed 19 Feb 2003
     SPDX-FileCopyrightText: 2001 Jason Harris <jharris@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

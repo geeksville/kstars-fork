@@ -1,7 +1,4 @@
 /*
-    import_skycomp.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 2021-08-03
     SPDX-FileCopyrightText: 2021 Valentin Boettcher <hiro at protagon.space; @hiro98:tchncs.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later

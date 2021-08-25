@@ -1,7 +1,4 @@
 /*
-    kstars.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Mon Jan 7 2002
     SPDX-FileCopyrightText: 2002 Mark Hollomon <mhh@mindspring.com>
 */
 /***************************************************************************

@@ -1,7 +1,4 @@
 /*
-    wiequipsettings.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 2013/09/01
     SPDX-FileCopyrightText: 2013 Samikshan Bairagya <samikshan@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,7 +1,4 @@
 /*
-    skyline.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Mon June 26 2006
     SPDX-FileCopyrightText: 2006 Jason Harris <kstarss@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,7 +1,4 @@
 /* *************************************************************************
-    planetmoonsnode.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 24/05/2016
     SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
 */
 /** *************************************************************************

@@ -1,7 +1,4 @@
 /*
-    TestCSVParser.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 2012/23/07
     SPDX-FileCopyrightText: 2012 Rishab Arora <ra.rishab@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
