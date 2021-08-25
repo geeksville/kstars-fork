@@ -1,15 +1,12 @@
-/***************************************************************************
-                          kstarssplash.cpp  -  description
-                             -------------------
+/*
+    kstarssplash.cpp  -  description
+    -------------------
     begin                : Thu Jul 26 2001
-    copyright            : (C) 2001 by Heiko Evermann <heiko@evermann.de>
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    SPDX-FileCopyrightText: 2001 Heiko Evermann <heiko@evermann.de>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+*/
 
 #include "kstarssplash.h"
 

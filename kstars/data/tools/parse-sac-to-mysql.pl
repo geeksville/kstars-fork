@@ -4,7 +4,7 @@
 #
 # CAUTION: Will truncate the table supplied!
 #
-# Copyright (c) 2009 James Bowlin <bowlin@mindspring.com> and Akarsh Simha <akarsh.simha@kdemail.net>
+# SPDX-FileCopyrightText: 2009 James Bowlin <bowlin@mindspring.com> and Akarsh Simha <akarsh.simha@kdemail.net>
 # Licensed under the GNU General Public License.
 
 use strict;
