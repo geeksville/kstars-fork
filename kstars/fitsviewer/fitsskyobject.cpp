@@ -1,17 +1,14 @@
-/***************************************************************************
-                          fitsskyobject.cpp  -  FITS Image
-                             -------------------
+/*
+    fitsskyobject.cpp  -  FITS Image
+    -------------------
     begin                : Tue Apr 07 2020
-    copyright            : (C) 2004 by Jasem Mutlaq, (C) 2020 by Eric Dejouhanet <mutlaqja@ikarustech.com>
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   Some code fragments were adapted from Peter Kirchgessner's FITS plugin*
- *   See http://members.aol.com/pkirchg for more details.                  *
- ***************************************************************************/
+    SPDX-FileCopyrightText: 2004 Jasem Mutlaq (C) 2020 by Eric Dejouhanet <mutlaqja@ikarustech.com>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+    Some code fragments were adapted from Peter Kirchgessner's FITS plugin
+    See http://members.aol.com/pkirchg for more details.
+*/
 
 #include "fitsskyobject.h"
 
