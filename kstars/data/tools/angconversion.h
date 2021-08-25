@@ -1,7 +1,4 @@
 /*
-    angconversion.h -- Functions for converting angle formats
-    -------------------
-    begin                : Sat Jul 9 2011
     SPDX-FileCopyrightText: 2011 Akarsh Simha <akarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
