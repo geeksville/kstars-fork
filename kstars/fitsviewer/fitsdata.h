@@ -1,7 +1,4 @@
 /*
-    fitsimage.cpp  -  FITS Image
-    -------------------
-    begin                : Tue Feb 24 2004
     SPDX-FileCopyrightText: 2004 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

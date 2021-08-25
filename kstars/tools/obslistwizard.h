@@ -1,7 +1,4 @@
 /*
-    obslistwizard.h  -  Display overhead view of the solar system
-    -------------------
-    begin                : Thu 23 Jun 2005
     SPDX-FileCopyrightText: 2005 Jason Harris <jharris@30doradus.org>
 */
 /***************************************************************************

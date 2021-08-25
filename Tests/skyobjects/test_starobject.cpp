@@ -1,7 +1,4 @@
 /*
-    test_starobject.cpp  -  KStars Planetarium
-    -------------------
-    begin                : Mon 26 Jul 2021 22:55:07 PDT
     SPDX-FileCopyrightText: 2021 Akarsh Simha <akarsh@kde.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
