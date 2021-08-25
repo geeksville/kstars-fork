@@ -2,10 +2,6 @@
     SPDX-FileCopyrightText: 2003 Jasem Mutlaq (mutlaqja@ikarustech.com)
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
-    JM Changelog
-    2004-16-1:	Start
-
 */
 
 #include "indigroup.h"
