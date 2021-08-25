@@ -1,5 +1,5 @@
 /*
-    copyright            : (C) 2011--2016 by Akarsh Simha <akarsh@kde.org>
+    SPDX-FileCopyrightText: 2011-2016 Akarsh Simha <akarsh@kde.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
