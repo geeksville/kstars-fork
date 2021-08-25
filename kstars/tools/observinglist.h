@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2004 Jeff Woods Jason Harris <jcwoods@bellsouth.net, jharris@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #pragma once

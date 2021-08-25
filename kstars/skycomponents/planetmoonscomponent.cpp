@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2009 Vipul Kumar Singh Médéric Boquien <vipulkrsingh@gmail.com, mboquien@free.fr>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "planetmoonscomponent.h"
