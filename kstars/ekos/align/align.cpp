@@ -1,4 +1,4 @@
-/*  Ekos Alignment Module
+/*
     SPDX-FileCopyrightText: 2013 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

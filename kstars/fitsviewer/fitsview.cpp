@@ -1,4 +1,4 @@
-/*  FITS View
+/*
     SPDX-FileCopyrightText: 2003-2017 Jasem Mutlaq <mutlaqja@ikarustech.com>
     SPDX-FileCopyrightText: 2016-2017 Robert Lancaster <rlancaste@gmail.com>
 

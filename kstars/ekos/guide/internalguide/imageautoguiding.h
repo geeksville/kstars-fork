@@ -1,4 +1,4 @@
-/*  Image Guide Algorithm
+/*
     SPDX-FileCopyrightText: 2017 Bob Majewski <cygnus257@yahoo.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

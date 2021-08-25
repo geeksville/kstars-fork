@@ -1,4 +1,4 @@
-/*  Ekos polynomial fit utilities Algorithms
+/*
     SPDX-FileCopyrightText: 2019 Hy Murveit <hy-1@murveit.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

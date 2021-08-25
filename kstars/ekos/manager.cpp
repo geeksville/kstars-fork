@@ -1,4 +1,4 @@
-/*  Ekos
+/*
     SPDX-FileCopyrightText: 2012 Jasem Mutlaq <mutlaqja@ikartech.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
