@@ -1,6 +1,5 @@
 /*  KStars UI tests
-    Copyright (C) 2020
-    Eric Dejouhanet <eric.dejouhanet@gmail.com>
+    SPDX-FileCopyrightText: 2020 Eric Dejouhanet <eric.dejouhanet@gmail.com>
     Fabrizio Pollastri <mxgbot@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
