@@ -1,34 +1,34 @@
 /* -----------------------------------------------------------------------------
- *
- *  Copyright (C) 1997-2016 Krzysztof M. Gorski, Eric Hivon, Martin Reinecke,
- *                          Benjamin D. Wandelt, Anthony J. Banday,
- *                          Matthias Bartelmann,
- *                          Reza Ansari & Kenneth M. Ganga
- *
- *
- *  This file is part of HEALPix.
- *
- *  Based on work by Pavel Mraz from SkyTechX.
- *
- *  Adapted to KStars by Jasem Mutlaq.
- *
- *  HEALPix is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  HEALPix is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with HEALPix; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- *  For more information about HEALPix see https://healpix.sourceforge.io/
- *
- *---------------------------------------------------------------------------*/
+
+    SPDX-FileCopyrightText: 1997-2016 Krzysztof M. Gorski Eric Hivon, Martin Reinecke,
+    Benjamin D. Wandelt, Anthony J. Banday,
+    Matthias Bartelmann,
+    Reza Ansari & Kenneth M. Ganga
+
+
+    This file is part of HEALPix.
+
+    Based on work by Pavel Mraz from SkyTechX.
+
+    Adapted to KStars by Jasem Mutlaq.
+
+    HEALPix is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    HEALPix is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with HEALPix; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+    For more information about HEALPix see https://healpix.sourceforge.io/
+
+    ---------------------------------------------------------------------------*/
 
 #include "healpix.h"
 
@@ -101,7 +101,7 @@ static double fmodulo(double v1, double v2)
 {
     if (v1 >= 0)
     {
-        return (v1 < v2) ? v1 : fmod(v1, v2);
+    return (v1 < v2) ? v1 : fmod(v1, v2);
     }
 
     double tmp = fmod(v1, v2) + v2;
@@ -121,32 +121,32 @@ void HEALPix::getCornerPoints(int level, int pix, SkyPoint *skyCoords)
     // From rectangular coordinates to Sky coordinates
     for (int i = 0; i < 4; i++)
     {
-        transformed[i].setX(v[i].x());
-        transformed[i].setY(v[i].y());
-        transformed[i].setZ(v[i].z());
+    transformed[i].setX(v[i].x());
+    transformed[i].setY(v[i].y());
+    transformed[i].setZ(v[i].z());
 
-        double ra = 0, de = 0;
-        xyz2sph(transformed[i], ra, de);
-        de /= dms::DegToRad;
-        ra /= dms::DegToRad;
+    double ra = 0, de = 0;
+    xyz2sph(transformed[i], ra, de);
+    de /= dms::DegToRad;
+    ra /= dms::DegToRad;
 
-        if (HIPSManager::Instance()->getCurrentFrame() == HIPSManager::HIPS_GALACTIC_FRAME)
-        {
-            dms galacticLong(ra);
-            dms galacticLat(de);
-            skyCoords[i].GalacticToEquatorial1950(&galacticLong, &galacticLat);
-            skyCoords[i].B1950ToJ2000();
-            skyCoords[i].setRA0(skyCoords[i].ra());
-            skyCoords[i].setDec0(skyCoords[i].dec());
-        }
-        else
-        {
-            skyCoords[i].setRA0(ra / 15.0);
-            skyCoords[i].setDec0(de);
-        }
+    if (HIPSManager::Instance()->getCurrentFrame() == HIPSManager::HIPS_GALACTIC_FRAME)
+    {
+    dms galacticLong(ra);
+    dms galacticLat(de);
+    skyCoords[i].GalacticToEquatorial1950(&galacticLong, &galacticLat);
+    skyCoords[i].B1950ToJ2000();
+    skyCoords[i].setRA0(skyCoords[i].ra());
+    skyCoords[i].setDec0(skyCoords[i].dec());
+    }
+    else
+    {
+    skyCoords[i].setRA0(ra / 15.0);
+    skyCoords[i].setDec0(de);
+    }
 
-        skyCoords[i].updateCoords(KStarsData::Instance()->updateNum(), false);
-        skyCoords[i].EquatorialToHorizontal(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat());
+    skyCoords[i].updateCoords(KStarsData::Instance()->updateNum(), false);
+    skyCoords[i].EquatorialToHorizontal(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat());
     }
 
 }
@@ -164,10 +164,10 @@ void HEALPix::boundaries(qint32 nside, qint32 pix, int step, QVector3D *out)
 
     for (int i = 0; i < step; ++i)
     {
-        out[0] = toVec3(xc + dc - i * d, yc + dc, fn);
-        out[1] = toVec3(xc - dc, yc + dc - i * d, fn);
-        out[2] = toVec3(xc - dc + i * d, yc - dc, fn);
-        out[3] = toVec3(xc + dc, yc - dc + i * d, fn);
+    out[0] = toVec3(xc + dc - i * d, yc + dc, fn);
+    out[1] = toVec3(xc - dc, yc + dc - i * d, fn);
+    out[2] = toVec3(xc - dc + i * d, yc - dc, fn);
+    out[3] = toVec3(xc + dc, yc - dc + i * d, fn);
     }
 }
 
@@ -183,30 +183,30 @@ QVector3D HEALPix::toVec3(double fx, double fy, int face)
     double nr;
     if (jr < 1)
     {
-        nr = jr;
-        double tmp = nr * nr / 3.;
-        locz = 1 - tmp;
-        if (locz > 0.99)
-        {
-            locsth = sqrt(tmp * (2. - tmp));
-            lochave_sth = true;
-        }
+    nr = jr;
+    double tmp = nr * nr / 3.;
+    locz = 1 - tmp;
+    if (locz > 0.99)
+    {
+    locsth = sqrt(tmp * (2. - tmp));
+    lochave_sth = true;
+    }
     }
     else if (jr > 3)
     {
-        nr = 4 - jr;
-        double tmp = nr * nr / 3.;
-        locz = tmp - 1;
-        if (locz < -0.99)
-        {
-            locsth = sqrt(tmp * (2. - tmp));
-            lochave_sth = true;
-        }
+    nr = 4 - jr;
+    double tmp = nr * nr / 3.;
+    locz = tmp - 1;
+    if (locz < -0.99)
+    {
+    locsth = sqrt(tmp * (2. - tmp));
+    lochave_sth = true;
+    }
     }
     else
     {
-        nr = 1;
-        locz = (2 - jr) * 2. / 3.;
+    nr = 1;
+    locz = (2 - jr) * 2. / 3.;
     }
 
     double tmp = jpll[face] * nr + fx - fy;
@@ -228,43 +228,43 @@ QVector3D HEALPix::toVec3(double fx, double fy, int face)
 void HEALPix::nest2xyf(int nside, int pix, int *ix, int *iy, int *face_num)
 {
     int npface_ = nside * nside, raw;
-    *face_num = pix / npface_;
+    face_num = pix / npface_;
     pix &= (npface_ - 1);
     raw = (pix & 0x5555) | ((pix & 0x55550000) >> 15);
-    *ix = ctab[raw & 0xff] | (ctab[raw >> 8] << 4);
+    ix = ctab[raw & 0xff] | (ctab[raw >> 8] << 4);
     pix >>= 1;
     raw = (pix & 0x5555) | ((pix & 0x55550000) >> 15);
-    *iy = ctab[raw & 0xff] | (ctab[raw >> 8] << 4);
+    iy = ctab[raw & 0xff] | (ctab[raw >> 8] << 4);
 }
 
 static int64_t spread_bits64 (int v)
 {
     return  (int64_t)(utab[ v     & 0xff])
-            | ((int64_t)(utab[(v >> 8) & 0xff]) << 16)
-            | ((int64_t)(utab[(v >> 16) & 0xff]) << 32)
-            | ((int64_t)(utab[(v >> 24) & 0xff]) << 48);
+    | ((int64_t)(utab[(v >> 8) & 0xff]) << 16)
+    | ((int64_t)(utab[(v >> 16) & 0xff]) << 32)
+    | ((int64_t)(utab[(v >> 24) & 0xff]) << 48);
 }
 
 
 static int xyf2nest (int nside, int ix, int iy, int face_num)
 {
     return (face_num * nside * nside) +
-           (utab[ix & 0xff] | (utab[ix >> 8] << 16)
-            | (utab[iy & 0xff] << 1) | (utab[iy >> 8] << 17));
+    (utab[ix & 0xff] | (utab[ix >> 8] << 16)
+    | (utab[iy & 0xff] << 1) | (utab[iy >> 8] << 17));
 }
 
 
 /*
 int static leadingZeros(qint32 value)
 {
-  int leadingZeros = 0;
-  while(value != 0)
-  {
+    int leadingZeros = 0;
+    while(value != 0)
+    {
     value = value >> 1;
     leadingZeros++;
-  }
+    }
 
-  return (32 - leadingZeros);
+    return (32 - leadingZeros);
 }
 */
 

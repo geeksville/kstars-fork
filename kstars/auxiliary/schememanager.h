@@ -1,26 +1,17 @@
 /* ============================================================
- *
- * This file is a part of digiKam project
- * https://www.digikam.org
- *
- * Date        : 2004-08-02
- * Description : colors scheme manager
- *
- * Copyright (C) 2006-2018 by Gilles Caulier <caulier dot gilles at gmail dot com>
- * Copyright (C) 2007      by Matthew Woehlke <mw_triad at users dot sourceforge dot net>
- *
- * This program is free software; you can redistribute it
- * and/or modify it under the terms of the GNU General
- * Public License as published by the Free Software Foundation;
- * either version 2, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * ============================================================ */
+
+    This file is a part of digiKam project
+    https://www.digikam.org
+
+    Date        : 2004-08-02
+    Description : colors scheme manager
+
+    SPDX-FileCopyrightText: 2006-2018 Gilles Caulier <caulier dot gilles at gmail dot com>
+    SPDX-FileCopyrightText: 2007 Matthew Woehlke <mw_triad at users dot sourceforge dot net>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+    ============================================================*/
 
 #pragma once
 
@@ -33,36 +24,36 @@
 
 class SchemeManagerPrivate;
 
-/**
- * A set of methods used to work with colors.
- *
- * SchemeManager currently provides access to the system color palette that the
- * user has selected (in the future, it is expected to do more).  It greatly
- * expands on QPalette by providing five distinct "sets" with several color
- * choices each, covering background, foreground, and decoration colors.
- *
- * A SchemeManager instance represents colors corresponding to a "set", where a
- * set consists of those colors used to draw a particular type of element, such
- * as a menu, button, view, selected text, or tooltip. Each set has a distinct
- * set of colors, so you should always use the correct set for drawing and
- * never assume that a particular foreground for one set is the same as the
- * foreground for any other set. Individual colors may be quickly referenced by
- * creating an anonymous instance and invoking a lookup member.
- *
- * @note
- * The color palettes for the various states of a widget (active, inactive,
- * disabled) may be wildly different.  Therefore, it is important to take the
- * state into account. This is why the SchemeManager constructor requires a
- * QPalette::ColorGroup as an argument.
- *
- * To facilitate working with potentially-varying states, two convenience API's
- * are provided. These are SchemeManager::adjustBackground and its sister
- * SchemeManager::adjustForeground, and the helper class KStatefulBrush.
- *
- * @see SchemeManager::ColorSet, SchemeManager::ForegroundRole,
- * SchemeManager::BackgroundRole, SchemeManager::DecorationRole,
- * SchemeManager::ShadeRole
- */
+/*
+    A set of methods used to work with colors.
+
+    SchemeManager currently provides access to the system color palette that the
+    user has selected (in the future, it is expected to do more).  It greatly
+    expands on QPalette by providing five distinct "sets" with several color
+    choices each, covering background, foreground, and decoration colors.
+
+    A SchemeManager instance represents colors corresponding to a "set", where a
+    set consists of those colors used to draw a particular type of element, such
+    as a menu, button, view, selected text, or tooltip. Each set has a distinct
+    set of colors, so you should always use the correct set for drawing and
+    never assume that a particular foreground for one set is the same as the
+    foreground for any other set. Individual colors may be quickly referenced by
+    creating an anonymous instance and invoking a lookup member.
+
+    @note
+    The color palettes for the various states of a widget (active, inactive,
+    disabled) may be wildly different.  Therefore, it is important to take the
+    state into account. This is why the SchemeManager constructor requires a
+    QPalette::ColorGroup as an argument.
+
+    To facilitate working with potentially-varying states, two convenience API's
+    are provided. These are SchemeManager::adjustBackground and its sister
+    SchemeManager::adjustForeground, and the helper class KStatefulBrush.
+
+    @see SchemeManager::ColorSet, SchemeManager::ForegroundRole,
+    SchemeManager::BackgroundRole, SchemeManager::DecorationRole,
+    SchemeManager::ShadeRole
+*/
 class SchemeManager
 {
 public:

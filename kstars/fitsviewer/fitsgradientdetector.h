@@ -1,17 +1,14 @@
-/***************************************************************************
-                          fitsgradientdetector.h  -  FITS Image
-                             -------------------
+/*
+    fitsgradientdetector.h  -  FITS Image
+    -------------------
     begin                : Sat March 28 2020
-    copyright            : (C) 2004 by Jasem Mutlaq, (C) 2020 by Eric Dejouhanet <eric.dejouhanet@gmail.com>
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   Some code fragments were adapted from Peter Kirchgessner's FITS plugin*
- *   See http://members.aol.com/pkirchg for more details.                  *
- ***************************************************************************/
+    SPDX-FileCopyrightText: 2004 Jasem Mutlaq (C) 2020 by Eric Dejouhanet <eric.dejouhanet@gmail.com>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+    Some code fragments were adapted from Peter Kirchgessner's FITS plugin
+    See http://members.aol.com/pkirchg for more details.
+*/
 
 #ifndef FITSGRADIENTDETECTOR_H
 #define FITSGRADIENTDETECTOR_H
@@ -39,7 +36,7 @@ class FITSGradientDetector: public FITSStarDetector
         bool findSources(const QRect &boundary);
 
         /** @internal Implementation of the Canny Edge detection (CannyEdgeDetector).
-         * @copyright 2015 Gonzalo Exequiel Pedone (https://github.com/hipersayanX/CannyDetector).
+         * @SPDX-FileCopyrightText: 2015 Gonzalo Exequiel Pedone (https://github.com/hipersayanX/CannyDetector).
          * @param data is the FITS data to run the detection onto.
          * @param gradient is the vector storing the amount of change in pixel sequences.
          * @param direction is the vector storing the four directions (horizontal, vertical and two diagonals) the changes stored in 'gradient' are detected in.

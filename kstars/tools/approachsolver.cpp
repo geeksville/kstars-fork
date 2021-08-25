@@ -1,15 +1,12 @@
-/***************************************************************************
-                 ApproachSolver.cpp  -  K Desktop Planetarium
-                             -------------------
+/*
+    ApproachSolver.cpp  -  K Desktop Planetarium
+    -------------------
     begin                : Tue 18/09/2018
-    copyright            : (C) 2008 by Akarsh Simha, 2018 Valentin Boettcher <kstar@bas.org.in, valentin@boettcher.cf>
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    SPDX-FileCopyrightText: 2008 Akarsh Simha 2018 Valentin Boettcher <kstar@bas.org.in, valentin@boettcher.cf>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+*/
 
 #include "approachsolver.h"
 #include <kstars_debug.h>
