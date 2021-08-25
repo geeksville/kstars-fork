@@ -1,7 +1,4 @@
 /*
-    ApproachSolver.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Tue 18/09/2018
     SPDX-FileCopyrightText: 2008 Akarsh Simha 2018 Valentin Boettcher <kstar@bas.org.in, valentin@boettcher.cf>
 
     SPDX-License-Identifier: GPL-2.0-or-later

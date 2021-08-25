@@ -1,7 +1,4 @@
 /* *************************************************************************
-    kstarsliteinit.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : 30/04/2016
     SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
 */
 /** *************************************************************************

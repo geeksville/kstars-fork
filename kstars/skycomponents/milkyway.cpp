@@ -1,7 +1,4 @@
 /*
-    milkyway.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : 12 Nov. 2005
     SPDX-FileCopyrightText: 2005 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

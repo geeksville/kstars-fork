@@ -1,7 +1,4 @@
 /*
-    wutdialog.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Die Feb 25 2003
     SPDX-FileCopyrightText: 2003 Thomas Kabelmann <tk78@gmx.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later

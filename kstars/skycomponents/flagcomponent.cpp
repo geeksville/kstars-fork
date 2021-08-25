@@ -1,7 +1,4 @@
 /*
-    flagcomponent.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Fri 16 Jan 2009
     SPDX-FileCopyrightText: 2009 Jerome SONRIER <jsid@emor3j.fr.eu.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
