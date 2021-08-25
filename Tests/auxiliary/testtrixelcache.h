@@ -1,7 +1,4 @@
 /*
-    testtrixelcache.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 2021-06-03
     SPDX-FileCopyrightText: 2021 Valentin Boettcher <hiro at protagon.space; @hiro98:tchncs.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later

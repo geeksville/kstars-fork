@@ -1,7 +1,4 @@
 /*
-    obslistpopupmenu.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun July 5 2009
     SPDX-FileCopyrightText: 2008 Prakash Mohan <prakash.mohan@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

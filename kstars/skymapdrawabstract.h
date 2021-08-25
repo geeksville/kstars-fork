@@ -1,7 +1,4 @@
 /*
-    skymapdrawabstract.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Mon Dec 20 2010 05:04 AM UTC-6
     SPDX-FileCopyrightText: 2010 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

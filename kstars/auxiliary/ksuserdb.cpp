@@ -1,7 +1,4 @@
 /*
-    ksuserdb.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Wed May 2 2012
     SPDX-FileCopyrightText: 2012 Rishab Arora <ra.rishab@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
