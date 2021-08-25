@@ -2,8 +2,7 @@
                           fitsbahtinovdetector.cpp  -  FITS Image
                              -------------------
     begin                : Wed April 15 2020
-    copyright            : (C) 2020 by Patrick Molenaar
-    email                : pr_molenaar@hotmail.com
+    copyright            : (C) 2020 by Patrick Molenaar <pr_molenaar@hotmail.com>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

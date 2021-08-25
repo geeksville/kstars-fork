@@ -2,8 +2,7 @@
                           ksdssimage.h  -  K Desktop Planetarium
                              -------------------
     begin                : Tue 05 Jan 2016 00:24:07 CST
-    copyright            : (c) 2016 by Akarsh Simha
-    email                : akarsh@kde.org
+    copyright            : (C) 2016 by Akarsh Simha <akarsh@kde.org>
 ***************************************************************************/
 
 /***************************************************************************
