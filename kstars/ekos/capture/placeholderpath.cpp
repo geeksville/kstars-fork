@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2021 Kwon-Young Choi <kwon-young.choi@hotmail.fr>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "placeholderpath.h"

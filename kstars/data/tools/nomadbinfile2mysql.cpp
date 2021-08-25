@@ -5,7 +5,6 @@ nomadbinfile2mysql.cpp -- Convert USNO NOMAD binary file to a MySQL database
     SPDX-FileCopyrightText: 2011 Akarsh Simha <akarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 /*

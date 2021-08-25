@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2008 Prakash Mohan <prakash.mohan@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #pragma once
