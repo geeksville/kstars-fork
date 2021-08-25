@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2008 Akarsh Simha <kstar@bas.org.in>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #pragma once
