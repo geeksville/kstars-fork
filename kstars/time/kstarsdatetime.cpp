@@ -3,7 +3,6 @@
     email                : jharris@30doradus.org
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "kstarsdatetime.h"

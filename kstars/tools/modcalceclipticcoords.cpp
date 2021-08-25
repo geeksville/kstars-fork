@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2004 Pablo de Vicente <vicente@oan.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "modcalceclipticcoords.h"

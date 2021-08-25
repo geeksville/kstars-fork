@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2009 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 /*

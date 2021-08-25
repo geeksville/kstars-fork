@@ -3,7 +3,6 @@
     matrix               : @hiro98@tchncs.de
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "earthshadowcomponent.h"

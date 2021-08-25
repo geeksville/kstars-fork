@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2006 Jason Harris <kstarss@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "skyline.h"
