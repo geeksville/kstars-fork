@@ -2,8 +2,7 @@
                   pykstars.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : 2021-06-03
-    copyright            : (C) 2021 by Valentin Boettcher
-    email                : hiro at protagon.space; @hiro98:tchncs.de
+    copyright            : (C) 2021 by Valentin Boettcher <hiro at protagon.space; @hiro98:tchncs.de>
 ***************************************************************************/
 
 /***************************************************************************

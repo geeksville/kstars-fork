@@ -2,8 +2,7 @@
                           kstars.h  -  K Desktop Planetarium
                              -------------------
     begin                : Mon Feb  5 01:11:45 PST 2001
-    copyright            : (C) 2001 by Jason Harris
-    email                : jharris@30doradus.org
+    copyright            : (C) 2001 by Jason Harris <jharris@30doradus.org>
  ***************************************************************************/
 /** *************************************************************************
  *                                                                         *

@@ -2,8 +2,7 @@
                           modcalcazel.h  -  description
                              -------------------
     begin                : mier abr 20 2004
-    copyright            : (C) 2004-2005 by Pablo de Vicente
-    email                : pvicentea@wanadoo.es
+    copyright            : (C) 2004-2005 by Pablo de Vicente <pvicentea@wanadoo.es>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

@@ -2,8 +2,7 @@
                           solarsystemsinglecomponent.h  -  K Desktop Planetarium
                              -------------------
     begin                : 2005/30/08
-    copyright            : (C) 2005 by Thomas Kabelmann
-    email                : thomas.kabelmann@gmx.de
+    copyright            : (C) 2005 by Thomas Kabelmann <thomas.kabelmann@gmx.de>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

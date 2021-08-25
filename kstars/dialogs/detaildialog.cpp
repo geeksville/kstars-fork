@@ -2,8 +2,7 @@
                           detaildialog.cpp  -  description
                              -------------------
     begin                : Sun May 5 2002
-    copyright            : (C) 2002 by Jason Harris and Jasem Mutlaq
-    email                : kstars@30doradus.org
+    copyright            : (C) 2002 by Jason Harris and Jasem Mutlaq <kstars@30doradus.org>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

@@ -2,8 +2,7 @@
                unitspinboxwidget.h - A widget for providing multiple units
                              -------------------
     begin                : Sun 18th Jan 2015
-    copyright            : (C) 2015 Utkarsh Simha
-    email                : utkarshsimha@gmail.com
+    copyright            : (C) 2015 Utkarsh Simha <utkarshsimha@gmail.com>
 ***************************************************************************/
 
 /***************************************************************************
