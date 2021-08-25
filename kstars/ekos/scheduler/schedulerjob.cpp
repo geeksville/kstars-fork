@@ -1,5 +1,5 @@
 /*  Ekos Scheduler Job
-    Copyright (C) Jasem Mutlaq <mutlaqja@ikarustech.com>
+    SPDX-FileCopyrightText: Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
