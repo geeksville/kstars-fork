@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2008 Akarsh Simha <akarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 /* NOTE: This file is a NON portable C file that need not be built for

@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2014 Utkarsh Simha <utkarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "starhopperdialog.h"
