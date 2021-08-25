@@ -1,4 +1,4 @@
-/*  Stream Widget
+/*
     SPDX-FileCopyrightText: 2003-2017 Jasem Mutlaq (mutlaqja@ikarustech.com)
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,4 +1,4 @@
-/*  Ekos Polar Alignment Tool
+/*
     SPDX-FileCopyrightText: 2013 Jasem Mutlaq <mutlaqja@ikarustech.com>
     SPDX-FileCopyrightText: 2013-2021 Jasem Mutlaq <mutlaqja@ikarustech.com>
     SPDX-FileCopyrightText: 2018-2020 Robert Lancaster <rlancaste@gmail.com>

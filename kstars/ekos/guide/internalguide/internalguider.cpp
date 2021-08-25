@@ -1,4 +1,4 @@
-/*  Ekos Internal Guider Class
+/*
     SPDX-FileCopyrightText: 2016 Jasem Mutlaq <mutlaqja@ikarustech.com>.
 
     Based on lin_guider

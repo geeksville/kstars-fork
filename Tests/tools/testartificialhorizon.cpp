@@ -1,4 +1,4 @@
-/*  ArtificialHorizon Unit test.
+/*
     SPDX-FileCopyrightText: 2021 Hy Murveit
 
     SPDX-License-Identifier: GPL-2.0-or-later
