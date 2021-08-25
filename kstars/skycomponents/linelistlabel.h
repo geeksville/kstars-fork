@@ -3,7 +3,7 @@
 					  linelistlabel.h  -  K Desktop Planetarium
 							 -------------------
 	begin				: 2007-08-08
-	copyright			: (C) 2007 by James B. Bowlin
+	SPDX-FileCopyrightText: 2007 James B. Bowlin
 	email				: bowlin@mindspring.com
  ***************************************************************************/
 

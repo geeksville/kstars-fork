@@ -1,8 +1,8 @@
 /* FPACK
- * R. Seaman, NOAO, with a few enhancements by W. Pence, HEASARC
- *
- * Calls fits_img_compress in the CFITSIO library by W. Pence, HEASARC
- */
+    R. Seaman, NOAO, with a few enhancements by W. Pence, HEASARC
+
+    Calls fits_img_compress in the CFITSIO library by W. Pence, HEASARC
+*/
 
 #include <ctype.h>
 /* #include <signal.h> */

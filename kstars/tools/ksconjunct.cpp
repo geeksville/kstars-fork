@@ -1,15 +1,12 @@
-/***************************************************************************
-                          ksconjunct.cpp  -  K Desktop Planetarium
-                             -------------------
+/*
+    ksconjunct.cpp  -  K Desktop Planetarium
+    -------------------
     begin                : Sat Mar 22 2008
-    copyright            : (C) 2008 by Akarsh Simha <kstar@bas.org.in>
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+    SPDX-FileCopyrightText: 2008 Akarsh Simha <kstar@bas.org.in>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+*/
 
 #include "ksconjunct.h"
 
