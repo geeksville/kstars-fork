@@ -1,7 +1,4 @@
 /*
-    ksdssimage.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Tue 05 Jan 2016 00:29:22 CST
     SPDX-FileCopyrightText: 2016 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

@@ -1,7 +1,4 @@
 /*
-    culturelist.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : 04 Nov. 2008
     SPDX-FileCopyrightText: 2008 Jerome SONRIER <jsid@emor3j.fr.eu.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

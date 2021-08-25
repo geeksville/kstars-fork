@@ -1,7 +1,4 @@
 /*
-    ksutils.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Mon Jan  7 10:48:09 EST 2002
     SPDX-FileCopyrightText: 2002 Mark Hollomon <mhh@mindspring.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

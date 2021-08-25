@@ -1,7 +1,4 @@
 /*
-    skymapdrawabstract.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun Mar 2 2003
     SPDX-FileCopyrightText: 2001 Jason Harris <jharris@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

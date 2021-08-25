@@ -1,7 +1,4 @@
 /*
-    skyobjectlistmodel.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Wed Jul 29 2016
     SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
 */
 /***************************************************************************

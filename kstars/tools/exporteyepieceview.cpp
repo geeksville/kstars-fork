@@ -1,7 +1,4 @@
 /*
-    exporteyepieceview.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun 17 Jan 2016 21:35:49 CST
     SPDX-FileCopyrightText: 2016 Akarsh Simha <akarsh@kde.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

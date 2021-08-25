@@ -1,7 +1,4 @@
 /*
-    sessionsortfilterproxymodel.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Sat Apr 14 2012
     SPDX-FileCopyrightText: 2012 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later

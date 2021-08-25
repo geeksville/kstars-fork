@@ -1,7 +1,4 @@
 /*
-    skypoint.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun Feb 11 2001
     SPDX-FileCopyrightText: 2001-2005 Jason Harris <jharris@30doradus.org>
     SPDX-FileCopyrightText: 2004-2005 Pablo de Vicente <p.devicente@wanadoo.es>
 

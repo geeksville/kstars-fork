@@ -1,7 +1,4 @@
 /*
-    kstarsdatetime.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Tue 05 May 2004
     SPDX-FileCopyrightText: 2004 Jason Harris
     email                : jharris@30doradus.org
 
