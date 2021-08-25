@@ -1,24 +1,24 @@
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-*
-* This file is part of SEP
-*
-* Copyright 1993-2011 Emmanuel Bertin -- IAP/CNRS/UPMC
-* Copyright 2014 SEP developers
-*
-* SEP is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* SEP is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with SEP.  If not, see <http://www.gnu.org/licenses/>.
-*
-*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+
+    This file is part of SEP
+
+    SPDX-FileCopyrightText: 1993-2011 Emmanuel Bertin -- IAP /CNRS/UPMC
+    SPDX-FileCopyrightText: 2014 SEP developers
+
+    SEP is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SEP is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with SEP.  If not, see <http://www.gnu.org/licenses/>.
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 /* Note: was extract.c in SExtractor. */
 
@@ -30,7 +30,7 @@
 #include "sepcore.h"
 #include "extract.h"
 
-#define	NOBJ 256  /* starting number of obj. */
+#define	NOBJ 256  /* starting number of obj.*/
 
 void lutzsort(infostruct *, objliststruct *);
 
@@ -43,7 +43,7 @@ static int         *start=NULL, *end=NULL, *discan=NULL;
 static int         xmin, ymin, xmax, ymax;
 
 
-/******************************* lutzalloc ***********************************/
+/* lutzalloc ***********************************/
 /*
 Allocate once for all memory space for buffers used by lutz().
 */

@@ -1,16 +1,16 @@
-/**
- * PHD2 Guiding
- *
- * @file
- * @date      2014-2017
- * @copyright Max Planck Society
- *
- * @author    Edgar D. Klenske <edgar.klenske@tuebingen.mpg.de>
- * @author    Stephan Wenninger <stephan.wenninger@tuebingen.mpg.de>
- * @author    Raffi Enficiaud <raffi.enficiaud@tuebingen.mpg.de>
- *
- * @brief     Provides a Gaussian process based guiding algorithm
- */
+/*
+    PHD2 Guiding
+
+    @file
+    @date      2014-2017
+    @copyright Max Planck Society
+
+    @author    Edgar D. Klenske <edgar.klenske@tuebingen.mpg.de>
+    @author    Stephan Wenninger <stephan.wenninger@tuebingen.mpg.de>
+    @author    Raffi Enficiaud <raffi.enficiaud@tuebingen.mpg.de>
+
+    @brief     Provides a Gaussian process based guiding algorithm
+*/
 
 /*
  *  This source code is distributed under the following "BSD" license

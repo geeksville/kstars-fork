@@ -1,25 +1,16 @@
 /* ============================================================
- *
- * This file is a part of digiKam project
- * https://www.digikam.org
- *
- * Date        : 2004-08-02
- * Description : colors theme manager
- *
- * Copyright (C) 2006-2018 by Gilles Caulier <caulier dot gilles at gmail dot com>
- *
- * This program is free software; you can redistribute it
- * and/or modify it under the terms of the GNU General
- * Public License as published by the Free Software Foundation;
- * either version 2, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * ============================================================ */
+
+    This file is a part of digiKam project
+    https://www.digikam.org
+
+    Date        : 2004-08-02
+    Description : colors theme manager
+
+    SPDX-FileCopyrightText: 2006-2018 Gilles Caulier <caulier dot gilles at gmail dot com>
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+    ============================================================*/
 
 #include "thememanager.h"
 
@@ -60,7 +51,7 @@ class ThemeManagerCreator
 {
     public:
 
-        Manager object;
+    Manager object;
 };
 
 Q_GLOBAL_STATIC(ThemeManagerCreator, creator)
@@ -72,18 +63,18 @@ class Manager::Private
 {
     public:
 
-        Private()
-            : defaultThemeName(i18nc("default theme name", "Default")),
-              themeMenuActionGroup(0),
-              themeMenuAction(0)
-        {
-        }
+    Private()
+    : defaultThemeName(i18nc("default theme name", "Default")),
+    themeMenuActionGroup(0),
+    themeMenuAction(0)
+    {
+    }
 
-        const QString          defaultThemeName;
-        QMap<QString, QString> themeMap;            // map<theme name, theme config path>
+    const QString          defaultThemeName;
+    QMap<QString, QString> themeMap;            // map<theme name, theme config path>
 
-        QActionGroup*          themeMenuActionGroup;
-        QMenu*                 themeMenuAction;
+    QActionGroup*          themeMenuActionGroup;
+    QMenu*                 themeMenuAction;
 };
 
 Manager::Manager()
@@ -110,30 +101,30 @@ QString Manager::currentThemeName() const
 {
     if (!d->themeMenuAction || !d->themeMenuActionGroup)
     {
-        return defaultThemeName();
+    return defaultThemeName();
     }
 
     QAction* const action = d->themeMenuActionGroup->checkedAction();
     return (!action ? defaultThemeName()
-            : action->text().remove(QLatin1Char('&')));
+    : action->text().remove(QLatin1Char('&')));
 }
 
 void Manager::setCurrentTheme(const QString &name)
 {
     if (!d->themeMenuAction || !d->themeMenuActionGroup)
     {
-        return;
+    return;
     }
 
     QList<QAction*> list = d->themeMenuActionGroup->actions();
 
     foreach(QAction* const action, list)
     {
-        if (action->text().remove(QLatin1Char('&')) == name)
-        {
-            action->setChecked(true);
-            slotChangePalette();
-        }
+    if (action->text().remove(QLatin1Char('&')) == name)
+    {
+    action->setChecked(true);
+    slotChangePalette();
+    }
     }
 }
 
@@ -145,15 +136,15 @@ void Manager::slotChangePalette()
 
     /*if (theme == defaultThemeName() || theme.isEmpty())
     {
-        theme = currentDesktopdefaultTheme();
+    theme = currentDesktopdefaultTheme();
     }*/
 
     //QString themeIconName("breeze-dark");
     IconTheme themeIconType = BREEZE_DARK_THEME;
 
     if (theme == "Macintosh" || theme == "White Balance" || theme == "High Key" || (theme == "Default"
-            && currentDesktopdefaultTheme().contains("Dark") == false))
-        themeIconType = BREEZE_THEME;
+    && currentDesktopdefaultTheme().contains("Dark") == false))
+    themeIconType = BREEZE_THEME;
 
     setIconTheme(themeIconType);
 
@@ -168,27 +159,27 @@ void Manager::slotChangePalette()
     QList<QWidget *> widgets = qApp->allWidgets();
     foreach(QWidget *w, widgets)
     {
-        dmsBox *box = qobject_cast<dmsBox *>(w);
-        if(box)
-            box->setPalette(palette);
-        QTabBar *bar = qobject_cast<QTabBar *>(w);
-        if(bar)
-            bar->setPalette(palette);
+    dmsBox *box = qobject_cast<dmsBox *>(w);
+    if(box)
+    box->setPalette(palette);
+    QTabBar *bar = qobject_cast<QTabBar *>(w);
+    if(bar)
+    bar->setPalette(palette);
     }
 
     if(theme == "Macintosh")
-        qApp->setStyle(QStyleFactory::create("macintosh"));
+    qApp->setStyle(QStyleFactory::create("macintosh"));
     else
     {
-        if (qgetenv("XDG_CURRENT_DESKTOP") != "KDE")
-            qApp->setStyle(QStyleFactory::create("Fusion"));
+    if (qgetenv("XDG_CURRENT_DESKTOP") != "KDE")
+    qApp->setStyle(QStyleFactory::create("Fusion"));
     }
 
     // Special case. For Night Vision theme, we also change the Sky Color Scheme
     if (theme == "Default" && Options::colorSchemeFile() == "night.colors")
-        KStars::Instance()->actionCollection()->action("cs_moonless-night")->setChecked(true);
+    KStars::Instance()->actionCollection()->action("cs_moonless-night")->setChecked(true);
     else if (theme == "Night Vision")
-        KStars::Instance()->actionCollection()->action("cs_night")->setChecked(true);
+    KStars::Instance()->actionCollection()->action("cs_night")->setChecked(true);
 
     QPixmapCache::clear();
 
@@ -204,7 +195,7 @@ void Manager::setThemeMenuAction(QMenu* const action)
     d->themeMenuAction = action;
 
     action->setStyleSheet("QMenu::icon:checked {background: gray;border: 1px inset gray;position: absolute;"
-                          "top: 1px;right: 1px;bottom: 1px;left: 1px;}");
+    "top: 1px;right: 1px;bottom: 1px;left: 1px;}");
 
     populateThemeMenu();
 }
@@ -213,13 +204,13 @@ void Manager::registerThemeActions(KXmlGuiWindow* const win)
 {
     if (!win)
     {
-        return;
+    return;
     }
 
     if (!d->themeMenuAction)
     {
-        qCDebug(KSTARS) << "Cannot register theme actions to " << win->windowTitle();
-        return;
+    qCDebug(KSTARS) << "Cannot register theme actions to " << win->windowTitle();
+    return;
     }
 
     win->actionCollection()->addAction(QLatin1String("themes"), d->themeMenuAction->menuAction());
@@ -233,10 +224,10 @@ void Manager::populateThemeQListWidget(QListWidget *themeWidget)
 
     foreach(QAction* const action, list)
     {
-        QListWidgetItem *item = new QListWidgetItem();
-        item->setText( action->text().remove('&') );
-        item->setIcon( action->icon() );
-        themeWidget->addItem(item);
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setText( action->text().remove('&') );
+    item->setIcon( action->icon() );
+    themeWidget->addItem(item);
     }
     themeWidget->sortItems();
 }
@@ -245,7 +236,7 @@ void Manager::populateThemeMenu()
 {
     if (!d->themeMenuAction)
     {
-        return;
+    return;
     }
 
     //QString theme(currentThemeName());
@@ -266,36 +257,36 @@ void Manager::populateThemeMenu()
 
     // kstars themes
     dirs << QStandardPaths::locateAll(QStandardPaths::GenericDataLocation,
-                                      QString::fromLatin1("kstars/themes"),
-                                      QStandardPaths::LocateDirectory);
+    QString::fromLatin1("kstars/themes"),
+    QStandardPaths::LocateDirectory);
 
     qCDebug(KSTARS) << "Paths to color scheme : " << dirs;
 
     Q_FOREACH (const QString &dir, dirs)
     {
-        QDirIterator it(dir, QStringList() << QLatin1String("*.colors"));
+    QDirIterator it(dir, QStringList() << QLatin1String("*.colors"));
 
-        while (it.hasNext())
-        {
-            schemeFiles.append(it.next());
-        }
+    while (it.hasNext())
+    {
+    schemeFiles.append(it.next());
+    }
     }
 
     QMap<QString, QAction*> actionMap;
 
     for (int i = 0; i < schemeFiles.size(); ++i)
     {
-        const QString filename  = schemeFiles.at(i);
-        const QFileInfo info(filename);
-        KSharedConfigPtr config = KSharedConfig::openConfig(filename);
-        QIcon icon              = createSchemePreviewIcon(config);
-        KConfigGroup group(config, "General");
-        const QString name      = group.readEntry("Name", info.baseName());
-        QAction* const ac       = new QAction(name, d->themeMenuActionGroup);
-        d->themeMap.insert(name, filename);
-        ac->setIcon(icon);
-        ac->setCheckable(true);
-        actionMap.insert(name, ac);
+    const QString filename  = schemeFiles.at(i);
+    const QFileInfo info(filename);
+    KSharedConfigPtr config = KSharedConfig::openConfig(filename);
+    QIcon icon              = createSchemePreviewIcon(config);
+    KConfigGroup group(config, "General");
+    const QString name      = group.readEntry("Name", info.baseName());
+    QAction* const ac       = new QAction(name, d->themeMenuActionGroup);
+    d->themeMap.insert(name, filename);
+    ac->setIcon(icon);
+    ac->setCheckable(true);
+    actionMap.insert(name, ac);
     }
 
 #ifdef Q_OS_MAC
@@ -312,7 +303,7 @@ void Manager::populateThemeMenu()
 
     foreach(const QString &name, actionMapKeys)
     {
-        d->themeMenuAction->addAction(actionMap.value(name));
+    d->themeMenuAction->addAction(actionMap.value(name));
     }
 
     updateCurrentDesktopDefaultThemePreview();
@@ -325,12 +316,12 @@ void Manager::updateCurrentDesktopDefaultThemePreview()
 
     foreach(QAction* const action, list)
     {
-        if (action->text().remove(QLatin1Char('&')) == defaultThemeName())
-        {
-            KSharedConfigPtr config = KSharedConfig::openConfig(d->themeMap.value(currentDesktopdefaultTheme()));
-            QIcon icon              = createSchemePreviewIcon(config);
-            action->setIcon(icon);
-        }
+    if (action->text().remove(QLatin1Char('&')) == defaultThemeName())
+    {
+    KSharedConfigPtr config = KSharedConfig::openConfig(d->themeMap.value(currentDesktopdefaultTheme()));
+    QIcon icon              = createSchemePreviewIcon(config);
+    action->setIcon(icon);
+    }
     }
 }
 
@@ -399,8 +390,8 @@ void Manager::setIconTheme(IconTheme theme)
 
     if (theme == BREEZE_DARK_THEME)
     {
-        rccFile = "breeze-icons-dark.rcc";
-        iconTheme = "breeze-dark";
+    rccFile = "breeze-icons-dark.rcc";
+    iconTheme = "breeze-dark";
     }
 
     QStringList themeSearchPaths = (QStringList() << QIcon::themeSearchPaths());
@@ -410,24 +401,24 @@ void Manager::setIconTheme(IconTheme theme)
     QResource::registerResource(resourcePath, "/icons/" + iconTheme);
 #elif defined(Q_OS_WIN)
     themeSearchPaths = themeSearchPaths << QStandardPaths::locate(QStandardPaths::GenericDataLocation, "icons",
-                       QStandardPaths::LocateDirectory);
+    QStandardPaths::LocateDirectory);
     QString resourcePath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "icons",
-                           QStandardPaths::LocateDirectory) + QDir::separator() + iconTheme + QDir::separator() + rccFile;
+    QStandardPaths::LocateDirectory) + QDir::separator() + iconTheme + QDir::separator() + rccFile;
     QResource::registerResource(resourcePath, "/icons/" + iconTheme);
 #else
     // On Linux on non-KDE Distros, find out if the themes are installed or not and perhaps warn the user
     // The important point is that the current theme must be left as is to avoid empty icons
     {
-        bool missing = true;
-        foreach (auto &path, themeSearchPaths)
-            if (QFile(path + '/' + iconTheme + "/index.theme").exists())
-                missing = false;
+    bool missing = true;
+    foreach (auto &path, themeSearchPaths)
+    if (QFile(path + '/' + iconTheme + "/index.theme").exists())
+    missing = false;
 
-        if (missing)
-        {
-            qCWarning(KSTARS) << "Warning: icon theme" << iconTheme << "not found, keeping original" << QIcon::themeName() << ".";
-            iconTheme = QIcon::themeName();
-        }
+    if (missing)
+    {
+    qCWarning(KSTARS) << "Warning: icon theme" << iconTheme << "not found, keeping original" << QIcon::themeName() << ".";
+    iconTheme = QIcon::themeName();
+    }
     }
 #endif
 
