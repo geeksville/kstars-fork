@@ -2,8 +2,7 @@
                  eyepiecefield.h  -  K Desktop Planetarium
                              -------------------
     begin                : Fri 30 May 2014 14:39:37 CDT
-    copyright            : (c) 2014 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2014 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************

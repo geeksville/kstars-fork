@@ -2,8 +2,7 @@
                           imageviewer.cpp  -  An ImageViewer for KStars
                              -------------------
     begin                : Mon Aug 27 2001
-    copyright            : (C) 2001 by Thomas Kabelmann
-    email                : tk78@gmx.de
+    copyright            : (C) 2001 by Thomas Kabelmann <tk78@gmx.de>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

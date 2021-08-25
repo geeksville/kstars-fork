@@ -3,8 +3,7 @@
                           XPlanetImageviewer.cpp  -  Based on: KStars Image Viwer by Thomas Kabelmann
                              -------------------
     begin                : Sun Aug 12, 2018
-    copyright            : (C) 2018 by Robert Lancaster
-    email                : rlancaste@gmail.com
+    copyright            : (C) 2018 by Robert Lancaster <rlancaste@gmail.com>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

@@ -2,8 +2,7 @@
                    ksdssdownloader.h  -  K Desktop Planetarium
                              -------------------
     begin                : Tue 05 Jan 2016 03:22:50 CST
-    copyright            : (c) 2016 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2016 by Akarsh Simha <akarsh.simha@kdemail.net>
 ***************************************************************************/
 
 /***************************************************************************

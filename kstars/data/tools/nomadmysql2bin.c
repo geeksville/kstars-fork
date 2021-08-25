@@ -3,8 +3,7 @@
             mysql2bin.c - Convert data from MySQL to binary format
                              -------------------
     begin                : Mon May 26 2008
-    copyright            : (C) 2008 by Akarsh Simha
-    email                : akarshsimha@gmail.com
+    copyright            : (C) 2008 by Akarsh Simha <akarshsimha@gmail.com>
 ***************************************************************************/
 
 /***************************************************************************

@@ -2,8 +2,7 @@
                           infoboxwidget.h  -  description
                              -------------------
     begin                : 20 Aug 2009
-    copyright            : (C) 2009 by Khudyakov Alexey
-    email                : alexey.skladnoy@gmail.com
+    copyright            : (C) 2009 by Khudyakov Alexey <alexey.skladnoy@gmail.com>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

@@ -2,8 +2,7 @@
                  ApproachSolver.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Tue 18/09/2018
-    copyright            : (C) 2008 by Akarsh Simha, 2018 Valentin Boettcher
-    email                : kstar@bas.org.in, valentin@boettcher.cf
+    copyright            : (C) 2008 by Akarsh Simha, 2018 Valentin Boettcher <kstar@bas.org.in, valentin@boettcher.cf>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
