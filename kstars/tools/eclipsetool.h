@@ -2,7 +2,6 @@
     SPDX-FileCopyrightText: 2018 Valentin Boettcher <valentin@boettcher.cf>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #pragma once

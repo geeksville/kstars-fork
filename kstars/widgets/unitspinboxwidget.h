@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2015 Utkarsh Simha <utkarshsimha@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #ifndef UNITSPINBOXWIDGET_H

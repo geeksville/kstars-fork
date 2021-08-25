@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2001-2005 Pablo de Vicente <p.devicente@wanadoo.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "astrocalc.h"
