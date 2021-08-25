@@ -6,7 +6,9 @@
 #  NOVA_LIBRARIES - Link these to use NOVA
 
 # SPDX-FileCopyrightText: 2006 Jasem Mutlaq <mutlaqja@ikarustech.com>
-# Based on FindLibfacile by Carsten Niehaus, <cniehaus@gmx.de>
+#
+# Based on FindLibfacile:
+# SPDX-FileCopyrightText: Carsten Niehaus, <cniehaus@gmx.de>
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
