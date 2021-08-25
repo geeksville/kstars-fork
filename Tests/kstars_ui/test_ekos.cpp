@@ -1,7 +1,7 @@
 /*  KStars UI tests
     SPDX-FileCopyrightText: 2018, 2020 Csaba Kertesz <csaba.kertesz@gmail.com>
-    Jasem Mutlaq <knro@ikarustech.com>
-    Eric Dejouhanet <eric.dejouhanet@gmail.com>
+    SPDX-FileCopyrightText: Jasem Mutlaq <knro@ikarustech.com>
+    SPDX-FileCopyrightText: Eric Dejouhanet <eric.dejouhanet@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
