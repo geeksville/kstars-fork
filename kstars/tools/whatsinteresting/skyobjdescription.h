@@ -1,7 +1,4 @@
 /*
-    skyobjdescription.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 2013/10/13
     SPDX-FileCopyrightText: 2013 Vijay Dhameliya <vijay.atwork13@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

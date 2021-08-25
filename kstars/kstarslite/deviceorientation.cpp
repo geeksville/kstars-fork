@@ -1,7 +1,4 @@
 /*
-    deviceorientation.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : 13/02/2017
     SPDX-FileCopyrightText: 2017 Artem Fedoskin <afedoskin3@gmail.com>
 */
 /** *************************************************************************

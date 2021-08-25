@@ -1,7 +1,4 @@
 /* *************************************************************************
-    locationialoglite.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun Aug 21 2016
     SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
 */
 /** *************************************************************************

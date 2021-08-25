@@ -1,7 +1,4 @@
 /*
-    nameresolver.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sat 23 Aug 2014 23:38:42 CDT
     SPDX-FileCopyrightText: 2014 Akarsh Simha <akarsh.simha@kdemail.net>
 
     SPDX-License-Identifier: GPL-2.0-or-later
