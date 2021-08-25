@@ -1,7 +1,4 @@
 /*
-    opsxplanet.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Wed 26 Nov 2008
     SPDX-FileCopyrightText: 2008 Jerome SONRIER <jsid@emor3j.fr.eu.org>
 */
 /***************************************************************************

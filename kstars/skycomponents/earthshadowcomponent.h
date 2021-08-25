@@ -1,7 +1,4 @@
 /*
-    ksearthshadow.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Fri Aug 24 2018
     SPDX-FileCopyrightText: 2018 Valentin Boettcher <valentin@boettcher.cf (do not hesitate to contact)>
     matrix               : @hiro98@tchncs.de
 

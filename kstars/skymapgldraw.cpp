@@ -1,7 +1,4 @@
 /*
-    skymapgldraw.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : Wed Dec 29 2010 04:07 AM UTC-6
     SPDX-FileCopyrightText: 2010 Akarsh Simha <akarsh.simha@kdemail.net>
 */
 /***************************************************************************

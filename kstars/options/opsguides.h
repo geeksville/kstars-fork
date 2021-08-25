@@ -1,7 +1,4 @@
 /*
-    opsguides.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun 6 Feb 2005
     SPDX-FileCopyrightText: 2005 Jason Harris <jharris@30doradus.org>
 */
 /***************************************************************************
