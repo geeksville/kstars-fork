@@ -1,8 +1,7 @@
 /*
     Helper class of KStars UI tests
 
-    Copyright (C) 2021
-    Wolfgang Reissenberger <sterne-jaeger@openfuture.de>
+    SPDX-FileCopyrightText: 2021 Wolfgang Reissenberger <sterne-jaeger@openfuture.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */

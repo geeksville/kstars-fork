@@ -1,6 +1,5 @@
 /*  Artificial Horizon UI test
-    Copyright (C) 2021
-    Hy Murveit <hy@murveit.com>
+    SPDX-FileCopyrightText: 2021 Hy Murveit <hy@murveit.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */

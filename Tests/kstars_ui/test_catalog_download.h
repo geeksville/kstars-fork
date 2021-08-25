@@ -1,6 +1,5 @@
 /*  KStars UI tests
-    Copyright (C) 2021
-    Eric Dejouhanet <eric.dejouhanet@gmail.com>
+    SPDX-FileCopyrightText: 2021 Eric Dejouhanet <eric.dejouhanet@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
