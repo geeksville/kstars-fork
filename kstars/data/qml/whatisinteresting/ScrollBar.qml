@@ -1,7 +1,6 @@
 /*
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 /** This qml code implements a vertical scrollbar which shall be displayed in listview of sky-objects.

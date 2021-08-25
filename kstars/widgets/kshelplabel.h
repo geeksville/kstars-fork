@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2010 Valery Kharitonov <kharvd@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #ifndef KSHELPLABEL_H
