@@ -1,5 +1,5 @@
 /*  Ekos Observatory Module
-    Copyright (C) Wolfgang Reissenberger <sterne-jaeger@t-online.de>
+    SPDX-FileCopyrightText: Wolfgang Reissenberger <sterne-jaeger@t-online.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
