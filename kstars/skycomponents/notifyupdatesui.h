@@ -1,7 +1,4 @@
 /*
-    notifyupdatesui.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 2012/05/03
     SPDX-FileCopyrightText: 2012 Samikshan Bairagya <samikshan@gmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later

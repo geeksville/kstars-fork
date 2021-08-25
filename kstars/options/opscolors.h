@@ -1,7 +1,4 @@
 /*
-    opscolors.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun Feb 29 2004
     SPDX-FileCopyrightText: 2004 Jason Harris <jharris@30doradus.org>
 */
 /***************************************************************************

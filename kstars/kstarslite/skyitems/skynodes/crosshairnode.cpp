@@ -1,7 +1,4 @@
 /* *************************************************************************
-    crosshairnode.cpp  -  K Desktop Planetarium
-    -------------------
-    begin                : 18/07/2016
     SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
 */
 /** *************************************************************************

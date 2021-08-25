@@ -1,7 +1,4 @@
 /*
-    ksmoon.h  -  K Desktop Planetarium
-    -------------------
-    begin                : Sun Aug 26 2001
     SPDX-FileCopyrightText: 2001 Jason Harris <kstars@30doradus.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later

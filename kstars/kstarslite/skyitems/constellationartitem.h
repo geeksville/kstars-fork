@@ -1,7 +1,4 @@
 /* *************************************************************************
-    constellationartitem.h  -  K Desktop Planetarium
-    -------------------
-    begin                : 02/06/2016
     SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
 */
 /** *************************************************************************
