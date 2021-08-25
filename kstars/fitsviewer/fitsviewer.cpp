@@ -7,7 +7,6 @@
     2006-03-03	Using CFITSIO, Porting to Qt4
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "fitsviewer.h"

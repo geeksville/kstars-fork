@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2021 Akarsh Simha <akarsh@kde.org>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #ifndef TEST_STAROBJECT_H

@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2020 Patrick Molenaar <pr_molenaar@hotmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #ifndef FITSBAHTINOVDETECTOR_H

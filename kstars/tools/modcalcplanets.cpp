@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2004-2005 Pablo de Vicente <p.devicentea@wanadoo.es>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "modcalcplanets.h"

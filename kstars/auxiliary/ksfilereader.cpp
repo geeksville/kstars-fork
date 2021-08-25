@@ -5,7 +5,6 @@
     SPDX-FileCopyrightText: 2007 James B. Bowlin <bowlin@mindspring.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
 */
 
 #include "ksfilereader.h"
