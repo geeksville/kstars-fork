@@ -1,5 +1,4 @@
-/*  The terrain component is used to draw the terrain.
-
+/*
     SPDX-FileCopyrightText: 2021 Hy Murveit <hy@murveit.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
