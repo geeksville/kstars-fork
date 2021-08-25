@@ -2,8 +2,7 @@
                           opssupernovae.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Thu, 25 Aug 2011
-    copyright            : (C) 2011 by Samikshan Bairagya
-    email                : samikshan@gmail.com
+    copyright            : (C) 2011 by Samikshan Bairagya <samikshan@gmail.com>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

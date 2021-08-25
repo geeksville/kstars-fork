@@ -2,8 +2,7 @@
                           opsxplanet.h  -  K Desktop Planetarium
                              -------------------
     begin                : Wed 26 Nov 2008
-    copyright            : (C) 2008 by Jerome SONRIER
-    email                : jsid@emor3j.fr.eu.org
+    copyright            : (C) 2008 by Jerome SONRIER <jsid@emor3j.fr.eu.org>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

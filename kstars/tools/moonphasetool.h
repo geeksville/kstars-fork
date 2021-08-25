@@ -2,8 +2,7 @@
                       moonphasetool.h  -  K Desktop Planetarium
                              -------------------
     begin                : Sat Jun 26 2010
-    copyright            : (C) 2010 by Akarsh Simha
-    email                : akarshsimha@gmail.com
+    copyright            : (C) 2010 by Akarsh Simha <akarshsimha@gmail.com>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

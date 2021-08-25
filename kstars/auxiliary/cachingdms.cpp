@@ -2,8 +2,7 @@
                       cachingdms.cpp  -  KStars Planetarium
                              -------------------
     begin                : Sat 24 Sep 2016 23:16:25 CDT
-    copyright            : (c) 2016 by Akarsh Simha
-    email                : akarsh.simha@kdemail.net
+    copyright            : (C) 2016 by Akarsh Simha <akarsh.simha@kdemail.net>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

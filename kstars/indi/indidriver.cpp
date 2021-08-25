@@ -2,8 +2,7 @@
                           INDI Driver
                              -------------------
     begin                : Wed May 7th 2003
-    copyright            : (C) 2001 by Jasem Mutlaq
-    email                : mutlaqja@ikarustech.com
+    copyright            : (C) 2001 by Jasem Mutlaq <mutlaqja@ikarustech.com>
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *

@@ -2,8 +2,7 @@
                           skyline.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : Mon June 26 2006
-    copyright            : (C) 2006 by Jason Harris
-    email                : kstarss@30doradus.org
+    copyright            : (C) 2006 by Jason Harris <kstarss@30doradus.org>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *

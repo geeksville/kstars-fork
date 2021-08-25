@@ -2,8 +2,7 @@
                       indexer.cpp  -  K Desktop Planetarium
                              -------------------
     begin                : 2021-06-08
-    copyright            : (C) 2021 by Valentin Boettcher
-    email                : hiro at protagon.space; @hiro98:tchncs.de
+    copyright            : (C) 2021 by Valentin Boettcher <hiro at protagon.space; @hiro98:tchncs.de>
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
