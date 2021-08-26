@@ -1,6 +1,5 @@
 /*
-    SPDX-FileCopyrightText: 2002 Mark Hollomon
-    email                : mhh@mindspring.com
+    SPDX-FileCopyrightText: 2002 Mark Hollomon <mhh@mindspring.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
