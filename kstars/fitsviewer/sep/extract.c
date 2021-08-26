@@ -18,9 +18,9 @@
 #include "sepcore.h"
 #include "extract.h"
 
-#define DETECT_MAXAREA 0             /* replaces prefs.ext_maxarea*/
-#define	WTHRESH_CONVFAC	1e-4         /* Factor to apply to weights when*/
-			             /* thresholding filtered weight-maps*/
+#define DETECT_MAXAREA 0             /* replaces prefs.ext_maxarea */
+#define	WTHRESH_CONVFAC	1e-4         /* Factor to apply to weights when */
+			             /* thresholding filtered weight-maps */
 
 /* globals */
 int plistexist_cdvalue, plistexist_thresh, plistexist_var;
@@ -31,12 +31,12 @@ size_t extract_pixstack = 1000000;
 /* get and set pixstack */
 void sep_set_extract_pixstack(size_t val)
 {
-    extract_pixstack = val;
+  extract_pixstack = val;
 }
 
 size_t sep_get_extract_pixstack()
 {
-    return extract_pixstack;
+  return extract_pixstack;
 }
 
 int sortit(infostruct *info, objliststruct *objlist, int minarea,
@@ -45,102 +45,102 @@ int sortit(infostruct *info, objliststruct *objlist, int minarea,
 void plistinit(int hasconv, int hasvar);
 void clean(objliststruct *objlist, double clean_param, int *survives);
 int convert_to_catalog(objliststruct *objlist, int *survives,
-    sep_catalog *cat, int w, int include_pixels);
+                       sep_catalog *cat, int w, int include_pixels);
 
 int arraybuffer_init(arraybuffer *buf, void *arr, int dtype, int w, int h,
-    int bufw, int bufh);
+                     int bufw, int bufh);
 void arraybuffer_readline(arraybuffer *buf);
 void arraybuffer_free(arraybuffer *buf);
 
-/* array buffer functions ********************************/
+/********************* array buffer functions ********************************/
 
 /* initialize buffer */
 /* bufw must be less than or equal to w */
 int arraybuffer_init(arraybuffer *buf, void *arr, int dtype, int w, int h,
-    int bufw, int bufh)
+                     int bufw, int bufh)
 {
-    int status, yl;
-    status = RETURN_OK;
+  int status, yl;
+  status = RETURN_OK;
 
-    /* data info*/
-    buf->dptr = arr;
-    buf->dw = w;
-    buf->dh = h;
+  /* data info */
+  buf->dptr = arr;
+  buf->dw = w;
+  buf->dh = h;
 
-    /* buffer array info*/
-    buf->bptr = NULL;
-    QMALLOC(buf->bptr, PIXTYPE, bufw*bufh, status);
-    buf->bw = bufw;
-    buf->bh = bufh;
+  /* buffer array info */
+  buf->bptr = NULL;
+  QMALLOC(buf->bptr, PIXTYPE, bufw*bufh, status);
+  buf->bw = bufw;
+  buf->bh = bufh;
 
-    /* pointers to within buffer*/
-    buf->midline = buf->bptr + bufw*(bufh/2);  /* ptr to middle buffer line*/
-    buf->lastline = buf->bptr + bufw*(bufh-1);  /* ptr to last buffer line*/
+  /* pointers to within buffer */
+  buf->midline = buf->bptr + bufw*(bufh/2);  /* ptr to middle buffer line */
+  buf->lastline = buf->bptr + bufw*(bufh-1);  /* ptr to last buffer line */
 
-    status = get_array_converter(dtype, &(buf->readline), &(buf->elsize));
-    if (status != RETURN_OK)
+  status = get_array_converter(dtype, &(buf->readline), &(buf->elsize));
+  if (status != RETURN_OK)
     goto exit;
 
-    /* initialize yoff*/
-    buf->yoff = -bufh;
+  /* initialize yoff */
+  buf->yoff = -bufh;
 
-    /* read in lines until the first data line is one line above midline*/
-    for (yl=0; yl < bufh - bufh/2 - 1; yl++)
+  /* read in lines until the first data line is one line above midline */
+  for (yl=0; yl < bufh - bufh/2 - 1; yl++)
     arraybuffer_readline(buf);
 
-    return status;
+  return status;
 
-    exit:
-    free(buf->bptr);
-    buf->bptr = NULL;
-    return status;
+ exit:
+  free(buf->bptr);
+  buf->bptr = NULL;
+  return status;
 }
 
 /* read a line into the buffer at the top, shifting all lines down one */
 void arraybuffer_readline(arraybuffer *buf)
 {
-    PIXTYPE *line;
-    int y;
+  PIXTYPE *line;
+  int y;
 
-    /* shift all lines down one*/
-    for (line = buf->bptr; line < buf->lastline; line += buf->bw)
+  /* shift all lines down one */
+  for (line = buf->bptr; line < buf->lastline; line += buf->bw)
     memcpy(line, line + buf->bw, sizeof(PIXTYPE) * buf->bw);
 
-    /* which image line now corresponds to the last line in buffer?*/
-    buf->yoff++;
-    y = buf->yoff + buf->bh - 1;
+  /* which image line now corresponds to the last line in buffer? */
+  buf->yoff++;
+  y = buf->yoff + buf->bh - 1;
 
-    if (y < buf->dh)
+  if (y < buf->dh)
     buf->readline(buf->dptr + buf->elsize * buf->dw * y, buf->dw,
-    buf->lastline);
+                  buf->lastline);
 
-    return;
+  return;
 }
 
 void arraybuffer_free(arraybuffer *buf)
 {
-    free(buf->bptr);
-    buf->bptr = NULL;
+  free(buf->bptr);
+  buf->bptr = NULL;
 }
 
 /* apply_mask_line: Apply the mask to the image and noise buffers.
-
-    If convolution is off, masked values should simply be not
-    detected. For this, would be sufficient to either set data to zero or
-    set noise (if present) to infinity.
-
-    If convolution is on, strictly speaking, a masked (unknown) pixel
-    should "poison" the convolved value whenever it is present in the
-    convolution kernel (e.g., NaN behavior). However, practically we'd
-    rather use a "best guess" for the value. Without doing
-    interpolation from neighbors, 0 is the best guess (assuming image
-    is background subtracted).
-
-    For the purpose of the full matched filter, we should set noise = infinity.
-
-    So, this routine sets masked pixels to zero in the image buffer and
-    infinity in the noise buffer (if present). It affects the first
-*/
+ *
+ * If convolution is off, masked values should simply be not
+ * detected. For this, would be sufficient to either set data to zero or
+ * set noise (if present) to infinity.
+ *
+ * If convolution is on, strictly speaking, a masked (unknown) pixel
+ * should "poison" the convolved value whenever it is present in the
+ * convolution kernel (e.g., NaN behavior). However, practically we'd
+ * rather use a "best guess" for the value. Without doing
+ * interpolation from neighbors, 0 is the best guess (assuming image
+ * is background subtracted).
+ *
+ * For the purpose of the full matched filter, we should set noise = infinity.
+ *
+ * So, this routine sets masked pixels to zero in the image buffer and
+ * infinity in the noise buffer (if present). It affects the first 
+ */
 void apply_mask_line(arraybuffer *mbuf, arraybuffer *imbuf, arraybuffer *nbuf)
 {
   int i;

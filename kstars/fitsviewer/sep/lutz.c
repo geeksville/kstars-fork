@@ -15,7 +15,7 @@
 #include "sepcore.h"
 #include "extract.h"
 
-#define	NOBJ 256  /* starting number of obj.*/
+#define	NOBJ 256  /* starting number of obj. */
 
 void lutzsort(infostruct *, objliststruct *);
 
@@ -28,7 +28,7 @@ static int         *start=NULL, *end=NULL, *discan=NULL;
 static int         xmin, ymin, xmax, ymax;
 
 
-/* lutzalloc ***********************************/
+/******************************* lutzalloc ***********************************/
 /*
 Allocate once for all memory space for buffers used by lutz().
 */
