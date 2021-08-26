@@ -14,24 +14,24 @@
 static double area_arc(double x1, double y1, double x2, double y2,
 			      double r)
 {
-    double a, theta;
+  double a, theta;
 
-    a = sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
-    theta = 2. * asin(0.5 * a / r);
-    return 0.5 * r * r * (theta - sin(theta));
+  a = sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+  theta = 2. * asin(0.5 * a / r);
+  return 0.5 * r * r * (theta - sin(theta));
 }
 
 /* Area of a triangle defined by three vertices */
 static double area_triangle(double x1, double y1, double x2, double y2,
 				   double x3, double y3)
 {
-    return 0.5 * fabs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2));
+  return 0.5 * fabs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2));
 }
 
 /* Core of circular overlap routine.
-    Assumes that xmax >= xmin >= 0.0, ymax >= ymin >= 0.0.
-    (can always modify input to conform to this).
-*/
+ * Assumes that xmax >= xmin >= 0.0, ymax >= ymin >= 0.0.
+ * (can always modify input to conform to this).
+ */
 static double circoverlap_core(double xmin, double ymin,
 				      double xmax, double ymax, double r)
 {

@@ -17,9 +17,9 @@
 #ifndef	RAND_MAX
 #define	RAND_MAX 2147483647
 #endif
-#define	NSONMAX	1024  /* max. number per level*/
-#define NSONMAX_STR "1024" /* just for error message*/
-#define	NBRANCH	16    /* starting number per branch*/
+#define	NSONMAX	1024  /* max. number per level */
+#define NSONMAX_STR "1024" /* just for error message */
+#define	NBRANCH	16    /* starting number per branch */
 
 
 
@@ -30,11 +30,11 @@ int gatherup(objliststruct *, objliststruct *);
 static objliststruct *objlist=NULL;
 static short	     *son=NULL, *ok=NULL;
 
-/* deblend ************************************/
+/******************************** deblend ************************************/
 /*
 Divide a list of isophotal detections in several parts (deblending).
 NOTE: Even if the object is not deblended, the output objlist threshold is
-    recomputed if a variable threshold is used.
+      recomputed if a variable threshold is used.
 
 This can return two error codes: DEBLEND_OVERFLOW or MEMORY_ALLOC_ERROR
 */

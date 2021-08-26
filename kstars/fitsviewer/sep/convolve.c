@@ -16,13 +16,13 @@
 #include "extract.h"
 
 /* Convolve one line of an image with a given kernel.
-
-    buf : arraybuffer struct containing buffer of data to convolve, and image
-    dimension metadata.
-    conv : convolution kernel
-    convw, convh : width and height of conv
-    buf : output convolved line (buf->dw elements long)
-*/
+ *
+ * buf : arraybuffer struct containing buffer of data to convolve, and image
+         dimension metadata.
+ * conv : convolution kernel
+ * convw, convh : width and height of conv
+ * buf : output convolved line (buf->dw elements long)
+ */
 int convolve(arraybuffer *buf, int y, float *conv, int convw, int convh,
              PIXTYPE *out)
 {
