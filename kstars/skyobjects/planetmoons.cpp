@@ -1,6 +1,6 @@
 /*
-    : by Vipul Kumar Singh, Médéric Boquien
-    email                : vipulkrsingh@gmail.com, mboquien@free.fr
+    SPDX-FileCopyrightText: Vipul Kumar Singh <vipulkrsingh@gmail.com>
+    SPDX-FileCopyrightText: Médéric Boquien <mboquien@free.fr>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
