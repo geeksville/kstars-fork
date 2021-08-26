@@ -1,16 +1,11 @@
-/* ============================================================
-
+/*
     This file is a part of digiKam project
     https://www.digikam.org
-
-    Date        : 2004-08-02
-    Description : colors theme manager
 
     SPDX-FileCopyrightText: 2006-2018 Gilles Caulier <caulier dot gilles at gmail dot com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
-
-    ============================================================*/
+*/
 
 #pragma once
 
