@@ -1,11 +1,7 @@
-/* *************************************************************************
+/*
     SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
+    SPDX-License-Identifier: GPL-2.0-or-later
 */
-/** *************************************************************************
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
 #include "imageprovider.h"
 
 ImageProvider::ImageProvider() : QQuickImageProvider(QQmlImageProviderBase::Image)

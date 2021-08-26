@@ -1,11 +1,7 @@
-/* *************************************************************************
+/*
     SPDX-FileCopyrightText: 2016 Artem Fedoskin <afedoskin3@gmail.com>
+    SPDX-License-Identifier: GPL-2.0-or-later
 */
-/** *************************************************************************
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
 #ifndef CROSSHAIRNODE_H_
 #define CROSSHAIRNODE_H_
 #include "skynode.h"
