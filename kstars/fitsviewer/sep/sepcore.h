@@ -5,7 +5,7 @@
     SPDX-License-Identifier: LGPL-3.0-or-later
 */
 
-#define	RETURN_OK           0  /* must be zero*/
+#define	RETURN_OK           0  /* must be zero */
 #define MEMORY_ALLOC_ERROR  1
 #define PIXSTACK_FULL       2
 #define ILLEGAL_DTYPE       3
@@ -17,17 +17,17 @@
 #define RELTHRESH_NO_NOISE  9
 #define UNKNOWN_NOISE_TYPE  10
 
-#define	BIG 1e+30  /* a huge number (< biggest value a float can store)*/
+#define	BIG 1e+30  /* a huge number (< biggest value a float can store) */
 #define	PI  3.1415926535898
-#define	DEG (PI/180.0)	    /* 1 deg in radians*/
+#define	DEG (PI/180.0)	    /* 1 deg in radians */
 
 typedef	int	      LONG;
 typedef	unsigned int  ULONG;
-typedef	unsigned char BYTE;    /* a byte*/
+typedef	unsigned char BYTE;    /* a byte */
 
 /* keep these synchronized */
-typedef float         PIXTYPE;    /* type used inside of functions*/
-#define PIXDTYPE      SEP_TFLOAT  /* dtype code corresponding to PIXTYPE*/
+typedef float         PIXTYPE;    /* type used inside of functions */
+#define PIXDTYPE      SEP_TFLOAT  /* dtype code corresponding to PIXTYPE */
 
 
 /* signature of converters */
@@ -36,8 +36,8 @@ typedef void (*array_converter)(void *ptr, int n, PIXTYPE *target);
 typedef void (*array_writer)(float *ptr, int n, void *target);
 
 #define	QCALLOC(ptr, typ, nel, status)				     	\
-    {if (!(ptr = (typ *)calloc((size_t)(nel),sizeof(typ))))		\
-    {									\
+  {if (!(ptr = (typ *)calloc((size_t)(nel),sizeof(typ))))		\
+      {									\
 	char errtext[160];						\
 	sprintf(errtext, #ptr " (" #nel "=%lu elements) "		\
 		"at line %d in module " __FILE__ " !",			\
@@ -45,12 +45,12 @@ typedef void (*array_writer)(float *ptr, int n, void *target);
 	put_errdetail(errtext);						\
 	status = MEMORY_ALLOC_ERROR;					\
 	goto exit;							\
-    };								\
-    }
+      };								\
+  }
 
 #define	QMALLOC(ptr, typ, nel, status)					\
-    {if (!(ptr = (typ *)malloc((size_t)(nel)*sizeof(typ))))		\
-    {									\
+  {if (!(ptr = (typ *)malloc((size_t)(nel)*sizeof(typ))))		\
+      {									\
 	char errtext[160];						\
 	sprintf(errtext, #ptr " (" #nel "=%lu elements) "		\
 		"at line %d in module " __FILE__ " !",			\
@@ -58,8 +58,8 @@ typedef void (*array_writer)(float *ptr, int n, void *target);
 	put_errdetail(errtext);						\
 	status = MEMORY_ALLOC_ERROR;					\
 	goto exit;							\
-    };								\
-    }
+      };								\
+  }
 
 float fqmedian(float *ra, int n);
 void put_errdetail(char *errtext);

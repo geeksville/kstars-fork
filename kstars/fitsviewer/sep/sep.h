@@ -8,16 +8,16 @@
 */
 
 /* datatype codes */
-#define SEP_TBYTE        11  /* 8-bit unsigned byte*/
-#define SEP_TINT         31  /* native int type*/
+#define SEP_TBYTE        11  /* 8-bit unsigned byte */
+#define SEP_TINT         31  /* native int type */
 #define SEP_TFLOAT       42
 #define SEP_TDOUBLE      82
 
 /* object & aperture flags */
-#define SEP_OBJ_MERGED       0x0001  /* object is result of deblending*/
-#define SEP_OBJ_TRUNC        0x0002  /* object truncated at image boundary*/
-#define SEP_OBJ_DOVERFLOW    0x0004  /* not currently used, but could be*/
-#define SEP_OBJ_SINGU        0x0008  /* x,y fully correlated*/
+#define SEP_OBJ_MERGED       0x0001  /* object is result of deblending */
+#define SEP_OBJ_TRUNC        0x0002  /* object truncated at image boundary */
+#define SEP_OBJ_DOVERFLOW    0x0004  /* not currently used, but could be */
+#define SEP_OBJ_SINGU        0x0008  /* x,y fully correlated */
 #define SEP_APER_TRUNC       0x0010
 #define SEP_APER_HASMASKED   0x0020
 #define SEP_APER_ALLMASKED   0x0040
@@ -32,8 +32,8 @@
 #define SEP_MASK_IGNORE      0x0004
 
 /* threshold interpretation for sep_extract */
-#define SEP_THRESH_REL 0  /* in units of standard deviations (sigma)*/
-#define SEP_THRESH_ABS 1  /* absolute data values*/
+#define SEP_THRESH_REL 0  /* in units of standard deviations (sigma) */
+#define SEP_THRESH_ABS 1  /* absolute data values */
 
 /* filter types for sep_extract */
 #define SEP_FILTER_CONV    0
@@ -42,10 +42,10 @@
 /* structs ------------------------------------------------------------------*/
 
 /* sep_image
-
-    Represents an image, including data, noise and mask arrays, and
-    gain.
-*/
+ *
+ * Represents an image, including data, noise and mask arrays, and
+ * gain.
+ */
 typedef struct {
   void *data;        /* data array                */
   void *noise;       /* noise array (can be NULL) */

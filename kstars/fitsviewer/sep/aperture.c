@@ -17,15 +17,17 @@
 
 #define FLUX_RADIUS_BUFSIZE 64
 
-#define WINPOS_NITERMAX 16      /* Maximum number of steps*/
-#define WINPOS_NSIG     4       /* Measurement radius*/
-#define WINPOS_STEPMIN  0.0001  /* Minimum change in position for continuing*/
-#define WINPOS_FAC      2.0     /* Centroid offset factor (2 for a Gaussian)*/
+#define WINPOS_NITERMAX 16      /* Maximum number of steps */
+#define WINPOS_NSIG     4       /* Measurement radius */
+#define WINPOS_STEPMIN  0.0001  /* Minimum change in position for continuing */
+#define WINPOS_FAC      2.0     /* Centroid offset factor (2 for a Gaussian) */
 
 /*
+  Adding (void *) pointers is a GNU C extension, not part of standard C. 
     Adding (void *) pointers is a GNU C extension, not part of standard C.
-    When compiling on Windows with MS VIsual C compiler need to cast the
-    (void *) to something the size of one byte.
+  Adding (void *) pointers is a GNU C extension, not part of standard C. 
+  When compiling on Windows with MS VIsual C compiler need to cast the
+  (void *) to something the size of one byte.
 */
 #if defined(_MSC_VER)
   #define MSVC_VOID_CAST (char *)
