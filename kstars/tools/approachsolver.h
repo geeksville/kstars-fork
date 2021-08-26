@@ -1,5 +1,6 @@
 /*
-    SPDX-FileCopyrightText: 2008 Akarsh Simha 2018 Valentin Boettcher <kstar@bas.org.in, valentin@boettcher.cf>
+    SPDX-FileCopyrightText: 2008 Akarsh Simha <akarsh.simha@kdemail.net>
+    SPDX-FileCopyrightText: 2018 Valentin Boettcher <valentin@boettcher.cf>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
