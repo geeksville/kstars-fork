@@ -1,11 +1,7 @@
 /*
     SPDX-FileCopyrightText: 2017 Artem Fedoskin <afedoskin3@gmail.com>
+    SPDX-License-Identifier: GPL-2.0-or-later
 */
-/** *************************************************************************
- *                                                                         *
- *   SPDX-License-Identifier: GPL-2.0-or-later
- *                                                                         *
- ***************************************************************************/
 #include "deviceorientation.h"
 
 #if defined(Q_OS_ANDROID)
