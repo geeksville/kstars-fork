@@ -34,7 +34,7 @@ class FITSGradientDetector: public FITSStarDetector
         bool findSources(const QRect &boundary);
 
         /** @internal Implementation of the Canny Edge detection (CannyEdgeDetector).
-         * @SPDX-FileCopyrightText: 2015 Gonzalo Exequiel Pedone (https://github.com/hipersayanX/CannyDetector).
+         * @copyright 2015 Gonzalo Exequiel Pedone (https://github.com/hipersayanX/CannyDetector).
          * @param data is the FITS data to run the detection onto.
          * @param gradient is the vector storing the amount of change in pixel sequences.
          * @param direction is the vector storing the four directions (horizontal, vertical and two diagonals) the changes stored in 'gradient' are detected in.

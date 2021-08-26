@@ -15,18 +15,18 @@
 #include "sepcore.h"
 
 #define	BACK_MINGOODFRAC   0.5   /* min frac with good weights*/
-#define	QUANTIF_NSIGMA     5     /* histogram limits*/
-#define	QUANTIF_NMAXLEVELS 4096  /* max nb of quantif. levels*/
-#define	QUANTIF_AMIN       4     /* min nb of "mode pixels"*/
+#define	QUANTIF_NSIGMA     5     /* histogram limits */
+#define	QUANTIF_NMAXLEVELS 4096  /* max nb of quantif. levels */
+#define	QUANTIF_AMIN       4     /* min nb of "mode pixels" */
 
 /* Background info in a single mesh*/
 typedef struct {
-    float	 mode, mean, sigma;	/* Background mode, mean and sigma*/
-    LONG	 *histo;	       	/* Pointer to a histogram*/
-    int	 nlevels;		/* Nb of histogram bins*/
-    float	 qzero, qscale;		/* Position of histogram*/
-    float	 lcut, hcut;		/* Histogram cuts*/
-    int	 npix;			/* Number of pixels involved*/
+  float	 mode, mean, sigma;	/* Background mode, mean and sigma */
+  LONG	 *histo;	       	/* Pointer to a histogram */
+  int	 nlevels;		/* Nb of histogram bins */
+  float	 qzero, qscale;		/* Position of histogram */
+  float	 lcut, hcut;		/* Histogram cuts */
+  int	 npix;			/* Number of pixels involved */
 } backstruct;
 
 /* internal helper functions */
@@ -42,102 +42,102 @@ int makebackspline(sep_bkg *bkg, float *map, float *dmap);
 
 
 int sep_background(sep_image* image, int bw, int bh, int fw, int fh,
-    double fthresh, sep_bkg **bkg)
+                   double fthresh, sep_bkg **bkg)
 {
-    BYTE *imt, *maskt;
-    int npix;                   /* size of image*/
-    int nx, ny, nb;             /* number of background boxes in x, y, total*/
-    int bufsize;                /* size of a "row" of boxes in pixels (w*bh)*/
-    int elsize;                 /* size (in bytes) of an image array element*/
-    int melsize;                /* size (in bytes) of a mask array element*/
-    PIXTYPE *buf, *buft, *mbuf, *mbuft;
-    PIXTYPE maskthresh;
-    array_converter convert, mconvert;
-    backstruct *backmesh, *bm;  /* info about each background "box"*/
-    sep_bkg *bkgout;          /* output*/
-    int j,k,m, status;
+  BYTE *imt, *maskt;
+  int npix;                   /* size of image */
+  int nx, ny, nb;             /* number of background boxes in x, y, total */
+  int bufsize;                /* size of a "row" of boxes in pixels (w*bh) */
+  int elsize;                 /* size (in bytes) of an image array element */
+  int melsize;                /* size (in bytes) of a mask array element */
+  PIXTYPE *buf, *buft, *mbuf, *mbuft;
+  PIXTYPE maskthresh;
+  array_converter convert, mconvert;
+  backstruct *backmesh, *bm;  /* info about each background "box" */
+  sep_bkg *bkgout;          /* output */
+  int j,k,m, status;
 
-    status = RETURN_OK;
-    npix = image->w * image->h;
-    bufsize = image->w * bh;
-    maskthresh = image->maskthresh;
-    if (image->mask == NULL) maskthresh = 0.0;
+  status = RETURN_OK;
+  npix = image->w * image->h;
+  bufsize = image->w * bh;
+  maskthresh = image->maskthresh;
+  if (image->mask == NULL) maskthresh = 0.0;
 
-    backmesh = bm = NULL;
-    bkgout = NULL;
-    buf = mbuf = buft = mbuft = NULL;
-    convert = mconvert = NULL;
+  backmesh = bm = NULL;
+  bkgout = NULL;
+  buf = mbuf = buft = mbuft = NULL;
+  convert = mconvert = NULL;
 
-    /* determine number of background boxes*/
-    if ((nx = (image->w - 1) / bw + 1) < 1)
+  /* determine number of background boxes */
+  if ((nx = (image->w - 1) / bw + 1) < 1)
     nx = 1;
-    if ((ny = (image->h - 1) / bh + 1) < 1)
+  if ((ny = (image->h - 1) / bh + 1) < 1)
     ny = 1;
-    nb = nx*ny;
+  nb = nx*ny;
 
-    /* Allocate temp memory & initialize*/
-    QMALLOC(backmesh, backstruct, nx, status);
-    bm = backmesh;
-    for (m=nx; m--; bm++)
+  /* Allocate temp memory & initialize */
+  QMALLOC(backmesh, backstruct, nx, status);
+  bm = backmesh;
+  for (m=nx; m--; bm++)
     bm->histo=NULL;
 
-    /* Allocate the returned struct*/
-    QMALLOC(bkgout, sep_bkg, 1, status);
-    bkgout->w = image->w;
-    bkgout->h = image->h;
-    bkgout->nx = nx;
-    bkgout->ny = ny;
-    bkgout->n = nb;
-    bkgout->bw = bw;
-    bkgout->bh = bh;
-    bkgout->back = NULL;
-    bkgout->sigma = NULL;
-    bkgout->dback = NULL;
-    bkgout->dsigma = NULL;
-    QMALLOC(bkgout->back, float, nb, status);
-    QMALLOC(bkgout->sigma, float, nb, status);
-    QMALLOC(bkgout->dback, float, nb, status);
-    QMALLOC(bkgout->dsigma, float, nb, status);
+  /* Allocate the returned struct */
+  QMALLOC(bkgout, sep_bkg, 1, status);
+  bkgout->w = image->w;
+  bkgout->h = image->h;
+  bkgout->nx = nx;
+  bkgout->ny = ny;
+  bkgout->n = nb;
+  bkgout->bw = bw;
+  bkgout->bh = bh;
+  bkgout->back = NULL;
+  bkgout->sigma = NULL;
+  bkgout->dback = NULL;
+  bkgout->dsigma = NULL;
+  QMALLOC(bkgout->back, float, nb, status);
+  QMALLOC(bkgout->sigma, float, nb, status);
+  QMALLOC(bkgout->dback, float, nb, status);
+  QMALLOC(bkgout->dsigma, float, nb, status);
 
-    /* cast input array pointers. These are used to step through the arrays.*/
-    imt = (BYTE *)image->data;
-    maskt = (BYTE *)image->mask;
+  /* cast input array pointers. These are used to step through the arrays. */
+  imt = (BYTE *)image->data;
+  maskt = (BYTE *)image->mask;
 
-    /* get the correct array converter and element size, based on dtype code*/
-    status = get_array_converter(image->dtype, &convert, &elsize);
-    if (status != RETURN_OK)
+  /* get the correct array converter and element size, based on dtype code */
+  status = get_array_converter(image->dtype, &convert, &elsize);
+  if (status != RETURN_OK)
     goto exit;
-    if (image->mask)
+  if (image->mask)
     {
-    status = get_array_converter(image->mdtype, &mconvert, &melsize);
-    if (status != RETURN_OK)
+      status = get_array_converter(image->mdtype, &mconvert, &melsize);
+      if (status != RETURN_OK)
 	goto exit;
     }
 
-    /* If the input array type is not PIXTYPE, allocate a buffer to hold
-    converted values*/
-    if (image->dtype != PIXDTYPE)
+  /* If the input array type is not PIXTYPE, allocate a buffer to hold
+     converted values */
+  if (image->dtype != PIXDTYPE)
     {
-    QMALLOC(buf, PIXTYPE, bufsize, status);
-    buft = buf;
-    if (status != RETURN_OK)
+      QMALLOC(buf, PIXTYPE, bufsize, status);
+      buft = buf;
+      if (status != RETURN_OK)
 	goto exit;
     }
-    if (image->mask && (image->mdtype != PIXDTYPE))
+  if (image->mask && (image->mdtype != PIXDTYPE))
     {
-    QMALLOC(mbuf, PIXTYPE, bufsize, status);
-    mbuft = mbuf;
-    if (status != RETURN_OK)
+      QMALLOC(mbuf, PIXTYPE, bufsize, status);
+      mbuft = mbuf;
+      if (status != RETURN_OK)
 	goto exit;
     }
 
-    /* loop over rows of background boxes.
-    (here, we could loop over individual boxes rather than entire
-    rows, but this is convenient for converting the image and mask
-    arrays.  This is also how it is originally done in SExtractor,
-    because the pixel buffers are only read in from disk in
-    increments of a row of background boxes at a time.)
-*/
+  /* loop over rows of background boxes.
+   * (here, we could loop over individual boxes rather than entire
+   * rows, but this is convenient for converting the image and mask
+   * arrays.  This is also how it is originally done in SExtractor,
+   * because the pixel buffers are only read in from disk in
+   * increments of a row of background boxes at a time.)
+   */
   for (j=0; j<ny; j++)
     {
       /* if the last row, modify the width appropriately*/

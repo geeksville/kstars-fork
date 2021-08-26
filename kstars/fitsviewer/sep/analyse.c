@@ -15,11 +15,11 @@
 #include "sepcore.h"
 #include "extract.h"
 
-/* cleanprep ********************************/
+/********************************** cleanprep ********************************/
 /*
-    Prepare object for cleaning, by calculating mthresh.
-    This used to be in analyse() / examineiso().
-*/
+ * Prepare object for cleaning, by calculating mthresh.
+ * This used to be in analyse() / examineiso().
+ */
 
 int analysemthresh(int objnb, objliststruct *objlist, int minarea,
 		   PIXTYPE thresh)
