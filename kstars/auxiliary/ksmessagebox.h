@@ -1,7 +1,7 @@
 /*  KStars Asynchronous Message Box Implementation for Desktop/Android and EkosLive
     Based on QMessageBox.
 
-    SPDX-FileCopyrightText: 2019 Jasem Mutlaq (mutlaqja@ikarustech.com)
+    SPDX-FileCopyrightText: 2019 Jasem Mutlaq <mutlaqja@ikarustech.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */

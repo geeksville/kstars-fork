@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: 2009-2012 Christoph Heindl
-# SPDX-FileCopyrightText: 2015 Csaba Kertész (csaba.kertesz@gmail.com)
+# SPDX-FileCopyrightText: 2015 Csaba Kertész <csaba.kertesz@gmail.com>
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
