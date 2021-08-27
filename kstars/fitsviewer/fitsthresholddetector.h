@@ -5,7 +5,7 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 
     Some code fragments were adapted from Peter Kirchgessner's FITS plugin
-    See http://members.aol.com/pkirchg for more details.
+    SPDX-FileCopyrightText: Peter Kirchgessner <http://members.aol.com/pkirchg>
 */
 
 #ifndef FITSTHRESHOLDDETECTOR_H
