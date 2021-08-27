@@ -1,5 +1,5 @@
 /*
-    SPDX-FileCopyrightText: 2019 Patrick Molenaar (pr_molenaar@hotmail.com)
+    SPDX-FileCopyrightText: 2019 Patrick Molenaar <pr_molenaar@hotmail.com>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
