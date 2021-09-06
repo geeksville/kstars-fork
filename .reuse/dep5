@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: kstars
+Upstream-Contact: Jasem Mutlaq <mutlaqja@ikarustech.com>
+Source: https://invent.kde.org/education/kstars
+
+Files: kstars/libtess/*
+Copyright: 1991-2000 Silicon Graphics, Inc. All Rights Reserved.
+License: SGI-B-2.0
