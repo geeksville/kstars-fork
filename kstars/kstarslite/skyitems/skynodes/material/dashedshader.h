@@ -1,5 +1,4 @@
 /*
-
     SPDX-FileCopyrightText: 2015 The Qt Company Ltd. <https://www.qt.io/licensing/>
 
     This file is part of the demonstration applications of the Qt Toolkit.
