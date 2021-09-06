@@ -1,4 +1,3 @@
-
 // SPDX-FileCopyrightText: 2017 Robert Lancaster <rlancaste@gmail.com>
 
 // based on work of:
