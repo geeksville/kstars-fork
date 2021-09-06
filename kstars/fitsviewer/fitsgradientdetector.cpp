@@ -1,8 +1,9 @@
 /*
     SPDX-FileCopyrightText: 2004 Jasem Mutlaq
     SPDX-FileCopyrightText: 2020 Eric Dejouhanet <eric.dejouhanet@gmail.com>
+    SPDX-FileCopyrightText: 2015 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
-    SPDX-License-Identifier: GPL-2.0-or-later
+    SPDX-License-Identifier: GPL-2.0-or-later AND GPL-3.0-or-later
 
     Some code fragments were adapted from Peter Kirchgessner's FITS plugin
     SPDX-FileCopyrightText: Peter Kirchgessner <http://members.aol.com/pkirchg>
@@ -282,9 +283,6 @@ bool FITSGradientDetector::findSources(const QRect &boundary)
 
 /* CannyDetector, Implementation of Canny edge detector in Qt/C++.
  * Web-Site: https://github.com/hipersayanX/CannyDetector
- * SPDX-FileCopyrightText: 2015 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
- *
- * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 template <typename T>
