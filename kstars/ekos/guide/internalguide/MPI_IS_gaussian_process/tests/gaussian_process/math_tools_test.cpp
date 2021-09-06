@@ -3,7 +3,6 @@
     All rights reserved.
 
     SPDX-License-Identifier: BSD-3-Clause
-
 */
 
 /* Created by Edgar Klenske <edgar.klenske@tuebingen.mpg.de>
