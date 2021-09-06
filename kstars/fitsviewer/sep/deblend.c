@@ -1,5 +1,4 @@
 /*
-
     SPDX-FileCopyrightText: 1993-2011 Emmanuel Bertin -- IAP /CNRS/UPMC
     SPDX-FileCopyrightText: 2014 SEP developers
 
