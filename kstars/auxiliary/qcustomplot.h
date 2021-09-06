@@ -1,5 +1,4 @@
 /*
-
     QCustomPlot, an easy to use, modern plotting widget for Qt
     SPDX-FileCopyrightText: 2011-2021 Emanuel Eichhammer <http://www.qcustomplot.com/>
 
