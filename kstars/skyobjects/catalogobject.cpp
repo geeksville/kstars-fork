@@ -1,5 +1,6 @@
 /*
-    SPDX-FileCopyrightText: 2021 Valentin Boettcher Jason Harris <hiro at protagon.space; @hiro98:tchncs.de>
+    SPDX-FileCopyrightText: 2001 Jason Harris <jharris@30doradus.org>
+    SPDX-FileCopyrightText: 2021 Valentin Boettcher <hiro at protagon.space; @hiro98:tchncs.de>
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
