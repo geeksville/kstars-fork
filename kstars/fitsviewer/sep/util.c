@@ -2,16 +2,16 @@
 
     This file is part of SEP
 
-    All content except array comparison functions fqcmp() and fqmedian() is
-    distributed under an MIT license.
-
     SPDX-FileCopyrightText: 2014 SEP developers
-
-    Array comparison functions fqcmp() and fqmedian() are distributed under an
-    LGPL license:
-
     SPDX-FileCopyrightText: 1993-2011 Emmanuel Bertin -- IAP /CNRS/UPMC
     SPDX-FileCopyrightText: 2014 SEP developers
+
+    All content except array comparison functions fqcmp() and fqmedian() is
+    distributed under an MIT license.
+    Array comparison functions fqcmp() and fqmedian() are distributed under an
+    LGPL license:
+    SPDX-License-Identifier: MIT AND LGPL-2.0-or-later
+
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
