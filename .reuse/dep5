@@ -10,3 +10,7 @@ License: SGI-B-2.0
 Files: kstars/htmesh/*
 Copyright: 2000 Peter Z. Kunszt Alex S. Szalay, Aniruddha R. Thakar, The Johns Hopkins University
 License: BSD-3-Clause
+
+Files: kstars/kstarslite/res/dso/*ngc*
+Copyright: Mattia Verga <https://github.com/mattiaverga/OpenNGC>
+License: CC-BY-SA-4.0
