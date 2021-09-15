@@ -1,7 +1,7 @@
 /*
-	SPDX-FileCopyrightText: 2011 See AUTHORS file.
+    SPDX-FileCopyrightText: 2011 See AUTHORS file.
 
-	SPDX-License-Identifier: GPL-3.0-only AND Apache-2.0
+    SPDX-License-Identifier: GPL-3.0-only AND Apache-2.0
 */
 
 package org.kde.kstars.math;
