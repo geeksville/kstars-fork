@@ -1,5 +1,6 @@
 /*
     SPDX-FileCopyrightText: 2007 James B. Bowlin <bowlin@mindspring.com>
+    SPDX-License-Identifier: BSD-3-Clause AND GPL-2.0-or-later
 */
 
 #pragma once
