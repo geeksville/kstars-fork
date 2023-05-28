@@ -180,7 +180,7 @@ Align::Align(const QSharedPointer<ProfileInfo> &activeProfile) : m_ActiveProfile
 #endif
     {
         if (toggled)
-            this->m_CurrentGotoMode = static_cast<GotoMode>(id);
+            this->setSolverAction(static_cast<GotoMode>(id));
     });
 
     m_CaptureTimer.setSingleShot(true);
@@ -1818,6 +1818,8 @@ void Align::setSolverAction(int mode)
 {
     gotoModeButtonGroup->button(mode)->setChecked(true);
     m_CurrentGotoMode = static_cast<GotoMode>(mode);
+    // looping does not make sense for slew to target mode
+    solvingLoop->setEnabled(mode != GOTO_SLEW);
 }
 
 void Align::startSolving()
@@ -2080,6 +2082,20 @@ void Align::solverComplete()
         FITSImage::Solution solution = m_StellarSolver->getSolution();
         const bool eastToTheRight = solution.parity == FITSImage::POSITIVE ? false : true;
         solverFinished(solution.orientation, solution.ra, solution.dec, solution.pixscale, eastToTheRight);
+    }
+    // trigger new run if loop is set
+    if (matchPAHStage(PAA::PAH_IDLE) && solvingLoop->isEnabled() && solvingLoop->isChecked())
+    {
+        switch (m_CurrentGotoMode)
+        {
+            case GOTO_SYNC:
+            case GOTO_NOTHING:
+                m_CaptureTimer.start(alignSettlingTime->value());
+                break;
+            default:
+                // in all other cases do nothing
+                break;
+        }
     }
 }
 
@@ -3070,7 +3086,7 @@ bool Align::loadAndSlew(QString fileURL)
         m_PolarAlignmentAssistant->stopPAHProcess();
 
     slewR->setChecked(true);
-    m_CurrentGotoMode = GOTO_SLEW;
+    setSolverAction(GOTO_SLEW);
 
     solveB->setEnabled(false);
     loadSlewB->setEnabled(false);
@@ -3097,8 +3113,7 @@ bool Align::loadAndSlew(const QByteArray &image, const QString &extension)
     RotatorGOTO = false;
     m_SolveFromFile = true;
     RUN_PAH(stopPAHProcess());
-    slewR->setChecked(true);
-    m_CurrentGotoMode = GOTO_SLEW;
+    setSolverAction(GOTO_SLEW);
     solveB->setEnabled(false);
     loadSlewB->setEnabled(false);
     stopB->setEnabled(true);
@@ -4087,8 +4102,7 @@ void Align::processPAHStage(int stage)
         break;
 
         case PAA::PAH_FIRST_CAPTURE:
-            nothingR->setChecked(true);
-            m_CurrentGotoMode = GOTO_NOTHING;
+            setSolverAction(GOTO_NOTHING);
             loadSlewB->setEnabled(false);
 
             rememberSolverWCS = Options::astrometrySolverWCS();

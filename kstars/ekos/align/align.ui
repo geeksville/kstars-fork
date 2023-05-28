@@ -165,10 +165,7 @@
            <property name="title">
             <string>Solver Action</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_7">
-            <property name="spacing">
-             <number>3</number>
-            </property>
+           <layout class="QGridLayout" name="gridLayout_4">
             <property name="leftMargin">
              <number>3</number>
             </property>
@@ -181,7 +178,7 @@
             <property name="bottomMargin">
              <number>3</number>
             </property>
-            <item>
+            <item row="1" column="0">
              <widget class="QRadioButton" name="syncR">
               <property name="toolTip">
                <string>Synchronize the telescope to the solution coordinates</string>
@@ -200,23 +197,7 @@
               </attribute>
              </widget>
             </item>
-            <item>
-             <widget class="QRadioButton" name="slewR">
-              <property name="toolTip">
-               <string>Synchronize the telescope to the solution coordinates and then slew to the target coordinates</string>
-              </property>
-              <property name="statusTip">
-               <string/>
-              </property>
-              <property name="text">
-               <string>S&amp;lew to Target</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">gotoModeButtonGroup</string>
-              </attribute>
-             </widget>
-            </item>
-            <item>
+            <item row="3" column="0">
              <widget class="QRadioButton" name="nothingR">
               <property name="toolTip">
                <string>Just solve</string>
@@ -226,6 +207,32 @@
               </property>
               <property name="text">
                <string>&amp;Nothing</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">gotoModeButtonGroup</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="solvingLoop">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Repeat plate solving if selected. This is only available for the solver actions &amp;quot;Sync&amp;quot; and &amp;quot;Nothing&amp;quot;.&lt;/p&gt;&lt;p&gt;To stop the plate solving loop, press the &amp;quot;Stop&amp;quot; button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Loop</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="QRadioButton" name="slewR">
+              <property name="toolTip">
+               <string>Synchronize the telescope to the solution coordinates and then slew to the target coordinates</string>
+              </property>
+              <property name="statusTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>S&amp;lew to Target</string>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">gotoModeButtonGroup</string>
@@ -1101,7 +1108,6 @@
   <tabstop>loadSlewB</tabstop>
   <tabstop>stopB</tabstop>
   <tabstop>syncR</tabstop>
-  <tabstop>slewR</tabstop>
   <tabstop>nothingR</tabstop>
   <tabstop>ScopeRAOut</tabstop>
   <tabstop>alignAccuracyThreshold</tabstop>
