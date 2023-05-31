@@ -1169,6 +1169,9 @@ set(kstars_SRCS ${kstars_SRCS} ${fits2_SRCS} ${sep_SRCS} ${gpg_SRCS} ${hough_SRC
 set(kstarslite_SRCS ${kstarslite_SRCS} ${fits_klite_SRCS} ${sep_SRCS} ${hough_SRCS} ${fits2_klite_SRCS} ${kstarslite_libtess_SRC})
 
 IF (NOT ANDROID)
+    # GSL
+    find_package(GSL REQUIRED)
+    include_directories(${GSL_INCLUDE_DIRS})
     qt5_add_dbus_adaptor(kstars_SRCS org.kde.kstars.xml kstars.h KStars)
     qt5_add_dbus_adaptor(kstars_SRCS org.kde.kstars.SimClock.xml simclock.h SimClock)
     qt5_add_dbus_adaptor(kstars_SRCS org.kde.kstars.FOV.xml fov.h FOV)
@@ -1243,6 +1246,7 @@ IF (NOT ANDROID)
         Qt5::WebSockets
         ${ZLIB_LIBRARIES}
         Eigen3::Eigen
+        ${GSL_LIBRARIES}
         )
 
     if (Qt5Keychain_FOUND)
@@ -1313,10 +1317,7 @@ if(INDI_FOUND)
     ## Linux + MacOS Lite: Requires INDI Qt5 Client
     ## Android: Requires INDI Qt5 Client built for Android
     if (NOT ANDROID)
-        # GSL
-        find_package(GSL REQUIRED)
-        include_directories(${GSL_INCLUDE_DIRS})
-        target_link_libraries(KStarsLib ${GSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} KF5::Notifications)
+        target_link_libraries(KStarsLib ${CMAKE_THREAD_LIBS_INIT})
         # StellarSolver
         target_link_libraries(KStarsLib StellarSolver::stellarsolver)
     endif ()
