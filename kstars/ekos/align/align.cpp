@@ -2071,10 +2071,17 @@ void Align::solverComplete()
         {
             if (CHECK_PAH(processSolverFailure()))
                 return;
+
+            // ignore failure if loop is set
+            if (solvingLoop->isEnabled() && solvingLoop->isChecked())
+                m_CaptureTimer.start(alignSettlingTime->value());
             else
                 setState(ALIGN_ABORTED);
         }
-        solverFailed();
+        // If processed, we return. Otherwise, it is a fail
+        if (CHECK_PAH(processSolverFailure()))
+            return;
+
         return;
     }
     else
