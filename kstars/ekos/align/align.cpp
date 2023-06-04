@@ -2916,7 +2916,8 @@ void Align::handleMountMotion()
 {
     if (state == ALIGN_PROGRESS)
     {
-        if (matchPAHStage(PAA::PAH_IDLE))
+        // do not suspend if either PAA is running or solving is looping
+        if (matchPAHStage(PAA::PAH_IDLE) && (solvingLoop->isEnabled() == false || solvingLoop->isChecked() == false))
         {
             // whoops, mount slews during alignment
             appendLogText(i18n("Slew detected, suspend solving..."));
