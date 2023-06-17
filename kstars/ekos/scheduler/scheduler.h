@@ -21,7 +21,7 @@
 #include <QTime>
 #include <QTimer>
 #include <QUrl>
-#include <QtDBus>
+#include <QtDBus/QDBusInterface>
 
 #include <cstdint>
 

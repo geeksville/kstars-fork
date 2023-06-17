@@ -8,9 +8,6 @@
 
 #include "kstarsdatetime.h"
 
-#ifndef KSTARS_LITE
-#include <QtDBus/QtDBus>
-#endif
 #include <QTime>
 #include <QElapsedTimer>
 #include <QTimer>
