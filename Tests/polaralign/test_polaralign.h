@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <QtTest/QtTest>
+#include <QtTest/QTest>
 #include <QDebug>
 #include <QString>
 
