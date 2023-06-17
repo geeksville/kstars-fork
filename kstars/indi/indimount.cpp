@@ -18,6 +18,7 @@
 #include <KLocalizedString>
 
 #include <QAction>
+#include <QtDBus/qdbusmetatype.h>
 
 #include <indi_debug.h>
 
