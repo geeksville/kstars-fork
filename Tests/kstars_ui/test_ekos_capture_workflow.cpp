@@ -477,7 +477,7 @@ void TestEkosCaptureWorkflow::testDustcapSource()
     Ekos::Manager * const ekos = Ekos::Manager::Instance();
 
     KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(ekos->setupTab, 1000);
-    QVERIFY(m_CaptureHelper->setupEkosProfile("Simulators", false));
+    QVERIFY(m_CaptureHelper->setupEkosProfile("Test profile", false));
     // start the profile
     KTRY_EKOS_CLICK(processINDIB);
 
@@ -574,8 +574,8 @@ void TestEkosCaptureWorkflow::testWallSource()
     captureTypeS->setCurrentText("Flat");
     // add another sequence to check if wall source may be used twice
     // select another wall position as flat light source (az=0°, alt=0)
-    KTRY_SELECT_FLAT_WALL(capture, "0", "0");
-    KTRY_CAPTURE_ADD_FRAME(frametype, 2, 2, 2.0, "Luminance", "test", imagepath);
+    KTRY_SELECT_FLAT_WALL(capture, "89", "1");
+    KTRY_CAPTURE_ADD_FRAME(frametype, 2, 1, 2.0, "Luminance", "test", imagepath);
 
     // start the sequence
     m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_IMAGE_RECEIVED);
@@ -748,28 +748,40 @@ void TestEkosCaptureWorkflow::testDarkManualCovering()
             CLOSE_MODAL_DIALOG(0);
         // check if one single flat is captured
         KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 60000);
-        if (clickModal2OK)
+        if (shutter == SHUTTER_YES)
         {
             // expect the light sequence
             m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_IMAGE_RECEIVED);
             m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_COMPLETE);
-            // click OK in the modal dialog for uncovering the telescope
-            CLOSE_MODAL_DIALOG(0);
             // check if one single light is captured
             KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 60000);
+
         }
         else
         {
-            // this must not happen
-            m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
-            // click Cancel in the modal dialog for uncovering the telescope
-            CLOSE_MODAL_DIALOG(1);
-            // check if capturing has not been started
-            KTRY_CAPTURE_GADGET(QPushButton, startB);
-            // within 5 secs the job must be stopped ...
-            QTRY_VERIFY_WITH_TIMEOUT(startB->icon().name() == QString("media-playback-start"), 5000);
-            // ... and capturing has not been started
-            QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates.size() > 0, 5000);
+            if (clickModal2OK)
+            {
+                // expect the light sequence
+                m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_IMAGE_RECEIVED);
+                m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_COMPLETE);
+                // click OK in the modal dialog for uncovering the telescope
+                CLOSE_MODAL_DIALOG(0);
+                // check if one single light is captured
+                KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 60000);
+            }
+            else
+            {
+                // this must not happen
+                m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
+                // click Cancel in the modal dialog for uncovering the telescope
+                CLOSE_MODAL_DIALOG(1);
+                // check if capturing has not been started
+                KTRY_CAPTURE_GADGET(QPushButton, startB);
+                // within 5 secs the job must be stopped ...
+                QTRY_VERIFY_WITH_TIMEOUT(startB->icon().name() == QString("media-playback-start"), 5000);
+                // ... and capturing has not been started
+                QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates.size() > 0, 5000);
+            }
         }
     }
     else
@@ -782,7 +794,7 @@ void TestEkosCaptureWorkflow::testDarkManualCovering()
         CLOSE_MODAL_DIALOG(1);
         // check if capturing has not been started
         KTRY_CAPTURE_GADGET(QPushButton, startB);
-        // within 5 secs the job mus be stopped ...
+        // within 5 secs the job must be stopped ...
         QTRY_VERIFY_WITH_TIMEOUT(startB->icon().name() == QString("media-playback-start"), 5000);
         // ... and capturing has not been started
         QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates.size() > 0, 5000);

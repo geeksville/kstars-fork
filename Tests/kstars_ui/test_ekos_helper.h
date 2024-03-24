@@ -342,17 +342,13 @@ do {\
     } while (false)
 
 #define CLOSE_MODAL_DIALOG(button_nr) do { \
-    QTimer::singleShot(1000, capture, [&]() { \
-        QDialog * const dialog = qobject_cast <QDialog*> (QApplication::activeModalWidget()); \
-        if (dialog) \
-        { \
-            QList<QPushButton*> pb = dialog->findChildren<QPushButton*>(); \
-            QTest::mouseClick(pb[button_nr], Qt::MouseButton::LeftButton); \
-            qCInfo(KSTARS_EKOS_TEST) << "Button clicked:" << button_nr; \
-        } \
-        else \
-            qCWarning(KSTARS_EKOS_TEST) << "No active modal widget found!" ; \
-    }); \
+    QTest::qWait(1000); \
+    QDialog *dialog = nullptr; \
+    if (! QTest::qWaitFor([&](){return ((dialog = qobject_cast <QDialog*> (QApplication::activeModalWidget())) != nullptr);}, 5000)) { \
+        QFAIL(qPrintable("No active modal widget found!")); } \
+        QList<QPushButton*> pb = dialog->findChildren<QPushButton*>(); \
+        QTest::mouseClick(pb[button_nr], Qt::MouseButton::LeftButton); \
+        qCInfo(KSTARS_EKOS_TEST) << "Button clicked:" << button_nr; \
     } while (false)
 
 
