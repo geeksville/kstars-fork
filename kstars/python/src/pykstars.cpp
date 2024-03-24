@@ -6,8 +6,10 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/chrono.h>
+#include <pybind11/stl.h>
 #include "skyobjects/skypoint.h"
 #include "skymesh.h"
+#include "htmesh/MeshIterator.h"
 #include "cachingdms.h"
 #include "sqlstatements.cpp"
 #include "catalogobject.h"
@@ -104,6 +106,27 @@ struct Indexer
         return m_mesh->index(&p);
     };
 
+    std::vector<int> getTrixels(double ra, double dec, double radius, bool convert_epoch = false) const
+    {
+        SkyPoint p{ dms(ra), dms(dec) };
+        if (convert_epoch)
+        {
+            p.B1950ToJ2000();
+            p = SkyPoint{ p.ra(), p.dec() }; // resetting ra0, dec0
+        }
+
+        m_mesh->index(&p, radius, DRAW_BUF);
+
+        std::vector<int> trixels;
+
+        MeshIterator region(m_mesh, DRAW_BUF);
+        while (region.hasNext()) {
+            trixels.push_back(region.next());
+        }
+
+        return trixels;
+    }
+
     SkyMesh *m_mesh;
 };
 
@@ -140,6 +163,11 @@ PYBIND11_MODULE(pykstars, m)
         .def(
             "get_trixel", &Indexer::getTrixel, "ra"_a, "dec"_a, "convert_epoch"_a = false,
             "Calculates the trixel number from the right ascention and the declination.\n"
+            "The epoch of coordinates is assumed to be J2000.\n\n"
+            "If the epoch is B1950, `convert_epoch` has to be set to `True`.")
+        .def(
+            "get_trixels", &Indexer::getTrixels, "ra"_a, "dec"_a, "radius"_a, "convert_epoch"_a = false,
+            "Returns the trixels spanned by a circular aperture of the given radius around the given ra and dec.\n"
             "The epoch of coordinates is assumed to be J2000.\n\n"
             "If the epoch is B1950, `convert_epoch` has to be set to `True`.")
         .def("__repr__", [](const Indexer &indexer) {
