@@ -67,6 +67,9 @@ TARGET_LINK_LIBRARIES(test_ekos_capture_count ${KSTARS_UI_EKOS_LIBS})
 ADD_EXECUTABLE(test_ekos_capture_workflow ${KSTARS_UI_EKOS_SRC} test_ekos_helper.cpp test_ekos_capture_helper.cpp test_ekos_capture_workflow.cpp)
 TARGET_LINK_LIBRARIES(test_ekos_capture_workflow ${KSTARS_UI_EKOS_LIBS})
 
+ADD_EXECUTABLE(test_ekos_capture_workflow_advanced ${KSTARS_UI_EKOS_SRC} test_ekos_helper.cpp test_ekos_capture_helper.cpp test_ekos_capture_workflow_advanced.cpp)
+TARGET_LINK_LIBRARIES(test_ekos_capture_workflow_advanced ${KSTARS_UI_EKOS_LIBS})
+
 ADD_EXECUTABLE(test_ekos_align ${KSTARS_UI_EKOS_SRC} test_ekos_helper.cpp test_ekos_capture_helper.cpp test_ekos_scheduler_helper.cpp test_ekos_align.cpp)
 TARGET_LINK_LIBRARIES(test_ekos_align ${KSTARS_UI_EKOS_LIBS})
 ADD_CUSTOM_COMMAND( TARGET test_ekos_align POST_BUILD

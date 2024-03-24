@@ -154,6 +154,55 @@
 #define KTRY_CAPTURE_ADD_FLAT(exposure, count, delay, filter, destination) \
     KTRY_CAPTURE_ADD_FRAME("Flat", exposure, count, delay, filter, "", destination)
 
+// Select the flat source from the flats calibration options.
+// Start with a delay of 1 sec a new thread that edits the calibration options:
+//    select the source widget
+//    set pre-mount and pre-dome park options
+//    select a manual flat ADU value
+//    klick OK
+// open the calibration dialog
+#define KTRY_SELECT_FLAT_METHOD(sourceWidget, preMountPark, preDomePark) do { \
+    bool completed = false; \
+    QTimer::singleShot(5000, capture, [&]() { \
+    QDialog *calibrationOptions = nullptr; \
+    if (! QTest::qWaitFor([&](){return ((calibrationOptions = Ekos::Manager::Instance()->findChild<QDialog*>("Calibration")) != nullptr);}, 5000)) { \
+        QFAIL(qPrintable("Calibrations options dialog not found!")); } \
+    KTRY_GADGET(calibrationOptions, QAbstractButton, sourceWidget); \
+    sourceWidget->setChecked(true); \
+    KTRY_GADGET(calibrationOptions, QCheckBox, captureCalibrationParkMount);  \
+    captureCalibrationParkMount->setChecked(preMountPark); \
+    KTRY_GADGET(calibrationOptions, QCheckBox, captureCalibrationParkDome);  \
+    captureCalibrationParkDome->setChecked(preDomePark); \
+    KTRY_GADGET(calibrationOptions, QAbstractButton, captureCalibrationDurationManual);  \
+    captureCalibrationDurationManual->setChecked(true); \
+    QDialogButtonBox* buttons = calibrationOptions->findChild<QDialogButtonBox*>("buttonBox"); \
+    QVERIFY(nullptr != buttons); \
+    QTest::mouseClick(buttons->button(QDialogButtonBox::Ok), Qt::LeftButton); \
+    }); \
+    KTRY_CAPTURE_CLICK(calibrationB); \
+    QTRY_VERIFY_WITH_TIMEOUT(completed == true, 5000);  } while (false)
+
+#define KTRY_SELECT_FLAT_WALL(capture, azimuth, altitude) do { \
+    bool completed = false; \
+    QTimer::singleShot(1000, capture, [&]() { \
+    QDialog *calibrationOptions = nullptr; \
+    if (! QTest::qWaitFor([&](){return ((calibrationOptions = Ekos::Manager::Instance()->findChild<QDialog*>("Calibration")) != nullptr);}, 5000)) { \
+        QFAIL(qPrintable("Calibrations options dialog not found!")); } \
+    KTRY_GADGET(calibrationOptions, QAbstractButton, captureCalibrationWall); \
+    captureCalibrationWall->setChecked(true); \
+    QVERIFY(captureCalibrationWall->isChecked()); \
+    KTRY_SET_LINEEDIT(calibrationOptions, azBox, azimuth); \
+    KTRY_SET_LINEEDIT(calibrationOptions, altBox, altitude); \
+    KTRY_GADGET(calibrationOptions, QAbstractButton, captureCalibrationDurationManual);  \
+    captureCalibrationDurationManual->setChecked(true); \
+    QDialogButtonBox* buttons = calibrationOptions->findChild<QDialogButtonBox*>("buttonBox"); \
+    QVERIFY(nullptr != buttons); \
+    QTest::mouseClick(buttons->button(QDialogButtonBox::Ok), Qt::LeftButton); \
+    completed = true; \
+    }); \
+    KTRY_CLICK(Ekos::Manager::Instance()->captureModule(), calibrationB); \
+    QTRY_VERIFY_WITH_TIMEOUT(completed == true, 5000); } while (false)
+
 
 
 class TestEkosCaptureHelper : public TestEkosHelper
@@ -318,10 +367,39 @@ public:
      */
     void ensureCCDShutter(bool shutter);
 
+    /**
+     * @brief Setup capturing
+     * @param refocusLimitTime time limit to trigger re-focusing
+     * @param refocusHFR HFR limit to trigger re-focusing
+     * @param refocusTemp temperature limit to trigger re-focusing
+     * @param delay delay between frame captures
+     * @return true iff preparation was successful
+     */
+    bool prepareCapture(int refocusLimitTime = 0.0, double refocusHFR = 0.0, double refocusTemp = 0.0, int delay = 0);
+
+    /**
+     * @brief prepareTestCase prepare all modules and set default options
+     */
+    bool prepareTestCase();
+
+    /**
+     * @brief Helper function translating simple QString input into QTest test data rows
+     * @param exptime exposure time of the sequence
+     * @param sequenceList List of sequences with filter and count as QString("<filter>:<count"), ... list
+     */
+    void prepareTestData(double exptime, QList<QString> sequenceList);
+
+    /**
+     * @brief fillScripts Open the scripts dialog and fill its values from {@see #scripts}
+     */
+    void fillCaptureScripts();
+
     QDir *getImageLocation();
 
     // destination where images will be located
     QTemporaryDir *destination;
+
+    QString target = "test";
 
 private:
     QDir *imageLocation = nullptr;
