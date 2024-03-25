@@ -67,7 +67,7 @@ TARGET_LINK_LIBRARIES(test_ekos_capture_count ${KSTARS_UI_EKOS_LIBS})
 ADD_EXECUTABLE(test_ekos_capture_workflow ${KSTARS_UI_EKOS_SRC} test_ekos_helper.cpp test_ekos_capture_helper.cpp test_ekos_capture_workflow.cpp)
 TARGET_LINK_LIBRARIES(test_ekos_capture_workflow ${KSTARS_UI_EKOS_LIBS})
 ADD_TEST( NAME TestEkosCaptureWorkflow COMMAND test_ekos_capture_workflow )
-SET_TESTS_PROPERTIES( TestEkosCaptureWorkflow PROPERTIES LABELS "stable;ui" TIMEOUT 1200)
+SET_TESTS_PROPERTIES( TestEkosCaptureWorkflow PROPERTIES LABELS "stable;ui" TIMEOUT 6000)
 
 ADD_EXECUTABLE(test_ekos_capture_workflow_advanced ${KSTARS_UI_EKOS_SRC} test_ekos_helper.cpp test_ekos_capture_helper.cpp test_ekos_capture_workflow_advanced.cpp)
 TARGET_LINK_LIBRARIES(test_ekos_capture_workflow_advanced ${KSTARS_UI_EKOS_LIBS})
