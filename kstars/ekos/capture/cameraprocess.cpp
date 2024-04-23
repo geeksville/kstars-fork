@@ -2124,6 +2124,14 @@ void CameraProcess::processCaptureTimeout()
             emit stopCapture(CAPTURE_ABORTED);
             return;
         }
+        else
+        {
+            state()->setCaptureTimeoutCounter(0);
+            state()->setDeviceRestartCounter(0);
+            emit newLog(i18n("Exposure timeout. Too many. Aborting..."));
+            emit stopCapture(CAPTURE_ABORTED);
+            return;
+        }
     }
 
 }
