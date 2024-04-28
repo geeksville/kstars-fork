@@ -128,6 +128,21 @@ struct Indexer
         return trixels;
     }
 
+    std::vector<int> getLineTrixels(double ra1, double dec1, double ra2, double dec2) const
+    {
+        SkyPoint p1{ dms(ra1), dms(dec1) }, p2{ dms(ra2), dms(dec2) };
+        m_mesh->index(&p1, &p2);
+
+        std::vector<int> trixels;
+
+        MeshIterator region(m_mesh, 0);
+        while (region.hasNext()) {
+            trixels.push_back(region.next());
+        }
+
+        return trixels;
+    }
+
     SkyMesh *m_mesh;
 };
 
@@ -234,6 +249,9 @@ PYBIND11_MODULE(pykstars, m)
             "Returns the trixels spanned by a circular aperture of the given radius around the given ra and dec.\n"
             "The epoch of coordinates is assumed to be J2000.\n\n"
             "If the epoch is B1950, `convert_epoch` has to be set to `True`.")
+        .def(
+            "get_trixels", &Indexer::getLineTrixels, "ra1"_a, "dec1"_a, "ra2"_a, "dec2"_a,
+            "Returns the trixels spanned by the line (great circle) joining the points (ra1, dec1) and (ra2, dec2).")
         .def("__repr__", [](const Indexer &indexer) {
             std::ostringstream lvl;
             lvl << indexer.getLevel();
