@@ -133,7 +133,7 @@ struct Indexer
 
 /**
  * @struct CoordinateConversion
- * Provides a wrapper to perform some coordinate conversion (notably, precession)
+ * Provides a stateless wrapper to perform some coordinate conversion (notably, precession)
  */
 struct CoordinateConversion
 {
@@ -179,7 +179,7 @@ struct CoordinateConversion
         double* dec_out = static_cast<double *>(buf_dec_out.ptr);
 
         // FIXME: Parallelize this
-        for (std::size_t i = 0; i < N; ++i) {
+        for (long int i = 0; i < N; ++i) {
             double cosRA, sinRA, cosDec, sinDec;
             dms(ra_in[i]).SinCos(sinRA, cosRA);
             dms(dec_in[i]).SinCos(sinDec, cosDec);
