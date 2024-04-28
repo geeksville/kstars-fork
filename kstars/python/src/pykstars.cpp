@@ -7,6 +7,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/chrono.h>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 #include "skyobjects/skypoint.h"
 #include "skymesh.h"
 #include "htmesh/MeshIterator.h"
@@ -165,6 +166,7 @@ PYBIND11_MODULE(pykstars, m)
             "Calculates the trixel number from the right ascention and the declination.\n"
             "The epoch of coordinates is assumed to be J2000.\n\n"
             "If the epoch is B1950, `convert_epoch` has to be set to `True`.")
+        .def("get_trixel", py::vectorize(&Indexer::getTrixel))
         .def(
             "get_trixels", &Indexer::getTrixels, "ra"_a, "dec"_a, "radius"_a, "convert_epoch"_a = false,
             "Returns the trixels spanned by a circular aperture of the given radius around the given ra and dec.\n"
