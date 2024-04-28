@@ -365,10 +365,12 @@ bool StarObject::getIndexCoords(const double julianMillenia, CachingDms &ra, Cac
     */
 
     // Use the formula given in Seidelmann (Explanatory Supplement to
-    // the Astronomical Almanac) instead. The formulas used here are
-    // the combination of (3.23-1), (3.23-3), (3.23-5). Not only does
-    // it reduce trigonometry use, it is more likely to be correct
-    // than the stuff we came up with on our own above
+    // the Astronomical Almanac first edition) instead. The formulas
+    // used here are the combination of (3.23-1), (3.23-3),
+    // (3.23-5). The same formulas appear in Section 7.2.1 in the
+    // third edition. Not only does it reduce trigonometry use, it is
+    // more likely to be correct than the stuff we came up with on our
+    // own above
 
     // Although it is not explained in the above reference, a formula
     // that reduces to α' = α + μ_α * t must have μ_α be the rate of
