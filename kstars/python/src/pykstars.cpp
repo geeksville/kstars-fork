@@ -131,6 +131,68 @@ struct Indexer
     SkyMesh *m_mesh;
 };
 
+/**
+ * @struct CoordinateConversion
+ * Provides a wrapper to perform some coordinate conversion (notably, precession)
+ */
+struct CoordinateConversion
+{
+    static std::pair<double, double> precess(const double ra, const double dec, const double src_jyear, const double dest_jyear)
+    {
+        SkyPoint p{ dms(ra), dms(dec) };
+        const auto src_jd = KStarsDateTime::epochToJd(src_jyear, KStarsDateTime::JULIAN);
+        const auto dest_jd = KStarsDateTime::epochToJd(dest_jyear, KStarsDateTime::JULIAN);
+        p.precessFromAnyEpoch(src_jd, dest_jd);
+        return {p.ra().reduce().Degrees(), p.dec().reduce().Degrees()};
+    }
+
+    static std::pair<py::array_t<double>, py::array_t<double>> precess_v(const py::array_t<double> ra, const py::array_t<double> dec, const double src_jyear, const double dest_jyear)
+    {
+        if (ra.ndim() != 1 || dec.ndim() !=1) {
+            throw std::runtime_error("Number of dimensions must be one");
+        }
+
+        if (ra.size() != dec.size()) {
+            throw std::runtime_error("Sizes of ra and dec arrays are not equal!");
+        }
+
+        const auto N = ra.size();
+
+        auto dest_ra = py::array_t<double>(N);
+        auto dest_dec = py::array_t<double>(N);
+
+        const auto src_jd = KStarsDateTime::epochToJd(src_jyear, KStarsDateTime::JULIAN);
+        const auto dest_jd = KStarsDateTime::epochToJd(dest_jyear, KStarsDateTime::JULIAN);
+        const KSNumbers src_num(src_jd);
+        const KSNumbers dest_num(dest_jd);
+        const auto matrix = dest_num.p2() * src_num.p1();
+
+        py::buffer_info buf_ra_in = ra.request(),
+            buf_dec_in = dec.request();
+
+        py::buffer_info buf_ra_out = dest_ra.request(),
+            buf_dec_out = dest_dec.request();
+
+        const double* ra_in = static_cast<const double *>(buf_ra_in.ptr);
+        const double* dec_in = static_cast<const double *>(buf_dec_in.ptr);
+        double* ra_out = static_cast<double *>(buf_ra_out.ptr);
+        double* dec_out = static_cast<double *>(buf_dec_out.ptr);
+
+        // FIXME: Parallelize this
+        for (std::size_t i = 0; i < N; ++i) {
+            double cosRA, sinRA, cosDec, sinDec;
+            dms(ra_in[i]).SinCos(sinRA, cosRA);
+            dms(dec_in[i]).SinCos(sinDec, cosDec);
+            Eigen::Vector3d v{cosRA * cosDec, sinRA * cosDec, sinDec}, s;
+            s.noalias() = matrix * v;
+            ra_out[i] = atan2(s[1], s[0]) / dms::DegToRad;
+            dec_out[i] = asin(s[2]) / dms::DegToRad;
+        };
+
+        return {dest_ra, dest_dec};
+    }
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 //                                   PYBIND                                  //
 ///////////////////////////////////////////////////////////////////////////////
@@ -177,6 +239,15 @@ PYBIND11_MODULE(pykstars, m)
             lvl << indexer.getLevel();
             return "<Indexer level=" + lvl.str() + ">";
         });
+
+    py::class_<CoordinateConversion>(m, "CoordinateConversion")
+        .def_static("precess", &CoordinateConversion::precess, "ra"_a, "dec"_a, "src_jyear"_a, "dest_jyear"_a,
+                    "Converts the provided ra and dec (both decimal degrees) from the Julian-year equinox `src_jyear` to"
+                    " the `dest_year` equinox, returning a tuple (ra, dec) in decimal degrees.")
+        .def_static("precess", &CoordinateConversion::precess_v,
+                    "ras"_a, "decs"_a, "src_jyear"_a, "dest_jyear"_a,
+                    "Converts the provided ra and dec arrays (both decimal degrees) from the Julian-year equinox `src_jyear`"
+                    " to the `dest_year` equinox, returning a tuple of arrays (ra, dec) in decimal degrees.");
 
     {
         using namespace CatalogsDB;
