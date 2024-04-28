@@ -639,7 +639,7 @@ void SkyPoint::updateCoords(const KSNumbers *num, bool /*includePlanets*/, const
 void SkyPoint::precessFromAnyEpoch(long double jd0, long double jdf)
 {
     double cosRA, sinRA, cosDec, sinDec;
-    double v[3], s[3];
+    Eigen::Vector3d s, v;
 
     RA  = RA0;
     Dec = Dec0; // Is this necessary?
@@ -672,11 +672,8 @@ void SkyPoint::precessFromAnyEpoch(long double jd0, long double jdf)
             //Need to first precess to J2000.0 coords
             //s is the product of P1 and v; s represents the
             //coordinates precessed to J2000
-            KSNumbers num(jd0);
-            for (unsigned int i = 0; i < 3; ++i)
-            {
-                s[i] = num.p1(0, i) * v[0] + num.p1(1, i) * v[1] + num.p1(2, i) * v[2];
-            }
+            const KSNumbers num(jd0);
+            s.noalias() = num.p1() * v;
 
             //Input coords already in J2000, set s accordingly.
         }
@@ -696,11 +693,8 @@ void SkyPoint::precessFromAnyEpoch(long double jd0, long double jdf)
             return;
         }
 
-        KSNumbers num(jdf);
-        for (unsigned int i = 0; i < 3; ++i)
-        {
-            v[i] = num.p2(0, i) * s[0] + num.p2(1, i) * s[1] + num.p2(2, i) * s[2];
-        }
+        const KSNumbers num(jdf);
+        v.noalias() = num.p2() * s;
 
         RA.setUsing_atan2(v[1], v[0]);
         Dec.setUsing_asin(v[2]);
