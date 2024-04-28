@@ -9,6 +9,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 #include "skyobjects/skypoint.h"
+#include "skyobjects/starobject.h"
 #include "skymesh.h"
 #include "htmesh/MeshIterator.h"
 #include "cachingdms.h"
@@ -206,6 +207,16 @@ struct CoordinateConversion
 
         return {dest_ra, dest_dec};
     }
+
+    /** Note: pmRA contains cos(dec) factor baked in */
+    static std::pair<double, double> properMotion(const double ra, const double dec, const double pmRA, const double pmDec, const double src_jyear, const double dest_jyear)
+    {
+        double ra_out {NaN::d}, dec_out {NaN::d};
+        const auto julianMillenia = (dest_jyear - src_jyear)/1000.0;
+        const StarObject s(dms(ra), dms(dec), 0.0, QString(), QString(), "--", pmRA, pmDec);
+        s.getIndexCoords(julianMillenia, &ra_out, &dec_out);
+        return {ra_out, dec_out};
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -265,7 +276,12 @@ PYBIND11_MODULE(pykstars, m)
         .def_static("precess", &CoordinateConversion::precess_v,
                     "ras"_a, "decs"_a, "src_jyear"_a, "dest_jyear"_a,
                     "Converts the provided ra and dec arrays (both decimal degrees) from the Julian-year equinox `src_jyear`"
-                    " to the `dest_year` equinox, returning a tuple of arrays (ra, dec) in decimal degrees.");
+                    " to the `dest_year` equinox, returning a tuple of arrays (ra, dec) in decimal degrees.")
+        .def_static("proper_motion", &CoordinateConversion::properMotion,
+                    "ra"_a, "dec"_a, "pmRA"_a, "pmDec"_a, "src_jyear"_a, "dest_jyear"_a,
+                    "Applies proper motion going from julian-year epoch `src_jyear` to `dest_jyear` without"
+                    " affecting the equinox (i.e. no precession), returning a tuple (ra, dec) in decimal degrees.")
+        ;
 
     {
         using namespace CatalogsDB;
