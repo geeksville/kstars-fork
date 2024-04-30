@@ -159,7 +159,7 @@ struct CoordinateConversion
         const auto src_jd = KStarsDateTime::epochToJd(src_jyear, KStarsDateTime::JULIAN);
         const auto dest_jd = KStarsDateTime::epochToJd(dest_jyear, KStarsDateTime::JULIAN);
         p.precessFromAnyEpoch(src_jd, dest_jd);
-        return {p.ra().reduce().Degrees(), p.dec().reduce().Degrees()};
+        return {p.ra().reduce().Degrees(), p.dec().Degrees()};
     }
 
     static std::pair<py::array_t<double>, py::array_t<double>> precess_v(const py::array_t<double> ra, const py::array_t<double> dec, const double src_jyear, const double dest_jyear)
