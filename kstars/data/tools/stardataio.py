@@ -37,8 +37,9 @@ Describes a trixel by storing its id, data offset in the binary file, and number
 _Field = namedtuple('_Field', ['index', 'descriptor', 'data'])
 
 class Record:
-    def __init__(self, io, blob: bytes):
+    def __init__(self, io, offset, blob: bytes):
         self.io = io
+        self.offset = offset
         self.blob = blob
         self._data = None
         self._interpret()
@@ -83,7 +84,7 @@ class Record:
         return key in self._data
 
     def __repr__(self):
-        return 'Record(' + ', '.join([f'{key}={self[key]}' for key in self._data]) + ')'
+        return f'Record(offset={self.offset}' + ', {' + ', '.join([f'{key}={self[key]}' for key in self._data]) + '})'
 
 
 class Trixel:
@@ -103,17 +104,19 @@ class Trixel:
         if i >= self.descriptor.count or i < 0:
             raise ValueError(i)
 
-        self.io.fd.seek(self.descriptor.offset + i * self.io.record_size)
+        offset = self.descriptor.offset + i * self.io.record_size
+        self.io.fd.seek(offset)
         blob = self.io.fd.read(self.io.record_size)
-        return Record(self.io, blob)
+        return Record(self.io, offset, blob)
 
     def __iter__(self):
         for i in range(self.descriptor.count):
-            self.io.fd.seek(self.descriptor.offset + i * self.io.record_size)
+            offset = self.descriptor.offset + i * self.io.record_size
+            self.io.fd.seek(offset)
             blob = self.io.fd.read(self.io.record_size)
             if len(blob) != self.io.record_size:
                 raise RuntimeError(f'Incomplete / corrupt file: could not read {self.io.record_size} bytes')
-            yield Record(self.io, blob)
+            yield Record(self.io, offset, blob)
 
     def __repr__(self):
         return f'Trixel(id={self.descriptor.id}, count={self.descriptor.count}, offset={self.descriptor.offset})'
