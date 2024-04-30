@@ -217,6 +217,12 @@ struct CoordinateConversion
         s.getIndexCoords(julianMillenia, &ra_out, &dec_out);
         return {ra_out, dec_out};
     }
+
+    static double angularDistance(const double ra1, const double dec1, const double ra2, const double dec2)
+    {
+        const SkyPoint p2 {dms(ra2), dms(dec2)};
+        return SkyPoint(dms(ra1), dms(dec1)).angularDistanceTo(&p2).Degrees();
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -281,6 +287,10 @@ PYBIND11_MODULE(pykstars, m)
                     "ra"_a, "dec"_a, "pmRA"_a, "pmDec"_a, "src_jyear"_a, "dest_jyear"_a,
                     "Applies proper motion going from julian-year epoch `src_jyear` to `dest_jyear` without"
                     " affecting the equinox (i.e. no precession), returning a tuple (ra, dec) in decimal degrees.")
+        .def_static("angular_distance", &CoordinateConversion::angularDistance,
+                    "ra1"_a, "dec1"_a, "ra2"_a, "dec2"_a,
+                    "Computes the angular distance in degrees between the two points specified (ra and dec in decimal degrees).")
+        .def_static("angular_distance", py::vectorize(&CoordinateConversion::angularDistance))
         ;
 
     {
