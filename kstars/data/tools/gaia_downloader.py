@@ -57,7 +57,7 @@ def main(argv):
             continue # Already downloaded and pickled
 
         query_i = (
-            f"SELECT ra, dec, parallax, pmra, pmdec, phot_g_mean_mag, phot_bp_mean_mag, phot_rp_mean_mag " +
+            f"SELECT source_id, ra, dec, parallax, pmra, pmdec, phot_g_mean_mag, phot_bp_mean_mag, phot_rp_mean_mag " +
             f"FROM {Gaia.MAIN_GAIA_TABLE} WHERE "
             ) + (
                 f"phot_g_mean_mag > {maglow} AND " if maglow is not None else ""
