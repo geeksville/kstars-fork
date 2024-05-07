@@ -140,9 +140,10 @@ class Projector
          * @param p the screen pixel position to convert
          * @param LST pointer to the local sidereal time, as a dms object.
          * @param lat pointer to the current geographic laitude, as a dms object
+         * @param jdf Julian Date of the computation to produce ICRS coordinates from jdf epoch
          * @param onlyAltAz the returned SkyPoint's RA & DEC are not computed, only Alt/Az.
          */
-        virtual SkyPoint fromScreen(const QPointF &p, dms *LST, const dms *lat, bool onlyAltAz = false) const;
+        virtual SkyPoint fromScreen(const QPointF &p, const dms *LST, const dms *lat, const long double jdf, bool onlyAltAz = false) const;
 
         /**
          * ASSUMES *p1 did not clip but *p2 did.  Returns the QPointF on the line

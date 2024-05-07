@@ -265,7 +265,7 @@ void TestEkosMount::testMountCtrlGoto()
         SkyPoint sp;
         sp.setAz(Az);
         sp.setAlt(Alt);
-        sp.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat());
+        sp.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
         dms RA  = sp.ra();
         dms Dec = sp.dec();
 
@@ -326,7 +326,7 @@ void TestEkosMount::testMountCtrlGoto()
         sp.setAz(Az);
         sp.setAlt(Alt);
         dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
-        sp.HorizontalToEquatorial(&lst, KStars::Instance()->data()->geo()->lat());
+        sp.HorizontalToEquatorial(&lst, KStars::Instance()->data()->geo()->lat(), KStarsData::Instance()->clock()->utc().djd());
         dms RA  = sp.ra();
         dms HA = (lst - RA + dms(360.0)).reduce();
         dms Dec = sp.dec();
@@ -380,7 +380,7 @@ void TestEkosMount::testMountCtrlSync()
         SkyPoint sp;
         sp.setAz(Az);
         sp.setAlt(Alt);
-        sp.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat());
+        sp.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
         dms RA  = sp.ra();
         dms Dec = sp.dec();
 
@@ -441,7 +441,7 @@ void TestEkosMount::testMountCtrlSync()
         sp.setAz(Az);
         sp.setAlt(Alt);
         dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
-        sp.HorizontalToEquatorial(&lst, KStars::Instance()->data()->geo()->lat());
+        sp.HorizontalToEquatorial(&lst, KStars::Instance()->data()->geo()->lat(), KStarsData::Instance()->clock()->utc().djd());
         dms RA  = sp.ra();
         dms HA = (lst - RA + dms(360.0)).reduce();
         dms Dec = sp.dec();

@@ -67,7 +67,7 @@ void KStars::setAltAz(double alt, double az, bool altIsRefracted)
     }
     p.setAlt(alt);
     p.setAz(az);
-    p.HorizontalToEquatorial(data()->lst(), data()->geo()->lat());
+    p.HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
     map()->setClickedPoint(&p);
     map()->slotCenter();
 }
@@ -100,7 +100,7 @@ void KStars::lookTowards(const QString &direction)
         map()->stopTracking();
         map()->clickedPoint()->setAlt(15.0);
         map()->clickedPoint()->setAz(45.0);
-        map()->clickedPoint()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat());
+        map()->clickedPoint()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
         map()->slotCenter();
     }
     else if (dir == i18n("southeast") || dir == "se")
@@ -108,7 +108,7 @@ void KStars::lookTowards(const QString &direction)
         map()->stopTracking();
         map()->clickedPoint()->setAlt(15.0);
         map()->clickedPoint()->setAz(135.0);
-        map()->clickedPoint()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat());
+        map()->clickedPoint()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
         map()->slotCenter();
     }
     else if (dir == i18n("southwest") || dir == "sw")
@@ -116,7 +116,7 @@ void KStars::lookTowards(const QString &direction)
         map()->stopTracking();
         map()->clickedPoint()->setAlt(15.0);
         map()->clickedPoint()->setAz(225.0);
-        map()->clickedPoint()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat());
+        map()->clickedPoint()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
         map()->slotCenter();
     }
     else if (dir == i18n("northwest") || dir == "nw")
@@ -124,7 +124,7 @@ void KStars::lookTowards(const QString &direction)
         map()->stopTracking();
         map()->clickedPoint()->setAlt(15.0);
         map()->clickedPoint()->setAz(315.0);
-        map()->clickedPoint()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat());
+        map()->clickedPoint()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
         map()->slotCenter();
     }
     else
@@ -297,7 +297,7 @@ bool KStars::setGeoLocation(const QString &city, const QString &province, const 
             // Alt/Az remain constant.
             if (!Options::isTracking() && Options::useAltAz())
             {
-                map()->focus()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat());
+                map()->focus()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
             }
 
             // recalculate new times and objects

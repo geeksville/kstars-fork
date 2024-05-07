@@ -55,6 +55,17 @@ SkyMesh::SkyMesh(int level)
 
 void SkyMesh::aperture(SkyPoint *p0, double radius, MeshBufNum_t bufNum)
 {
+    // FIXME: The below is not exactly correct because there is no
+    // guarantee that the ra(), dec() are for the updateNum() JD
+    // Instead, HorizontalToEquatorial explicitly produces the source
+    // RA0 and Dec0 so this deprecession should no longer be
+    // necessary.
+    //
+    // However, I think it is safer to leave it here as it is unlikely
+    // that aperture is used outside of drawing/object-nearest
+    // etc. which do pertain to the skymap simulation time
+    // -- asimha
+
     KStarsData *data = KStarsData::Instance();
     // FIXME: simple copying leads to incorrect results because RA0 && dec0 are both zero sometimes
     SkyPoint p1(p0->ra(), p0->dec());

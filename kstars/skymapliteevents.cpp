@@ -47,7 +47,7 @@ void SkyMapLite::mousePressEvent(QMouseEvent *e)
         }
 
         //determine RA, Dec of mouse pointer
-        m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat());
+        m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat(), data->djd());
         setClickedPoint(&m_MousePoint);
 
         //Find object nearest to clickedPoint()
@@ -187,7 +187,7 @@ void SkyMapLite::mouseMoveEvent(QMouseEvent *e)
         return; // break if point is unusable
 
     //determine RA, Dec of mouse pointer
-    m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat());
+    m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat(), data->djd());
     double dyPix = 0.5 * height() - e->y();
     if (midMouseButtonDown) //zoom according to y-offset
     {
@@ -224,7 +224,7 @@ void SkyMapLite::mouseMoveEvent(QMouseEvent *e)
             focus()->setAz(focus()->az().Degrees() - dAz.Degrees()); //move focus in opposite direction
             focus()->setAz(focus()->az().reduce());
             focus()->setAltRefracted(KSUtils::clamp(focus()->altRefracted().Degrees() - dAlt.Degrees(), -90.0, 90.0));
-            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
+            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
         }
         else
         {
@@ -238,7 +238,7 @@ void SkyMapLite::mouseMoveEvent(QMouseEvent *e)
         //showFocusCoords();
 
         //redetermine RA, Dec of mouse pointer, using new focus
-        m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat());
+        m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat(), data->djd());
         setClickedPoint(&m_MousePoint);
 
         forceUpdate(); // must be new computed
@@ -375,7 +375,7 @@ void SkyMapLite::touchEvent(QTouchEvent *e)
         //Set clicked point (needed for pan)
         if (e->type() == QEvent::TouchBegin)
         {
-            m_MousePoint = projector()->fromScreen(point, data->lst(), data->geo()->lat());
+            m_MousePoint = projector()->fromScreen(point, data->lst(), data->geo()->lat(), data->djd());
             setClickedPoint(&m_MousePoint);
             mouseButtonDown = true;
         }
@@ -428,7 +428,7 @@ void SkyMapLite::touchEvent(QTouchEvent *e)
                 //Show tap animation
                 emit posClicked(point);
                 //determine RA, Dec of touch
-                m_MousePoint = projector()->fromScreen(point, data->lst(), data->geo()->lat());
+                m_MousePoint = projector()->fromScreen(point, data->lst(), data->geo()->lat(), data->djd());
                 setClickedPoint(&m_MousePoint);
 
                 //Find object nearest to clickedPoint()

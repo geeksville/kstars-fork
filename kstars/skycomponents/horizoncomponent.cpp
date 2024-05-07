@@ -35,7 +35,7 @@ HorizonComponent::HorizonComponent(SkyComposite *parent) : PointListComponent(pa
         o->setAz(i * 360. / NCIRCLE);
         o->setAlt(0.0);
 
-        o->HorizontalToEquatorial(data->lst(), data->geo()->lat());
+        o->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
         pointList().append(o);
     }
 }
@@ -54,7 +54,7 @@ void HorizonComponent::update(KSNumbers *)
 
     for (auto &p : pointList())
     {
-        p->HorizontalToEquatorial(data->lst(), data->geo()->lat());
+        p->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
     }
 }
 
@@ -85,7 +85,7 @@ void HorizonComponent::draw(SkyPainter *skyp)
         SkyPoint labelPoint2;
         labelPoint2.setAlt(0.0);
         labelPoint2.setAz(labelPoint.az().Degrees() + 1.0);
-        labelPoint2.HorizontalToEquatorial(data->lst(), data->geo()->lat());
+        labelPoint2.HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
     }
 
     drawCompassLabels();
@@ -124,7 +124,7 @@ void HorizonComponent::drawCompassLabels()
         c.setAlt(0.0);
         if (!Options::useAltAz())
         {
-            c.HorizontalToEquatorial(data->lst(), data->geo()->lat());
+            c.HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
         }
 
         cpoint = proj->toScreen(&c, false, &visible);

@@ -140,7 +140,7 @@ void SkyPoint::EquatorialToHorizontal(const CachingDms *LST, const CachingDms *l
     // 	Az.setRadians( atan2( yr, xr ) );
 }
 
-void SkyPoint::HorizontalToEquatorial(const dms *LST, const dms *lat)
+void SkyPoint::HorizontalToEquatorial(const dms *LST, const dms *lat, long double jdf)
 {
     double HARad, DecRad;
     double sinlat, coslat, sinAlt, cosAlt, sinAz, cosAz;
@@ -182,6 +182,13 @@ void SkyPoint::HorizontalToEquatorial(const dms *LST, const dms *lat)
 
     RA.setRadians(LST->radians() - HARad);
     RA.reduceToRange(dms::ZERO_TO_2PI);
+
+    catalogueCoord(jdf);
+
+    // The above alters (RA, Dec), so we restore
+    RA.setRadians(LST->radians() - HARad);
+    Dec.setRadians(DecRad);
+    lastPrecessJD = jdf;
 }
 
 void SkyPoint::findEcliptic(const CachingDms *Obliquity, dms &EcLong, dms &EcLat)

@@ -66,7 +66,7 @@ void HorizonItem::update()
             SkyPoint *c = i.key();
             if (!Options::useAltAz())
             {
-                c->HorizontalToEquatorial(data->lst(), data->geo()->lat());
+                c->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
             }
 
             LabelNode *compass = (*i);
