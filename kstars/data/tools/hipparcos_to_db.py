@@ -59,6 +59,7 @@ meta = {
 
 HD_TYC_URL = 'https://vizier.cfa.harvard.edu/viz-bin/asu-tsv?-oc.form=dec&-out.max=unlimited&-c.eq=J2000&-c.r=  2&-c.u=arcmin&-c.geom=r&-source=IV/25/tyc2_hd&-order=I&-out=TYC1&-out=TYC2&-out=TYC3&-out=HD&-out=n_HD&-out=n_TYC&Simbad=Simbad&'
 TYC_BASE_URL = 'https://cdsarc.cds.unistra.fr/ftp/cats/I/259/'
+ATHYG_URL = 'https://www.astronexus.com/downloads/catalogs/athyg_v24.csv.gz'
 TARGET_HTM_LEVEL = 6
 
 class TABLE_NAMES:
@@ -66,6 +67,7 @@ class TABLE_NAMES:
     TYCHO2 = 'tycho2'
     KSBIN = 'ksbin'
     KS_TYC2 = 'ks_tyc2'
+    ATHYG = 'athyg'
 
 if sqlite3.threadsafety != 3:
     raise RuntimeError(f'The version of SQLite3 used does not support multiple threads!')
@@ -207,6 +209,12 @@ def ingest_tycho2_supplement(path: str, indexer: pykstars.Indexer, cursor: sqlit
     cursor.executemany(
         f"INSERT INTO `{TABLE_NAME}` (TYC, jra, jdec, epra, epdec, tgt_trixel) VALUES (?, ?, ?, ?, ?, ?)",
         [datum + (int(trixel),) for datum, trixel in zip(data, trixels)])
+
+def ingest_athyg(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cursor) -> str:
+    """ Download the AT-HYG dataset, index it with `indexer`, and ingest it into the DB """
+
+    TABLE_NAME = TABLE_NAMES.ATHYG
+    download_and_cache(ATHYG_URL, os.path.join(cache_dir, os.path.basename(ATHYG_URL)))
 
 def ingest_tycho2(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cursor) -> str:
     """ Download the Tycho2 dataset, index it with `indexer`, and ingest it into the DB """
