@@ -1,12 +1,17 @@
 from collections import namedtuple, OrderedDict
 from enum import Enum
-from typing import Union, List, Callable, IO
+from typing import Union, List, Callable, IO, Optional, Any, Iterable
 from io import BytesIO
 import os
 import logging
 import functools
 import math
 import shutil
+import fcntl
+import threading
+import glob
+import pykstars
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("KSBinFileIO")
 
 class KSDataType(Enum):
@@ -36,8 +41,68 @@ Describes a trixel by storing its id, data offset in the binary file, and number
 
 _Field = namedtuple('_Field', ['index', 'descriptor', 'data'])
 
+TRIXEL_PREFIX = 'trixel' # Prefix for trixel files
+
+class TrixelIO:
+    @staticmethod
+    def get_converter_with_endian(endian: str, dtype: KSDataType):
+        match dtype:
+            case KSDataType.DT_CHAR:
+                return lambda x : x.decode('ascii')
+            case KSDataType.DT_INT8:
+                return lambda x : int.from_bytes(x, signed=True)
+            case KSDataType.DT_UINT8:
+                return lambda x : int.from_bytes(x, signed=False)
+            case KSDataType.DT_INT16:
+                return lambda x : int.from_bytes(x, endian, signed=True)
+            case KSDataType.DT_UINT16:
+                return lambda x : int.from_bytes(x, endian, signed=False)
+            case KSDataType.DT_INT32:
+                return lambda x : int.from_bytes(x, endian, signed=True)
+            case KSDataType.DT_UINT32:
+                return lambda x : int.from_bytes(x, endian, signed=False)
+            case KSDataType.DT_CHARV:
+                return lambda x : x.decode('ascii')
+            case KSDataType.DT_STR:
+                return lambda x : self.cstr(x)
+            case KSDataType.DT_SPCL:
+                return lambda x: x
+            case _:
+                raise TypeError(f'Unhandled data type {dtype}')
+
+    def __init__(self, fd: IO, field_descriptors: List[FieldDescriptor] = [], owns_fd = False):
+        self.fd = fd
+        self.field_descriptors = field_descriptors
+        self.owns_fd = owns_fd
+
+    @property
+    def field_descriptors(self):
+        return list(self._field_descriptors)
+
+    @field_descriptors.setter
+    def field_descriptors(self, field_descriptors):
+        self._field_descriptors = list(field_descriptors)
+        self._record_size = sum(field.bytes for field in self._field_descriptors)
+
+    @property
+    def record_size(self):
+        return self._record_size
+
+    def get_converter(self, dtype: KSDataType):
+        try:
+            endian = self.endian
+        except AttributeError:
+            logger.warning(f'Conversion method does not know endianness of file, will assume `little`')
+            self.endian = 'little'
+            endian = self.endian
+        return TrixelIO.get_converter_with_endian(endian, dtype)
+
+    def __del__(self):
+        if self.owns_fd:
+            self.fd.close()
+
 class Record:
-    def __init__(self, io, offset, blob: bytes):
+    def __init__(self, io: TrixelIO, offset, blob: bytes):
         self.io = io
         self.offset = offset
         self.blob = blob
@@ -86,9 +151,12 @@ class Record:
     def __repr__(self):
         return f'Record(offset={self.offset}' + ', {' + ', '.join([f'{key}={self[key]}' for key in self._data]) + '})'
 
+    def _asdict(self):
+        return {key: self[key] for key in self._data}
+
 
 class Trixel:
-    def __init__(self, io, descriptor: TrixelDescriptor):
+    def __init__(self, io: TrixelIO, descriptor: TrixelDescriptor):
         self.descriptor = descriptor
         self.io = io
 
@@ -121,10 +189,10 @@ class Trixel:
     def __repr__(self):
         return f'Trixel(id={self.descriptor.id}, count={self.descriptor.count}, offset={self.descriptor.offset})'
 
-class KSBinFileReader:
+class KSBinFileReader(TrixelIO):
     def __init__(self, path: str):
         self.path = path
-        self.fd = open(path, 'rb')
+        super().__init__(open(path, 'rb'))
         self._read_preamble(self.fd)
         self.read_expansion_fields(self.fd)
 
@@ -136,37 +204,6 @@ class KSBinFileReader:
     def read_expansion_fields(self, fd):
         """ To be implemented by subclasses for specific files """
         pass
-
-    def get_converter(self, dtype: KSDataType):
-        try:
-            endian = self.endian
-        except AttributeError:
-            logger.warning(f'Conversion method does not know endianness of file, will assume `little`')
-            endian = 'little'
-
-        match dtype:
-            case KSDataType.DT_CHAR:
-                return lambda x : x.decode('ascii')
-            case KSDataType.DT_INT8:
-                return lambda x : int.from_bytes(x, signed=True)
-            case KSDataType.DT_UINT8:
-                return lambda x : int.from_bytes(x, signed=False)
-            case KSDataType.DT_INT16:
-                return lambda x : int.from_bytes(x, endian, signed=True)
-            case KSDataType.DT_UINT16:
-                return lambda x : int.from_bytes(x, endian, signed=False)
-            case KSDataType.DT_INT32:
-                return lambda x : int.from_bytes(x, endian, signed=True)
-            case KSDataType.DT_UINT32:
-                return lambda x : int.from_bytes(x, endian, signed=False)
-            case KSDataType.DT_CHARV:
-                return lambda x : x.decode('ascii')
-            case KSDataType.DT_STR:
-                return lambda x : self.cstr(x)
-            case KSDataType.DT_SPCL:
-                return lambda x: x
-            case _:
-                raise TypeError(f'Unhandled data type {dtype}')
 
     def _read_preamble(self, fd):
         fd.seek(0)
@@ -187,16 +224,15 @@ class KSBinFileReader:
         self.fields_per_entry = int.from_bytes(fd.read(2), self.endian)
 
         # Read field descriptions
-        self.field_descriptors = []
+        field_descriptors = []
         for i in range(self.fields_per_entry):
-            self.field_descriptors.append(FieldDescriptor(
+            field_descriptors.append(FieldDescriptor(
                 name=self.cstr(fd.read(10)),
                 bytes=int.from_bytes(fd.read(1)),
                 type=KSDataType(int.from_bytes(fd.read(1))),
                 scale=int.from_bytes(fd.read(4), self.endian),
             ))
-
-        self.record_size = sum(field.bytes for field in self.field_descriptors)
+        self.field_descriptors = field_descriptors
 
         self.num_trixels = int.from_bytes(fd.read(4), self.endian)
         logger.info(f'Number of trixels: {self.num_trixels}')
@@ -253,9 +289,16 @@ class KSStarDataReader(KSBinFileReader):
     def __repr__(self):
         return super().__repr__()[:-2] + f', maglim={self.maglim}, htm_level={self.htm_level}, max_stars_per_trixel={self.max_stars_per_trixel})'
 
+class TrixelChunk:
+    def __init__(self):
+        self.descriptor = None
+        self.path = None
+        self.auto_delete = False
+
+
 class KSBinFileWriter:
 
-    def __init__(self, output: str, tmp_dir: str, num_trixels: int, sort_trixels=True):
+    def __init__(self, output: str, tmp_dir: str, num_trixels: int, sort_trixels=True, auto_delete_chunks=True):
         """
         Creates a binary file writer
 
@@ -264,6 +307,9 @@ class KSBinFileWriter:
         field_descriptors: A list of field descriptors (see `FieldDescriptor`) describing the fields written
         num_trixels: The number of trixels in the HTMesh
         sort_trixels: Sort the trixels by ID in the final result
+        auto_delete_chunks: Automatically delete temporary trixel chunks created in `tmp_dir` upon destruction
+
+        Note: Auto-deletion does not occur if `register_trixel` is called manually with a `path` argument
         """
 
         if os.path.isfile(output):
@@ -274,14 +320,17 @@ class KSBinFileWriter:
         self.field_descriptors = OrderedDict()
         self.num_trixels = num_trixels
         self.tmp_dir = tmp_dir
-        self._current_trixel_index = 0
         self._trixel_chunks = OrderedDict() # Offsets are invalid and not yet set
         self.endian = 'little'
         self._writer_created = False
         self.sort_trixels = sort_trixels
         self.description = 'KStars binary data'
+        self.lock = threading.Lock()
+        self.record_size = 0
+        self.auto_delete_chunks = auto_delete_chunks
 
-    def get_converter(self, dtype: KSDataType, length=None, scale=None):
+    def get_converter(self, dtype: KSDataType, length: Optional[int] = None, scale: Optional[float] = None) -> Callable[Any, bytes]:
+        """ Generates a converter function to take raw data and convert it into bytes """
         try:
             endian = self.endian
         except AttributeError:
@@ -292,7 +341,12 @@ class KSBinFileWriter:
             """ Throws on overflow """
             if scale is not None:
                 number = int(number * scale)
-            return number.to_bytes(length=num_bytes, byteorder=self.endian, signed=signed)
+            try:
+                result = number.to_bytes(length=num_bytes, byteorder=self.endian, signed=signed)
+            except Exception as e:
+                logger.error(f'Overflow Error while converting {number} to {num_bytes}-byte signed={signed} integer')
+                raise
+            return result
 
         def convert_str(text: str, length: int, null_terminate: bool) -> bytes:
             """ Throws on overflow """
@@ -359,16 +413,36 @@ class KSBinFileWriter:
         return write
 
     def get_trixel_writer(self, id: int):
-        return TrixelWriter(self, id)
+        with self.lock:
+            chunk = self._trixel_chunks.setdefault(id, TrixelChunk())
+            if chunk.path is None:
+                chunk.auto_delete = True
+            chunk.path = os.path.join(self.tmp_dir, f'{TRIXEL_PREFIX}{id:012}.dat')
+        return TrixelWriter(self, id, chunk.path)
+
+    def get_trixel_size(self, id: int):
+        with self.lock:
+            descriptor = self._trixel_chunks.get(id, TrixelChunk()).descriptor
+            if descriptor is not None:
+                return descriptor.count
+            else:
+                return 0
 
     def __enter__(self):
         return self
 
-    def _register_trixel(self, descriptor, path):
-        self._trixel_chunks[descriptor.id] = {
-            'descriptor': descriptor,
-            'path': path
-        }
+    def register_trixel(self, descriptor: TrixelDescriptor, path=None):
+        """ If using TrixelWriter, let TrixelWriter call this. Otherwise you can register chunks manually using this method """
+        existing_path = self._trixel_chunks.get(descriptor.id, TrixelChunk()).path
+        if path is None and existing_path is None:
+            raise ValueError(f'Trying to register trixel #{descriptor.id} without a pre-determined path!')
+        if path is not None and existing_path is not None:
+            logger.warning(f'Overwriting existing path for trixel #{descriptor.id} with {path}')
+        with self.lock:
+            self._trixel_chunks.setdefault(descriptor.id, TrixelChunk()).descriptor = descriptor
+            if path is not None:
+                self._trixel_chunks[descriptor.id].path = path
+                self._trixel_chunks[descriptor.id].auto_delete = False
 
     def add_description(self, description):
         self.description = description
@@ -381,6 +455,7 @@ class KSBinFileWriter:
         if len(descriptor.name) > 10:
             raise ValueError(f'Field name {name} is too long (10-character limit)!')
         self.field_descriptors[descriptor.name] = descriptor # N.B. this is an OrderedDict
+        self.record_size = sum(field.bytes for field in self.field_descriptors.values())
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type:
@@ -412,19 +487,30 @@ class KSBinFileWriter:
         trixel_table_offset = self.fd.tell()
         trixel_ids = list(self._trixel_chunks.keys())
         if len(trixel_ids) != self.num_trixels:
-            raise RuntimeError(f'Number of trixels written {len(trixel_ids)} does not match the declared number of trixels {self.num_trixels}')
+            logger.error(f'Number of trixels written {len(trixel_ids)} does not match the declared number of trixels {self.num_trixels}')
+            for i in range(self.num_trixels):
+                if i not in self._trixel_chunks:
+                    trixel_ids.append(i)
         if self.sort_trixels:
-            trixel_ids = sorted(self._trixel_chunks)
+            trixel_ids = sorted(trixel_ids)
+        missing_count = 0
         for trixel_id in trixel_ids:
             self.fd.write(uint32(trixel_id))
             self.fd.write(uint32(0)) # Phony offset
-            self.fd.write(uint32(self._trixel_chunks[trixel_id]['descriptor'].count))
+            if self._trixel_chunks.get(trixel_id, TrixelChunk()).descriptor is None:
+                missing_count += 1
+                self.fd.write(uint32(0))
+            else:
+                self.fd.write(uint32(self._trixel_chunks[trixel_id].descriptor.count))
+
+        logger.warning(f'Trixel descriptors for {missing_count} trixels were not registered! Assumed empty.')
 
         # Write any expansion fields
         self.write_expansion_fields(self.fd)
         data_offset = self.fd.tell()
 
         # Write the trixel data while fixing offsets in the table
+        missing_count = 0
         for i, trixel_id in enumerate(trixel_ids):
             # Fix the offset in the trixel table
             offset = self.fd.tell()
@@ -434,40 +520,64 @@ class KSBinFileWriter:
             # Come back
             self.fd.seek(offset)
 
+            if trixel_id not in self._trixel_chunks:
+                missing_count += 1
+                continue
+
+            trixel_path = self._trixel_chunks[trixel_id].path
+
+            # Verify that the number of bytes written matches
+            if self.record_size != 0:
+                trixel_file_size = os.path.getsize(trixel_path)
+                if trixel_file_size  % self.record_size != 0:
+                    raise RuntimeError(f'Record size {self.record_size} does not divide the trixel-file size {trixel_file_size} for trixel {trixel_id} at path {trixel_path}')
+                expected_count = trixel_file_size // self.record_size
+                if self._trixel_chunks[trixel_id].descriptor.count != expected_count:
+                    raise RuntimeError(f'Number of entries {expected_count} calculated from file size {trixel_file_size} for trixel {trixel_id} (path: {trixel_path}) does not match the declared count in the descriptor {self._trixel_chunks[trixel_id]}')
+
             # Copy the trixel's data over
-            with open(self._trixel_chunks[trixel_id]['path'], 'rb') as trixel_source:
+            with open(trixel_path, 'rb') as trixel_source:
                 shutil.copyfileobj(trixel_source, self.fd)
 
+        logger.warning(f'Trixel content for {missing_count} trixels were not registered! Assumed empty.')
         # Close the file descriptor
         self.fd.close()
 
-    def __del__(self):
-        """ Delete the trixel files in the temporary directory """
-        logger.info(f'Removing temporary trixel files')
-        for _, trixel_info in self._trixel_chunks.items():
-            os.remove(trixel_info['path'])
+        # Delete trixel files in the temporary directory
+        if self.auto_delete_chunks:
+            logger.info(f'Removing temporary trixel files')
+            for _, trixel_chunk in self._trixel_chunks.items():
+                if trixel_chunk.auto_delete:
+                    try:
+                        os.remove(trixel_chunk.path)
+                    except Exception as e:
+                        logger.error(f'Exception while trying to remove temporary trixel file {trixel_chunk.path}: {e}')
 
     def write_expansion_fields(self, fd):
         """ To be implemented by subclasses """
         pass
 
 class TrixelWriter:
-
-    def __init__(self, writer: KSBinFileWriter, id: int):
+    def __init__(self, writer: KSBinFileWriter, id: int, path: str, append: bool = True):
+        """ To only be created through KSBinFileWriter.get_trixel_writer() """
         if id < 0:
             raise ValueError(f'Invalid trixel id {id} < 0')
         if id >= writer.num_trixels:
             raise ValueError(f'Invalid trixel id {id} exceeds number of trixels {writer.num_trixels}')
         self.writer = writer
         self.id = id
+        self.output = path
+        self.append = append
 
     def __enter__(self):
-        self.output = os.path.join(self.writer.tmp_dir, f'trixel{self.writer._current_trixel_index:08}.dat')
-        self.writer._current_trixel_index += 1
-        if os.path.isfile(self.output):
+        if os.path.isfile(self.output) and (not self.append or self.writer.get_trixel_size(self.id) == 0):
             raise RuntimeError(f'Trixel file {self.output} already exists. Clear temporary directory or check for race condition!')
-        self.fd = open(self.output, 'wb')
-        self.count = 0
+        # Locking mechanism from https://stackoverflow.com/questions/489861/locking-a-file-in-python
+        self.fd = open(self.output, 'ab' if self.append else 'wb')
+        fcntl.lockf(self.fd, fcntl.LOCK_EX)
+        # Read count after locking the file in case a concurrent writer is running on the same trixel
+        self.count = self.writer.get_trixel_size(self.id) # Get the current trixel size
+        assert self.count >= 0, self.count
         self.record_writer = functools.partial(self.writer._get_record_writer(), self.fd)
         return self
 
@@ -481,12 +591,22 @@ class TrixelWriter:
         return num_bytes_written
 
     def __exit__(self, exc_type, exc_value, traceback):
+        # Locking mechanism from https://stackoverflow.com/questions/489861/locking-a-file-in-python
+        self.fd.flush()
+        os.fsync(self.fd.fileno())
+        if exc_type is None:
+            # Register trixel before unlocking file so a concurrent writer to the same trixel gets the current count
+            self.writer.register_trixel(TrixelDescriptor(id=self.id, count=self.count, offset=0))
+
+        fcntl.lockf(self.fd, fcntl.LOCK_UN)
         self.fd.close()
         if exc_type:
+            # Might still result in a weird race condition but only if there is an exception
             logger.error(f'TrixelWriter.__exit__ encountered exception {exc_value} of type {exc_type} and will remove the file {self.output}')
             os.remove(self.output)
+            return False
         else:
-            self.writer._register_trixel(TrixelDescriptor(id=self.id, count=self.count, offset=0), path=self.output)
+            return True
 
 STARDATA_FIELDS = [
     FieldDescriptor(name='RA', bytes=4, type=KSDataType.DT_INT32, scale=1000000),
@@ -511,25 +631,60 @@ DEEPSTARDATA_FIELDS = [
     FieldDescriptor(name='V', bytes=2, type=KSDataType.DT_INT16, scale=1000),
 ]
 
+STARDATAV2_FIELDS = [
+    FieldDescriptor(name='RA', bytes=4, type=KSDataType.DT_INT32, scale=1e8),
+    FieldDescriptor(name='Dec', bytes=4, type=KSDataType.DT_INT32, scale=1e7),
+    FieldDescriptor(name='dRA', bytes=4, type=KSDataType.DT_INT32, scale=100),
+    FieldDescriptor(name='dDec', bytes=4, type=KSDataType.DT_INT32, scale=100),
+    FieldDescriptor(name='parallax', bytes=4, type=KSDataType.DT_UINT32, scale=1e5),
+    FieldDescriptor(name='HD', bytes=4, type=KSDataType.DT_INT32, scale=1),
+    FieldDescriptor(name='mag', bytes=2, type=KSDataType.DT_INT16, scale=1000),
+    FieldDescriptor(name='bv_index', bytes=2, type=KSDataType.DT_INT16, scale=1000),
+    FieldDescriptor(name='spec_type', bytes=2, type=KSDataType.DT_CHARV, scale=0),
+    FieldDescriptor(name='flags', bytes=1, type=KSDataType.DT_CHAR, scale=0),
+    FieldDescriptor(name='unused', bytes=1, type=KSDataType.DT_CHAR, scale=100),
+]
+
+DEEPSTARDATAV2_FIELDS = [
+    FieldDescriptor(name='RA', bytes=4, type=KSDataType.DT_UINT32, scale=1e8),
+    FieldDescriptor(name='Dec', bytes=4, type=KSDataType.DT_INT32, scale=1e7),
+    FieldDescriptor(name='dRA', bytes=2, type=KSDataType.DT_INT16, scale=100), # [-327.68, 327.67]
+    FieldDescriptor(name='dDec', bytes=2, type=KSDataType.DT_INT16, scale=100),
+    FieldDescriptor(name='B', bytes=2, type=KSDataType.DT_INT16, scale=1000), # [-32.768, 32.767]
+    FieldDescriptor(name='V', bytes=2, type=KSDataType.DT_INT16, scale=1000),
+]
+
+
+class KSStarDataStruct(Enum):
+    STARDATA = 0
+    DEEPSTARDATA = 1
 
 class KSStarDataWriter(KSBinFileWriter):
 
-    class DataStruct(Enum):
-        STARDATA = 0
-        DEEPSTARDATA = 1
+    """
+    Example usage:
 
-    def __init__(self, output:str, tmp_dir: str, num_trixels: int, datastruct: DataStruct, sort_trixels = True):
-        super().__init__(output, tmp_dir, num_trixels, sort_trixels=sort_trixels)
+    ```
+    HTM_LEVEL = 0
+    N_TRIXELS = (4 ** HTM_LEVEL) * 8
+    with stardataio.KSStarDataWriter('test.dat', '/tmp/trixels', N_TRIXELS, stardataio.KSStarDataStruct.DEEPSTARDATA) as writer:
+        for trixel_id in range(N_TRIXELS):
+            with writer.get_trixel_writer(trixel_id) as trixel:
+                if trixel_id == 3:
+                    trixel.add_entry(RA=30.0, Dec=-13.2, dRA=1.5, dDec=2.3, B=12.5, V=13.5)
+    ```
+    """
+
+    def __init__(self, output:str, tmp_dir: str, num_trixels: int, datastruct: KSStarDataStruct, sort_trixels = True, auto_delete_chunks = True):
+        super().__init__(output, tmp_dir, num_trixels, sort_trixels=sort_trixels, auto_delete_chunks=auto_delete_chunks)
         self.datastruct = datastruct
         match datastruct:
-            case self.DataStruct.STARDATA:
-                self.field_descriptors = OrderedDict([
-                    (desc.name, desc) for desc in STARDATA_FIELDS
-                ])
-            case self.DataStruct.DEEPSTARDATA:
-                self.field_descriptors = OrderedDict([
-                    (desc.name, desc) for desc in DEEPSTARDATA_FIELDS
-                ])
+            case KSStarDataStruct.STARDATA:
+                for desc in STARDATA_FIELDS:
+                    self.add_field_descriptor(desc)
+            case KSStarDataStruct.DEEPSTARDATA:
+                for desc in DEEPSTARDATA_FIELDS:
+                    self.add_field_descriptor(desc)
             case _:
                 raise ValueError(f'Unhandled star data structure {datastruct}')
         self.maglim = 65.5
@@ -539,15 +694,189 @@ class KSStarDataWriter(KSBinFileWriter):
 
     def write_expansion_fields(self, fd):
         uint16 = self.get_converter(KSDataType.DT_UINT16)
-        maglim_scale = 100 if self.datastruct == self.DataStruct.STARDATA else 1000
+        maglim_scale = 100 if self.datastruct == KSStarDataStruct.STARDATA else 1000
         fd.write(uint16(int(self.maglim * maglim_scale)))
         htm_level = round(math.log2(self.num_trixels/8)/2)
         fd.write(self.get_converter(KSDataType.DT_UINT8)(htm_level))
         max_stars_per_trixel = 0
         if len(self._trixel_chunks) > 0:
-            max_stars_per_trixel = max(trixel['descriptor'].count for trixel in self._trixel_chunks.values())
+            max_stars_per_trixel = max(trixel.descriptor.count for trixel in self._trixel_chunks.values())
         else:
             logger.warning('No trixels were committed!')
         if max_stars_per_trixel >= (1 << 16):
             logger.error(f'Max Stars per Trixel = {max_stars_per_trixel} overflows uint16, will wrap')
         fd.write(uint16(max_stars_per_trixel % (1<< 16))) # Maximum stars per trixel
+
+class KSBufferedStarCatalogWriter(KSStarDataWriter):
+    """High-level class to write ICRS/J2000 star catalogs.
+
+    This high-level class handles writing of stars including
+    indexing them, making sure to buffer the stars in memory to
+    amortize writing latencies, and calculating proper-motion
+    duplicates. The catalog coordinates and proper motion are
+    assumed to be in the J2000 epoch and ICRS reference
+    frame.
+    """
+    def __init__(self, output:str, trixel_dir: str, htm_level: int, datastruct: KSStarDataStruct, append: bool = False, buffer_limit: int = None, proper_motion_duplicates: int = 10000, proper_motion_threshold: float = 0.1):
+        """
+        proper_motion_duplicates: Number of years ± from J2000.0 that we should duplicate the star for
+        proper_motion_threshold: Threshold in arcseconds that the star should move in above range to do the calculation
+        """
+        self.htm_level = htm_level
+        self.num_trixels = (4 ** htm_level) * 8
+        self.indexer = pykstars.Indexer(self.htm_level)
+        existing_trixel_files = glob.glob(os.path.join(trixel_dir, f'{TRIXEL_PREFIX}*.dat'))
+        if len(existing_trixel_files) > 0 and not append:
+            raise RuntimeError(f'Trixel directory {trixel_dir} is not empty while writing in append mode!')
+        super().__init__(output, trixel_dir, self.num_trixels, datastruct, sort_trixels=True, auto_delete_chunks=(not append))
+        self._trixel_buffers = {}
+        self._mem_count = 0
+        self._count = 0
+        self.buffer_limit = buffer_limit if buffer_limit is not None else (25 * self.num_trixels)
+        self.proper_motion_duplicates = proper_motion_duplicates
+        self.proper_motion_threshold = proper_motion_threshold
+
+        self.pm_sqr_thresh = (self.proper_motion_threshold/(2 * self.proper_motion_duplicates / 1000)) ** 2
+
+        for existing_trixel in existing_trixel_files:
+            self.register_trixel(existing_trixel)
+
+        self.Star = namedtuple("Star", list(self.field_descriptors.keys()))
+
+    def register_trixel(self, *args):
+        """
+        register_trixel(path: str)   Infers the trixel descriptor from the file
+        register_trixel(descriptor: TrixelDescriptor, path: Optional[str])    Forwards to base class
+        """
+        if len(args) > 1 or isinstance(args[0], TrixelDescriptor):
+            return super().register_trixel(*args)
+
+        path, = args
+
+        try:
+            trixel_id = int(os.path.splitext(os.path.basename(path))[0][len(TRIXEL_PREFIX):])
+        except ValueError:
+            raise RuntimeError(f'Trixel file {path} does not match the expected pattern {TRIXEL_PREFIX}####.dat')
+
+        trixel_file_size = os.path.getsize(path)
+        if trixel_file_size  % self.record_size != 0:
+            raise RuntimeError(f'Record size {self.record_size} does not divide the trixel-file size {trixel_file_size} for trixel {trixel_id} at path {path}')
+        count = trixel_file_size // self.record_size
+        descriptor = TrixelDescriptor(id=trixel_id, count=count, offset=0)
+        super().register_trixel(descriptor, path)
+        logger.debug('Registered trixel {descriptor} from {path}')
+
+    def add_star(self, **params) -> int:
+        """ Note: RA in hours for compatibility with old catalog convention
+        Returns number of times the star was duplicated for proper motion
+        """
+        star = self.Star(**params) # Checks that parameters match the expectations and raises otherwise
+        RA, Dec = star.RA * 15.0, star.Dec
+        if self.proper_motion_duplicates is not None and (star.dRA ** 2 + star.dDec ** 2) > self.pm_sqr_thresh:
+            future_ra, future_dec = pykstars.CoordinateConversion.proper_motion(
+                RA, Dec, star.dRA, star.dDec, 2000.0, 2000.0 + self.proper_motion_duplicates)
+            past_ra, past_dec = pykstars.CoordinateConversion.proper_motion(
+                RA, Dec, star.dRA, star.dDec, 2000.0, 2000.0 - self.proper_motion_duplicates)
+            trixels = self.indexer.get_trixels(past_ra, past_dec, future_ra, future_dec)
+        else:
+            trixels = [self.indexer.get_trixel(RA, Dec),]
+        for trixel in trixels:
+            self._trixel_buffers.setdefault(trixel, []).append(star)
+        self._count += len(trixels)
+        self._mem_count += len(trixels)
+
+        if self._mem_count > self.buffer_limit:
+            self.flush(all=False)
+
+        return len(trixels)
+
+    def flush(self, all=True):
+        limit = 0 if all else self.buffer_limit // 4
+        logger.info(f'Flushing some of the {self._mem_count} stars held in memory up to {limit}')
+        trixels = sorted(self._trixel_buffers.keys(), key=lambda k: len(self._trixel_buffers[k])) # Largest trixel buffer last
+        while self._mem_count > limit:
+            trixel = trixels.pop()
+            with self.get_trixel_writer(trixel) as trixel_writer:
+                for star in self._trixel_buffers.pop(trixel):
+                    trixel_writer.add_entry(**star._asdict())
+                    self._mem_count -= 1
+
+
+    def __enter__(self):
+        return super().__enter__()
+
+    def __del__(self):
+        self.flush()
+
+    def __exit__(self, *args):
+        self.flush()
+        return super().__exit__(*args)
+
+
+class KSTrixelDirReader():
+    """ Reads a directory of trixel chunk files without a preamble header. """
+    def __init__(self, directory: str, datastruct: KSStarDataStruct):
+        self.directory = directory
+        self.io = TrixelIO(None) # fd not bound
+        match datastruct:
+            case KSStarDataStruct.STARDATA:
+                self.io.field_descriptors = STARDATA_FIELDS
+            case KSStarDataStruct.DEEPSTARDATA:
+                self.io.field_descriptors = DEEPSTARDATA_FIELDS
+            case _:
+                raise ValueError(f'Unhandled star data structure {datastruct}')
+        self.trixel_files = glob.glob(os.path.join(directory, f'{TRIXEL_PREFIX}*.dat'))
+        self._trixels = {}
+        for trixel_file in self.trixel_files:
+            self._register_trixel(trixel_file)
+
+    def _register_trixel(self, path:str):
+        try:
+            trixel_id = int(os.path.splitext(os.path.basename(path))[0][len(TRIXEL_PREFIX):])
+        except ValueError:
+            raise RuntimeError(f'Trixel file {path} does not match the expected pattern {TRIXEL_PREFIX}####.dat')
+
+        trixel_file_size = os.path.getsize(path)
+        if trixel_file_size  % self.io.record_size != 0:
+            raise RuntimeError(f'Record size {self.io.record_size} does not divide the trixel-file size {trixel_file_size} for trixel {trixel_id} at path {path}')
+        count = trixel_file_size // self.io.record_size
+        descriptor = TrixelDescriptor(id=trixel_id, count=count, offset=0)
+        chunk = TrixelChunk()
+        chunk.descriptor = descriptor
+        chunk.path = path
+        self._trixels[trixel_id] = chunk
+        logger.debug('Registered trixel {descriptor} from {path}')
+
+
+    def __iter__(self):
+        """ Iterate over trixels """
+        for trixel_id, chunk in self._trixels.items():
+            io = TrixelIO(open(chunk.path, 'rb'), self.io.field_descriptors, owns_fd=True)
+            yield Trixel(io, chunk.descriptor)
+
+    def __contains__(self, i: int):
+        return i in self._trixels
+
+    def __getitem__(self, i: int):
+        """ Get a specific trixel (by index, not necessarily same as ID) """
+        if i not in self:
+            raise KeyError(f'Trixel {i} not part of {self.__repr__()}')
+        chunk = self._trixels[i]
+        io = TrixelIO(open(chunk.path, 'rb'), self.io.field_descriptors, owns_fd=True)
+        return Trixel(io, chunk.descriptor)
+
+    def __len__(self):
+        """ Number of trixels """
+        return len(self._trixels)
+
+    def trixel_ids(self) -> List[int]:
+        return list(self._trixels.keys())
+
+    def __repr__(self):
+        return 'KSTrixelDirReader(' + ', '.join(f'{key}={value}' for key, value in [
+            ("directory", self.directory),
+            ("record_size", self.io.record_size),
+            ("num_fields", len(self.io.field_descriptors)),
+            ("num_trixels", len(self._trixels)),
+        ]) + ')'
+
