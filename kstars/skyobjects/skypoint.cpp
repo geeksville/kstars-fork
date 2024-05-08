@@ -191,6 +191,13 @@ void SkyPoint::HorizontalToEquatorial(const dms *LST, const dms *lat, long doubl
     lastPrecessJD = jdf;
 }
 
+void SkyPoint::HorizontalToEquatorialNow()
+{
+    auto *data = KStarsData::Instance();
+    Q_ASSERT(!!data);
+    HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+}
+
 void SkyPoint::findEcliptic(const CachingDms *Obliquity, dms &EcLong, dms &EcLat)
 {
     double sinRA, cosRA, sinOb, cosOb, sinDec, cosDec;

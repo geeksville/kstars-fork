@@ -90,7 +90,7 @@ void CrosshairNode::update()
                 hide();
 
             indi_sp.setAlt(np->getValue());
-            indi_sp.HorizontalToEquatorial(m_KStarsData->lst(), m_KStarsData->geo()->lat(), m_KStarsData->djd());
+            indi_sp.HorizontalToEquatorialNow();
         }
     }
     else

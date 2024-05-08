@@ -265,7 +265,7 @@ void TestEkosMount::testMountCtrlGoto()
         SkyPoint sp;
         sp.setAz(Az);
         sp.setAlt(Alt);
-        sp.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
+        sp.HorizontalToEquatorialNow();
         dms RA  = sp.ra();
         dms Dec = sp.dec();
 
@@ -380,7 +380,7 @@ void TestEkosMount::testMountCtrlSync()
         SkyPoint sp;
         sp.setAz(Az);
         sp.setAlt(Alt);
-        sp.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
+        sp.HorizontalToEquatorialNow();
         dms RA  = sp.ra();
         dms Dec = sp.dec();
 

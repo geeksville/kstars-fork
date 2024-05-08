@@ -269,7 +269,7 @@ void SkyMapLite::setFocusAltAz(const dms &alt, const dms &az)
     Options::setFocusDec(focus()->dec().Degrees());
     focus()->setAlt(alt);
     focus()->setAz(az);
-    focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+    focus()->HorizontalToEquatorialNow();
 
     setSlewing(false);
     forceUpdate(); //need a total update, or slewing with the arrow keys doesn't work.
@@ -299,7 +299,7 @@ void SkyMapLite::setDestinationAltAz(const dms &alt, const dms &az, bool altIsRe
         destination()->setAlt(alt);
     }
     destination()->setAz(az);
-    destination()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+    destination()->HorizontalToEquatorialNow();
     emit destinationChanged();
 }
 
@@ -443,7 +443,7 @@ void SkyMapLite::slewFocus()
                 {
                     focus()->setAlt(focus()->alt().Degrees() + fY * step);
                     focus()->setAz(dms(focus()->az().Degrees() + fX * step).reduce());
-                    focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+                    focus()->HorizontalToEquatorialNow();
                 }
                 else
                 {
@@ -488,7 +488,7 @@ void SkyMapLite::slewFocus()
         if (Options::useAltAz())
         {
             setFocusAltAz(destination()->alt(), destination()->az());
-            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            focus()->HorizontalToEquatorialNow();
         }
         else
         {
@@ -537,7 +537,7 @@ void SkyMapLite::slotClockSlewing()
             //Tracking any object in Alt/Az mode requires focus updates
             focusObject()->EquatorialToHorizontal(data->lst(), data->geo()->lat());
             setFocusAltAz( focusObject()->alt(), focusObject()->az() );
-            focus()->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+            focus()->HorizontalToEquatorialNow();
             setDestination( *focus() );
         } else {
             //Tracking in equatorial coords
@@ -558,7 +558,7 @@ void SkyMapLite::slotClockSlewing()
     // Not tracking and not slewing, let sky drift by
     // This means that horizontal coordinates are constant.
     } else {
-        focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat() );
+        focus()->HorizontalToEquatorialNow();
     }
 }*/
 
@@ -700,7 +700,7 @@ void SkyMapLite::updateFocus()
             //Tracking any object in Alt/Az mode requires focus updates
             focusObject()->EquatorialToHorizontal(data->lst(), data->geo()->lat());
             setFocusAltAz(focusObject()->alt(), focusObject()->az());
-            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            focus()->HorizontalToEquatorialNow();
             setDestination(*focus());
         }
         else
@@ -728,7 +728,7 @@ void SkyMapLite::updateFocus()
     }
     else
     {
-        focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+        focus()->HorizontalToEquatorialNow();
     }
 }
 

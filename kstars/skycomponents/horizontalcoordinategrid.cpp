@@ -51,7 +51,7 @@ HorizontalCoordinateGrid::HorizontalCoordinateGrid(SkyComposite *parent)
 
                 p->setAz(az);
                 p->setAlt(alt2);
-                //p->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
+                //p->HorizontalToEquatorialNow();
                 lineList->append(std::move(p));
             }
             appendLine(lineList);
@@ -118,7 +118,7 @@ void HorizontalCoordinateGrid::update(KSNumbers *)
     {
         for (int j = 0; j < listList().at(i)->points()->count(); j++)
         {
-            listList().at(i)->points()->at(j)->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            listList().at(i)->points()->at(j)->HorizontalToEquatorialNow();
         }
     }
 }

@@ -392,7 +392,7 @@ void HorizonManager::slotSaveChanges()
             p.reset(new SkyPoint());
             p->setAz(az);
             p->setAlt(alt);
-            p->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
+            p->HorizontalToEquatorialNow();
 
             list->append(p);
         }
@@ -432,7 +432,7 @@ void HorizonManager::setupLivePreview(QStandardItem * region)
         std::shared_ptr<SkyPoint> point(new SkyPoint());
         point->setAz(az);
         point->setAlt(alt);
-        point->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
+        point->HorizontalToEquatorialNow();
 
         livePreview->append(point);
     }

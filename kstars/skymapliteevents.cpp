@@ -224,7 +224,7 @@ void SkyMapLite::mouseMoveEvent(QMouseEvent *e)
             focus()->setAz(focus()->az().Degrees() - dAz.Degrees()); //move focus in opposite direction
             focus()->setAz(focus()->az().reduce());
             focus()->setAltRefracted(KSUtils::clamp(focus()->altRefracted().Degrees() - dAlt.Degrees(), -90.0, 90.0));
-            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            focus()->HorizontalToEquatorialNow();
         }
         else
         {

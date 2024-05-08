@@ -982,7 +982,7 @@ bool Mount::slew(const QString &RA, const QString &DEC)
         SkyPoint target;
         target.setAz(az);
         target.setAlt(at);
-        target.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
+        target.HorizontalToEquatorialNow();
         ra = target.ra();
         de = target.dec();
     }
@@ -1068,7 +1068,7 @@ bool Mount::sync(const QString &RA, const QString &DEC)
         SkyPoint target;
         target.setAz(az);
         target.setAlt(at);
-        target.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
+        target.HorizontalToEquatorialNow();
         ra = target.ra();
         de = target.dec();
     }
@@ -1220,8 +1220,7 @@ bool  Mount::azAltToRaDec(QString qsAz, QString qsAlt)
     targetCoord.setAz(Az);
     targetCoord.setAlt(Alt);
 
-    targetCoord.HorizontalToEquatorial(KStars::Instance()->data()->lst(),
-                                       KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
+    targetCoord.HorizontalToEquatorialNow();
 
     m_targetRAText->setProperty("text", targetCoord.ra().toHMSString());
     m_targetDEText->setProperty("text", targetCoord.dec().toDMSString());
@@ -1242,7 +1241,7 @@ bool  Mount::azAltToHaDec(QString qsAz, QString qsAlt)
 
     dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
 
-    targetCoord.HorizontalToEquatorial(&lst, KStars::Instance()->data()->geo()->lat(), KStarsData::Instance()->clock()->utc().djd());
+    targetCoord.HorizontalToEquatorialNow();
 
     dms HA = (lst - targetCoord.ra() + dms(360.0)).reduce();
 

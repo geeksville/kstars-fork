@@ -223,7 +223,7 @@ void drawHorizonPoint(const SkyPoint &pt, double radius, SkyPainter *painter)
         std::shared_ptr<SkyPoint> sp(new SkyPoint());
         sp->setAz(az1);
         sp->setAlt(alt1);
-        sp->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
+        sp->HorizontalToEquatorialNow();
         region.append(sp);
     }
     // Repeat the first point.
@@ -232,7 +232,7 @@ void drawHorizonPoint(const SkyPoint &pt, double radius, SkyPainter *painter)
     std::shared_ptr<SkyPoint> sp(new SkyPoint());
     sp->setAz(az1);
     sp->setAlt(alt1);
-    sp->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
+    sp->HorizontalToEquatorialNow();
     region.append(sp);
 
     painter->drawSkyPolygon(&region, false);
@@ -295,7 +295,7 @@ void appendGreatCirclePoints(double az1, double alt1, double az2, double alt2, L
             sp->setAz(az);
             sp->setAlt(alt);
             if (!testing)
-                sp->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
+                sp->HorizontalToEquatorialNow();
             region->append(sp);
         }
     }
@@ -304,7 +304,7 @@ void appendGreatCirclePoints(double az1, double alt1, double az2, double alt2, L
     sp->setAlt(alt2);
     // Is HorizontalToEquatorial necessary in any case?
     if (!testing)
-        sp->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
+        sp->HorizontalToEquatorialNow();
     region->append(sp);
 }
 

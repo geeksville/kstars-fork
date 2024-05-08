@@ -1179,7 +1179,7 @@ int Satellite::sgp4(double tsince)
 
     setAz(azimuth / DEG2RAD);
     setAlt(elevation / DEG2RAD);
-    HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+    HorizontalToEquatorialNow();
 
     // is the satellite visible ?
     // Find ECI coordinates of the sun

@@ -728,7 +728,7 @@ void SkyGLPainter::drawSatellite(Satellite *sat)
     bool visible     = false;
     Eigen::Vector2f pos, vertex;
 
-    sat->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+    sat->HorizontalToEquatorialNow();
 
     pos = m_proj->toScreenVec(sat, true, &visible);
 
@@ -772,7 +772,7 @@ bool SkyGLPainter::drawSupernova(Supernova *sup)
     bool visible     = false;
     Eigen::Vector2f pos, vertex;
 
-    sup->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+    sup->HorizontalToEquatorialNow();
 
     pos = m_proj->toScreenVec(sup, true, &visible);
 
