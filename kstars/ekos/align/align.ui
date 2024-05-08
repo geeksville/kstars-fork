@@ -70,7 +70,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset theme="document-edit"/>
+            <iconset theme="document-edit">
+             <normaloff>.</normaloff>.</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -165,23 +166,8 @@
            <property name="title">
             <string>Solver Action</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_7">
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <property name="leftMargin">
-             <number>3</number>
-            </property>
-            <property name="topMargin">
-             <number>3</number>
-            </property>
-            <property name="rightMargin">
-             <number>3</number>
-            </property>
-            <property name="bottomMargin">
-             <number>3</number>
-            </property>
-            <item>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
              <widget class="QRadioButton" name="syncR">
               <property name="toolTip">
                <string>Synchronize the telescope to the solution coordinates</string>
@@ -200,8 +186,14 @@
               </attribute>
              </widget>
             </item>
-            <item>
+            <item row="1" column="0">
              <widget class="QRadioButton" name="slewR">
+              <property name="maximumSize">
+               <size>
+                <width>70</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="toolTip">
                <string>Synchronize the telescope to the solution coordinates and then slew to the target coordinates</string>
               </property>
@@ -209,14 +201,33 @@
                <string/>
               </property>
               <property name="text">
-               <string>S&amp;lew to Target</string>
+               <string>S&amp;lew to</string>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">gotoModeButtonGroup</string>
               </attribute>
              </widget>
             </item>
-            <item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="targetNameT">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>Target</string>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::MarkdownText</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
              <widget class="QRadioButton" name="nothingR">
               <property name="toolTip">
                <string>Just solve</string>
@@ -718,7 +729,8 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset theme="rotation-allowed"/>
+             <iconset theme="rotation-allowed">
+              <normaloff>.</normaloff>.</iconset>
             </property>
             <property name="iconSize">
              <size>

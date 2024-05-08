@@ -16,6 +16,7 @@
 #include "capturedeviceadaptor.h"
 #include "../ekos.h"
 
+#include "ekos/align/align.h"
 #include <ekos_capture_debug.h>
 #include <QString>
 
@@ -23,6 +24,7 @@
 #define QCDEBUG   qCDebug(KSTARS_EKOS_CAPTURE) << QString("[%1]").arg(getCameraName())
 #define QCINFO    qCInfo(KSTARS_EKOS_CAPTURE) << QString("[%1]").arg(getCameraName())
 #define QCWARNING qCWarning(KSTARS_EKOS_CAPTURE) << QString("[%1]").arg(getCameraName())
+#include "ekos/align/align.h"
 
 namespace
 {

@@ -10,6 +10,7 @@
 #include "cameraprocess.h"     // For process()
 #include "sequencejob.h"       // For SequenceJob and activeJob()
 #include "ekos/auxiliary/darklibrary.h" // For DarkLibrary::Instance()
+#include "ekos/manager.h"
 #include "Options.h" // For Options
 
 #include <ekos_capture_debug.h>
@@ -247,6 +248,7 @@ void Camera::setTargetName(const QString &newTargetName)
     {
         // set the target name in the currently selected job
         targetNameT->setText(newTargetName);
+        Ekos::Manager::Instance()->alignModule()->newTargetName(newTargetName);
         auto rows = queueTable->selectionModel()->selectedRows();
         if(rows.count() > 0)
         {
