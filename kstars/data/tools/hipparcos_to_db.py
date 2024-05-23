@@ -27,74 +27,92 @@ CC = pykstars.CoordinateConversion
 logger = logging.getLogger("Hipparcos-to-DB")
 
 """ This script reads the data stored in the legacy namedstars.dat,
-unnamedstars.dat, deepstars.dat files which was taken from the Hipparcos /
-Tycho2 catalogs, converts it all into ICRS frame, cross-identifies it against
-the original Tycho2 IDs and Henry Draper cross-match, and puts it all in a
-database with proper IDs """
+unnamedstars.dat, deepstars.dat files which was taken from the Hipparcos+Tycho1
+and Tycho2 catalogs, and cross-identifies it against the original Tycho1 and
+Tycho2 IDs. Various catalogs can be cross-matched by DB joins """
 
-# Based on a few spot checks, I determined that whereas the Tycho2 coordinates
-# in KStars (deepstars.dat) are at equinox and epoch of 2000.0, the Hipparcos
-# coordinates (namedstars.dat / unnamedstars.dat) are actually referenced to an
-# equinox of J2000.0, but the proper motions are referenced to the J1991.25 FK5
-# frame and the proper motion correction is NOT applied. There was some
-# discussion about this on the kstars-devel mailing list, where Massimiliano
-# Masserelli pointed out that our positions for bright stars were J1991.25 and
-# not J2000.0 -- this was corrected in the unused ASCII stars.dat, but I do not
-# see an update to the binary namedstars.dat / unnamedstars.dat files
-# corresponding to this change. However, the spot checks seem to show that if I
-# apply reverse-precession to take the coordinates from J2000.0 to J1991.25,
-# then apply the proper motion correction from epoch of J1991.25 to J2000.0,
-# then apply precession from J1991.25 to J2000.0, I can recover excellent
-# agreement with SIMBAD for a couple high--proper motion stars. This makes me
+# Based on various checks, I determined that whereas the Tycho2 coordinates in
+# KStars are at an equinox and epoch of 2000.0, the Hipparcos coordinates are
+# actually referenced to an equinox of J2000.0 (ICRS system), but the proper
+# motions are referenced to the J1991.25 epoch. It appears that the proper
+# motion values are also in the J1991.25 FK5 frame and not in ICRS. The proper
+# motion correction between epoch J1991.25 to J2000.0 is NOT applied. There was
+# some discussion about this on the kstars-devel mailing list, where
+# Massimiliano Masserelli pointed out that our positions for bright stars were
+# J1991.25 and not J2000.0 -- this was corrected in the unused ASCII stars.dat,
+# but I do not see an update to the binary namedstars.dat / unnamedstars.dat /
+# deepstars.dat files corresponding to this change. However, the spot checks
+# seem to show that if I apply reverse-precession to take the coordinates from
+# J2000.0 to J1991.25, then apply the proper motion correction from epoch of
+# J1991.25 to J2000.0, then apply precession from J1991.25 to J2000.0, I can
+# recover excellent agreement with SIMBAD for a couple high--proper motion
+# stars that have J1991.25 coordinates in the binary files. This makes me
 # believe that the original issue Massimiliano faced with star positions in
 # KStars had to do with proper motion and not precession.
 #
-# Spot checks with deepstars.dat had some errors (false identifications of
-# double stars), but some other positions seemed to correctly match J2000.0
-# both in equinox and epoch.
+# It appears that the problem is spread across deepstars.dat / unnamedstars.dat
+# / namedstars.dat -- all files have a mix of J1991.25 and J2000.0 epochs,
+# although the system seems to be uniformly ICRS at least for positions (not
+# sure about proper motions).
+#
+# Therefore, to match the stars, we use an extremely small radius of 1e-5 which
+# is basically equivalent to the round-off errors in our storage of the data
+# itself in the binary files, and match the (ra, dec) from KStars' binary files
+# either to the {epoch=J1991.25, ICRS} coordinates of Hipparcos/Tycho-1 data,
+# or to the {epoch=J2000.0, ICRS} coordinates of Tycho2 data. All stars in
+# named/unnamed/deepstars.dat are observed to match in the database!
+#
+# As a result we can reconstruct a mapping between HIP / TYC identifiers and
+# the stars in our binary files. This enables further processing,
+# i.e. augmenting of the data from AT-HYG (Gaia-informed) and removal of these
+# stars from the add-on Gaia binary files.
 
-meta = {
-    'named': {'ep': 1991.25, 'eq': 2000.0},
-    'unnamed': {'ep': 1991.25, 'eq': 2000.0},
-    'deep': {'ep': 2000.0, 'eq': 2000.0},
-}
+class URL:
+    HD_TYC2 = 'https://vizier.cfa.harvard.edu/viz-bin/asu-tsv?-oc.form=dec&-out.max=unlimited&-c.eq=J2000&-c.r=  2&-c.u=arcmin&-c.geom=r&-source=IV/25/tyc2_hd&-order=I&-out=TYC1&-out=TYC2&-out=TYC3&-out=HD&-out=n_HD&-out=n_TYC&Simbad=Simbad&'
+    TYC2_BASE = 'https://cdsarc.cds.unistra.fr/ftp/cats/I/259/'
+    ATHYG = 'https://www.astronexus.com/downloads/catalogs/athyg_v24.csv.gz'
+    HIP = 'https://cdsarc.cds.unistra.fr/ftp/I/239/hip_main.dat'
+    TYC1 = 'https://cdsarc.cds.unistra.fr/ftp/I/239/tyc_main.dat'
 
-HD_TYC_URL = 'https://vizier.cfa.harvard.edu/viz-bin/asu-tsv?-oc.form=dec&-out.max=unlimited&-c.eq=J2000&-c.r=  2&-c.u=arcmin&-c.geom=r&-source=IV/25/tyc2_hd&-order=I&-out=TYC1&-out=TYC2&-out=TYC3&-out=HD&-out=n_HD&-out=n_TYC&Simbad=Simbad&'
-TYC_BASE_URL = 'https://cdsarc.cds.unistra.fr/ftp/cats/I/259/'
-ATHYG_URL = 'https://www.astronexus.com/downloads/catalogs/athyg_v24.csv.gz'
-HIP_URL = 'https://cdsarc.cds.unistra.fr/ftp/I/239/hip_main.dat'
-TYC1_URL = 'https://cdsarc.cds.unistra.fr/ftp/I/239/tyc_main.dat'
 TARGET_HTM_LEVEL = 6
-SOURCE_HTM_LEVEL = 3
 
 
-CrossMatchParams = collections.namedtuple('CrossMatchParams', [
-    'mag_tolerance',         # Acceptable error in magnitude while matching
-    'free_radius',           # Radius in arcsec for free-matching
-    'mag_constrained_radius' # Radius in arcsec for magnitude-checked matching
-])
+# CrossMatchParams = collections.namedtuple('CrossMatchParams', [
+#     'mag_tolerance',         # Acceptable error in magnitude while matching
+#     'free_radius',           # Radius in arcsec for free-matching
+#     'mag_constrained_radius' # Radius in arcsec for magnitude-checked matching
+# ])
 
-CROSS_MATCH_PARAMS = {
-    'tycho2': CrossMatchParams(mag_tolerance=0.3, free_radius=0.5, mag_constrained_radius=8.5),
-    'athyg': CrossMatchParams(mag_tolerance=0.3, free_radius=0.5, mag_constrained_radius=8.5),
-    'gaia': CrossMatchParams(mag_tolerance=0.4, free_radius=0.5, mag_constrained_radius=7),
-}
-SEARCH_RADIUS = 100.0 # Maximum search radius, must be larger than any above, in arcseconds
+# CROSS_MATCH_PARAMS = {
+#     'tycho2': CrossMatchParams(mag_tolerance=0.3, free_radius=0.5, mag_constrained_radius=8.5),
+#     'athyg': CrossMatchParams(mag_tolerance=0.3, free_radius=0.5, mag_constrained_radius=8.5),
+#     'gaia': CrossMatchParams(mag_tolerance=0.4, free_radius=0.5, mag_constrained_radius=7),
+# }
+
+
+# We search for matches in trixels intersected by a cone of this radius (in arcsec) around KStars' (ra, dec) to allow for proper motion
+SEARCH_RADIUS = 100.0 # Estimated as follows: Barnard's star has a proper motion of 10.35"/yr, and (2000-1991.25)*10.35" comes to ~90"
 
 class TABLE_NAMES:
+    # Tables ingested from downloaded data
     HD_TYC2 = 'hd_tyc2'
     TYCHO2 = 'tycho2'
+    ATHYG = 'athyg'
+    HIPPARCOS = 'hipparcos'
+    TYCHO1 = 'tycho1'
+
+    # Tables ingested from KStars binary files
     KSBIN = 'ksbin'
     KSBIN_NODUPS = 'ksbin_nodups'
+    PM_DUPLICATES = 'pm_duplicates'
+    STARNAMES = 'starnames'
+
+    # Nearest neighbor tables
     KS_TYC2 = 'ks_tyc2'
     KS_TYC1 = 'ks_tyc1'
     KS_HIP = 'ks_hip'
-    ATHYG = 'athyg'
-    PM_DUPLICATES = 'pm_duplicates'
-    STARNAMES = 'starnames'
     KS_ATHYG = 'ks_athyg'
-    HIPPARCOS = 'hipparcos'
-    TYCHO1 = 'tycho1'
+    KS_XM = 'ks_xm'
 
 if sqlite3.threadsafety != 3:
     raise RuntimeError(f'The version of SQLite3 used does not support multiple threads!')
@@ -134,8 +152,30 @@ def xsv_parser(f: IO, table_name: str, conversions: Dict[str, Tuple[int, Callabl
     skip_lines: Skip these many lines in the beginning
     comment: Comment line syntax (None for none)
     flush_interval: Write to DB after parsing these many rows
+
+    Example usage to parse a file of the form:
+
+    # This is some data
+    RA | Dec | Mag | Source | B-V
+    ______________________________
+    15.30957 | -13.51272 | ? | G | 0.33
+    15.34849 | -15.27439 | 13.3 | T | -0.91
+    ...
+
+    ```
+    def post_processor(data):
+        data['trixel'] = indexer.get_trixel(data['ra'], data['dec'])
+
+    with open("/path/to/data.psv", 'r') as f:
+        xsv_parser(f, "my_data", {
+            'RA': (0, float), 'Dec': (1, float),
+            'Mag': (2, lambda x: float(x) if x != "?" else None),
+            'bv_index': (4, lambda x: float(x) if x != "?" else None),
+        }, cursor, separator='|',
+        post_processor=post_processor, skip_lines=2, comment='#')
+    ```
     """
-    
+
     data = []
     skip = skip_lines
 
@@ -220,7 +260,7 @@ def ingest_hd_tyc2(cache_dir: str, cursor: sqlite3.Cursor) -> str:
         TYC3 = entry.pop("TYC3")
         entry["TYC"] = f'{TYC1}-{TYC2}-{TYC3}'
         
-    with open(download_and_cache(HD_TYC_URL, cache_file), 'r') as content:
+    with open(download_and_cache(URL.HD_TYC2, cache_file), 'r') as content:
         logger.info('Parsing and indexing HD-Tycho cross match')
         xsv_parser(
             content, TABLE_NAME, HD_TYC_conversions,
@@ -231,7 +271,7 @@ def ingest_hd_tyc2(cache_dir: str, cursor: sqlite3.Cursor) -> str:
 
     cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
                    (TABLE_NAME, json.dumps({
-                       "url": HD_TYC_URL,
+                       "url": URL.HD_TYC2,
                        "local_file": cache_file,
                        })))
 
@@ -239,6 +279,7 @@ def ingest_hd_tyc2(cache_dir: str, cursor: sqlite3.Cursor) -> str:
     return TABLE_NAME
 
 def hip_tyc1_post_proc(indexer, entry):
+    # Note: in this post-processor, we index both ep=J1991.25 coords and ep=J2000.0 coords
     epra, epdec = entry['epra'], entry['epdec']
     sra = entry.pop('sra')
     sdec = entry.pop('sdec')
@@ -260,6 +301,7 @@ def hip_tyc1_post_proc(indexer, entry):
         jra, jdec = epra, epdec # Use Epoch RA/Dec for indexing
         entry['jra'] = None
         entry['jdec'] = None
+    entry['tgt_trixel_1991'] = indexer.get_trixel(epra, epdec)
     entry['tgt_trixel'] = indexer.get_trixel(jra, jdec)
 
 
@@ -280,9 +322,11 @@ def ingest_hipparcos(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.
                    "    sp_type TEXT,"
                    "    jra REAL,"
                    "    jdec REAL,"
+                   "    tgt_trixel_1991 INTEGER NOT NULL,"
                    "    tgt_trixel INTEGER NOT NULL)"
                    )
     cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel ON {TABLE_NAME}(tgt_trixel)")
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel ON {TABLE_NAME}(tgt_trixel_1991)")
     cursor.execute(f"DELETE FROM `{TABLE_NAME}`")
 
     cache_file = os.path.join(cache_dir, 'hip_main.dat')
@@ -302,7 +346,7 @@ def ingest_hipparcos(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.
         'sp_type': (76, str),
     }
 
-    with open(download_and_cache(HIP_URL, cache_file), 'r') as content:
+    with open(download_and_cache(URL.HIP, cache_file), 'r') as content:
         logger.info('Parsing and indexing Hipparcos catalog')
         xsv_parser(
             content, TABLE_NAME, conversions,
@@ -312,7 +356,7 @@ def ingest_hipparcos(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.
 
     cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
                    (TABLE_NAME, json.dumps({
-                       "url": HIP_URL,
+                       "url": URL.HIP,
                        "local_file": cache_file,
                        })))
 
@@ -336,9 +380,11 @@ def ingest_tycho1(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.Cur
                    "    bv_index REAL,"
                    "    jra REAL,"
                    "    jdec REAL,"
+                   "    tgt_trixel_1991 INTEGER NOT NULL,"
                    "    tgt_trixel INTEGER NOT NULL)"
     )
     cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel ON {TABLE_NAME}(tgt_trixel)")
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel ON {TABLE_NAME}(tgt_trixel_1991)")
     cursor.execute(f"DELETE FROM `{TABLE_NAME}`")
 
     cache_file = os.path.join(cache_dir, 'tyc_main.dat')
@@ -357,7 +403,7 @@ def ingest_tycho1(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.Cur
         'bv_index': (37, float),
     }
 
-    with open(download_and_cache(TYC1_URL, cache_file), 'r') as content:
+    with open(download_and_cache(URL.TYC1, cache_file), 'r') as content:
         logger.info('Parsing and indexing Tycho1 catalog')
         xsv_parser(
             content, TABLE_NAME, conversions,
@@ -367,7 +413,7 @@ def ingest_tycho1(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.Cur
 
     cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
                    (TABLE_NAME, json.dumps({
-                       "url": TYC1_URL,
+                       "url": URL.TYC1,
                        "local_file": cache_file,
                        })))
 
@@ -451,7 +497,7 @@ def ingest_athyg(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Curs
     """ Download the AT-HYG dataset, index it with `indexer`, and ingest it into the DB """
 
     TABLE_NAME = TABLE_NAMES.ATHYG
-    path = download_and_cache(ATHYG_URL, os.path.join(cache_dir, os.path.basename(ATHYG_URL)))
+    path = download_and_cache(URL.ATHYG, os.path.join(cache_dir, os.path.basename(URL.ATHYG)))
 
     cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TABLE_NAME}` ("
                    "    id INTEGER PRIMARY KEY,"        # Primary key integer
@@ -526,7 +572,7 @@ def ingest_athyg(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Curs
     )
     cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
                    (TABLE_NAME, json.dumps({
-                       "url": TYC1_URL,
+                       "url": URL.ATHYG,
                        "local_file": path,
                        })))
 
@@ -543,7 +589,7 @@ def ingest_tycho2(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cur
     paths = []
     for part in range(20):
         paths.append(
-            download_and_cache(TYC_BASE_URL + f'tyc2.dat.{part:02}.gz', os.path.join(cache_dir, f'tyc2.dat.{part:02}.gz'))
+            download_and_cache(URL.TYC2_BASE + f'tyc2.dat.{part:02}.gz', os.path.join(cache_dir, f'tyc2.dat.{part:02}.gz'))
         )
 
     cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TABLE_NAME}` ("
@@ -565,37 +611,39 @@ def ingest_tycho2(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cur
     _ = list(tqdm.tqdm(map(ingester, paths), total=len(paths)))
 
     # Ingest the Tycho2 Supplement 1 (Tycho1 / Hipparcos stars)
-    supplement_path = download_and_cache(TYC_BASE_URL + f'suppl_1.dat.gz', os.path.join(cache_dir, f'suppl_1.dat.gz'))
+    supplement_path = download_and_cache(URL.TYC2_BASE + f'suppl_1.dat.gz', os.path.join(cache_dir, f'suppl_1.dat.gz'))
     ingest_tycho2_supplement(supplement_path, indexer, cursor, TABLE_NAME)
 
     cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
                    (TABLE_NAME, json.dumps({
-                       "url": TYC_BASE_URL,
+                       "url": URL.TYC2_BASE,
                        "local_dir": cache_dir,
                        "local_paths": paths,
                        "htm_level": indexer.level,
                        })))
     return TABLE_NAME
 
-def ingest_kstars_binary_files(indexer: pykstars.Indexer, meta: dict, starnames_path: str, cursor: sqlite3.Cursor) -> str:
-    for key, value in meta.items():
-        if value['path'] is None:
-            raise ValueError(f'Have not supplied path for {key} stars binary file')
-    if starnames_path is None:
-        raise ValueError(f'Ingesting KStars binary data, but starnames.dat path is not provided!')
+def ingest_kstars_binary_files(indexer: pykstars.Indexer, paths: dict, cursor: sqlite3.Cursor) -> str:
+    expected_paths = {'named', 'unnamed', 'deep', 'starnames'}
+    if len(expected_paths - set(paths)) > 0:
+        raise ValueError(f'Have not supplied paths for the following binary files: {", ".join(list(expected_paths - set(paths)))}')
+    for key, path in paths.items():
+        if path is None:
+            raise ValueError(f'Have not supplied path for {key} star binary file.')
+
     KSBIN_TABLE = TABLE_NAMES.KSBIN
     STARNAMES_TABLE = TABLE_NAMES.STARNAMES
     cursor.execute(f"CREATE TABLE IF NOT EXISTS `{KSBIN_TABLE}` ("
                    "    id INTEGER PRIMARY KEY,"        # Primary key integer
-                   "    ra REAL NOT NULL,"              # ICRS RA in degrees, either J1991.25 or J2000.0 :-(
-                   "    dec REAL NOT NULL,"             # ICRS Dec in degrees, either J1991.25 or J2000.0 :-(
+                   "    ra REAL NOT NULL,"              # ICRS RA in degrees, epoch either J1991.25 or J2000.0 :-(
+                   "    dec REAL NOT NULL,"             # ICRS Dec in degrees, epoch either J1991.25 or J2000.0 :-(
                    "    file TEXT NOT NULL,"            # Filename (deep / named / unnamed)
                    "    trixel INTEGER NOT NULL,"       # Trixel number in source binary file
                    "    tr_index INTEGER NOT NULL,"     # Index of star record within trixel
                    "    offset INTEGER NOT NULL,"       # Offset within binary file
                    "    HD INTEGER,"                    # Primary Henry Draper identification (can be null)
-                   "    B REAL,"                        # B magnitude
                    "    V REAL,"                        # V magnitude
+                   "    bv_index REAL,"                 # B-V color index
                    # "    epra REAL,"                     # RA at the J1991.25 epoch if applicable
                    # "    epdec REAL,"                    # Dec at the J1991.25 epoch if applicable
                    "    pmra REAL,"                     # Proper motion in RA (which frame?)
@@ -618,7 +666,7 @@ def ingest_kstars_binary_files(indexer: pykstars.Indexer, meta: dict, starnames_
     )
     ##
     # NOTE: WE DO NOT APPLY THE BELOW CORRECTION TO MATCH PRECISELY!
-    # Correction to apply for Hipparcos (namedstars.dat / unnamedstars.dat):
+    # Correction to apply for Tycho-1 data in KStars binary file
     #
     # r, d = CC.precess(s['RA'] * 15.0, s['Dec'], 2000.0, 1991.25)
     # r, d = CC.proper_motion(r, d, s['dRA'], s['dDec'], 1991.25, 2000.0)
@@ -627,12 +675,7 @@ def ingest_kstars_binary_files(indexer: pykstars.Indexer, meta: dict, starnames_
     ##
 
 
-    # cursor.execute("DELETE FROM HenryDraper") # Truncate the table
-    # cursor.execute("DELETE FROM metadata")
-    cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
-                   (KSBIN_TABLE, json.dumps({
-                       "files": meta,
-                       "target_htm_level": TARGET_HTM_LEVEL})))
+    starnames_path = paths.pop('starnames')
     cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
                    (STARNAMES_TABLE, json.dumps({
                        "file": starnames_path
@@ -640,22 +683,26 @@ def ingest_kstars_binary_files(indexer: pykstars.Indexer, meta: dict, starnames_
     cursor.execute(f"DELETE FROM {KSBIN_TABLE}")
     cursor.execute(f"DELETE FROM {STARNAMES_TABLE}")
 
-    for key, info in meta.items():
-        logger.info(f'Processing {key} stars from {info["path"]}')
-        reader = stardataio.KSStarDataReader(info['path'])
+    source_htm_level = None
+    for key, path in paths.items():
+        logger.info(f'Processing {key} stars from {path}')
+        reader = stardataio.KSStarDataReader(path)
+        if source_htm_level is None:
+            source_htm_level = reader.htm_level
+        if reader.htm_level != source_htm_level:
+            raise RuntimeError(f'The source HTMesh levels of the files do not match!')
         if key == 'named':
             # Also open starnames.dat and ingest star names
             starnames = stardataio.KSBinFileReader(starnames_path)[0] # All data in trixel 0
             starname_index = 0
 
-        ep, eq = info['ep'], info['eq']
         for trixel in tqdm.tqdm(reader, total=len(reader)):
             for tr_index, star in enumerate(trixel):
                 r, d = star['RA'] * 15.0, star['Dec']   # degrees
                 pmra, pmdec = star['dRA'], star['dDec'] # mas/yr
                 HD = star.get_unscaled('HD')
                 V = star['mag']
-                B = V + star['bv_index']
+                bv_index = star['bv_index']
                 if HD == 0:
                     HD = None
                 named = False
@@ -671,44 +718,14 @@ def ingest_kstars_binary_files(indexer: pykstars.Indexer, meta: dict, starnames_
                     starname_index += 1
                     named = True
 
-                # # Convert epoch / equinox to ICRS
-                # epra, epdec = None, None
-                # if ep != eq:
-                #     epra, epdec = r, d
-                #     r, d = CC.precess(r, d, eq, ep)
-                # if ep != 2000.0:
-                #     r, d = CC.proper_motion(r, d, pmra, pmdec, ep, 2000.0)
-                #     r, d = CC.precess(r, d, ep, 2000.0)
-
-                # Index
-                tgt_trixel = indexer.get_trixel(r, d)
-
-                # # Cross-match with Henry Draper
-                # candidates = []
-                # HDs = []
-                # match_dist = None
-                # for tr in indexer.get_trixels(r, d, HD_XMATCH_RADIUS * 1.20): # 20% buffer factor
-                #     for hd_entry in HenryDraper.get(tr, []):
-                #         hdra, hddec = hd_entry['_RAJ2000'], hd_entry['_DEJ2000']
-                #         dist = CC.angular_distance(r, d, hdra, hddec)
-                #         if dist <= HD_XMATCH_RADIUS:
-                #             candidates.append((dist, hd_entry))
-                # if len(candidates) > 0:
-                #     candidates = sorted(candidates, key=lambda t: (t[0], t[1]['HD']))
-                #     N_HD = candidates[0][1]['n_HD']
-                #     HDs = [entry[1]['HD'] for entry in candidates[:N_HD]]
-                #     match_dist = candidates[0][0]
-                # for HD in HDs:
-                #     N_HD_Matched += 1
-                #     cursor.execute("INSERT INTO HenryDraper (HD, file, trixel, tr_index, offset, match_dist) VALUES (?, ?, ?, ?, ?, ?)",
-                #                    (HD, key, trixel.id(), tr_index, star.offset, match_dist))
+                tgt_trixel = indexer.get_trixel(r, d) # Note: We are indexing whatever is in the file, may be J1991.25, may be J2000.0
 
                 if pmra == 0. and pmdec == 0.:
                     pmra, pmdec = None, None
                 cursor.execute(
-                    f"INSERT INTO {KSBIN_TABLE} (ra, dec, file, trixel, tr_index, offset, HD, B, V, pmra, pmdec, tgt_trixel) "
+                    f"INSERT INTO {KSBIN_TABLE} (ra, dec, file, trixel, tr_index, offset, HD, bv_index, V, pmra, pmdec, tgt_trixel) "
                     f"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (r, d, key, trixel.id(), tr_index, star.offset, HD, B, V, pmra, pmdec, tgt_trixel)
+                    (r, d, key, trixel.id(), tr_index, star.offset, HD, bv_index, V, pmra, pmdec, tgt_trixel)
                 )
                 if named:
                     ksbin_id = cursor.lastrowid
@@ -717,12 +734,22 @@ def ingest_kstars_binary_files(indexer: pykstars.Indexer, meta: dict, starnames_
                         (ksbin_id, longName, bayerName)
                     )
 
+    cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
+                   (KSBIN_TABLE, json.dumps({
+                       "files": paths,
+                       "target_htm_level": TARGET_HTM_LEVEL,
+                       "source_htm_level": source_htm_level
+                    })))
 
     return KSBIN_TABLE
 
 def find_pm_duplicates(indexer: pykstars.Indexer, cursor: sqlite3.Cursor) -> str:
     N_trixel = (4 ** indexer.level) * 8
-    src_indexer = pykstars.Indexer(SOURCE_HTM_LEVEL)
+    # Determine HTMesh level of KStars binary data
+    ksbin_metadata = json.loads(cursor.execute(f"SELECT info FROM metadata WHERE table_name = '{TABLE_NAMES.KSBIN}'").fetchall()[0][0])
+    source_htm_level = ksbin_metadata['source_htm_level']
+    src_indexer = pykstars.Indexer(source_htm_level)
+    logger.info(f'Duplicate removal determined source indexer HTMesh level to be {source_htm_level}, i.e. {(4 ** source_htm_level) * 8} trixels.')
     TABLE_NAME = TABLE_NAMES.PM_DUPLICATES
     cursor.execute(
         f"CREATE TABLE IF NOT EXISTS `{TABLE_NAME}` ("
@@ -769,30 +796,20 @@ def find_pm_duplicates(indexer: pykstars.Indexer, cursor: sqlite3.Cursor) -> str
     return TABLE_NAME
 
 def prepare_xmatch_tables(table_name: str, cursor: sqlite3.Cursor):
-    # Match table
-    cursor.execute(
-        f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
-        "    ks_id INTEGER PRIMARY KEY,"
-        "    xm_id INTEGER NOT NULL,"
-        "    match_dist REAL NOT NULL,"
-        "    delta_mag REAL)"
-    )
-    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{table_name}__xm ON {table_name}(xm_id)")
-    cursor.execute(f"DELETE FROM {table_name}")
-
     # Nearest-Neighbor table
     cursor.execute(
-        f"CREATE TABLE IF NOT EXISTS `{table_name}_nn` ("
+        f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
         "    ks_id INTEGER PRIMARY_KEY,"
         "    xm_id INTEGER NOT NULL,"
         "    dist REAL NOT NULL)"
     )
-    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{table_name}_nn__xm ON {table_name}_nn(xm_id)")
-    cursor.execute(f"DELETE FROM {table_name}_nn")
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{table_name}__xm ON {table_name}(xm_id)")
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{table_name}__dist ON {table_name}(dist)")
+    cursor.execute(f"DELETE FROM {table_name}")
 
 def read_ksbin_from_trixel(trixel: int, cursor: sqlite3.Cursor):
     return cursor.execute(
-        f"SELECT `id`, `ra`, `dec`, `V` FROM {TABLE_NAMES.KSBIN_NODUPS} "
+        f"SELECT `id`, `ra`, `dec` FROM {TABLE_NAMES.KSBIN_NODUPS} "
         f"WHERE {TABLE_NAMES.KSBIN_NODUPS}.tgt_trixel = {trixel} "
     ).fetchall()
 
@@ -820,41 +837,42 @@ def distance_grid(queries: np.ndarray, candidates: np.ndarray) -> np.ndarray:
     return distances
 
 
-def difference_grid(queries: np.ndarray, candidates: np.ndarray) -> np.ndarray:
-    """ Computes differences between scalar quantities
+# def difference_grid(queries: np.ndarray, candidates: np.ndarray) -> np.ndarray:
+#     """ Computes differences between scalar quantities
 
-    Takes an M-long array of query values and N-long array of candidate values
+#     Takes an M-long array of query values and N-long array of candidate values
 
-    Returns a M x N array of their differences
+#     Returns a M x N array of their differences
 
-    delta[i, j] = queries[i] - candidates[j]
-    """
-    M = len(queries)
-    N = len(candidates)
-    return (np.broadcast_to(queries, (N, M)) - np.broadcast_to(candidates, (M, N)).T).T
+#     delta[i, j] = queries[i] - candidates[j]
+#     """
+#     M = len(queries)
+#     N = len(candidates)
+#     return (np.broadcast_to(queries, (N, M)) - np.broadcast_to(candidates, (M, N)).T).T
 
-def cross_match(distances: np.ndarray, delta_mag_grid: np.ndarray, params: CrossMatchParams):
-    """ Cross-matches and returns nearest neighbors and matches
+# def cross_match(distances: np.ndarray, delta_mag_grid: np.ndarray, params: CrossMatchParams):
+#     """ Cross-matches and returns nearest neighbors and matches
 
-    distances: M X N array of angular distances in degrees
-    delta_mag_grid: M x N array of magnitude differences
-    params: cross-matching criterion parameters
+#     distances: M X N array of angular distances in degrees
+#     delta_mag_grid: M x N array of magnitude differences
+#     params: cross-matching criterion parameters
 
-    Returns: A tuple (Nearest Neighbor Indices, Match Dictionary mapping Query indices to Match indices)
-    """
+#     Returns: A tuple (Nearest Neighbor Indices, Match Dictionary mapping Query indices to Match indices)
+#     """
 
-    nn_inds = distances.argmin(axis=1)
-    ABSURDLY_LARGE_DISTANCE = 181
-    
-    candidate_inds = np.where((distances <= params.free_radius/3600.) | (delta_mag_grid <= params.mag_tolerance),
-                        distances, ABSURDLY_LARGE_DISTANCE).argmin(axis=1) # Candidate indices
-    matched_query_inds, = np.where(distances[np.arange(candidate_inds.shape[0]), candidate_inds] <= params.mag_constrained_radius)
+#     nn_inds = distances.argmin(axis=1)
+#     ABSURDLY_LARGE_DISTANCE = 181
 
-    return nn_inds, dict(zip(matched_query_inds, candidate_inds[matched_query_inds]))
-    
+#     candidate_inds = np.where((distances <= params.free_radius/3600.) | (delta_mag_grid <= params.mag_tolerance),
+#                         distances, ABSURDLY_LARGE_DISTANCE).argmin(axis=1) # Candidate indices
+#     matched_query_inds, = np.where(distances[np.arange(candidate_inds.shape[0]), candidate_inds] <= params.mag_constrained_radius)
+
+#     return nn_inds, dict(zip(matched_query_inds, candidate_inds[matched_query_inds]))
 
 def match_kstars_tycho2(indexer: pykstars.Indexer, cursor: sqlite3.Cursor) -> str:
-    """ Cross match KStars star catalogs gainst Tycho2 using (RA, Dec, VT)
+    """ Tabulate nearest neighbors of KStars star catalog entries against Tycho2
+
+    Uses the (RA, Dec) in the KStars files assuming they are ep=J2000.0, ICRS coords
     """
     N_trixel = (4 ** indexer.level) * 8
 
@@ -865,34 +883,26 @@ def match_kstars_tycho2(indexer: pykstars.Indexer, cursor: sqlite3.Cursor) -> st
         ksbin = read_ksbin_from_trixel(trixel, cursor)
 
         query_trixels = set()
-        for _, ra, dec, _ in ksbin:
+        for _, ra, dec in ksbin:
             for t in indexer.get_trixels(ra, dec, SEARCH_RADIUS/3600.0):
                 query_trixels.add(t)
 
         cursor.execute(
-            f"SELECT `id`, COALESCE(`jra`, `epra`), COALESCE(`jdec`, `epdec`), `VT` "
+            f"SELECT `id`, COALESCE(`jra`, `epra`), COALESCE(`jdec`, `epdec`)"
             f"FROM {TABLE_NAMES.TYCHO2} WHERE `tgt_trixel` IN (" + ", ".join(map(str, query_trixels)) + ")"
         )
         tycho2 = cursor.fetchall()
 
         # Calculate pair-wise angular distance
-        ksbin_data = np.asarray(ksbin)[:, 1:4].astype(np.float64)
-        tycho2_data = np.asarray(tycho2)[:, 1:].astype(np.float64)
+        ksbin_data = np.asarray(ksbin)[:, 1:]
+        tycho2_data = np.asarray(tycho2)[:, 1:]
 
-        distances = distance_grid(ksbin_data[:, :2], tycho2_data[:, :2])
-        delta_mag_grid = difference_grid(ksbin_data[:, 2:].squeeze(), tycho2_data[:, 2:].squeeze())
+        distances = distance_grid(ksbin_data, tycho2_data)
+        nn_inds = distances.argmin(axis=1)
 
-        nn_inds, matches = cross_match(distances, delta_mag_grid, CROSS_MATCH_PARAMS['tycho2'])
-
-        try:
-            cursor.executemany(
-                f"INSERT INTO {TABLE_NAMES.KS_TYC2} (ks_id, xm_id, match_dist, delta_mag) VALUES (?, ?, ?, ?)",
-                [(ksbin[i][0], tycho2[j][0], distances[i, j], delta_mag_grid[i, j]) for i, j in matches.items()])
-            cursor.executemany(
-                f"INSERT INTO {TABLE_NAMES.KS_TYC2}_nn (ks_id, xm_id, dist) VALUES (?, ?, ?)",
+        cursor.executemany(
+                f"INSERT INTO {TABLE_NAMES.KS_TYC2} (ks_id, xm_id, dist) VALUES (?, ?, ?)",
                 [(ksbin[i][0], tycho2[j][0], distances[i, j]) for i, j in enumerate(nn_inds)])
-        except Exception as e:
-            embed(header=str(e))
 
     return TABLE_NAMES.KS_TYC2
 
@@ -907,92 +917,65 @@ def match_kstars_athyg(indexer: pykstars.Indexer, cursor: sqlite3.Cursor) -> str
     for trixel in tqdm.tqdm(range(N_trixel)):
         ksbin = read_ksbin_from_trixel(trixel, cursor)
         query_trixels = set()
-        for _, ra, dec, _ in ksbin:
+        for _, ra, dec in ksbin:
             for t in indexer.get_trixels(ra, dec, SEARCH_RADIUS/3600.0):
                 query_trixels.add(t)
 
         cursor.execute(
-            f"SELECT `id`, `ra`, `dec`, `mag` "
+            f"SELECT `id`, `ra`, `dec` "
             f"FROM {TABLE_NAMES.ATHYG} WHERE `tgt_trixel` IN (" + ", ".join(map(str, query_trixels)) + ")"
         )
         athyg = cursor.fetchall()
 
         # Calculate pair-wise angular distance
-        try:
-            ksbin_data = np.asarray(ksbin)[:, 1:4].astype(np.float64)
-            athyg_data = np.asarray(athyg)[:, 1:].astype(np.float64)
-        except:
-            embed()
+        ksbin_data = np.asarray(ksbin)[:, 1:]
+        athyg_data = np.asarray(athyg)[:, 1:]
 
-        distances = distance_grid(ksbin_data[:, :2], athyg_data[:, :2])
-        delta_mag_grid = difference_grid(ksbin_data[:, 2:].squeeze(), athyg_data[:, 2:].squeeze())
-
-        nn_inds, matches = cross_match(distances, delta_mag_grid, CROSS_MATCH_PARAMS['athyg'])
+        distances = distance_grid(ksbin_data, athyg_data)
+        nn_inds = distances.argmin(axis=1)
 
         cursor.executemany(
-            f"INSERT INTO {TABLE_NAMES.KS_ATHYG} (ks_id, xm_id, match_dist, delta_mag) VALUES (?, ?, ?, ?)",
-            [(ksbin[i][0], athyg[j][0], distances[i, j], delta_mag_grid[i, j]) for i, j in matches.items()])
-        cursor.executemany(
-            f"INSERT INTO {TABLE_NAMES.KS_ATHYG}_nn (ks_id, xm_id, dist) VALUES (?, ?, ?)",
+            f"INSERT INTO {TABLE_NAMES.KS_ATHYG} (ks_id, xm_id, dist) VALUES (?, ?, ?)",
             [(ksbin[i][0], athyg[j][0], distances[i, j]) for i, j in enumerate(nn_inds)])
 
     return TABLE_NAMES.KS_ATHYG
 
 def match_kstars_hip_tyc1(indexer: pykstars.Indexer, cursor: sqlite3.Cursor):
     """
-    Cross-match the KStars named and unnamed star catalogs against HIP/TYC1 using J1991.25 coords
+    Cross-match the KStars binary catalogs against HIP/TYC1 using J1991.25 coords
+
+    Assume that the coordinates in the files are ep=J1991.25 ICRS coordinates
     """
     N_trixel = (4 ** indexer.level) * 8
 
     logger.info(f'Cross-matching Hipparcos/Tycho-1 with KStars binary files')
 
-    cursor.execute(
-        f"CREATE TABLE IF NOT EXISTS `{TABLE_NAMES.KS_HIP}` ("
-        "    ks_id INTEGER PRIMARY KEY,"
-        "    xm_id INTEGER NOT NULL,"
-        "    dist REAL NOT NULL)"
-    )
-    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAMES.KS_HIP}__xm ON {TABLE_NAMES.KS_HIP}(xm_id)")
-    cursor.execute(f"DELETE FROM {TABLE_NAMES.KS_HIP}")
-
-    cursor.execute(
-        f"CREATE TABLE IF NOT EXISTS `{TABLE_NAMES.KS_TYC1}` ("
-        "    ks_id INTEGER PRIMARY_KEY,"
-        "    xm_id TEXT NOT NULL,"
-        "    dist REAL NOT NULL)"
-    )
-    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAMES.KS_TYC1}__xm ON {TABLE_NAMES.KS_TYC1}(xm_id)")
-    cursor.execute(f"DELETE FROM {TABLE_NAMES.KS_TYC1}")
+    prepare_xmatch_tables(TABLE_NAMES.KS_HIP, cursor)
+    prepare_xmatch_tables(TABLE_NAMES.KS_TYC1, cursor)
 
     for trixel in tqdm.tqdm(range(N_trixel)):
-        ksbin = cursor.execute(
-            f"SELECT `id`, `ra`, `dec`, `V` FROM {TABLE_NAMES.KSBIN_NODUPS} "
-            f"WHERE {TABLE_NAMES.KSBIN_NODUPS}.tgt_trixel = {trixel} "
-        ).fetchall()
+        ksbin = read_ksbin_from_trixel(trixel, cursor)
+
         query_trixels = set()
-        for _, ra, dec, _ in ksbin:
+        for _, ra, dec, in ksbin:
             for t in indexer.get_trixels(ra, dec, SEARCH_RADIUS/3600.0):
                 query_trixels.add(t)
-            # if epra is not None:
-            #     assert epdec is not None
-            #     for t in indexer.get_trixels(epra, epdec, SEARCH_RADIUS/3600.0): # Just to be safe
-            #         query_trixels.add(t)
 
         hip = cursor.execute(
-            f"SELECT `HIP`, `epra`, `epdec`, `V` "
-            f"FROM {TABLE_NAMES.HIPPARCOS} WHERE `tgt_trixel` IN (" + ", ".join(map(str, query_trixels)) + ")"
+            f"SELECT `HIP`, `epra`, `epdec` "
+            f"FROM {TABLE_NAMES.HIPPARCOS} WHERE `tgt_trixel_1991` IN (" + ", ".join(map(str, query_trixels)) + ")"
         ).fetchall()
         tyc1 = cursor.execute(
-            f"SELECT `TYC`, `epra`, `epdec`, COALESCE(`V`, `VT`) "
-            f"FROM {TABLE_NAMES.TYCHO1} WHERE `tgt_trixel` IN (" + ", ".join(map(str, query_trixels)) + ")"
+            f"SELECT `TYC`, `epra`, `epdec` "
+            f"FROM {TABLE_NAMES.TYCHO1} WHERE `tgt_trixel_1991` IN (" + ", ".join(map(str, query_trixels)) + ")"
         ).fetchall()
         # Note that tgt_trixel is computed on jra / jdec
 
         # Calculate pair-wise angular distance using J1991.25 ICRS coordinates
         try:
-            ksbin_data = np.asarray([[ra, dec] for _, ra, dec, _ in ksbin])
-            hip_data = np.asarray([[epra, epdec] for _, epra, epdec, _ in hip])
-            tyc1_data = np.asarray([[epra, epdec] for _, epra, epdec, _ in tyc1])
+            ksbin_data = np.asarray([[ra, dec] for _, ra, dec in ksbin])
+            hip_data = np.asarray([[epra, epdec] for _, epra, epdec in hip])
+            tyc1_data = np.asarray([[epra, epdec] for _, epra, epdec in tyc1])
 
             if len(hip_data) > 0:
                 distances = distance_grid(ksbin_data, hip_data)
@@ -1014,8 +997,46 @@ def match_kstars_hip_tyc1(indexer: pykstars.Indexer, cursor: sqlite3.Cursor):
 
     return TABLE_NAMES.KS_ATHYG
 
-    
+def create_xm_view(cursor: sqlite3.Cursor):
+    ks = TABLE_NAMES.KSBIN_NODUPS
+    t1 = TABLE_NAMES.KS_TYC1
+    t2 = TABLE_NAMES.KS_TYC2
+    tycho2 = TABLE_NAMES.TYCHO2
+    ks_xm = TABLE_NAMES.KS_XM
+    ks_xm_v = f"{ks_xm}_view"
+    LARGE_DISTANCE = 181 # In degrees
+    TOLERANCE = 0.00001  # In degrees
+    t1_dist_coalesced = f"COALESCE({t1}.dist, {LARGE_DISTANCE})"
+    cursor.execute(
+        f"CREATE VIEW IF NOT EXISTS {ks_xm_v} AS "
+        f"SELECT {ks}.id AS ks_id, "
+        f"MIN({t1_dist_coalesced}, {t2}.dist) AS dist, " # MIN ignores NULL values
+        f"IIF({t1_dist_coalesced} < {t2}.dist, {t1}.xm_id, {tycho2}.TYC) AS TYC "
+        f"FROM {ks} "
+        f"LEFT JOIN {t1} ON {t1}.ks_id = {ks}.id "
+        f"LEFT JOIN {t2} ON {t2}.ks_id = {ks}.id "
+        f"INNER JOIN {tycho2} ON {tycho2}.id = {t2}.xm_id "
+        f"WHERE MIN({t1_dist_coalesced}, {t2}.dist) < {TOLERANCE}"
+    )
 
+    # Check that everything is fully-matched up!
+    unmatched = cursor.execute(
+        f"SELECT COUNT(*) FROM {ks} "
+        f"LEFT JOIN {ks_xm_v} ON {ks_xm_v}.ks_id = {ks}.id "
+        f"WHERE {ks_xm_v}.ks_id IS NULL"
+    ).fetchone()[0]
+
+    if unmatched > 0:
+        logger.error(f"FOUND {unmatched} UNMATCHED STARS IN KSTARS CATALOGS! Inspect the view {ks_xm_v}")
+    else:
+        cursor.execute(f"CREATE TABLE IF NOT EXISTS {ks_xm} AS SELECT * FROM {ks_xm_v}")
+        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{ks_xm}__TYC ON {ks_xm}(TYC)")
+        logger.info(f"Success! KStars catalogs are fully matched with tolerance {TOLERANCE}° and the results are in the table {ks_xm}")
+
+        logger.warning(f"Examine for duplicate Tycho2 -> KStars mappings:")
+        print(str(cursor.execute(f"SELECT TYC, COUNT(TYC) FROM {ks_xm} GROUP BY TYC HAVING COUNT(TYC) > 1").fetchall()))
+
+    return TABLE_NAMES.KS_XM
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Uniformize Hipparcos/Tycho2 binary data into SQLite DB')
@@ -1134,8 +1155,12 @@ def main(argv):
 
     indexer = pykstars.Indexer(TARGET_HTM_LEVEL)
 
-    for key, path in [('named', args.namedstars), ('unnamed', args.unnamedstars), ('deep', args.deepstars)]:
-        meta[key]['path'] = path
+    paths = dict([
+        ('named', args.namedstars),
+        ('unnamed', args.unnamedstars),
+        ('deep', args.deepstars),
+        ('starnames', args.starnames),
+    ])
 
     connection = sqlite3.connect(args.output)
     cursor = connection.cursor()
@@ -1168,7 +1193,7 @@ def main(argv):
         logger.warning('Skipping ingestion of Tycho2 data because it seems to be done already.')
 
     if args.force_ks or estimated_row_count(TABLE_NAMES.KSBIN, cursor) < 1:
-        logger.info('Re-indexed and ingested KStars binary files into ' + ingest_kstars_binary_files(indexer, meta, args.starnames, cursor))
+        logger.info('Re-indexed and ingested KStars binary files into ' + ingest_kstars_binary_files(indexer, paths, cursor))
         connection.commit()
     else:
         logger.warning('Skipping ingestion of KStars binary files because it seems to be done already.')
@@ -1203,7 +1228,10 @@ def main(argv):
     else:
         logger.warning('Skipping generation of KStars-Hipparcos cross-match because it seems to be done already.')
 
-
+    # Create cross-match view
+    logger.info('Creating cross-match view if it does not exist')
+    create_xm_view(cursor)
+    connection.commit()
 
     connection.commit()
     connection.close()
