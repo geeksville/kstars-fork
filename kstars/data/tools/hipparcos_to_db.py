@@ -435,6 +435,7 @@ def ingest_tycho2_chunk(path: str, indexer: pykstars.Indexer, cursor: sqlite3.Cu
         BT, VT = map(floatify, (line[17], line[19]))
         jra, jdec = map(floatify, (line[2], line[3]))
         epra, epdec = map(floatify, (line[24], line[25]))
+        posflag = line[30] if len(line[30].strip(' ')) > 0 else None
         assert epra is not None
         assert epdec is not None
         if jra is not None:
@@ -446,13 +447,13 @@ def ingest_tycho2_chunk(path: str, indexer: pykstars.Indexer, cursor: sqlite3.Cu
             decs.append(epdec)
 
         data.append(
-            (TYC, jra, jdec, epra, epdec, BT, VT))
+            (TYC, jra, jdec, epra, epdec, BT, VT, posflag))
 
     f.close()
     trixels = indexer.get_trixel(np.asarray(ras), np.asarray(decs), False)
     logger.info(f'Ingesting Tycho2 data from {path}')
     cursor.executemany(
-        f"INSERT INTO `{TABLE_NAME}` (TYC, jra, jdec, epra, epdec, BT, VT, tgt_trixel) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        f"INSERT INTO `{TABLE_NAME}` (TYC, jra, jdec, epra, epdec, BT, VT, posflag, tgt_trixel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [datum + (int(trixel),) for datum, trixel in zip(data, trixels)])
 
 def ingest_tycho2_supplement(path: str, indexer: pykstars.Indexer, cursor: sqlite3.Cursor, TABLE_NAME: str):
@@ -601,6 +602,7 @@ def ingest_tycho2(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cur
                    "    epdec REAL NOT NULL, "          # ICRS RA at observation epoch
                    "    BT REAL,"                       # B magnitude
                    "    VT REAL,"                       # V magnitude
+                   "    posflag TEXT,"                  # Position flag indicating whether double / possible-double star
                    "    tgt_trixel INTEGER NOT NULL)"   # Trixel number (calculated using J2000.0 RA/Dec if available, else Epoch RA/Dec)
                    )
     cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__TYC ON {TABLE_NAME}(TYC)")
@@ -880,25 +882,78 @@ def match_kstars_tycho2(indexer: pykstars.Indexer, cursor: sqlite3.Cursor) -> st
     prepare_xmatch_tables(TABLE_NAMES.KS_TYC2, cursor)
 
     for trixel in tqdm.tqdm(range(N_trixel)):
-        ksbin = read_ksbin_from_trixel(trixel, cursor)
+        ksbin = cursor.execute(
+            f"SELECT `id`, `ra`, `dec`, `V` FROM {TABLE_NAMES.KSBIN_NODUPS} "
+            f"WHERE {TABLE_NAMES.KSBIN_NODUPS}.tgt_trixel = {trixel} "
+        ).fetchall()
 
         query_trixels = set()
-        for _, ra, dec in ksbin:
+        for _, ra, dec, _ in ksbin:
             for t in indexer.get_trixels(ra, dec, SEARCH_RADIUS/3600.0):
                 query_trixels.add(t)
 
         cursor.execute(
-            f"SELECT `id`, COALESCE(`jra`, `epra`), COALESCE(`jdec`, `epdec`)"
+            f"SELECT `id`, COALESCE(`jra`, `epra`), COALESCE(`jdec`, `epdec`), `VT`, `epra`, `epdec` "
             f"FROM {TABLE_NAMES.TYCHO2} WHERE `tgt_trixel` IN (" + ", ".join(map(str, query_trixels)) + ")"
         )
         tycho2 = cursor.fetchall()
 
         # Calculate pair-wise angular distance
-        ksbin_data = np.asarray(ksbin)[:, 1:]
-        tycho2_data = np.asarray(tycho2)[:, 1:]
+        ksbin_data = np.asarray(ksbin)[:, 1:3].astype(np.float64)
+        tycho2_data = np.asarray(tycho2)[:, 1:3].astype(np.float64)
 
         distances = distance_grid(ksbin_data, tycho2_data)
         nn_inds = distances.argmin(axis=1)
+        min_distances = distances.min(axis=1)
+
+        # In Tycho-2 the ep=J2000 (RA, Dec) are collapsed to the same mean
+        # value for both stars in a binary system. So when the distance is
+        # exactly the same because of this, we use magnitudes to disambiguate
+        # the binary system so that the two entries in the KStars catalog are
+        # mapped correctly to the corresponding components. If the magnitudes
+        # are also too close, we try to use the `epra` and `epdec` fields.
+
+        nn_inds_before = nn_inds.copy()
+
+        for row in range(len(nn_inds)):
+            if len(np.where(distances[row, :] == min_distances[row])[0]) > 1:
+                if min_distances[row] > 0.00001:
+                    continue # Duplicate assignments that aren't exact matches are not of interest
+                # Note: This stuff will crash if `VT` is NULL as it can be, but
+                # none found in the run
+                candidates = np.where(distances[row, :] == min_distances[row])[0]
+                delta_mags = np.asarray([np.abs(ksbin[row][-1] - tycho2[j][-1]) for j in candidates])
+                magsort = np.argsort(delta_mags)
+                if delta_mags[magsort[1]] - delta_mags[magsort[0]] > 0.5:
+                    # Magnitudes are far apart in this binary, so we can disambiguate by magnitude
+                    nn_inds[row] = candidates[magsort[0]]
+                else:
+                    # We must try to use the J1991.25 coordinates. We then pick
+                    # the one that matches better
+
+                    # The rationale for this has to do with our best guess for
+                    # how the catalog was constructed. Looking at old e-mails
+                    # from Jason Harris who did the cross-match, the Tycho2
+                    # assignments were made with a 1" cone search, and if that
+                    # did not match, a 5" cone search with a magnitude
+                    # difference constraint of 0.2. Thus, if a Tycho2 JRA
+                    # supplanted one of the two stars in a binary, it must be
+                    # the one whose J1991.25 was closer to J2000. Jason did
+                    # account for proper motion, so I'm not exactly sure when
+                    # and where the epochs got mixed up; perhaps this was in my
+                    # ingestion of Tycho1 and Tycho2 notwithstanding their
+                    # epochs --asimha
+                    j1991_distances = np.asarray([CC.angular_distance(
+                        ksbin_data[row][0], ksbin_data[row][1], tycho2[j][-2], tycho2[j][-1])
+                                                  for j in candidates])
+                    nn_inds[row] = candidates[np.argmin(j1991_distances)]
+
+        inds, counts = np.unique(nn_inds, return_counts=True)
+        dups = inds[np.where(counts > 1)]
+        for dup in dups:
+            duped_rows = np.where(nn_inds == dup)
+            if np.all(np.asarray([distances[duped_row, dup] for duped_row in duped_rows]) < 0.00001):
+                logger.warning(f'Duplicate Tycho2 assignment for Tycho2 row id {tycho2[dup][0]}: KStars row ids {",".join(map(lambda q: str(ksbin[q][0]), duped_rows))} are mapped to this star')
 
         cursor.executemany(
                 f"INSERT INTO {TABLE_NAMES.KS_TYC2} (ks_id, xm_id, dist) VALUES (?, ?, ?)",
@@ -1007,16 +1062,19 @@ def create_xm_view(cursor: sqlite3.Cursor):
     LARGE_DISTANCE = 181 # In degrees
     TOLERANCE = 0.00001  # In degrees
     t1_dist_coalesced = f"COALESCE({t1}.dist, {LARGE_DISTANCE})"
+    cursor.execute(f"DROP VIEW IF EXISTS {ks_xm_v}")
+    cursor.execute(f"DROP TABLE IF EXISTS {ks_xm}")
     cursor.execute(
-        f"CREATE VIEW IF NOT EXISTS {ks_xm_v} AS "
+        f"CREATE VIEW {ks_xm_v} AS "
         f"SELECT {ks}.id AS ks_id, "
-        f"MIN({t1_dist_coalesced}, {t2}.dist) AS dist, " # MIN ignores NULL values
-        f"IIF({t1_dist_coalesced} < {t2}.dist, {t1}.xm_id, {tycho2}.TYC) AS TYC "
+        f"IIF({t2}.dist <= {TOLERANCE}, {t2}.dist, {t1_dist_coalesced}) AS dist, " # MIN ignores NULL values
+        f"IIF({t2}.dist <= {TOLERANCE}, {tycho2}.TYC, {t1}.xm_id) AS TYC, "
+        f"IIF({t2}.dist <= {TOLERANCE}, 2, 1) AS tyc_version "
         f"FROM {ks} "
         f"LEFT JOIN {t1} ON {t1}.ks_id = {ks}.id "
         f"LEFT JOIN {t2} ON {t2}.ks_id = {ks}.id "
         f"INNER JOIN {tycho2} ON {tycho2}.id = {t2}.xm_id "
-        f"WHERE MIN({t1_dist_coalesced}, {t2}.dist) < {TOLERANCE}"
+        f"WHERE MIN({t1_dist_coalesced}, {t2}.dist) <= {TOLERANCE}"
     )
 
     # Check that everything is fully-matched up!
