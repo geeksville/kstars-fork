@@ -51,6 +51,11 @@ TRIXEL_PREFIX = 'trixel' # Prefix for trixel files
 
 class TrixelIO:
     @staticmethod
+    def cstr(b: bytes):
+        """ Interpret bytes as null-terminated C string """
+        return b.split(b'\x00')[0].decode('ascii')
+
+    @staticmethod
     def get_converter_with_endian(endian: str, dtype: KSDataType):
         match dtype:
             case KSDataType.DT_CHAR:
@@ -70,7 +75,7 @@ class TrixelIO:
             case KSDataType.DT_CHARV:
                 return lambda x : x.decode('ascii')
             case KSDataType.DT_STR:
-                return lambda x : self.cstr(x)
+                return lambda x : TrixelIO.cstr(x)
             case KSDataType.DT_SPCL:
                 return lambda x: x
             case KSDataType.DT_INT64:
@@ -210,11 +215,6 @@ class KSBinFileReader(TrixelIO):
         self._read_preamble(self.fd)
         self.read_expansion_fields(self.fd)
 
-    @staticmethod
-    def cstr(b: bytes):
-        """ Interpret bytes as null-terminated C string """
-        return b.split(b'\x00')[0].decode('ascii')
-
     def read_expansion_fields(self, fd):
         """ To be implemented by subclasses for specific files """
         pass
@@ -312,11 +312,11 @@ class TrixelChunk:
 
 class KSBinFileWriter:
 
-    def __init__(self, output: str, tmp_dir: str, num_trixels: int, sort_trixels=True, auto_delete_chunks=True):
+    def __init__(self, output: Optional[str], tmp_dir: str, num_trixels: int, sort_trixels=True, auto_delete_chunks=True):
         """
         Creates a binary file writer
 
-        output: Destination file path
+        output: Destination file path. If None, we only write trixel files and do not combine them.
         tmp_dir: A temporary directory with enough free disk space to write trixel files (/tmp memory may not be enough)
         field_descriptors: A list of field descriptors (see `FieldDescriptor`) describing the fields written
         num_trixels: The number of trixels in the HTMesh
@@ -326,7 +326,7 @@ class KSBinFileWriter:
         Note: Auto-deletion does not occur if `register_trixel` is called manually with a `path` argument
         """
 
-        if os.path.isfile(output):
+        if output is not None and os.path.isfile(output):
             logger.warning(f'Output file {output} exists, will be overwritten!')
         self.output = output
         if not os.path.isdir(tmp_dir):
@@ -489,6 +489,10 @@ class KSBinFileWriter:
             return False
 
         # Assemble the preamble
+        if self.output is None:
+            logger.warning(f'Output file is None, so will leave the trixel directory {self.tmp_dir} intact and exit without writing a combined file!')
+            return
+
         self.fd = open(self.output, 'w+b')
         description = self.get_converter(KSDataType.DT_STR, length=124)(self.description[:124])
         self.fd.write(description)
@@ -757,13 +761,13 @@ class KSBufferedStarCatalogWriter(KSStarDataWriter):
         self.htm_level = htm_level
         self.num_trixels = (4 ** htm_level) * 8
         self.indexer = pykstars.Indexer(self.htm_level)
+        self._trixel_buffers = {}
+        self._mem_count = 0
+        self._count = 0
         existing_trixel_files = glob.glob(os.path.join(trixel_dir, f'{TRIXEL_PREFIX}*.dat'))
         if len(existing_trixel_files) > 0 and not append:
             raise RuntimeError(f'Trixel directory {trixel_dir} is not empty while writing in append mode!')
         super().__init__(output, trixel_dir, self.num_trixels, datastruct, sort_trixels=True, auto_delete_chunks=(not append))
-        self._trixel_buffers = {}
-        self._mem_count = 0
-        self._count = 0
         self.buffer_limit = buffer_limit if buffer_limit is not None else (25 * self.num_trixels)
         self.proper_motion_duplicates = proper_motion_duplicates
         self.proper_motion_threshold = proper_motion_threshold
