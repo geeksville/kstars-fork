@@ -26,6 +26,12 @@ class KSDataType(Enum):
     DT_STR =    8 # Variable length array of characters, either terminated by nullptr or by the limit on field size
     DT_SPCL = 128 # Flag indicating that the field requires special treatment (eg: Different bits may mean different things)
 
+    # New types added in 2024, currently supported only by this script
+    DT_INT64   =  9 # 64-bit Integer
+    DT_UINT64  = 10 # 64-bit Unsigned Integer
+    DT_FLOAT32 = 11 # 32-bit Floating Point
+    DT_FLOAT64 = 12 # 64-bit Floating Point
+
 FieldDescriptor = namedtuple(
     "FieldDescriptor",
     ["name", "bytes", "type", "scale"]
@@ -67,6 +73,14 @@ class TrixelIO:
                 return lambda x : self.cstr(x)
             case KSDataType.DT_SPCL:
                 return lambda x: x
+            case KSDataType.DT_INT64:
+                return lambda x : int.from_bytes(x, endian, signed=True)
+            case KSDataType.DT_UINT64:
+                return lambda x : int.from_bytes(x, endian, signed=False)
+            case KSDataType.DT_FLOAT32:
+                return lambda x : struct.unpack(('<' if endian == 'little' else '>') + 'f', x)
+            case KSDataType.DT_FLOAT64:
+                return lambda x : struct.unpack(('<' if endian == 'little' else '>') + 'd', x)
             case _:
                 raise TypeError(f'Unhandled data type {dtype}')
 
@@ -128,7 +142,7 @@ class Record:
         desc = field.descriptor
         raw = self.io.get_converter(desc.type)(field.data)
         if isinstance(raw, int):
-            return float(raw)/desc.scale
+            return float(raw)/(desc.scale if desc.scale != 0 else 1.)
         return raw
 
     def get_blob(self, key:str):
@@ -385,6 +399,14 @@ class KSBinFileWriter:
                 return lambda x : convert_str(x, length, True)
             case KSDataType.DT_SPCL:
                 return lambda x: bytes(x)
+            case KSDataType.DT_INT64:
+                return lambda x : convert_num(x, 8, True)
+            case KSDataType.DT_UINT64:
+                return lambda x : convert_num(x, 8, False)
+            case KSDataType.DT_FLOAT32:
+                return lambda x : struct.pack('<f', x)
+            case KSDataType.DT_FLOAT64:
+                return lambda x : struct.pack('<d', x)
             case _:
                 raise TypeError(f'Unhandled data type {dtype}')
 
@@ -403,7 +425,11 @@ class KSBinFileWriter:
             for name, converter in converters.items():
                 if name not in params:
                     raise KeyError(f'Missing expected field {name}')
-                b.write(converter(params[name]))
+                try:
+                    b.write(converter(params[name]))
+                except Exception as e:
+                    logger.error(f'Exception while trying to write value {params[name]} for field {name}')
+                    raise
 
             remainder = set(params) - set(self.field_descriptors)
             if len(remainder) > 0:
@@ -675,18 +701,24 @@ class KSStarDataWriter(KSBinFileWriter):
     ```
     """
 
-    def __init__(self, output:str, tmp_dir: str, num_trixels: int, datastruct: KSStarDataStruct, sort_trixels = True, auto_delete_chunks = True):
+    def __init__(self, output:str, tmp_dir: str, num_trixels: int, datastruct: Union[KSStarDataStruct, List[FieldDescriptor]], sort_trixels = True, auto_delete_chunks = True):
         super().__init__(output, tmp_dir, num_trixels, sort_trixels=sort_trixels, auto_delete_chunks=auto_delete_chunks)
         self.datastruct = datastruct
-        match datastruct:
-            case KSStarDataStruct.STARDATA:
-                for desc in STARDATA_FIELDS:
-                    self.add_field_descriptor(desc)
-            case KSStarDataStruct.DEEPSTARDATA:
-                for desc in DEEPSTARDATA_FIELDS:
-                    self.add_field_descriptor(desc)
-            case _:
-                raise ValueError(f'Unhandled star data structure {datastruct}')
+        if isinstance(datastruct, list):
+            # We got a list of fields
+            for desc in datastruct:
+                assert isinstance(desc, FieldDescriptor)
+                self.add_field_descriptor(desc)
+        else:
+            match datastruct:
+                case KSStarDataStruct.STARDATA:
+                    for desc in STARDATA_FIELDS:
+                        self.add_field_descriptor(desc)
+                case KSStarDataStruct.DEEPSTARDATA:
+                    for desc in DEEPSTARDATA_FIELDS:
+                        self.add_field_descriptor(desc)
+                case _:
+                    raise ValueError(f'Unhandled star data structure {datastruct}')
         self.maglim = 65.5
 
     def set_maglim(maglim: float):
@@ -694,7 +726,7 @@ class KSStarDataWriter(KSBinFileWriter):
 
     def write_expansion_fields(self, fd):
         uint16 = self.get_converter(KSDataType.DT_UINT16)
-        maglim_scale = 100 if self.datastruct == KSStarDataStruct.STARDATA else 1000
+        maglim_scale = 1000 if isinstance(self.datastruct, list) or self.datastruct != KSStarDataStruct.STARDATA else 100
         fd.write(uint16(int(self.maglim * maglim_scale)))
         htm_level = round(math.log2(self.num_trixels/8)/2)
         fd.write(self.get_converter(KSDataType.DT_UINT8)(htm_level))
