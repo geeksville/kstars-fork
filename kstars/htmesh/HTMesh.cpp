@@ -192,10 +192,8 @@ void HTMesh::intersect(double ra1, double dec1, double ra2, double dec2, BufNum 
     toXYZ(ra2, dec2, &x2, &y2, &z2);
 
     // Check if points are too close
-    double len;
-    len = fabs(x1 - x2);
-    len += fabs(y1 - y2);
-    len += fabs(z1 - z2);
+    const double havlen = (1. - (x1 * x2 + y1 * y2 + z1 * z2))/2.; // haversine of angular distance
+    const double len = 2. * asin(sqrt(havlen));
 
     if (htmDebug > 0)
     {
@@ -207,7 +205,7 @@ void HTMesh::intersect(double ra1, double dec1, double ra2, double dec2, BufNum 
     }
 
     if (len < edge10)
-        return intersect(ra1, dec1, len, bufNum); // Use circular aperture
+        return intersect(ra1, dec1, len / degree2Rad, bufNum); // Use circular aperture
 
     // Cartesian cross product => perpendicular!.  Ugh.
     double cx = y1 * z2 - z1 * y2;
