@@ -1,6 +1,6 @@
 from collections import namedtuple, OrderedDict
 from enum import Enum
-from typing import Union, List, Callable, IO, Optional, Any, Iterable
+from typing import Union, List, Callable, IO, Optional, Any, Iterable, Tuple
 from io import BytesIO
 import os
 import logging
@@ -11,6 +11,7 @@ import fcntl
 import threading
 import glob
 import pykstars
+import struct
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("KSBinFileIO")
 
@@ -83,9 +84,9 @@ class TrixelIO:
             case KSDataType.DT_UINT64:
                 return lambda x : int.from_bytes(x, endian, signed=False)
             case KSDataType.DT_FLOAT32:
-                return lambda x : struct.unpack(('<' if endian == 'little' else '>') + 'f', x)
+                return lambda x : struct.unpack(('<' if endian == 'little' else '>') + 'f', x)[0]
             case KSDataType.DT_FLOAT64:
-                return lambda x : struct.unpack(('<' if endian == 'little' else '>') + 'd', x)
+                return lambda x : struct.unpack(('<' if endian == 'little' else '>') + 'd', x)[0]
             case _:
                 raise TypeError(f'Unhandled data type {dtype}')
 
@@ -146,8 +147,8 @@ class Record:
         field = self._data[key]
         desc = field.descriptor
         raw = self.io.get_converter(desc.type)(field.data)
-        if isinstance(raw, int):
-            return float(raw)/(desc.scale if desc.scale != 0 else 1.)
+        if isinstance(raw, int) and desc.scale is not None and desc.scale != 0:
+            return float(raw)/desc.scale
         return raw
 
     def get_blob(self, key:str):
@@ -353,7 +354,7 @@ class KSBinFileWriter:
 
         def convert_num(number: Union[int, float], num_bytes: int, signed: bool) -> bytes:
             """ Throws on overflow """
-            if scale is not None:
+            if scale is not None and scale != 0:
                 number = int(number * scale)
             try:
                 result = number.to_bytes(length=num_bytes, byteorder=self.endian, signed=signed)
@@ -771,8 +772,10 @@ class KSBufferedStarCatalogWriter(KSStarDataWriter):
         self.buffer_limit = buffer_limit if buffer_limit is not None else (25 * self.num_trixels)
         self.proper_motion_duplicates = proper_motion_duplicates
         self.proper_motion_threshold = proper_motion_threshold
-
-        self.pm_sqr_thresh = (self.proper_motion_threshold/(2 * self.proper_motion_duplicates / 1000)) ** 2
+        if self.proper_motion_duplicates != 0:
+            self.pm_sqr_thresh = (self.proper_motion_threshold/(2 * self.proper_motion_duplicates / 1000)) ** 2
+        else:
+            self.pm_sqr_thresh = 1e100 # Absurdly large number
 
         for existing_trixel in existing_trixel_files:
             self.register_trixel(existing_trixel)
@@ -802,40 +805,72 @@ class KSBufferedStarCatalogWriter(KSStarDataWriter):
         super().register_trixel(descriptor, path)
         logger.debug('Registered trixel {descriptor} from {path}')
 
-    def add_star(self, **params) -> int:
-        """ Note: RA in hours for compatibility with old catalog convention
-        Returns number of times the star was duplicated for proper motion
+    def add_star_to_trixel(self, trixel, **params) -> int:
+        """ Note: RA in hours for compatibility
+        Adds the star to the given trixel (this is a lower-level  method, see `add_star`)
+        Returns index within the trixel
+        """
+        # Skip check for efficiency
+        # star = self.Star(**params) # Checks that parameters match the expectations and raises otherwise
+        self._trixel_buffers.setdefault(trixel, []).append(params)
+        self._count += 1
+        self._mem_count += 1
+
+        tr_index = len(self._trixel_buffers[trixel]) - 1 + self.get_trixel_size(trixel)
+        if self._mem_count > self.buffer_limit:
+            self.flush(all=False)
+
+        return tr_index
+
+    def add_star(self, **params) -> Tuple[int, int, int]:
+        """ This method takes care of indexing and proper motion duplication
+
+        For a method that just inserts the star, see `add_star_to_trixel`
+
+        Note: RA in hours for compatibility with old catalog convention
+        Returns (main trixel id, index within trixel, total number of pm duplicates)
         """
         star = self.Star(**params) # Checks that parameters match the expectations and raises otherwise
         RA, Dec = star.RA * 15.0, star.Dec
+        main_trixel = self.indexer.get_trixel(RA, Dec)
         if self.proper_motion_duplicates is not None and (star.dRA ** 2 + star.dDec ** 2) > self.pm_sqr_thresh:
             future_ra, future_dec = pykstars.CoordinateConversion.proper_motion(
                 RA, Dec, star.dRA, star.dDec, 2000.0, 2000.0 + self.proper_motion_duplicates)
             past_ra, past_dec = pykstars.CoordinateConversion.proper_motion(
                 RA, Dec, star.dRA, star.dDec, 2000.0, 2000.0 - self.proper_motion_duplicates)
             trixels = self.indexer.get_trixels(past_ra, past_dec, future_ra, future_dec)
+            # if main_trixel not in trixels:
+            #     from IPython import embed
+            #     embed(header='Inspect') # Remove later for speed
         else:
-            trixels = [self.indexer.get_trixel(RA, Dec),]
+            trixels = [main_trixel,]
         for trixel in trixels:
-            self._trixel_buffers.setdefault(trixel, []).append(star)
+            self._trixel_buffers.setdefault(trixel, []).append(star._asdict())
         self._count += len(trixels)
         self._mem_count += len(trixels)
 
+        tr_index = len(self._trixel_buffers[main_trixel]) - 1 + self.get_trixel_size(main_trixel)
         if self._mem_count > self.buffer_limit:
             self.flush(all=False)
 
-        return len(trixels)
+        return (
+            main_trixel,
+            tr_index,
+            len(trixels)
+        )
 
     def flush(self, all=True):
         limit = 0 if all else self.buffer_limit // 4
         logger.info(f'Flushing some of the {self._mem_count} stars held in memory up to {limit}')
         trixels = sorted(self._trixel_buffers.keys(), key=lambda k: len(self._trixel_buffers[k])) # Largest trixel buffer last
-        while self._mem_count > limit:
-            trixel = trixels.pop()
-            with self.get_trixel_writer(trixel) as trixel_writer:
-                for star in self._trixel_buffers.pop(trixel):
-                    trixel_writer.add_entry(**star._asdict())
-                    self._mem_count -= 1
+        with tqdm.tqdm(total=(self._mem_count - limit), desc='Flush: ') as pbar:
+            while self._mem_count > limit:
+                trixel = trixels.pop()
+                with self.get_trixel_writer(trixel) as trixel_writer:
+                    for star in self._trixel_buffers.pop(trixel):
+                        trixel_writer.add_entry(**star)
+                        self._mem_count -= 1
+                        pbar.update(1)
 
 
     def __enter__(self):
@@ -851,16 +886,19 @@ class KSBufferedStarCatalogWriter(KSStarDataWriter):
 
 class KSTrixelDirReader():
     """ Reads a directory of trixel chunk files without a preamble header. """
-    def __init__(self, directory: str, datastruct: KSStarDataStruct):
+    def __init__(self, directory: str, datastruct: Union[KSStarDataStruct, List[FieldDescriptor]]):
         self.directory = directory
         self.io = TrixelIO(None) # fd not bound
-        match datastruct:
-            case KSStarDataStruct.STARDATA:
-                self.io.field_descriptors = STARDATA_FIELDS
-            case KSStarDataStruct.DEEPSTARDATA:
-                self.io.field_descriptors = DEEPSTARDATA_FIELDS
-            case _:
-                raise ValueError(f'Unhandled star data structure {datastruct}')
+        if isinstance(datastruct, list):
+            self.io.field_descriptors = list(datastruct)
+        else:
+            match datastruct:
+                case KSStarDataStruct.STARDATA:
+                    self.io.field_descriptors = STARDATA_FIELDS
+                case KSStarDataStruct.DEEPSTARDATA:
+                    self.io.field_descriptors = DEEPSTARDATA_FIELDS
+                case _:
+                    raise ValueError(f'Unhandled star data structure {datastruct}')
         self.trixel_files = glob.glob(os.path.join(directory, f'{TRIXEL_PREFIX}*.dat'))
         self._trixels = {}
         for trixel_file in self.trixel_files:
