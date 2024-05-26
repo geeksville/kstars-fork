@@ -111,11 +111,11 @@ class TrixelIO:
 
     def get_converter(self, dtype: KSDataType):
         try:
-            endian = self.endian
+            endian = TrixelIO.endian
         except AttributeError:
             logger.warning(f'Conversion method does not know endianness of file, will assume `little`')
-            self.endian = 'little'
-            endian = self.endian
+            TrixelIO.endian = 'little'
+            endian = TrixelIO.endian
         return TrixelIO.get_converter_with_endian(endian, dtype)
 
     def __del__(self):
