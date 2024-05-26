@@ -20,14 +20,14 @@ def query(query: str):
     return job.get_results()
 
 def magspace():
-    """Return appropriately spaced magnitude bins between 10th mag
+    """Return appropriately spaced magnitude bins between 10.2 mag
     and 17th mag so we can expect under a million results in each
     bin"""
 
     # Note: Do not change the chunking without purging the downloaded cache, or
     # we will assume the same chunking holds
 
-    return np.log10(np.linspace(10**(0.5*10.0), 10**(0.5*17.0), 300)**2)
+    return np.log10(np.linspace(10**(0.5*10.2), 10**(0.5*17.0), 300)**2)
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Download Gaia DR3 data for KStars')
