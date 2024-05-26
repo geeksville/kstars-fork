@@ -69,7 +69,7 @@ endif()
 find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
-
+include(/usr/lib/cmake/KF5DocTools/KF5DocToolsMacros.cmake)
 if(BUILD_KSTARS_LITE)
     if("${CMAKE_TOOLCHAIN_FILE}" MATCHES "android.toolchain.cmake$")
         set(QT_ANDROID $ENV{QT_ANDROID})
