@@ -193,6 +193,11 @@ void HTMesh::intersect(double ra1, double dec1, double ra2, double dec2, BufNum 
 
     // Check if points are too close
     const double havlen = (1. - (x1 * x2 + y1 * y2 + z1 * z2))/2.; // haversine of angular distance
+    if (havlen < 0.) {
+        // Points are identical and we had round-off errors
+        // (future calculations will NaN out if we don't short circuit this case)
+        return intersect(ra1, dec1, bufNum);
+    }
     const double len = 2. * asin(sqrt(havlen));
 
     if (htmDebug > 0)

@@ -921,6 +921,15 @@ dms SkyPoint::angularDistanceTo(const SkyPoint *sp, double *const positionAngle)
     double hava = (1 - dalpha.cos()) / 2.;
     double havd = (1 - ddelta.cos()) / 2.;
 
+    if (hava > 1. || hava < 0. || havd > 1. || havd < 0.)
+    {
+        // We are suffering the round-off errors of CachingDms
+        // trigonometric subtraction formula, common when the distance
+        // is almost zero
+        hava = (1 - cos(dalpha.radians())) / 2.;
+        havd = (1 - cos(ddelta.radians())) / 2.;
+    }
+
     // Haversine law
     double aux = havd + (sp->dec().cos()) * dec().cos() * hava;
 
