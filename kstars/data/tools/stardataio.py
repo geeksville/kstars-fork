@@ -12,6 +12,7 @@ import threading
 import glob
 import pykstars
 import struct
+import tqdm
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("KSBinFileIO")
 
