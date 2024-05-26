@@ -50,14 +50,14 @@ def main(argv):
 
     mags = magspace()
     maglow = None
-    for i, maglim in tqdm.tqdm(enumerate(mags)):
+    for i, maglim in tqdm.tqdm(enumerate(mags), total=len(mags)):
         pkl_file = os.path.join(args.cache_dir, f'data_{i:04}.pkl')
         if os.path.isfile(pkl_file):
             maglow = maglim
             continue # Already downloaded and pickled
 
         query_i = (
-            f"SELECT source_id, ra, dec, parallax, pmra, pmdec, phot_g_mean_mag, phot_bp_mean_mag, phot_rp_mean_mag " +
+            f"SELECT source_id, ESDC_EPOCH_PROP(ra,dec,parallax,pmra,pmdec,radial_velocity,ref_epoch,2000), phot_g_mean_mag, phot_bp_mean_mag, phot_rp_mean_mag " +
             f"FROM {Gaia.MAIN_GAIA_TABLE} WHERE "
             ) + (
                 f"phot_g_mean_mag > {maglow} AND " if maglow is not None else ""
