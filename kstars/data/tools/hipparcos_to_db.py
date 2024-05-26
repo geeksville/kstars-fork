@@ -73,6 +73,7 @@ class URL:
     ATHYG = 'https://www.astronexus.com/downloads/catalogs/athyg_v24.csv.gz'
     HIP = 'https://cdsarc.cds.unistra.fr/ftp/I/239/hip_main.dat'
     TYC1 = 'https://cdsarc.cds.unistra.fr/ftp/I/239/tyc_main.dat'
+    TYC2_GAIA = 'http://cdn.gea.esac.esa.int/Gaia/gedr3/cross_match/tycho2tdsc_merge_best_neighbour/Tycho2tdscMergeBestNeighbour.csv.gz'
 
 TARGET_HTM_LEVEL = 6
 
@@ -100,6 +101,7 @@ class TABLE_NAMES:
     ATHYG = 'athyg'
     HIPPARCOS = 'hipparcos'
     TYCHO1 = 'tycho1'
+    TYC2_GAIA = 'tyc2_gaiadr3'
 
     # Tables ingested from KStars binary files
     KSBIN = 'ksbin'
@@ -242,7 +244,7 @@ def ingest_hd_tyc2(cache_dir: str, cursor: sqlite3.Cursor) -> str:
                    "    n_TYC INTEGER NOT NULL)"        # Number of Tycho2 entries corresponding to HD entry
                    )
     cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__HD ON {TABLE_NAME}(HD)")
-    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__HD ON {TABLE_NAME}(TYC)")
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__TYC ON {TABLE_NAME}(TYC)")
     cursor.execute(f"DELETE FROM `{TABLE_NAME}`")
 
     cache_file = os.path.join(cache_dir, 'hd_tyc.tsv')
@@ -304,6 +306,51 @@ def hip_tyc1_post_proc(indexer, entry):
     entry['tgt_trixel_1991'] = indexer.get_trixel(epra, epdec)
     entry['tgt_trixel'] = indexer.get_trixel(jra, jdec)
 
+def ingest_tycho2_gaia_best_neighbor(cache_dir: str, cursor: sqlite3.Cursor):
+
+    TABLE_NAME = TABLE_NAMES.TYC2_GAIA
+
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS {TABLE_NAME} ("
+                   "    gaiadr3_source_id INTEGER NOT NULL," # Can match same source ID to multiple stars
+                   "    TYC TEXT NOT NULL," # Can match multiple TYCs to same Gaia star
+                   "    dist REAL NOT NULL," # Angular distance in degrees
+                   "    xm_flag INTEGER NOT NULL," # See https://gea.esac.esa.int/archive/documentation/GDR3/Catalogue_consolidation/chap_crossmatch/sec_crossmatch_algorithm/
+                   "    match_id INTEGER PRIMARY KEY,"
+                   "    num_neighbors INTEGER NOT NULL)"
+    )
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__gaiadr3 ON {TABLE_NAME}(gaiadr3_source_id)")
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__TYC ON {TABLE_NAME}(TYC)")
+    cursor.execute(f"DELETE FROM `{TABLE_NAME}`")
+
+    cache_file = os.path.join(cache_dir, os.path.basename(URL.TYC2_GAIA))
+    conversions = {
+        'gaiadr3_source_id': (0, int),
+        'TYC': (1, lambda q: q.strip('"')),
+        'dist': (2, lambda q: float(q)/3600.),
+        'xm_flag': (3, int),
+        'match_id': (4, int),
+        'num_neighbors': (5, int),
+    }
+
+    content = gzip.open(download_and_cache(URL.TYC2_GAIA, cache_file), 'rb')
+    logger.info('Parsing and ingesting Gaia DR3 <--> Tycho2 TDSC match')
+    xsv_parser(
+        content, TABLE_NAME, conversions,
+        cursor, separator=',',
+        skip_lines=1, # CSV Header line
+        post_processor=None,
+    )
+    content.close()
+
+    cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
+                   (TABLE_NAME, json.dumps({
+                       "url": URL.TYC2_GAIA,
+                       "local_file": cache_file,
+                       })))
+
+    logger.info(f'Parsed and ingested Gaia DR3 <--> Tycho2 TDSC match into {TABLE_NAME}')
+
+    return TABLE_NAME
 
 def ingest_hipparcos(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.Cursor):
     TABLE_NAME = TABLE_NAMES.HIPPARCOS
@@ -326,7 +373,7 @@ def ingest_hipparcos(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.
                    "    tgt_trixel INTEGER NOT NULL)"
                    )
     cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel ON {TABLE_NAME}(tgt_trixel)")
-    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel ON {TABLE_NAME}(tgt_trixel_1991)")
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel1991 ON {TABLE_NAME}(tgt_trixel_1991)")
     cursor.execute(f"DELETE FROM `{TABLE_NAME}`")
 
     cache_file = os.path.join(cache_dir, 'hip_main.dat')
@@ -384,7 +431,7 @@ def ingest_tycho1(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.Cur
                    "    tgt_trixel INTEGER NOT NULL)"
     )
     cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel ON {TABLE_NAME}(tgt_trixel)")
-    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel ON {TABLE_NAME}(tgt_trixel_1991)")
+    cursor.execute(f"CREATE INDEX IF NOT EXISTS idx__{TABLE_NAME}__trixel1991 ON {TABLE_NAME}(tgt_trixel_1991)")
     cursor.execute(f"DELETE FROM `{TABLE_NAME}`")
 
     cache_file = os.path.join(cache_dir, 'tyc_main.dat')
@@ -1205,6 +1252,12 @@ def main(argv):
         help='Force recomputation of all cross-matches',
     )
 
+    parser.add_argument(
+        '--force-tyc2-gaia', '-fg',
+        action='store_true',
+        help='Force ingestion of Tycho2-Gaia DR3 cross-match even if it seems like it has been performed.'
+    )
+
     args = parser.parse_args(sys.argv[1:])
     if not os.path.isdir(args.cache_dir):
         os.makedirs(args.cache_dir)
@@ -1285,6 +1338,12 @@ def main(argv):
         connection.commit()
     else:
         logger.warning('Skipping generation of KStars-Hipparcos cross-match because it seems to be done already.')
+
+    if args.force_tyc2_gaia or estimated_row_count(TABLE_NAMES.TYC2_GAIA, cursor) < 1:
+        logger.info('Ingested Tycho2-Gaia match into ' + ingest_tycho2_gaia_best_neighbor(args.cache_dir, cursor))
+        connection.commit()
+    else:
+        logger.warning('Skipping ingesting of Tycho2-Gaia DR3 cross-match because it seems to have been done already.')
 
     # Create cross-match view
     logger.info('Creating cross-match view if it does not exist')
