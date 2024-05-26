@@ -21,6 +21,7 @@ import concurrent.futures
 from functools import partial
 from IPython import embed
 import collections
+from common import distance_grid
 logging.basicConfig(level=logging.INFO)
 CC = pykstars.CoordinateConversion
 
@@ -861,30 +862,6 @@ def read_ksbin_from_trixel(trixel: int, cursor: sqlite3.Cursor):
         f"SELECT `id`, `ra`, `dec` FROM {TABLE_NAMES.KSBIN_NODUPS} "
         f"WHERE {TABLE_NAMES.KSBIN_NODUPS}.tgt_trixel = {trixel} "
     ).fetchall()
-
-def distance_grid(queries: np.ndarray, candidates: np.ndarray) -> np.ndarray:
-    """
-    Computes distances between arrays of celestial points
-
-    queries: N x 2 array of (RA, Dec) of query points
-    candidates: M x 2 array of (RA, Dec) of candidates (M >= N usu.)
-
-    Returns an array of size N x M with distances
-    """
-    radec_pairs = np.concatenate([ # This incantation produces (ra1, dec1, ra2, dec2)
-        np.broadcast_to(queries, (candidates.shape[0], queries.shape[0], 2)).transpose(2, 1, 0),
-        np.broadcast_to(candidates, (queries.shape[0], candidates.shape[0], 2)).transpose(2, 0, 1)]
-    ).transpose(1, 2, 0).reshape(-1, 4) # The first index is a flattened combination of (queries[i], candidates[j])
-
-    distances = pykstars.CoordinateConversion.angular_distance(
-        radec_pairs[:, 0],
-        radec_pairs[:, 1],
-        radec_pairs[:, 2],
-        radec_pairs[:, 3],
-    ).reshape(len(queries), len(candidates))
-
-    return distances
-
 
 # def difference_grid(queries: np.ndarray, candidates: np.ndarray) -> np.ndarray:
 #     """ Computes differences between scalar quantities
