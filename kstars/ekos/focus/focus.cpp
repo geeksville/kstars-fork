@@ -5960,10 +5960,11 @@ void Focus::loadGlobalSettings()
 
         key = oneWidget->objectName();
         value = Options::self()->property(key.toLatin1());
-        if (value.isValid() && oneWidget->count() > 0)
+        if (value.isValid())
         {
             oneWidget->setCurrentText(value.toString());
-            settings[key] = value;
+            if (oneWidget->currentIndex() >= 0) // Set model only if viewer ok
+                settings[key] = value;
         }
         else
             qCDebug(KSTARS_EKOS_FOCUS) << "Option" << key << "not found!";
@@ -7487,64 +7488,11 @@ void Focus::setAllSettings(QVariantMap &settings)
     // Scrub the data just in case
     settings.remove(opticalTrainCombo->objectName());
 
+    // Find all widgets
     for (auto &name : settings.keys())
-    {
-        // Combo
-        auto comboBox = findChild<QComboBox*>(name);
-        if (comboBox)
-        {
-            syncControl(settings, name, comboBox);
-            continue;
-        }
-
-        // Double spinbox
-        auto doubleSpinBox = findChild<QDoubleSpinBox*>(name);
-        if (doubleSpinBox)
-        {
-            syncControl(settings, name, doubleSpinBox);
-            continue;
-        }
-
-        // spinbox
-        auto spinBox = findChild<QSpinBox*>(name);
-        if (spinBox)
-        {
-            syncControl(settings, name, spinBox);
-            continue;
-        }
-
-        // checkbox
-        auto checkbox = findChild<QCheckBox*>(name);
-        if (checkbox)
-        {
-            syncControl(settings, name, checkbox);
-            continue;
-        }
-
-        // Checkable Groupboxes
-        auto groupbox = findChild<QGroupBox*>(name);
-        if (groupbox && groupbox->isCheckable())
-        {
-            syncControl(settings, name, groupbox);
-            continue;
-        }
-
-        // Splitters
-        auto splitter = findChild<QSplitter*>(name);
-        if (splitter)
-        {
-            syncControl(settings, name, splitter);
-            continue;
-        }
-
-        // Radio button
-        auto radioButton = findChild<QRadioButton*>(name);
-        if (radioButton)
-        {
-            syncControl(settings, name, radioButton);
-            continue;
-        }
-    }
+        if (!syncControl(settings, name, findChild<QWidget*>(name)))
+            qCWarning(KSTARS_EKOS_FOCUS()) << "Could not set optical train focus parameter ["
+                                               << name << "]";
 
     // Sync to options
     for (auto &key : settings.keys())
@@ -7628,9 +7576,9 @@ bool Focus::syncControl(const QVariantMap &settings, const QString &key, QWidget
     // ONLY FOR STRINGS, not INDEX
     else if ((pComboBox = qobject_cast<QComboBox *>(widget)))
     {
-        const QString value = settings[key].toString();
-        pComboBox->setCurrentText(value);
-        return true;
+        pComboBox->setCurrentText(settings[key].toString());
+        if ( pComboBox->currentIndex() >= 0 )
+            return true;
     }
     else if ((pSplitter = qobject_cast<QSplitter *>(widget)))
     {
