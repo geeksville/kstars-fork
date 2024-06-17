@@ -272,6 +272,11 @@ protected slots:
         void selectSequence();
 
         /**
+             * @brief Selects TLE set.
+             */
+        void selectTLE();
+
+        /**
              * @brief Selects sequence queue.
              */
         void selectStartupScript();
@@ -413,7 +418,13 @@ signals:
         void jobsUpdated(QJsonArray jobsList);
         void settingsUpdated(const QVariantMap &settings);
 
-private:
+      private slots:
+
+        void on_tleButton_toggled(bool checked);
+
+        void on_siderealButton_toggled(bool checked);
+
+      private:
         /**
          * @brief handleJobsUpdated Update UI when jobs have been updated
          * @param jobsList

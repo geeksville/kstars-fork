@@ -131,6 +131,13 @@ class Mount : public QWidget, public Ui::Mount
             return mf_state;
         }
 
+        /**
+         * Test function for setting satellite TLE properties to INDI mount
+         * Calls setSatelliteTLEandTrack()
+         * @param target satellite name
+         */
+        bool setTLE(QString target, QString satPassStart, QString satPassEnd, QString timeFormat);
+
         /** @defgroup MountDBusInterface Ekos Mount DBus Interface
              * Mount interface provides advanced scripting capabilities to control INDI mounts.
             */

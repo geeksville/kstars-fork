@@ -775,7 +775,7 @@ bool Mount::sendCoords(SkyPoint * ScopeTarget)
     // for the target coordinates) calls sendToMountDevice
     auto checkObjectAndSend = [ = ]()
     {
-        // Search within 0.1 degrees indepdent of zoom level.
+        // Search within 0.1 degrees independent of zoom level.
         double maxrad = 0.1;
         currentObject = KStarsData::Instance()->skyComposite()->objectNearest(ScopeTarget, maxrad);
         if (currentObject)

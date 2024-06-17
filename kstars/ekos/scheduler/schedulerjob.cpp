@@ -192,6 +192,10 @@ void SchedulerJob::setStartupTime(const QDateTime &value)
     // Refresh altitude - invalid date/time is taken care of when rendering
     altitudeAtStartup = SchedulerUtils::findAltitude(targetCoords, startupTime, &settingAtStartup);
 
+    // If TLE tracking is enabled, call the second version of findAltitude
+    if(!getTrackingMode())
+        altitudeAtStartup = SchedulerUtils::findAltitude(getName(), startupTime, &settingAtStartup);
+
     /* Refresh estimated time - which update job cells */
     setEstimatedTime(estimatedTime);
 

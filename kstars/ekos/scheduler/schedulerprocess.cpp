@@ -3,6 +3,8 @@
 
     SPDX-License-Identifier: GPL-2.0-or-later
 */
+#include "satellite.h"
+
 #include "schedulerprocess.h"
 #include "schedulermodulestate.h"
 #include "scheduleradaptor.h"
@@ -2862,6 +2864,20 @@ bool SchedulerProcess::executeJob(SchedulerJob * job)
 
     if (job->getCompletionCondition() == FINISH_SEQUENCE && Options::rememberJobProgress())
         captureInterface()->setProperty("targetName", job->getName());
+
+    // If TLE tracking is enables, set TLE properties to the INDI driver through mount interface.
+    if(job->getTrackingMode())
+    {
+        SkyObject *object = KStarsData::Instance()->skyComposite()->findByName(job->getName(), false);
+        Satellite* sat = dynamic_cast<Satellite *>(object);
+
+        QList<QVariant> tleData;
+        tleData.append(job->getStartupTime().toString("hh:mm:ss"));
+        tleData.append(job->getStartupTime().addSecs(60).toString("hh:mm:ss"));
+        tleData.append("hh:mm:ss");
+        QDBusReply<bool> const tleSetting = mountInterface()->callWithArgumentList(QDBus::AutoDetect, "setTLE",
+                                                                                      tleData);
+    }
 
     moduleState()->calculateDawnDusk();
 

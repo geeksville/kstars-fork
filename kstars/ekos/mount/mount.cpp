@@ -5,6 +5,7 @@
 */
 
 #include "mount.h"
+#include "satellite.h"
 
 #include <QQuickView>
 #include <QQuickItem>
@@ -2101,5 +2102,17 @@ void Mount::disconnectSettings()
 double Mount::initialHA()
 {
     return mf_state->initialPositionHA();
+}
+bool Mount::setTLE(QString target, QString satPassStart, QString satPassEnd, QString timeFormat)
+{
+    SkyObject *object = KStarsData::Instance()->skyComposite()->findByName(target, false);
+
+    if (object != nullptr)
+    {
+        Satellite *sat = dynamic_cast<Satellite *>(object);
+        m_Mount->setSatelliteTLEandTrack(sat->tle(), (KStarsDateTime)(QDateTime::fromString(satPassStart, timeFormat)), (KStarsDateTime)(QDateTime::fromString(satPassEnd, timeFormat))) ;
+        return true;
+    }
+    return false;
 }
 }

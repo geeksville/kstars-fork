@@ -8,6 +8,7 @@
 */
 
 #include "scheduler.h"
+#include "satellite.h"
 
 #include "ekos/scheduler/framingassistantui.h"
 #include "ksnotification.h"
@@ -209,6 +210,9 @@ void Scheduler::setupScheduler(const QString &ekosPathStr, const QString &ekosIn
     shutdownB->setIcon(
         QIcon::fromTheme("media-playback-start"));
     shutdownB->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+
+    // Default tracking mode is sidereal
+    siderealButton->setChecked(true);
 
     // 2023-06-27 sterne-jaeger: For simplicity reasons, the repeat option
     // for all sequences is only active if we do consider the past
@@ -417,7 +421,8 @@ void Scheduler::watchJobChanges(bool enable)
         constraintButtonGroup,
         completionButtonGroup,
         startupProcedureButtonGroup,
-        shutdownProcedureGroup
+        shutdownProcedureGroup,
+        trackingModeButtonGroup
     };
 
     QAbstractButton * const buttons[] =
@@ -547,10 +552,22 @@ void Scheduler::addObject(SkyObject *object)
             if (s->getHDIndex() != 0)
                 finalObjectName = QString("HD %1").arg(s->getHDIndex());
         }
+        if (object->type() == SkyObject::SATELLITE) // for satellites
+        {
+            Satellite *sat = dynamic_cast<Satellite *>(object);
+            tleEdit->setText(sat->tle());
 
+            //object = sat;
+
+            raBox->show(sat->ra());
+            decBox->show(sat->dec());
+        }
+        else
+        {
+            raBox->show(object->ra0());
+            decBox->show(object->dec0());
+        }
         nameEdit->setText(finalObjectName);
-        raBox->show(object->ra0());
-        decBox->show(object->dec0());
 
         setDirty();
     }
@@ -673,6 +690,13 @@ void Scheduler::selectSequence()
                    i18n("Ekos Sequence Queue (*.esq)"));
 
     setSequence(file);
+}
+
+void Scheduler::selectTLE()
+{
+    QString file = QFileDialog::getOpenFileName(Ekos::Manager::Instance(), i18nc("@title:window", "Select TLE element set"),
+                                                dirPath.toLocalFile(),
+                                                i18n("TLE element set (*.tle)"));
 }
 
 void Scheduler::selectStartupScript()
@@ -819,7 +843,8 @@ bool Scheduler::fillJobFromUI(SchedulerJob *job)
                              schedulerTrackStep->isChecked(),
                              schedulerFocusStep->isChecked(),
                              schedulerAlignStep->isChecked(),
-                             schedulerGuideStep->isChecked());
+                             schedulerGuideStep->isChecked(),
+                             siderealButton->isChecked());
 
     // success
     updateJobTable(job);
@@ -1372,11 +1397,20 @@ void Scheduler::updateJobTable(SchedulerJob *job)
             startupCell->tableWidget()->resizeColumnToContents(startupCell->column());
     }
 
+
+
     if (nullptr != altitudeCell)
     {
         // FIXME: Cache altitude calculations
         bool is_setting = false;
-        double const alt = SchedulerUtils::findAltitude(job->getTargetCoords(), QDateTime(), &is_setting);
+
+        double alt = 0.0;
+
+        // Check if TLE Job or Sidereal job
+        if(job->getTrackingMode())
+            alt = SchedulerUtils::findAltitude(job->getName(), QDateTime(), &is_setting);
+        else
+            alt = SchedulerUtils::findAltitude(job->getTargetCoords(), QDateTime(), &is_setting);
 
         altitudeCell->setText(QString("%1%L2°")
                               .arg(QChar(is_setting ? 0x2193 : 0x2191))
@@ -2665,5 +2699,35 @@ void Scheduler::disconnectSettings()
     for (auto &oneWidget : findChildren<QDateTimeEdit*>())
         disconnect(oneWidget, &QDateTimeEdit::editingFinished, this, &Ekos::Scheduler::syncSettings);
 }
+
+
+void Scheduler::on_tleButton_toggled(bool checked)
+{
+
+// Disable relevant options when TLE tracking is selected
+    label_2->setDisabled(checked);
+    label_6->setDisabled(checked);
+    label->setDisabled(checked);
+    label_11->setDisabled(checked);
+
+    copySkyCenterB->setDisabled(checked);
+    raBox->setDisabled(checked);
+    decBox->setDisabled(checked);
+
+}
+
+
+void Scheduler::on_siderealButton_toggled(bool checked)
+{
+
+//Disable relevant options when sidereal tracking is selected
+    label_7->setDisabled(checked);
+    tleEdit->setDisabled(checked);
+    tleLabel->setDisabled(checked);
+
+    tleLabel->setDisabled(checked);
+}
+
+
 
 }

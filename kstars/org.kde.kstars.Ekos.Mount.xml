@@ -37,6 +37,13 @@
             <arg type="b" direction="out"/>
             <arg name="target" type="s" direction="in"/>
         </method>
+        <method name = "setTLE">
+            <arg type="b" direction="out"/>
+            <arg name="target" type="s" direction="in"/>
+            <arg name="satPassStart" type="s" direction="in"/>
+            <arg name="satPassEnd" type="s" direction="in"/>
+            <arg name="timeFormat" type="s" direction="in"/>
+        </method>
         <method name="syncTarget">
             <arg type="b" direction="out"/>
             <arg name="target" type="s" direction="in"/>

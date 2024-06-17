@@ -508,6 +508,17 @@ class SchedulerJob
             return settingAtCompletion;
         }
 
+        void setTrackingMode(int track)
+        {
+            trackingMode = track;
+        }
+
+        int getTrackingMode() const
+        {
+            return trackingMode;
+        }
+
+
 private:
         bool runsDuringAstronomicalNightTimeInternal(const QDateTime &time, QDateTime *minDawnDusk,
                 QDateTime *nextPossibleSuccess = nullptr) const;
@@ -641,5 +652,18 @@ private:
         static KStarsDateTime *storedLocalTime;
         static GeoLocation *storedGeo;
         static ArtificialHorizon *storedHorizon;
+
+        // For tracking mode. 0 --> Sidereal; 1 --> TLE
+        int trackingMode;
+
+        // currently not being used. Must replace 'int trackingMode'
+        /*typedef enum trackingMode2
+        {
+            SIDEREALJOB,
+            SATELLITEJOB
+        }trackingMode2;
+
+        trackingMode2 trackMode;*/
+
 };
 } // Ekos namespace

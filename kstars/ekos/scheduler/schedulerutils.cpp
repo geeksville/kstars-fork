@@ -11,6 +11,8 @@
 #include "Options.h"
 #include "skypoint.h"
 #include "kstarsdata.h"
+#include "skymapcomposite.h"
+#include "satellite.h"
 #include <ekos_scheduler_debug.h>
 
 namespace Ekos
@@ -33,7 +35,7 @@ SchedulerJob *SchedulerUtils::createJob(XMLEle *root)
     QDateTime startupTime, completionTime;
     int completionRepeats = 0;
     bool enforceWeather = false, enforceTwilight = false, enforceArtificialHorizon = false,
-         track = false, focus = false, align = false, guide = false;
+         track = false, focus = false, align = false, guide = false, trackingMode = false;
 
 
     XMLEle *ep, *subEP;
@@ -159,7 +161,8 @@ SchedulerJob *SchedulerUtils::createJob(XMLEle *root)
                              track,
                              focus,
                              align,
-                             guide);
+                             guide,
+                             trackingMode);
 
     return job;
 }
@@ -168,7 +171,7 @@ void SchedulerUtils::setupJob(SchedulerJob &job, const QString &name, const QStr
                               double djd, double rotation, const QUrl &sequenceUrl, const QUrl &fitsUrl, StartupCondition startup,
                               const QDateTime &startupTime, CompletionCondition completion, const QDateTime &completionTime, int completionRepeats,
                               double minimumAltitude, double minimumMoonSeparation, bool enforceWeather, bool enforceTwilight,
-                              bool enforceArtificialHorizon, bool track, bool focus, bool align, bool guide)
+                              bool enforceArtificialHorizon, bool track, bool focus, bool align, bool guide, bool trackingMode)
 {
     /* Configure or reconfigure the observation job */
 
@@ -226,6 +229,8 @@ void SchedulerUtils::setupJob(SchedulerJob &job, const QString &name, const QStr
     /* Store the original startup condition */
     job.setFileStartupCondition(job.getStartupCondition());
     job.setFileStartupTime(job.getStartupTime());
+
+    job.setTrackingMode((int)(!trackingMode));
 
     /* Reset job state to evaluate the changes */
     job.reset();
@@ -770,6 +775,53 @@ double SchedulerUtils::findAltitude(const SkyPoint &target, const QDateTime &whe
         *is_setting = passed_meridian;
 
     return o.alt().Degrees();
+}
+double SchedulerUtils::findAltitude(const QString targetName, const QDateTime &when,
+                                    bool *is_setting, bool debug)
+{
+
+    SkyObject *object = KStarsData::Instance()->skyComposite()->findByName(targetName, false);
+
+    // FIXME: block calculating target coordinates at a particular time is duplicated in several places
+
+    // Retrieve the argument date/time, or fall back to current time - don't use QDateTime's timezone!
+    KStarsDateTime ltWhen(when.isValid() ?
+                              Qt::UTC == when.timeSpec() ? SchedulerModuleState::getGeo()->UTtoLT(KStarsDateTime(when)) : when :
+                              SchedulerModuleState::getLocalTime());
+
+    // Update RA/DEC of the target for the current fraction of the day
+    Satellite* sat = dynamic_cast<Satellite *>(object);
+    sat->updatePos();
+
+    // Calculate alt/az coordinates using KStars instance's geolocation
+    CachingDms const LST = SchedulerModuleState::getGeo()->GSTtoLST(SchedulerModuleState::getGeo()->LTtoUT(ltWhen).gst());
+    sat->EquatorialToHorizontal(&LST, SchedulerModuleState::getGeo()->lat());
+
+    // Hours are reduced to [0,24[, meridian being at 0
+    double offset = LST.Hours() - object->ra().Hours();
+    if (24.0 <= offset)
+        offset -= 24.0;
+    else if (offset < 0.0)
+        offset += 24.0;
+    bool const passed_meridian = 0.0 <= offset && offset < 12.0;
+
+    if (debug)
+        qCDebug(KSTARS_EKOS_SCHEDULER) << QString("When:%9 LST:%8 RA:%1 RA0:%2 DEC:%3 DEC0:%4 alt:%5 setting:%6 HA:%7")
+                                              .arg(object->ra().toHMSString())
+                                              .arg(object->ra0().toHMSString())
+                                              .arg(object->dec().toHMSString())
+                                              .arg(object->dec0().toHMSString())
+                                              .arg(object->alt().Degrees())
+                                              .arg(passed_meridian ? "yes" : "no")
+                                              .arg(object->ra().Hours())
+                                              .arg(LST.toHMSString())
+                                              .arg(ltWhen.toString("HH:mm:ss"));
+
+    if (is_setting)
+        *is_setting = passed_meridian;
+
+    return sat->alt().Degrees();
+
 }
 
 } // namespace

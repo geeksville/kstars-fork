@@ -16,6 +16,7 @@
 #include <QUrl>
 
 class SkyPoint;
+class Satellite;
 
 namespace Ekos {
 
@@ -40,7 +41,7 @@ public:
                          double djd, double rotation, const QUrl &sequenceUrl, const QUrl &fitsUrl, StartupCondition startup,
                          const QDateTime &startupTime, CompletionCondition completion, const QDateTime &completionTime, int completionRepeats,
                          double minimumAltitude, double minimumMoonSeparation, bool enforceWeather, bool enforceTwilight,
-                         bool enforceArtificialHorizon, bool track, bool focus, bool align, bool guide);
+                         bool enforceArtificialHorizon, bool track, bool focus, bool align, bool guide, bool trackingMode);
 
 
     /**
@@ -121,6 +122,16 @@ public:
          * @warning This function uses the current KStars geolocation.
          */
     static double findAltitude(const SkyPoint &target, const QDateTime &when, bool *is_setting = nullptr, bool debug = false);
+
+    /**
+     * @brief findAltitude Find altitude of an object with TLE
+     * @param targetName name of the job
+     * @param when date and time at which to find altitude
+     * @param is_setting
+     * @param debug outputs calculation to log file (optional).
+     * @return Altitude of the target at queried time and date, specific for TLE jobs
+     */
+    static double findAltitude(const QString targetName, const QDateTime &when, bool *is_setting = nullptr, bool debug = false);
 };
 
 
