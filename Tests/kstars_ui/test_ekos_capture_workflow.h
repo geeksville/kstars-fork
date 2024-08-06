@@ -16,55 +16,6 @@
 
 #include <QObject>
 
-// Select the flat source from the flats calibration options.
-// Start with a delay of 1 sec a new thread that edits the calibration options:
-//    select the source widget
-//    set pre-mount and pre-dome park options
-//    select a manual flat ADU value
-//    klick OK
-// open the calibration dialog
-#define KTRY_SELECT_FLAT_METHOD(sourceWidget, preMountPark, preDomePark) do { \
-    bool completed = false; \
-    QTimer::singleShot(5000, capture, [&]() { \
-    QDialog *calibrationOptions = nullptr; \
-    if (! QTest::qWaitFor([&](){return ((calibrationOptions = Ekos::Manager::Instance()->findChild<QDialog*>("Calibration")) != nullptr);}, 5000)) { \
-        QFAIL(qPrintable("Calibrations options dialog not found!")); } \
-    KTRY_GADGET(calibrationOptions, QAbstractButton, sourceWidget); \
-    sourceWidget->setChecked(true); \
-    KTRY_GADGET(calibrationOptions, QCheckBox, captureCalibrationParkMount);  \
-    captureCalibrationParkMount->setChecked(preMountPark); \
-    KTRY_GADGET(calibrationOptions, QCheckBox, captureCalibrationParkDome);  \
-    captureCalibrationParkDome->setChecked(preDomePark); \
-    KTRY_GADGET(calibrationOptions, QAbstractButton, captureCalibrationDurationManual);  \
-    captureCalibrationDurationManual->setChecked(true); \
-    QDialogButtonBox* buttons = calibrationOptions->findChild<QDialogButtonBox*>("buttonBox"); \
-    QVERIFY(nullptr != buttons); \
-    QTest::mouseClick(buttons->button(QDialogButtonBox::Ok), Qt::LeftButton); \
-    }); \
-    KTRY_CAPTURE_CLICK(calibrationB); \
-    QTRY_VERIFY_WITH_TIMEOUT(completed == true, 5000);  } while (false)
-
-#define KTRY_SELECT_FLAT_WALL(capture, azimuth, altitude) do { \
-    bool completed = false; \
-    QTimer::singleShot(1000, capture, [&]() { \
-    QDialog *calibrationOptions = nullptr; \
-    if (! QTest::qWaitFor([&](){return ((calibrationOptions = Ekos::Manager::Instance()->findChild<QDialog*>("Calibration")) != nullptr);}, 5000)) { \
-        QFAIL(qPrintable("Calibrations options dialog not found!")); } \
-    KTRY_GADGET(calibrationOptions, QAbstractButton, captureCalibrationWall); \
-    captureCalibrationWall->setChecked(true); \
-    QVERIFY(captureCalibrationWall->isChecked()); \
-    KTRY_SET_LINEEDIT(calibrationOptions, azBox, azimuth); \
-    KTRY_SET_LINEEDIT(calibrationOptions, altBox, altitude); \
-    KTRY_GADGET(calibrationOptions, QAbstractButton, captureCalibrationDurationManual);  \
-    captureCalibrationDurationManual->setChecked(true); \
-    QDialogButtonBox* buttons = calibrationOptions->findChild<QDialogButtonBox*>("buttonBox"); \
-    QVERIFY(nullptr != buttons); \
-    QTest::mouseClick(buttons->button(QDialogButtonBox::Ok), Qt::LeftButton); \
-    completed = true; \
-    }); \
-    KTRY_CLICK(Ekos::Manager::Instance()->captureModule(), calibrationB); \
-    QTRY_VERIFY_WITH_TIMEOUT(completed == true, 5000); } while (false)
-
 
 class TestEkosCaptureWorkflow : public QObject
 {
@@ -86,53 +37,17 @@ protected:
         void init();
         void cleanup();
 
-        bool prepareTestCase();
-
     private:
         // helper class
         TestEkosCaptureHelper *m_CaptureHelper = nullptr;
 
-        QString target = "test";
-
         /**
-         * @brief Setup capturing
-         * @param refocusLimitTime time limit to trigger re-focusing
-         * @param refocusHFR HFR limit to trigger re-focusing
-         * @param refocusTemp temperature limit to trigger re-focusing
-         * @param delay delay between frame captures
-         * @return true iff preparation was successful
-         */
-        bool prepareCapture(int refocusLimitTime = 0.0, double refocusHFR = 0.0, double refocusTemp = 0.0, int delay = 0);
+          * @brief verifyCalibrationSettings Verify if the flats calibration settings match the test data.
+          */
+         bool verifyCalibrationSettings();
 
-        /**
-         * @brief initCaptureSetting Initialize Capture settings with a single bool/double pair
-         * @param setting a single setting with an enabling checkbox and the value
-         * @param checkboxName name of the QCheckBox widget
-         * @param spinBoxName name of the QDoubleSpinBox widget
-         */
-        void initCaptureSetting(TestEkosCaptureHelper::OptDouble setting, const QString checkboxName, const QString dspinBoxName);
-
-        /**
-         * @brief Helper function translating simple QString input into QTest test data rows
-         * @param exptime exposure time of the sequence
-         * @param sequenceList List of sequences with filter and count as QString("<filter>:<count"), ... list
-         */
-        void prepareTestData(double exptime, QList<QString> sequenceList);
-
-        /**
-         * @brief verifyCalibrationSettings Verify if the flats calibration settings match the test data.
-         */
-        bool verifyCalibrationSettings();
-
-        /**
-         * @brief fillScripts Open the scripts dialog and fill its values from {@see #scripts}
-         */
-        void fillCaptureScripts();
-
-        // counter for images taken in a single test run
-        int image_count;
-
-        QDir *getImageLocation();
+         // counter for images taken in a single test run
+         int image_count;
 
 
     private slots:
@@ -165,27 +80,6 @@ protected:
 
         /** @brief Test data for @see testCaptureScriptsExecution() */
         void testCaptureScriptsExecution_data();
-
-        /**
-         * @brief Test if capture continues where it had been suspended by a
-         * guiding deviation as soon as guiding is back below the deviation threshold
-         */
-        void testGuidingDeviationSuspendingCapture();
-
-        /**
-         * @brief Test if aborting a job suspended due to a guiding deviation
-         * remains aborted when the guiding deviation is below the configured threshold.
-         */
-        void testGuidingDeviationAbortCapture();
-
-        /**
-         * @brief Test if a guiding deviation beyond the configured limit blocks the start of
-         * capturing until the guiding deviation is below the configured deviation threshold.
-         */
-        void testInitialGuidingLimitCapture();
-
-        /** @brief Test data for @see testInitialGuidingLimitCapture() */
-        void testInitialGuidingLimitCapture_data();
 
         /**
          * @brief Wait with start of capturing until the target temperature has been reached

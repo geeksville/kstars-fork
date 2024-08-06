@@ -29,6 +29,12 @@ void TestEkosCaptureHelper::init()
 
 void TestEkosCaptureHelper::cleanup()
 {
+    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
+    if (capture != nullptr)
+    {
+        capture->abort();
+        capture->clearSequenceQueue();
+    }
     // remove destination directory
     if (destination != nullptr)
         destination->remove();
@@ -135,6 +141,119 @@ void TestEkosCaptureHelper::ensureCCDShutter(bool shutter)
         }
 
     }
+}
+
+bool TestEkosCaptureHelper::prepareCapture(int refocusLimitTime, double refocusHFR, double refocusTemp, int delay)
+{
+    QFETCH(double, exptime);
+    QFETCH(QString, sequence);
+    // test data
+    // switch to capture module
+    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
+    KWRAP_SUB(KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000));
+
+    // add target to path to emulate the behavior of the scheduler
+    QString imagepath = getImageLocation()->path() + "/test";
+
+    // create the destination for images
+    qCInfo(KSTARS_EKOS_TEST) << "FITS path: " << imagepath;
+
+    // set refocusing limits
+    KTRY_SET_CHECKBOX_SUB(capture, enforceRefocusEveryN, (refocusLimitTime > 0));
+    if (refocusLimitTime > 0)
+        KTRY_SET_SPINBOX_SUB(capture, refocusEveryN, refocusLimitTime);
+
+    KTRY_SET_CHECKBOX_SUB(capture, enforceAutofocusHFR, (refocusHFR > 0));
+    if (refocusHFR > 0)
+        KTRY_SET_DOUBLESPINBOX_SUB(capture, hFRThresholdPercentage, refocusHFR);
+
+    KTRY_SET_CHECKBOX_SUB(capture, enforceAutofocusOnTemperature, (refocusTemp > 0));
+    if (refocusTemp > 0)
+        KTRY_SET_DOUBLESPINBOX_SUB(capture, maxFocusTemperatureDelta, refocusTemp);
+
+    // create capture sequences
+    KVERIFY_SUB(fillCaptureSequences(target, sequence, exptime, imagepath, delay));
+
+    // everything successfully completed
+    return true;
+}
+
+bool TestEkosCaptureHelper::prepareTestCase()
+{
+    // set logging defaults for alignment
+    Options::setVerboseLogging(false);
+    Options::setLogToFile(false);
+
+    // turn off altitude limits
+    Options::setEnableAltitudeLimits(false);
+
+    // use the helper to start the profile
+    KVERIFY_SUB(startEkosProfile());
+    // prepare optical trains for testing
+    prepareOpticalTrains();
+    // prepare the mount module for testing with OAG guiding
+    prepareMountModule(TestEkosCaptureHelper::SCOPE_FSQ85, TestEkosCaptureHelper::SCOPE_FSQ85);
+    // prepare for focusing tests
+    prepareFocusModule();
+    // prepare for alignment tests
+    prepareAlignmentModule();
+    // prepare for guiding tests
+    prepareGuidingModule();
+    // prepare for capturing tests
+    prepareCaptureModule();
+
+    init();
+
+    // check if all module settings are updated
+    checkModuleConfigurationsCompleted();
+
+    // clear image directory
+    KVERIFY_SUB(getImageLocation()->removeRecursively());
+
+    // ensure that the scope is unparked
+    Ekos::Mount *mount = Ekos::Manager::Instance()->mountModule();
+    if (mount->parkStatus() == ISD::PARK_PARKED)
+        mount->unpark();
+    KTRY_VERIFY_WITH_TIMEOUT_SUB(mount->parkStatus() == ISD::PARK_UNPARKED, 30000);
+
+    // ensure that the dome is unparked
+    //    if (m_DomeDevice != nullptr)
+    //    {
+    //        Ekos::Dome *dome = Ekos::Manager::Instance()->domeModule();
+    //        KVERIFY_SUB(dome != nullptr);
+    //        if (dome->parkStatus() == ISD::PARK_PARKED)
+    //            dome->unpark();
+    //        KTRY_VERIFY_WITH_TIMEOUT_SUB(dome->parkStatus() == ISD::PARK_UNPARKED, 30000);
+    //    }
+
+    // preparation successful
+    return true;
+}
+
+void TestEkosCaptureHelper::prepareTestData(double exptime, QList<QString> sequenceList)
+{
+#if QT_VERSION < QT_VERSION_CHECK(5,9,0)
+    QSKIP("Bypassing fixture test on old Qt");
+    Q_UNUSED(exptime)
+    Q_UNUSED(sequence)
+#else
+    QTest::addColumn<double>("exptime");             /*!< exposure time */
+    QTest::addColumn<QString>("sequence");           /*!< list of filters */
+
+    for (QString sequence : sequenceList)
+        QTest::newRow(QString("seq=%2, exp=%1").arg(exptime).arg(sequence).toStdString().c_str()) << exptime << sequence;
+#endif
+}
+
+void TestEkosCaptureHelper::fillCaptureScripts()
+{
+    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
+    bool success = false;
+    QTimer::singleShot(1000, capture, [&] {success = fillScriptManagerDialog(getScripts());});
+    // open script manager
+    KTRY_CLICK(capture, scriptManagerB);
+    // verify if script configuration succeeded
+    QVERIFY2(success, "Scripts set up failed!");
 }
 
 

@@ -35,10 +35,10 @@ void TestEkosCaptureWorkflow::testCaptureRefocusDelay()
 {
     m_CaptureHelper->m_FocuserDevice = "Focuser Simulator";
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     Ekos::Manager *manager = Ekos::Manager::Instance();
-    QVERIFY(prepareCapture(1));
+    QVERIFY(m_CaptureHelper->prepareCapture(1));
     QVERIFY(m_CaptureHelper->executeFocusing());
 
     // start capturing, expect focus after first captured frame
@@ -56,10 +56,10 @@ void TestEkosCaptureWorkflow::testCaptureRefocusHFR()
 {
     m_CaptureHelper->m_FocuserDevice = "Focuser Simulator";
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     Ekos::Manager *manager = Ekos::Manager::Instance();
-    QVERIFY(prepareCapture(0, 0.1));
+    QVERIFY(m_CaptureHelper->prepareCapture(0, 0.1));
     QVERIFY(m_CaptureHelper->executeFocusing());
 
     // start capturing
@@ -89,13 +89,13 @@ void TestEkosCaptureWorkflow::testCaptureRefocusTemperature()
 {
     m_CaptureHelper->m_FocuserDevice = "Focuser Simulator";
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     Ekos::Manager *manager = Ekos::Manager::Instance();
     Ekos::Capture *capture = manager->captureModule();
     // select temperature threshold
     double deltaT = 2.0;
-    QVERIFY(prepareCapture(0, 0, deltaT));
+    QVERIFY(m_CaptureHelper->prepareCapture(0, 0, deltaT));
     // set the focuser temperature
     SET_INDI_VALUE_DOUBLE(m_CaptureHelper->m_FocuserDevice, "FOCUS_TEMPERATURE", "TEMPERATURE", 0);
     // select the focuser as temperature source
@@ -130,10 +130,10 @@ void TestEkosCaptureWorkflow::testCaptureRefocusAbort()
 {
     m_CaptureHelper->m_FocuserDevice = "Focuser Simulator";
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     Ekos::Manager *manager = Ekos::Manager::Instance();
-    QVERIFY(prepareCapture(1));
+    QVERIFY(m_CaptureHelper->prepareCapture(1));
     QVERIFY(m_CaptureHelper->executeFocusing());
 
     // start capturing, expect focus after first captured frame
@@ -157,7 +157,7 @@ void TestEkosCaptureWorkflow::testCaptureRefocusAbort()
 void TestEkosCaptureWorkflow::testCaptureScriptsExecution()
 {
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     QFETCH(bool, pausing);
     // static test with three exposures
@@ -167,13 +167,13 @@ void TestEkosCaptureWorkflow::testCaptureScriptsExecution()
     KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
 
     // add target to path to emulate the behavior of the scheduler
-    QString imagepath = getImageLocation()->path() + "/test";
+    QString imagepath = m_CaptureHelper->getImageLocation()->path() + "/test";
 
     // create executable scripts
     m_CaptureHelper->createAllCaptureScripts(destination);
 
     // setup scripts - starts as thread since clicking on capture blocks
-    fillCaptureScripts();
+    m_CaptureHelper->fillCaptureScripts();
 
     // create capture sequences
     KTRY_CAPTURE_CONFIGURE_LIGHT(2.0, count, 0.0, "Luminance", "test", imagepath);
@@ -225,196 +225,17 @@ void TestEkosCaptureWorkflow::testCaptureScriptsExecution()
     {
         // cleanup scripts
         m_CaptureHelper->clearScripts();
-        fillCaptureScripts();
+        m_CaptureHelper->fillCaptureScripts();
         // wait for a sync
         QTest::qWait(5000);
         qCInfo(KSTARS_EKOS_TEST) << "Scripts cleared.";
     }
 }
 
-void TestEkosCaptureWorkflow::testGuidingDeviationSuspendingCapture()
-{
-    // default initialization
-    QVERIFY(prepareTestCase());
-
-    const double deviation_limit = 2.0;
-    // switch to capture module
-    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
-    KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
-    // set guide deviation guard to < 2"
-    KTRY_SET_CHECKBOX(capture, enforceGuideDeviation, true);
-    KTRY_SET_DOUBLESPINBOX(capture, guideDeviation, deviation_limit);
-
-    // add target to path to emulate the behavior of the scheduler
-    QString imagepath = getImageLocation()->path() + "/test";
-    // build a LRGB sequence
-    KTRY_CAPTURE_ADD_LIGHT(30.0, 1, 5.0, "Luminance", "test", imagepath);
-    KTRY_CAPTURE_ADD_LIGHT(30.0, 1, 5.0, "Red", "test", imagepath);
-    KTRY_CAPTURE_ADD_LIGHT(30.0, 1, 5.0, "Green", "test", imagepath);
-    KTRY_CAPTURE_ADD_LIGHT(30.0, 1, 5.0, "Blue", "test", imagepath);
-
-    // set a position in the west
-    SkyPoint *target = new SkyPoint();
-    target->setAz(270.0);
-    target->setAlt(KStarsData::Instance()->geo()->lat()->Degrees() / 2.0);
-    // translate to equatorial coordinates
-    const dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
-    const dms *lat = KStarsData::Instance()->geo()->lat();
-    target->HorizontalToEquatorial(&lst, lat);
-
-    m_CaptureHelper->slewTo(target->ra().Hours(), target->dec().Degrees(), true);
-
-    // clear calibration to ensure proper guiding
-    KTRY_CLICK(Ekos::Manager::Instance()->guideModule(), clearCalibrationB);
-
-    // start guiding
-    m_CaptureHelper->startGuiding(2.0);
-
-    // start capture
-    m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
-    KTRY_CLICK(capture, startB);
-    // wait until capturing starts
-    KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 10000);
-    // wait for settling
-    QTest::qWait(2000);
-    // create a guide drift
-    m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_SUSPENDED);
-    Ekos::Manager::Instance()->mountModule()->doPulse(RA_INC_DIR, 2000, DEC_INC_DIR, 2000);
-    qCInfo(KSTARS_EKOS_TEST()) << "Sent 2000ms RA+DEC guiding pulses.";
-    KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
-    KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 30000);
-    // expect that capturing continues
-    QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->getCaptureStatus() == Ekos::CAPTURE_CAPTURING, 60000);
-    // verify that capture starts only once
-    m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_PROGRESS);
-    QTest::qWait(20000);
-    QVERIFY2(m_CaptureHelper->expectedCaptureStates.size() > 0, "Multiple capture starts.");
-}
-
-void TestEkosCaptureWorkflow::testGuidingDeviationAbortCapture()
-{
-    // default initialization
-    QVERIFY(prepareTestCase());
-
-    const double deviation_limit = 2.0;
-    // switch to capture module
-    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
-    KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
-    // set guide deviation guard to < 2"
-    KTRY_SET_CHECKBOX(capture, enforceGuideDeviation, true);
-    KTRY_SET_DOUBLESPINBOX(capture, guideDeviation, deviation_limit);
-
-    // add target to path to emulate the behavior of the scheduler
-    QString imagepath = getImageLocation()->path() + "/test";
-    // build a simple 5xL sequence
-    KTRY_CAPTURE_ADD_LIGHT(45.0, 5, 5.0, "Luminance", "", imagepath);
-    // set Dubhe as target and slew there
-    SkyObject *target = KStars::Instance()->data()->skyComposite()->findByName("Dubhe");
-    m_CaptureHelper->slewTo(target->ra().Hours(), target->dec().Degrees(), true);
-
-    // clear calibration to ensure proper guiding
-    KTRY_CLICK(Ekos::Manager::Instance()->guideModule(), clearCalibrationB);
-
-    // start guiding
-    m_CaptureHelper->startGuiding(2.0);
-
-    // start capture
-    m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
-    KTRY_CLICK(capture, startB);
-    // wait until capturing starts
-    KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 10000);
-    // wait for settling
-    QTest::qWait(2000);
-    // create a guide drift
-    m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_SUSPENDED);
-    Ekos::Manager::Instance()->mountModule()->doPulse(RA_INC_DIR, 2000, DEC_INC_DIR, 2000);
-    qCInfo(KSTARS_EKOS_TEST()) << "Sent 2000ms RA+DEC guiding pulses.";
-    KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
-    // wait that capturing gets suspended
-    KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 15000);
-    // abort capturing
-    m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_ABORTED);
-    KTRY_CLICK(capture, startB);
-    // check that it has been aborted
-    KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 10000);
-    // wait that the guiding deviation is below the limit and
-    // verify that capture does not start
-    m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_PROGRESS);
-    QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->getGuideDeviation() < deviation_limit, 60000);
-
-    QTest::qWait(20000);
-    QVERIFY2(m_CaptureHelper->expectedCaptureStates.size() > 0, "Capture has been restarted although aborted.");
-}
-
-void TestEkosCaptureWorkflow::testInitialGuidingLimitCapture()
-{
-    // default initialization
-    QVERIFY(prepareTestCase());
-
-    const double deviation_limit = 2.0;
-    QFETCH(double, exptime);
-    // switch to capture module
-    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
-    KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
-    // set start guide deviation guard to < 2" but disable the other one
-    KTRY_SET_CHECKBOX(capture, enforceStartGuiderDrift, true);
-    KTRY_SET_DOUBLESPINBOX(capture, startGuideDeviation, deviation_limit);
-    // create sequence with 10 sec delay
-    QVERIFY(prepareCapture(0, 0, 0, 10));
-    // set Dubhe as target and slew there
-    SkyObject *target = KStars::Instance()->data()->skyComposite()->findByName("Dubhe");
-    m_CaptureHelper->slewTo(target->ra().Hours(), target->dec().Degrees(), true);
-
-    // start guiding
-    m_CaptureHelper->startGuiding(2.0);
-
-    for (int i = 1; i <= 2; i++)
-    {
-        // wait intially 5 seconds
-        if (i == 1)
-            QTest::qWait(5000);
-
-        // prepare to expect that capturing will start
-        m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
-
-        // ensure that guiding is running
-        QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->getGuidingStatus() == Ekos::GUIDE_GUIDING, 10000);
-
-        // create a guide drift
-        Ekos::Manager::Instance()->mountModule()->doPulse(RA_INC_DIR, 2000, DEC_INC_DIR, 2000);
-        qCInfo(KSTARS_EKOS_TEST()) << "Sent 2000ms RA+DEC guiding pulses.";
-
-        // wait until guide deviation is present
-        QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->getGuideDeviation() > deviation_limit, 15000);
-
-        if (i == 1)
-        {
-            // start capture but expect it being suspended first
-            KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
-            KTRY_CLICK(capture, startB);
-        }
-        // verify that capturing does not start before the guide deviation is below the limit
-        QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->getGuideDeviation() >= deviation_limit, 60000);
-        // wait 3 seconds and then ensure that capture did not start
-        QTest::qWait(3000);
-        QTRY_VERIFY(m_CaptureHelper->expectedCaptureStates.size() > 0);
-        // wait until guiding deviation is below the limit
-        QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->getGuideDeviation() < deviation_limit, 60000);
-        // wait until capturing starts
-        KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 30000);
-        if (i < 2)
-        {
-            // in the first iteration wait until the capture completes
-            m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_IMAGE_RECEIVED);
-            KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 1500 * exptime);
-        }
-    }
-}
-
 void TestEkosCaptureWorkflow::testCaptureWaitingForTemperature()
 {
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // switch to capture module
     Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
@@ -435,7 +256,7 @@ void TestEkosCaptureWorkflow::testCaptureWaitingForTemperature()
     KTRY_SET_CHECKBOX(capture, cameraTemperatureS, true);
 
     // build a simple 1xL sequence
-    KTRY_CAPTURE_ADD_LIGHT(10.0, 5, 5.0, "Luminance", "test", getImageLocation()->path() + " / test");
+    KTRY_CAPTURE_ADD_LIGHT(10.0, 5, 5.0, "Luminance", "test", m_CaptureHelper->getImageLocation()->path() + " / test");
     // expect capturing state
     m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
 
@@ -496,7 +317,7 @@ void TestEkosCaptureWorkflow::testCaptureWaitingForRotator()
     m_CaptureHelper->m_RotatorDevice = "Rotator Simulator";
 
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
     QSKIP("Skipping test after UI rework");
 
     // switch to capture module
@@ -519,7 +340,7 @@ void TestEkosCaptureWorkflow::testCaptureWaitingForRotator()
     KTRY_SET_CHECKBOX(rotatorDialog, enforceJobPA, true);
 
     // build a simple 1xL sequence
-    KTRY_CAPTURE_ADD_LIGHT(30.0, 1, 5.0, "Luminance", "test", getImageLocation()->path() + "/test");
+    KTRY_CAPTURE_ADD_LIGHT(30.0, 1, 5.0, "Luminance", "test", m_CaptureHelper->getImageLocation()->path() + "/test");
     // expect capturing state
     m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
 
@@ -542,14 +363,14 @@ void TestEkosCaptureWorkflow::testCaptureWaitingForRotator()
 void TestEkosCaptureWorkflow::testFlatManualSource()
 {
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // switch to capture module
     Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
     KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
 
     // use a test directory
-    QString imagepath = getImageLocation()->path() + "/test";
+    QString imagepath = m_CaptureHelper->getImageLocation()->path() + "/test";
 
     // switch capture type to flat so that we can set the calibration
     KTRY_SET_COMBO(capture, captureTypeS, "Flat");
@@ -623,14 +444,14 @@ void TestEkosCaptureWorkflow::testLightPanelSource()
     // ensure that we know that the CCD has a shutter
     m_CaptureHelper->ensureCCDShutter(true);
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // switch to capture module
     Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
     KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
 
     // use a test directory for flats
-    QString imagepath = getImageLocation()->path() + "/test";
+    QString imagepath = m_CaptureHelper->getImageLocation()->path() + "/test";
 
     // switch capture type to the selected type so that we can set the calibration
     QFETCH(QString, frametype);
@@ -662,7 +483,7 @@ void TestEkosCaptureWorkflow::testDustcapSource()
     Ekos::Manager * const ekos = Ekos::Manager::Instance();
 
     KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(ekos->setupTab, 1000);
-    QVERIFY(m_CaptureHelper->setupEkosProfile("Simulators", false));
+    QVERIFY(m_CaptureHelper->setupEkosProfile("Test profile", false));
     // start the profile
     KTRY_EKOS_CLICK(processINDIB);
 
@@ -704,7 +525,7 @@ void TestEkosCaptureWorkflow::testDustcapSource()
     KTRY_SET_CHECKBOX(capture, captureCalibrationParkDome, false);
 
     // use a test directory for flats
-    QString imagepath = getImageLocation()->path() + "/test";
+    QString imagepath = m_CaptureHelper->getImageLocation()->path() + "/test";
 
     // switch capture type to flat so that we can set the calibration
     KTRY_SET_COMBO(capture, captureTypeS, "Flat");
@@ -734,14 +555,14 @@ void TestEkosCaptureWorkflow::testWallSource()
     // use the light panel simulator
     m_CaptureHelper->m_LightPanelDevice = "Light Panel Simulator";
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // switch to capture module
     Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
     KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
 
     // use a test directory for flats
-    QString imagepath = getImageLocation()->path() + "/test";
+    QString imagepath = m_CaptureHelper->getImageLocation()->path() + "/test";
 
     // switch capture type to flat so that we can set the calibration
     KTRY_SET_COMBO(capture, captureTypeS, "Flat");
@@ -759,8 +580,8 @@ void TestEkosCaptureWorkflow::testWallSource()
     captureTypeS->setCurrentText("Flat");
     // add another sequence to check if wall source may be used twice
     // select another wall position as flat light source (az=0°, alt=0)
-    KTRY_SELECT_FLAT_WALL(capture, "0", "0");
-    KTRY_CAPTURE_ADD_FRAME(frametype, 2, 2, 2.0, "Luminance", "test", imagepath);
+    KTRY_SELECT_FLAT_WALL(capture, "89", "1");
+    KTRY_CAPTURE_ADD_FRAME(frametype, 2, 1, 2.0, "Luminance", "test", imagepath);
 
     // start the sequence
     m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_IMAGE_RECEIVED);
@@ -800,7 +621,7 @@ void TestEkosCaptureWorkflow::testWallSource()
 //    // use the dome simulator
 //    m_CaptureHelper->m_DomeDevice = "Dome Simulator";
 //    // default initialization
-//    QVERIFY(prepareTestCase());
+//    QVERIFY(m_CaptureHelper->prepareTestCase());
 
 //    // QSKIP("Observatory refactoring needs to be completed until this test can be activated.");
 
@@ -841,7 +662,7 @@ void TestEkosCaptureWorkflow::testFlatSyncFocus()
     m_CaptureHelper->m_LightPanelDevice = "Light Panel Simulator";
     m_CaptureHelper->m_FocuserDevice = "Focuser Simulator";
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
     // set flat sync
     Options::setFlatSyncFocus(true);
     // run autofocus
@@ -863,7 +684,7 @@ void TestEkosCaptureWorkflow::testFlatSyncFocus()
     KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
 
     // use a test directory for flats
-    QString imagepath = getImageLocation()->path() + "/test";
+    QString imagepath = m_CaptureHelper->getImageLocation()->path() + "/test";
 
     // switch capture type to flat so that we can set the calibration
     KTRY_SET_COMBO(capture, captureTypeS, "Flat");
@@ -884,14 +705,14 @@ void TestEkosCaptureWorkflow::testFlatSyncFocus()
 void TestEkosCaptureWorkflow::testDarkManualCovering()
 {
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // switch to capture module
     Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
     KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000);
 
     // use a test directory for darks
-    QString imagepath = getImageLocation()->path() + "/test";
+    QString imagepath = m_CaptureHelper->getImageLocation()->path() + "/test";
 
     // switch capture type to flat so that we can set the calibration
     KTRY_CAPTURE_GADGET(QComboBox, captureTypeS);
@@ -933,28 +754,40 @@ void TestEkosCaptureWorkflow::testDarkManualCovering()
             CLOSE_MODAL_DIALOG(0);
         // check if one single flat is captured
         KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 60000);
-        if (clickModal2OK)
+        if (shutter == SHUTTER_YES)
         {
             // expect the light sequence
             m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_IMAGE_RECEIVED);
             m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_COMPLETE);
-            // click OK in the modal dialog for uncovering the telescope
-            CLOSE_MODAL_DIALOG(0);
             // check if one single light is captured
             KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 60000);
+
         }
         else
         {
-            // this must not happen
-            m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
-            // click Cancel in the modal dialog for uncovering the telescope
-            CLOSE_MODAL_DIALOG(1);
-            // check if capturing has not been started
-            KTRY_CAPTURE_GADGET(QPushButton, startB);
-            // within 5 secs the job must be stopped ...
-            QTRY_VERIFY_WITH_TIMEOUT(startB->icon().name() == QString("media-playback-start"), 5000);
-            // ... and capturing has not been started
-            QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates.size() > 0, 5000);
+            if (clickModal2OK)
+            {
+                // expect the light sequence
+                m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_IMAGE_RECEIVED);
+                m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_COMPLETE);
+                // click OK in the modal dialog for uncovering the telescope
+                CLOSE_MODAL_DIALOG(0);
+                // check if one single light is captured
+                KVERIFY_EMPTY_QUEUE_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates, 60000);
+            }
+            else
+            {
+                // this must not happen
+                m_CaptureHelper->expectedCaptureStates.append(Ekos::CAPTURE_CAPTURING);
+                // click Cancel in the modal dialog for uncovering the telescope
+                CLOSE_MODAL_DIALOG(1);
+                // check if capturing has not been started
+                KTRY_CAPTURE_GADGET(QPushButton, startB);
+                // within 5 secs the job must be stopped ...
+                QTRY_VERIFY_WITH_TIMEOUT(startB->icon().name() == QString("media-playback-start"), 5000);
+                // ... and capturing has not been started
+                QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates.size() > 0, 5000);
+            }
         }
     }
     else
@@ -967,7 +800,7 @@ void TestEkosCaptureWorkflow::testDarkManualCovering()
         CLOSE_MODAL_DIALOG(1);
         // check if capturing has not been started
         KTRY_CAPTURE_GADGET(QPushButton, startB);
-        // within 5 secs the job mus be stopped ...
+        // within 5 secs the job must be stopped ...
         QTRY_VERIFY_WITH_TIMEOUT(startB->icon().name() == QString("media-playback-start"), 5000);
         // ... and capturing has not been started
         QTRY_VERIFY_WITH_TIMEOUT(m_CaptureHelper->expectedCaptureStates.size() > 0, 5000);
@@ -978,7 +811,7 @@ void TestEkosCaptureWorkflow::testDarkManualCovering()
 void TestEkosCaptureWorkflow::testDarksLibrary()
 {
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // ensure that we know that the CCD has a shutter
     m_CaptureHelper->ensureCCDShutter(true);
@@ -1015,7 +848,7 @@ void TestEkosCaptureWorkflow::testDarksLibrary()
 void TestEkosCaptureWorkflow::testLoadEsqFileGeneral()
 {
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // switch to capture module
     Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
@@ -1085,7 +918,7 @@ void TestEkosCaptureWorkflow::testLoadEsqFileGeneral()
 void TestEkosCaptureWorkflow::testLoadEsqFileBasicJobSettings()
 {
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // switch to capture module
     Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
@@ -1195,7 +1028,7 @@ void TestEkosCaptureWorkflow::testLoadEsqFileBasicJobSettings()
 void TestEkosCaptureWorkflow::testLoadEsqFileCalibrationSettings()
 {
     // default initialization
-    QVERIFY(prepareTestCase());
+    QVERIFY(m_CaptureHelper->prepareTestCase());
 
     // switch to capture module
     Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
@@ -1326,22 +1159,22 @@ bool TestEkosCaptureWorkflow::verifyCalibrationSettings()
 
 void TestEkosCaptureWorkflow::testCaptureRefocusDelay_data()
 {
-    prepareTestData(31.0, {"Luminance:3"});
+    m_CaptureHelper->prepareTestData(31.0, {"Luminance:3"});
 }
 
 void TestEkosCaptureWorkflow::testCaptureRefocusHFR_data()
 {
-    prepareTestData(10.0, {"Luminance:6"});
+    m_CaptureHelper->prepareTestData(10.0, {"Luminance:6"});
 }
 
 void TestEkosCaptureWorkflow::testCaptureRefocusTemperature_data()
 {
-    prepareTestData(10.0, {"Luminance:6"});
+    m_CaptureHelper->prepareTestData(10.0, {"Luminance:6"});
 }
 
 void TestEkosCaptureWorkflow::testCaptureRefocusAbort_data()
 {
-    prepareTestData(31.0, {"Luminance:3"});
+    m_CaptureHelper->prepareTestData(31.0, {"Luminance:3"});
 }
 
 void TestEkosCaptureWorkflow::testCaptureScriptsExecution_data()
@@ -1349,11 +1182,6 @@ void TestEkosCaptureWorkflow::testCaptureScriptsExecution_data()
     QTest::addColumn<bool>("pausing");             /*!< pause between capturing */
     QTest::newRow("pausing=false") << false;
     QTest::newRow("pausing=true") << true;
-}
-
-void TestEkosCaptureWorkflow::testInitialGuidingLimitCapture_data()
-{
-    prepareTestData(20.0, {"Luminance:5"});
 }
 
 void TestEkosCaptureWorkflow::testFlatManualSource_data()
@@ -1549,9 +1377,6 @@ void TestEkosCaptureWorkflow::testLoadEsqFileCalibrationSettings_data()
 void TestEkosCaptureWorkflow::initTestCase()
 {
     KVERIFY_EKOS_IS_HIDDEN();
-    // limit guiding pulses to ensure that guiding deviations lead to aborted capture
-    Options::setRAMaximumPulseArcSec(5.0);
-    Options::setDECMaximumPulseArcSec(5.0);
 
     QStandardPaths::setTestModeEnabled(true);
 
@@ -1568,64 +1393,10 @@ void TestEkosCaptureWorkflow::cleanupTestCase()
     // nothing to do since we start the INDI service for each test case
 }
 
-bool TestEkosCaptureWorkflow::prepareTestCase()
-{
-    // set logging defaults for alignment
-    Options::setVerboseLogging(false);
-    Options::setLogToFile(false);
-
-    // turn off altitude limits
-    Options::setEnableAltitudeLimits(false);
-
-    // use the helper to start the profile
-    KVERIFY_SUB(m_CaptureHelper->startEkosProfile());
-    // prepare optical trains for testing
-    m_CaptureHelper->prepareOpticalTrains();
-    // prepare the mount module for testing with OAG guiding
-    m_CaptureHelper->prepareMountModule(TestEkosCaptureHelper::SCOPE_FSQ85, TestEkosCaptureHelper::SCOPE_FSQ85);
-    // prepare for focusing tests
-    m_CaptureHelper->prepareFocusModule();
-    // prepare for alignment tests
-    m_CaptureHelper->prepareAlignmentModule();
-    // prepare for guiding tests
-    m_CaptureHelper->prepareGuidingModule();
-    // prepare for capturing tests
-    m_CaptureHelper->prepareCaptureModule();
-
-    m_CaptureHelper->init();
-
-    // check if all module settings are updated
-    m_CaptureHelper->checkModuleConfigurationsCompleted();
-
-    // clear image directory
-    KVERIFY_SUB(m_CaptureHelper->getImageLocation()->removeRecursively());
-
-    // ensure that the scope is unparked
-    Ekos::Mount *mount = Ekos::Manager::Instance()->mountModule();
-    if (mount->parkStatus() == ISD::PARK_PARKED)
-        mount->unpark();
-    KTRY_VERIFY_WITH_TIMEOUT_SUB(mount->parkStatus() == ISD::PARK_UNPARKED, 30000);
-
-    // ensure that the dome is unparked
-    //    if (m_CaptureHelper->m_DomeDevice != nullptr)
-    //    {
-    //        Ekos::Dome *dome = Ekos::Manager::Instance()->domeModule();
-    //        KVERIFY_SUB(dome != nullptr);
-    //        if (dome->parkStatus() == ISD::PARK_PARKED)
-    //            dome->unpark();
-    //        KTRY_VERIFY_WITH_TIMEOUT_SUB(dome->parkStatus() == ISD::PARK_UNPARKED, 30000);
-    //    }
-
-    // preparation successful
-    return true;
-}
-
 void TestEkosCaptureWorkflow::init()
 {
     // reset counters
     image_count  = 0;
-    // reset calibration
-    Options::setCalibrationPreActionIndex(ACTION_NONE);
 
     KTRY_OPEN_EKOS();
     KVERIFY_EKOS_IS_OPENED();
@@ -1642,88 +1413,12 @@ void TestEkosCaptureWorkflow::cleanup()
     if (Ekos::Manager::Instance()->focusModule() != nullptr)
         Ekos::Manager::Instance()->focusModule()->abort();
 
-    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
-    if (capture != nullptr)
-    {
-        capture->abort();
-        capture->clearSequenceQueue();
-    }
     m_CaptureHelper->cleanup();
     QVERIFY(m_CaptureHelper->shutdownEkosProfile());
     KTRY_CLOSE_EKOS();
     KVERIFY_EKOS_IS_HIDDEN();
 }
 
-
-bool TestEkosCaptureWorkflow::prepareCapture(int refocusLimitTime, double refocusHFRThreshold, double refocusTemp,
-        int delay)
-{
-    QFETCH(double, exptime);
-    QFETCH(QString, sequence);
-    // test data
-    // switch to capture module
-    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
-    KWRAP_SUB(KTRY_SWITCH_TO_MODULE_WITH_TIMEOUT(capture, 1000));
-
-    // add target to path to emulate the behavior of the scheduler
-    QString imagepath = getImageLocation()->path() + "/test";
-
-    // create the destination for images
-    qCInfo(KSTARS_EKOS_TEST) << "FITS path: " << imagepath;
-
-    // set refocusing limits
-    KTRY_SET_CHECKBOX_SUB(capture, enforceRefocusEveryN, (refocusLimitTime > 0));
-    if (refocusLimitTime > 0)
-        KTRY_SET_SPINBOX_SUB(capture, refocusEveryN, refocusLimitTime);
-
-    KTRY_SET_CHECKBOX_SUB(capture, enforceAutofocusHFR, (refocusHFRThreshold > 0));
-    if (refocusHFRThreshold > 0)
-        KTRY_SET_DOUBLESPINBOX_SUB(capture, hFRThresholdPercentage, refocusHFRThreshold);
-
-    KTRY_SET_CHECKBOX_SUB(capture, enforceAutofocusOnTemperature, (refocusTemp > 0));
-    if (refocusTemp > 0)
-        KTRY_SET_DOUBLESPINBOX_SUB(capture, maxFocusTemperatureDelta, refocusTemp);
-
-    // create capture sequences
-    KVERIFY_SUB(m_CaptureHelper->fillCaptureSequences(target, sequence, exptime, imagepath, delay));
-
-    // everything successfully completed
-    return true;
-}
-
-void TestEkosCaptureWorkflow::prepareTestData(double exptime, QList<QString> sequenceList)
-{
-#if QT_VERSION < QT_VERSION_CHECK(5,9,0)
-    QSKIP("Bypassing fixture test on old Qt");
-    Q_UNUSED(exptime)
-    Q_UNUSED(sequence)
-#else
-    QTest::addColumn<double>("exptime");             /*!< exposure time */
-    QTest::addColumn<QString>("sequence");           /*!< list of filters */
-
-    for (QString sequence : sequenceList)
-        QTest::newRow(QString("seq=%2, exp=%1").arg(exptime).arg(sequence).toStdString().c_str()) << exptime << sequence;
-#endif
-}
-
-QDir *TestEkosCaptureWorkflow::getImageLocation()
-{
-    if (imageLocation == nullptr || imageLocation->exists())
-        imageLocation = new QDir(destination->path() + "/images");
-
-    return imageLocation;
-}
-
-void TestEkosCaptureWorkflow::fillCaptureScripts()
-{
-    Ekos::Capture *capture = Ekos::Manager::Instance()->captureModule();
-    bool success = false;
-    QTimer::singleShot(1000, capture, [&] {success = m_CaptureHelper->fillScriptManagerDialog(m_CaptureHelper->getScripts());});
-    // open script manager
-    KTRY_CLICK(capture, scriptManagerB);
-    // verify if script configuration succeeded
-    QVERIFY2(success, "Scripts set up failed!");
-}
 
 /* *********************************************************************************
  *
