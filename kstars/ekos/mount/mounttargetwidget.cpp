@@ -122,7 +122,8 @@ bool MountTargetWidget::azAltToRaDec(QString qsAz, QString qsAlt)
     targetCoord.setAlt(Alt);
 
     targetCoord.HorizontalToEquatorial(KStars::Instance()->data()->lst(),
-                                       KStars::Instance()->data()->geo()->lat());
+                                       KStars::Instance()->data()->geo()->lat(),
+                                       J2000);
 
     targetRATextObject->setProperty("text", targetCoord.ra().toHMSString());
     targetDETextObject->setProperty("text", targetCoord.dec().toDMSString());
@@ -143,7 +144,7 @@ bool MountTargetWidget::azAltToHaDec(QString qsAz, QString qsAlt)
 
     dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
 
-    targetCoord.HorizontalToEquatorial(&lst, KStars::Instance()->data()->geo()->lat());
+    targetCoord.HorizontalToEquatorial(&lst, KStars::Instance()->data()->geo()->lat(), J2000);
 
     dms HA = (lst - targetCoord.ra() + dms(360.0)).reduce();
 
@@ -317,9 +318,7 @@ bool MountTargetWidget::updateTarget()
         currentCoords = new SkyPoint();
         currentCoords->setAz(az);
         currentCoords->setAlt(at);
-        currentCoords->HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat());
-        // calculate J2000 coordinates
-        updateJ2000Coordinates(currentCoords, true, false);
+        currentCoords->HorizontalToEquatorialNow(); // Updates J2000 coordinates internally
     }
     else if (haEquatorialCheckObject->property("checked").toBool())
     {
