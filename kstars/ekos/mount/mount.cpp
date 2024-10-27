@@ -965,53 +965,6 @@ bool Mount::syncTarget(const QString &target)
     return false;
 }
 
-bool Mount::slew(const QString &RA, const QString &DEC)
-{
-    dms ra, de;
-
-    if (m_equatorialCheck->property("checked").toBool())
-    {
-        ra = dms::fromString(RA, false);
-        de = dms::fromString(DEC, true);
-    }
-
-    if (m_horizontalCheck->property("checked").toBool())
-    {
-        dms az = dms::fromString(RA, true);
-        dms at = dms::fromString(DEC, true);
-        SkyPoint target;
-        target.setAz(az);
-        target.setAlt(at);
-        target.HorizontalToEquatorialNow();
-        ra = target.ra();
-        de = target.dec();
-    }
-
-    if (m_haEquatorialCheck->property("checked").toBool())
-    {
-        dms ha = dms::fromString(RA, false);
-        de = dms::fromString(DEC, true);
-        dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
-        ra = (lst - ha + dms(360.0)).reduce();
-    }
-
-    // If J2000 was checked and the Mount is _not_ already using native J2000 coordinates
-    // then we need to convert J2000 to JNow. Otherwise, we send J2000 as is.
-    if (m_J2000Check->property("checked").toBool() && m_Mount && m_Mount->isJ2000() == false)
-    {
-        // J2000 ---> JNow
-        SkyPoint J2000Coord(ra, de);
-        J2000Coord.setRA0(ra);
-        J2000Coord.setDec0(de);
-        J2000Coord.apparentCoord(static_cast<long double>(J2000), KStars::Instance()->data()->ut().djd());
-
-        ra = J2000Coord.ra();
-        de = J2000Coord.dec();
-    }
-
-    return slew(ra.Hours(), de.Degrees());
-}
-
 bool Mount::slew(double RA, double DEC)
 {
     if (m_Mount == nullptr || m_Mount->isConnected() == false)
@@ -1049,51 +1002,6 @@ SkyPoint Mount::currentTarget()
     qCWarning(KSTARS_EKOS_MOUNT) << "No target position defined!";
     // since we need to answer something, we take the current mount position
     return telescopeCoord;
-}
-
-bool Mount::sync(const QString &RA, const QString &DEC)
-{
-    dms ra, de;
-
-    if (m_equatorialCheck->property("checked").toBool())
-    {
-        ra = dms::fromString(RA, false);
-        de = dms::fromString(DEC, true);
-    }
-
-    if (m_horizontalCheck->property("checked").toBool())
-    {
-        dms az = dms::fromString(RA, true);
-        dms at = dms::fromString(DEC, true);
-        SkyPoint target;
-        target.setAz(az);
-        target.setAlt(at);
-        target.HorizontalToEquatorialNow();
-        ra = target.ra();
-        de = target.dec();
-    }
-
-    if (m_haEquatorialCheck->property("checked").toBool())
-    {
-        dms ha = dms::fromString(RA, false);
-        de = dms::fromString(DEC, true);
-        dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
-        ra = (lst - ha + dms(360.0)).reduce();
-    }
-
-    if (m_J2000Check->property("checked").toBool())
-    {
-        // J2000 ---> JNow
-        SkyPoint J2000Coord(ra, de);
-        J2000Coord.setRA0(ra);
-        J2000Coord.setDec0(de);
-        J2000Coord.updateCoordsNow(KStarsData::Instance()->updateNum());
-
-        ra = J2000Coord.ra();
-        de = J2000Coord.dec();
-    }
-
-    return sync(ra.Hours(), de.Degrees());
 }
 
 bool Mount::sync(double RA, double DEC)
@@ -1211,52 +1119,12 @@ bool  Mount::raDecToHaDec(QString qsRA)
 
 bool  Mount::azAltToRaDec(QString qsAz, QString qsAlt)
 {
-    dms Az, Alt;
-
-    if (!Az.setFromString(qsAz, true) || !Alt.setFromString(qsAlt, true))
-        return false;
-
-    SkyPoint targetCoord;
-    targetCoord.setAz(Az);
-    targetCoord.setAlt(Alt);
-
-    targetCoord.HorizontalToEquatorialNow();
-
-    m_targetRAText->setProperty("text", targetCoord.ra().toHMSString());
-    m_targetDEText->setProperty("text", targetCoord.dec().toDMSString());
-
-    return true;
+    return m_ControlPanel->mountTarget->azAltToRaDec(qsAz, qsAlt);
 }
 
 bool  Mount::azAltToHaDec(QString qsAz, QString qsAlt)
 {
-    dms Az, Alt;
-
-    if (!Az.setFromString(qsAz, true) || !Alt.setFromString(qsAlt, true))
-        return false;
-
-    SkyPoint targetCoord;
-    targetCoord.setAz(Az);
-    targetCoord.setAlt(Alt);
-
-    dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
-
-    targetCoord.HorizontalToEquatorialNow();
-
-    dms HA = (lst - targetCoord.ra() + dms(360.0)).reduce();
-
-    QChar sgn('+');
-    if (HA.Hours() > 12.0)
-    {
-        HA.setH(24.0 - HA.Hours());
-        sgn = '-';
-    }
-
-    m_targetRAText->setProperty("text", QString("%1%2").arg(sgn).arg(HA.toHMSString()));
-    m_targetDEText->setProperty("text", targetCoord.dec().toDMSString());
-
-
-    return true;
+    return m_ControlPanel->mountTarget->azAltToHaDec(qsAz, qsAlt);
 }
 
 bool  Mount::haDecToRaDec(QString qsHA)
