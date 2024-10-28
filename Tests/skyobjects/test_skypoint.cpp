@@ -11,6 +11,10 @@
 #include "auxiliary/dms.h"
 #include "Options.h"
 #include <libnova/libnova.h>
+#ifdef HAVE_LIBERFA
+#include <erfa.h>
+#endif
+
 TestSkyPoint::TestSkyPoint() : QObject()
 {
     useRelativistic = Options::useRelativistic();
@@ -624,6 +628,54 @@ void TestSkyPoint::testDeltaAngle()
 
     QVERIFY(diffRA.Degrees() < 1);
     QVERIFY(diffDE.Degrees() < 1);
+}
+
+void TestSkyPoint::testAngularDistance_data()
+{
+    QTest::addColumn<dms>("ra1");
+    QTest::addColumn<dms>("dec1");
+    QTest::addColumn<dms>("ra2");
+    QTest::addColumn<dms>("dec2");
+    QTest::addColumn<double>("dist"); // Sentinel value of NaN to compute from ERFA
+
+    QTest::newRow("Zero")         << 0._deg << 0._deg << 0._deg << 0._deg << 0._deg;        // Zero distance at Vernal Equinox
+    QTest::newRow("Equatorial")   << 0._deg << 0._deg << 15._deg << 0._deg << 15._deg;      // Distance along celestial equator
+    QTest::newRow("ShorterPath")  << 0._deg << 0._deg << 23._h << 0._deg << 15._deg;        // Should take the shorter path
+    QTest::newRow("Meridional")   << 0._deg << 0._deg << 0._deg << 15._deg << 15._deg;      // Along a meridian
+    QTest::newRow("SouthernDec")  << 0._deg << 0._deg << 0._deg << -15._deg << 15._deg;     // Same, but southern displacement
+    QTest::newRow("PolarFlight")  << 1._h << 80._deg << 13._h << 80._deg << 20._deg;        // Shortest distance across the pole
+    QTest::newRow("PolarFlight2") << 1.7_h << -80._deg << -10.3_h << -75._deg << 25._deg; // Same, another example
+
+#ifdef HAVE_LIBERFA
+    // FIXME: You are not using _hms and _dms literals correctly
+    /*
+    QTest::newRow("ERFA 1") << 13:22:23_hms << -12:23:23_dms << 10:20:30_hms << +88:57:56_dms << NaN::d;
+    QTest::newRow("ERFA 2") << 03:19:43_hms << +38:22:30_dms << 15:45:36_hms << -12:22:25_dms << NaN::d;
+    QTest::newRow("ERFA 3") << 23:23:23_hms << -18:20:30_dms << 23:23:20_hms << -18:20:37_dms << NaN::d;
+    QTest::newRow("ERFA 4") << 16:19:40_hms << +44:08:13_dms << 20:59:37_hms << -89:59:30_dms << NaN::d;
+    QTest::newRow("ERFA 5") << 16:19:40_hms << +89:59:30_dms << 20:59:37_hms << -89:59:30_dms << NaN::d;
+    */
+#endif
+}
+
+void TestSkyPoint::testAngularDistance()
+{
+    QFETCH(dms, ra1);
+    QFETCH(dms, dec1);
+    QFETCH(dms, ra2);
+    QFETCH(dms, dec2);
+    QFETCH(double, dist);
+
+#ifdef HAVE_LIBERFA
+    if (std::isnan(dist)) {
+        dist = eraSeps(ra1.reduce().radians(), dec1.radians(),
+                       ra2.reduce().radians(), dec2.radians()) / dms::DegToRad;
+    }
+#endif
+
+    SkyPoint p1 {ra1, dec1}, p2 {ra2, dec2};
+    const auto result = p1.angularDistanceTo(&p2).Degrees();
+    QVERIFY2(abs(dist - result) < 0.1/3600., qPrintable(QString("Expected: %1, Result: %2").arg(dist).arg(result)));
 }
 
 QTEST_GUILESS_MAIN(TestSkyPoint)

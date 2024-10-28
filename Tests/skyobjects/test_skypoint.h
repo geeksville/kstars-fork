@@ -69,6 +69,8 @@ class TestSkyPoint : public QObject
 
         void testUpdateCoords();
 
+        void testAngularDistance_data();
+        void testAngularDistance();
         void testDeltaAngle();
 
     private:
