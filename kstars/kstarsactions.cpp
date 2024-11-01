@@ -1867,14 +1867,14 @@ void KStars::slotTargetSymbol(bool flag)
     map()->forceUpdate();
 }
 
-void KStars::slotApplySkyMapView(const QString &viewName)
+bool KStars::slotApplySkyMapView(const QString &viewName)
 {
 
     auto view = SkyMapViewManager::viewNamed(viewName);
     if (!view)
     {
         qCWarning(KSTARS) << "View named " << viewName << " not found!";
-        return;
+        return false;
     }
 
     // FIXME: Ugly hack to update the menus correctly...
@@ -1919,6 +1919,7 @@ void KStars::slotApplySkyMapView(const QString &viewName)
                     << "FOV: " << view->fov;
     actionCollection()->action(QString("view:%1").arg(viewName))->setChecked(true);
     map()->forceUpdate();
+    return true;
 }
 
 void KStars::slotHIPSSource()
