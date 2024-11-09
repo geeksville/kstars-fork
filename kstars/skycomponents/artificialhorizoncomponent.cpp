@@ -588,7 +588,7 @@ void sampleLineList(std::shared_ptr<LineList> *list, std::shared_ptr<LineList> *
             SkyPoint *newPt = new SkyPoint;
             newPt->setAz(newAz);
             newPt->setAlt(newAlt);
-            newPt->HorizontalToEquatorialNow();
+            newPt->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat());
             (*tempPoints)->append(std::shared_ptr<SkyPoint>(newPt));
         }
         // Do the last point.
@@ -597,7 +597,7 @@ void sampleLineList(std::shared_ptr<LineList> *list, std::shared_ptr<LineList> *
             SkyPoint *newPt = new SkyPoint;
             newPt->setAz(p2->az().Degrees());
             newPt->setAlt(p2->alt().Degrees());
-            newPt->HorizontalToEquatorialNow();
+            newPt->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat());
             (*tempPoints)->append(std::shared_ptr<SkyPoint>(newPt));
         }
     }
