@@ -457,7 +457,7 @@ void KStars::updateLocationFromWizard(const GeoLocation &geo)
     // Alt/Az remain constant.
     if (!Options::isTracking() && Options::useAltAz())
     {
-        map()->focus()->HorizontalToEquatorialNow();
+        map()->focus()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
     }
 
     // recalculate new times and objects
@@ -1077,7 +1077,8 @@ void KStars::slotGeoLocator()
             // Alt/Az remain constant.
             if (!Options::isTracking() && Options::useAltAz())
             {
-                map()->focus()->HorizontalToEquatorialNow();
+                map()->focus()->HorizontalToEquatorial(data()->lst(),
+                                                       data()->geo()->lat(), data()->djd());
             }
 
             // recalculate new times and objects
@@ -1246,7 +1247,8 @@ void KStars::slotSetTime()
                 map()->setFocus(map()->focusObject());
             }
             else
-                map()->focus()->HorizontalToEquatorialNow();
+                map()->focus()->HorizontalToEquatorial(data()->lst(),
+                                                       data()->geo()->lat(), data()->djd());
         }
 
         map()->forceUpdateNow();
@@ -1276,7 +1278,7 @@ void KStars::slotSetTimeToNow()
             map()->setFocus(map()->focusObject());
         }
         else
-            map()->focus()->HorizontalToEquatorialNow();
+            map()->focus()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
     }
 
     map()->forceUpdateNow();
@@ -1639,7 +1641,8 @@ void KStars::slotManualFocus()
         if (Options::useAltAz() && realAlt > 89.0)
         {
             focusDialog->point()->setAlt(89.0);
-            focusDialog->point()->HorizontalToEquatorialNow();
+            focusDialog->point()->HorizontalToEquatorial(data()->lst(),
+                                                         data()->geo()->lat(), data()->djd());
         }
         if (!Options::useAltAz() && realDec > 89.0)
         {
@@ -1749,7 +1752,8 @@ void KStars::slotCoordSys()
             {
                 // FIXME: Changed focus()->alt() to be unrefracted by convention; is this still necessary? -- asimha 2020/07/05
                 map()->setFocusAltAz(map()->focus()->alt(), map()->focus()->az());
-                map()->focus()->HorizontalToEquatorialNow();
+                map()->focus()->HorizontalToEquatorial(data()->lst(),
+                                                       data()->geo()->lat(), data()->djd());
             }
         }
         actionCollection()

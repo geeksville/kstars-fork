@@ -194,7 +194,7 @@ void FocusDialog::validatePoint()
 
             Point->setAz(az);
             Point->setAltRefracted(alt);
-            Point->HorizontalToEquatorialNow();
+            Point->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
 
             UsedAltAz = true;
 

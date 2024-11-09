@@ -2268,7 +2268,7 @@ bool KSUserDB::GetAllHorizons(QList<ArtificialHorizonEntity *> &horizonList)
             record = points.record(j);
             p->setAz(record.value(0).toDouble());
             p->setAlt(record.value(1).toDouble());
-            p->HorizontalToEquatorialNow();
+            p->HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
             skyList->append(std::move(p));
         }
 

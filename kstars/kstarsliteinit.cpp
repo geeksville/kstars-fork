@@ -96,7 +96,7 @@ void KStarsLite::initFocus()
         SkyPoint pFocus;
         pFocus.setAz(Options::focusRA());
         pFocus.setAlt(Options::focusDec());
-        pFocus.HorizontalToEquatorialNow();
+        pFocus.HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
         map()->setFocusPoint(&pFocus);
 
         //Default: set focus point using FocusRA as the RA and
@@ -129,7 +129,7 @@ void KStarsLite::initFocus()
         SkyPoint DefaultFocus;
         DefaultFocus.setAz(180.0);
         DefaultFocus.setAlt(45.0);
-        DefaultFocus.HorizontalToEquatorialNow();
+        DefaultFocus.HorizontalToEquatorial(data()->lst(), data()->geo()->lat());
         map()->setDestination(DefaultFocus);
     }
 

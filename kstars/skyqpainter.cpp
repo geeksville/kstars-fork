@@ -1315,7 +1315,7 @@ bool SkyQPainter::drawSatellite(Satellite * sat)
     QPointF pos;
     bool visible = false;
 
-    //sat->HorizontalToEquatorialNow();
+    //sat->HorizontalToEquatorial( data->lst(), data->geo()->lat() );
 
     pos = m_proj->toScreen(sat, true, &visible);
 

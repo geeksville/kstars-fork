@@ -971,7 +971,7 @@ void SkyMap::setFocusAltAz(const dms &alt, const dms &az)
     Options::setFocusDec(focus()->dec().Degrees());
     focus()->setAlt(alt);
     focus()->setAz(az);
-    focus()->HorizontalToEquatorialNow();
+    focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
 
     slewing = false;
     forceUpdate(); //need a total update, or slewing with the arrow keys doesn't work.
@@ -1001,7 +1001,7 @@ void SkyMap::setDestinationAltAz(const dms &alt, const dms &az, bool altIsRefrac
         destination()->setAlt(alt);
     }
     destination()->setAz(az);
-    destination()->HorizontalToEquatorialNow();
+    destination()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
     emit destinationChanged();
 }
 
@@ -1027,7 +1027,7 @@ void SkyMap::updateFocus()
             setDestination(*focusPoint());
     }
     else
-        focus()->HorizontalToEquatorialNow();
+        focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
 }
 
 void SkyMap::slewFocus()
@@ -1075,7 +1075,7 @@ void SkyMap::slewFocus()
                 {
                     focus()->setAlt(focus()->alt().Degrees() + fY * step);
                     focus()->setAz(dms(focus()->az().Degrees() + fX * step).reduce());
-                    focus()->HorizontalToEquatorialNow();
+                    focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
                 }
                 else
                 {
@@ -1120,7 +1120,7 @@ void SkyMap::slewFocus()
         if (Options::useAltAz())
         {
             setFocusAltAz(destination()->alt(), destination()->az());
-            focus()->HorizontalToEquatorialNow();
+            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
         }
         else
         {

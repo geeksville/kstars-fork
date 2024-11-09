@@ -459,7 +459,8 @@ IPState SequenceJobState::checkWallPositionReady(CCDFrameType frametype)
     {
         if (wpScopeStatus < WP_SLEWING)
         {
-            wallCoord.HorizontalToEquatorialNow();
+            wallCoord.HorizontalToEquatorial(KStarsData::Instance()->lst(),
+                                             KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
             wpScopeStatus = WP_SLEWING;
             emit slewTelescope(wallCoord);
             emit newLog(i18n("Mount slewing to wall position (az =%1 alt =%2)",

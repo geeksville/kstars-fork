@@ -336,7 +336,7 @@ void KStarsLite::slotSetTime(QDateTime time)
             map()->setFocus(map()->focusObject());
         }
         else
-            map()->focus()->HorizontalToEquatorialNow();
+            map()->focus()->HorizontalToEquatorial(data()->lst(), data()->geo()->lat(), data()->djd());
     }
 
     map()->forceUpdateNow();

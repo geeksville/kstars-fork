@@ -581,7 +581,7 @@ void MountModel::slotWizardAlignmentPoints()
         spTest.setAlt(
             minAlt); //The goal here is to get the point exactly West at the minAlt so that we can use that DEC
         spTest.setAz(270);
-        spTest.HorizontalToEquatorialNow();
+        spTest.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
         initDEC = spTest.dec().Degrees();
     }
     else
@@ -590,7 +590,7 @@ void MountModel::slotWizardAlignmentPoints()
             minAlt +
             10); //We don't want to be right at the minAlt because there would be only 1 point on the dec circle above the alt.
         spTest.setAz(180);
-        spTest.HorizontalToEquatorialNow();
+        spTest.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
         initDEC = spTest.dec().Degrees();
         if (lat > 0)
             decIncrement = (80 - initDEC) / (decPoints); //Don't quite want to reach NCP
@@ -702,11 +702,11 @@ void MountModel::calculateAngleForRALine(double &raIncrement, double &initRA, do
 
         spEast.setAlt(minAlt);
         spEast.setAz(AZEast.Degrees());
-        spEast.HorizontalToEquatorialNow();
+        spEast.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
 
         spWest.setAlt(minAlt);
         spWest.setAz(AZWest.Degrees());
-        spWest.HorizontalToEquatorialNow();
+        spWest.HorizontalToEquatorial(KStars::Instance()->data()->lst(), KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
 
         dms angleSep = spEast.ra().deltaAngle(spWest.ra());
 

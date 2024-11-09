@@ -31,7 +31,7 @@ SkyPoint Projector::pointAt(double az)
     SkyPoint p;
     p.setAz(az);
     p.setAlt(0.0);
-    p.HorizontalToEquatorialNow();
+    p.HorizontalToEquatorial(KStarsData::Instance()->lst(), KStarsData::Instance()->geo()->lat(), KStarsData::Instance()->djd());
     return p;
 }
 
@@ -291,7 +291,7 @@ double Projector::findZenithPA(const SkyPoint *o, float x, float y) const
     test.setAlt(newAlt);
     test.setAz(o->az().Degrees());
     if (!m_vp.useAltAz)
-        test.HorizontalToEquatorialNow();
+        test.HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
     Eigen::Vector2f t = toScreenVec(&test);
     float dx    = t.x() - x;
     float dy    = y - t.y(); //backwards because QWidget Y-axis increases to the bottom (FIXME: Check)

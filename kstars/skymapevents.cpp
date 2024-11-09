@@ -78,7 +78,7 @@ void SkyMap::keyPressEvent(QKeyEvent *e)
             if (Options::useAltAz())
             {
                 focus()->setAz(dms(focus()->az().Degrees() - step * MINZOOM / Options::zoomFactor()).reduce());
-                focus()->HorizontalToEquatorialNow();
+                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
             }
             else
             {
@@ -94,7 +94,7 @@ void SkyMap::keyPressEvent(QKeyEvent *e)
             if (Options::useAltAz())
             {
                 focus()->setAz(dms(focus()->az().Degrees() + step * MINZOOM / Options::zoomFactor()).reduce());
-                focus()->HorizontalToEquatorialNow();
+                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
             }
             else
             {
@@ -112,7 +112,7 @@ void SkyMap::keyPressEvent(QKeyEvent *e)
                 focus()->setAltRefracted(focus()->altRefracted().Degrees() + step * MINZOOM / Options::zoomFactor());
                 if (focus()->alt().Degrees() > 90.0)
                     focus()->setAlt(90.0);
-                focus()->HorizontalToEquatorialNow();
+                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
             }
             else
             {
@@ -132,7 +132,7 @@ void SkyMap::keyPressEvent(QKeyEvent *e)
                 focus()->setAltRefracted(focus()->altRefracted().Degrees() - step * MINZOOM / Options::zoomFactor());
                 if (focus()->alt().Degrees() < -90.0)
                     focus()->setAlt(-90.0);
-                focus()->HorizontalToEquatorialNow();
+                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
             }
             else
             {
@@ -660,7 +660,7 @@ void SkyMap::mouseMoveEvent(QMouseEvent *e)
             focus()->setAz(focus()->az().Degrees() - dAz.Degrees()); //move focus in opposite direction
             focus()->setAz(focus()->az().reduce());
             focus()->setAltRefracted(KSUtils::clamp(focus()->altRefracted().Degrees() - dAlt.Degrees(), -90.0, 90.0));
-            focus()->HorizontalToEquatorialNow();
+            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
         }
         else
         {

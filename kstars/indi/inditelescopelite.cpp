@@ -165,7 +165,8 @@ void TelescopeLite::processNumber(INumberVectorProperty *nvp)
 
         currentCoord.setAz(Az->value);
         currentCoord.setAlt(Alt->value);
-        currentCoord.HorizontalToEquatorialNow();
+        currentCoord.HorizontalToEquatorial(KStarsLite::Instance()->data()->lst(),
+                                            KStarsLite::Instance()->data()->geo()->lat(), KStarsLite::Instance()->data()->djd());
 
         //KStarsLite::Instance()->map()->update();
 
