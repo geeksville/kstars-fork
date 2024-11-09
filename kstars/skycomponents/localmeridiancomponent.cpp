@@ -74,7 +74,7 @@ void LocalMeridianComponent::update(KSNumbers *)
     {
         for (int j = 0; j < listList().at(i)->points()->count(); j++)
         {
-            listList().at(i)->points()->at(j)->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            listList().at(i)->points()->at(j)->HorizontalToEquatorial(data->lst(), data->geo()->lat());
         }
     }
 }

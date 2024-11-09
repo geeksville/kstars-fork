@@ -294,9 +294,8 @@ bool PolarAlign::refreshSolution(SkyPoint *solution, SkyPoint *altOnlySolution) 
     solution->setAz(solutionAzAlt.x());
     solution->setAlt(solutionAzAlt.y());
     auto lst = geoLocation->GSTtoLST(times[2].gst());
-    solution->HorizontalToEquatorial(&lst, geoLocation->lat(), times[2].djd());
+    solution->HorizontalToEquatorial(&lst, geoLocation->lat());
 
-    // FIXME: The following is likely made redundant by change to HorizontalToEquatorial that undoes precession
     // Not sure if this is needed
     solution->setRA0(solution->ra());
     solution->setDec0(solution->dec());
@@ -312,8 +311,7 @@ bool PolarAlign::refreshSolution(SkyPoint *solution, SkyPoint *altOnlySolution) 
     altOnlySolution->setAz(altOnlySolutionAzAlt.x());
     altOnlySolution->setAlt(altOnlySolutionAzAlt.y());
     auto altOnlyLst = geoLocation->GSTtoLST(times[2].gst());
-    altOnlySolution->HorizontalToEquatorial(&altOnlyLst, geoLocation->lat(), times[2].djd());
-    // FIXME: The following is likely made redundant by change to HorizontalToEquatorial that undoes precession
+    altOnlySolution->HorizontalToEquatorial(&altOnlyLst, geoLocation->lat());
     altOnlySolution->setRA0(altOnlySolution->ra());
     altOnlySolution->setDec0(altOnlySolution->dec());
     KSNumbers altOnlyNum(times[2].djd());
@@ -368,8 +366,7 @@ bool PolarAlign::findAzAlt(const QSharedPointer<FITSData> &image, double azimuth
     spt.setAz(azimuth);
     spt.setAlt(altitude);
     dms LST = geoLocation->GSTtoLST(image->getDateTime().gst());
-    spt.HorizontalToEquatorial(&LST, geoLocation->lat(), image->getDateTime().djd());
-    // FIXME: The following is likely made redundant by the change to HorizontalToEquatorial that computes deprecessed coords
+    spt.HorizontalToEquatorial(&LST, geoLocation->lat());
     SkyPoint j2000Coord = spt.catalogueCoord(image->getDateTime().djd());
     QPointF imagePoint;
     if (!image->wcsToPixel(j2000Coord, *pixel, imagePoint))

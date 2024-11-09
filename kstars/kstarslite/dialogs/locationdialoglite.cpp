@@ -521,7 +521,7 @@ bool LocationDialogLite::setLocation(const QString &fullName)
         // Alt/Az remain constant.
         if (!Options::isTracking() && Options::useAltAz())
         {
-            SkyMapLite::Instance()->focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            SkyMapLite::Instance()->focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
         }
 
         // recalculate new times and objects

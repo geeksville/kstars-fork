@@ -281,7 +281,7 @@ void Mount::processNumber(INDI::Property prop)
         currentCoords.setAz(Az->value);
         currentCoords.setAlt(Alt->value);
         currentCoords.HorizontalToEquatorial(KStars::Instance()->data()->lst(),
-                                             KStars::Instance()->data()->geo()->lat(), KStars::Instance()->data()->djd());
+                                             KStars::Instance()->data()->geo()->lat());
 
         // calculate J2000 coordinates
         updateJ2000Coordinates(&currentCoords);

@@ -189,7 +189,7 @@ SkyPoint TestEkosMeridianFlipState::findMFTestTarget(int secsToMF, bool upper)
     const dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
     const dms lat(KStarsData::Instance()->geo()->lat()->Degrees());
     // calculate JNow RA/DEC
-    target.HorizontalToEquatorial(&lst, &lat, KStarsData::Instance()->clock()->utc().djd());
+    target.HorizontalToEquatorial(&lst, &lat);
 
     return target;
 }

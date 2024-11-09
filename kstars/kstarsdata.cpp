@@ -1001,7 +1001,7 @@ bool KStarsData::executeScript(const QString &scriptname, SkyMap *map)
                 {
                     // N.B. unrefract() doesn't matter at 90 degrees
                     map->setFocusAltAz(dms(90.0), map->focus()->az());
-                    map->focus()->HorizontalToEquatorial(&LST, geo()->lat(), djd());
+                    map->focus()->HorizontalToEquatorial(&LST, geo()->lat());
                     map->setDestination(*map->focus());
                     cmdCount++;
                 }
@@ -1010,7 +1010,7 @@ bool KStarsData::executeScript(const QString &scriptname, SkyMap *map)
                 {
                     // N.B. unrefract() doesn't matter at 90 degrees
                     map->setFocusAltAz(dms(90.0), map->focus()->az());
-                    map->focus()->HorizontalToEquatorial(&LST, geo()->lat(), djd());
+                    map->focus()->HorizontalToEquatorial(&LST, geo()->lat());
                     map->setDestination(*map->focus());
                     cmdCount++;
                 }
@@ -1054,7 +1054,7 @@ bool KStarsData::executeScript(const QString &scriptname, SkyMap *map)
                 if (ok)
                 {
                     map->setFocusAltAz(alt, az);
-                    map->focus()->HorizontalToEquatorial(&LST, geo()->lat(), djd());
+                    map->focus()->HorizontalToEquatorial(&LST, geo()->lat());
                     cmdCount++;
                 }
             }

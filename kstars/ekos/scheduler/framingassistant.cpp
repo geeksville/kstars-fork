@@ -102,8 +102,7 @@ FramingAssistant::FramingAssistant(): QDialog(KStars::Instance()), ui(new Ui::Fr
         QPointF destinationCenter = cartesianCenter + offset;
         SkyPoint newCenter = SkyMap::Instance()->projector()->fromScreen(destinationCenter,
                              KStarsData::Instance()->lst(),
-                             KStarsData::Instance()->geo()->lat(),
-                             KStarsData::Instance()->lst());
+                             KStarsData::Instance()->geo()->lat());
         SkyPoint J2000Center = newCenter.catalogueCoord(KStars::Instance()->data()->ut().djd());
         setCenter(J2000Center);
         updateTimer->start();

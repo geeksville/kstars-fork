@@ -262,7 +262,7 @@ void TestEkosCaptureWorkflow::testGuidingDeviationSuspendingCapture()
     // translate to equatorial coordinates
     const dms lst = KStarsData::Instance()->geo()->GSTtoLST(KStarsData::Instance()->clock()->utc().gst());
     const dms *lat = KStarsData::Instance()->geo()->lat();
-    target->HorizontalToEquatorial(&lst, lat, KStarsData::Instance()->clock()->utc().djd());
+    target->HorizontalToEquatorial(&lst, lat);
 
     m_CaptureHelper->slewTo(target->ra().Hours(), target->dec().Degrees(), true);
 

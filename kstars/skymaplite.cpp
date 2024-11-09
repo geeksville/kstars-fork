@@ -269,7 +269,7 @@ void SkyMapLite::setFocusAltAz(const dms &alt, const dms &az)
     Options::setFocusDec(focus()->dec().Degrees());
     focus()->setAlt(alt);
     focus()->setAz(az);
-    focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+    focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
 
     setSlewing(false);
     forceUpdate(); //need a total update, or slewing with the arrow keys doesn't work.
@@ -299,7 +299,7 @@ void SkyMapLite::setDestinationAltAz(const dms &alt, const dms &az, bool altIsRe
         destination()->setAlt(alt);
     }
     destination()->setAz(az);
-    destination()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+    destination()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
     emit destinationChanged();
 }
 
@@ -443,7 +443,7 @@ void SkyMapLite::slewFocus()
                 {
                     focus()->setAlt(focus()->alt().Degrees() + fY * step);
                     focus()->setAz(dms(focus()->az().Degrees() + fX * step).reduce());
-                    focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+                    focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
                 }
                 else
                 {
@@ -488,7 +488,7 @@ void SkyMapLite::slewFocus()
         if (Options::useAltAz())
         {
             setFocusAltAz(destination()->alt(), destination()->az());
-            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
         }
         else
         {
@@ -700,7 +700,7 @@ void SkyMapLite::updateFocus()
             //Tracking any object in Alt/Az mode requires focus updates
             focusObject()->EquatorialToHorizontal(data->lst(), data->geo()->lat());
             setFocusAltAz(focusObject()->alt(), focusObject()->az());
-            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
             setDestination(*focus());
         }
         else
@@ -728,7 +728,7 @@ void SkyMapLite::updateFocus()
     }
     else
     {
-        focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+        focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
     }
 }
 

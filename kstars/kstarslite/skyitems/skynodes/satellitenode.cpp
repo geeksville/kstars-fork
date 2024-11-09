@@ -83,7 +83,7 @@ void SatelliteNode::update()
 
         bool visible = false;
 
-        m_sat->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+        m_sat->HorizontalToEquatorial(data->lst(), data->geo()->lat());
 
         pos = m_proj->toScreen(m_sat, true, &visible);
 

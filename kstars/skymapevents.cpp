@@ -78,7 +78,7 @@ void SkyMap::keyPressEvent(QKeyEvent *e)
             if (Options::useAltAz())
             {
                 focus()->setAz(dms(focus()->az().Degrees() - step * MINZOOM / Options::zoomFactor()).reduce());
-                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
             }
             else
             {
@@ -94,7 +94,7 @@ void SkyMap::keyPressEvent(QKeyEvent *e)
             if (Options::useAltAz())
             {
                 focus()->setAz(dms(focus()->az().Degrees() + step * MINZOOM / Options::zoomFactor()).reduce());
-                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
             }
             else
             {
@@ -112,7 +112,7 @@ void SkyMap::keyPressEvent(QKeyEvent *e)
                 focus()->setAltRefracted(focus()->altRefracted().Degrees() + step * MINZOOM / Options::zoomFactor());
                 if (focus()->alt().Degrees() > 90.0)
                     focus()->setAlt(90.0);
-                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
             }
             else
             {
@@ -132,7 +132,7 @@ void SkyMap::keyPressEvent(QKeyEvent *e)
                 focus()->setAltRefracted(focus()->altRefracted().Degrees() - step * MINZOOM / Options::zoomFactor());
                 if (focus()->alt().Degrees() < -90.0)
                     focus()->setAlt(-90.0);
-                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+                focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
             }
             else
             {
@@ -582,7 +582,7 @@ void SkyMap::mouseMoveEvent(QMouseEvent *e)
         return; // break if point is unusable
 
     //determine RA, Dec of mouse pointer
-    m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat(), data->djd());
+    m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat());
 
     double dyPix = 0.5 * height() - e->y();
     if (midMouseButtonDown) //zoom according to y-offset
@@ -632,7 +632,7 @@ void SkyMap::mouseMoveEvent(QMouseEvent *e)
                     emit mosaicCenterChanged(dRA, dDec);
 
                     // Update mouse and clicked points.
-                    m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat(), data->djd());
+                    m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat());
                     setClickedPoint(&m_MousePoint);
                     update();
                     return;
@@ -660,7 +660,7 @@ void SkyMap::mouseMoveEvent(QMouseEvent *e)
             focus()->setAz(focus()->az().Degrees() - dAz.Degrees()); //move focus in opposite direction
             focus()->setAz(focus()->az().reduce());
             focus()->setAltRefracted(KSUtils::clamp(focus()->altRefracted().Degrees() - dAlt.Degrees(), -90.0, 90.0));
-            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat(), data->djd());
+            focus()->HorizontalToEquatorial(data->lst(), data->geo()->lat());
         }
         else
         {
@@ -674,7 +674,7 @@ void SkyMap::mouseMoveEvent(QMouseEvent *e)
         showFocusCoords();
 
         //redetermine RA, Dec of mouse pointer, using new focus
-        m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat(), data->djd());
+        m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat());
         setClickedPoint(&m_MousePoint);
         forceUpdate(); // must be new computed
     }
@@ -708,7 +708,7 @@ void SkyMap::mouseReleaseEvent(QMouseEvent *e)
     if (ZoomRect.isValid())
     {
         stopTracking();
-        SkyPoint newcenter = projector()->fromScreen(ZoomRect.center(), data->lst(), data->geo()->lat(), data->djd());
+        SkyPoint newcenter = projector()->fromScreen(ZoomRect.center(), data->lst(), data->geo()->lat());
         setFocus(&newcenter);
         setDestination(newcenter);
 
@@ -801,7 +801,7 @@ void SkyMap::mousePressEvent(QMouseEvent *e)
         }
 
         //determine RA, Dec of mouse pointer
-        m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat(), data->djd());
+        m_MousePoint = projector()->fromScreen(e->pos(), data->lst(), data->geo()->lat());
         setClickedPoint(&m_MousePoint);
 
         //Find object nearest to clickedPoint()

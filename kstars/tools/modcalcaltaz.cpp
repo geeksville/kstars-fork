@@ -105,7 +105,7 @@ void modCalcAltAz::slotCompute()
             SkyPoint sp;
             sp.setAz(az);
             sp.setAlt(alt);
-            sp.HorizontalToEquatorial(&LST, geoPlace->lat(), J2000); // jdf is dummy
+            sp.HorizontalToEquatorial(&LST, geoPlace->lat());
             RA->show(sp.ra());
             Dec->show(sp.dec());
         }

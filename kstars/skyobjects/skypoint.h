@@ -337,9 +337,8 @@ class SkyPoint
          *
          * @param LST pointer to the local sidereal time
          * @param lat pointer to the geographic latitude
-         * @param jdf present Julian Date epoch to convert JNow to ICRS
          */
-        void HorizontalToEquatorial(const dms *LST, const dms *lat, long double jdf);
+        void HorizontalToEquatorial(const dms *LST, const dms *lat);
 
         /**
          * Determine the Ecliptic coordinates of the SkyPoint, given the Julian Date.
