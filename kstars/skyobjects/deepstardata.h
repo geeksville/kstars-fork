@@ -23,3 +23,12 @@ struct DeepStarData
     qint16 B { 0 };
     qint16 V { 0 };
 };
+
+// TODO: Think about how to improve this data block to include
+// parallaxes without changing the struct's memory and disk footprint.
+//
+// RA and Dec combined to a resolution of 0.1° comprise of 46.3 bits
+// of information, so there is scope to pack more by using some
+// boutiqe encoding... The remaining 17 bits should be able to
+// accommodate the parallax. Perhaps creating a qint16[4] data block
+// that can be bitmasked to read RA, Dec and parallax is a future goal

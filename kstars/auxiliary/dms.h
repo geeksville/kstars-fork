@@ -517,3 +517,5 @@ inline dms operator "" _dms(const char *dmsString) { return dms::fromString(QStr
  * Create a constant angle from a HMS string
  */
 inline dms operator "" _hms(const char *hmsString) { return dms::fromString(QString(hmsString), false); }
+
+Q_DECLARE_METATYPE(dms);

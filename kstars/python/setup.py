@@ -83,7 +83,7 @@ README = (HERE / "readme.md").read_text()
 
 setup(
     name="pykstars",
-    version="0.0.2",
+    version="0.0.3",
     author="Valentin Boettcher",
     author_email="hiro@protagon.space",
     description="Some python bindings for kstars. Primarily used to package DSO catalogs.",
