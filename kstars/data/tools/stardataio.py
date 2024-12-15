@@ -1,6 +1,6 @@
 from collections import namedtuple, OrderedDict
 from enum import Enum
-from typing import Union, List, Callable, IO, Optional, Any, Iterable, Tuple
+from typing import Union, List, Callable, IO, Optional, Any, Iterable, Tuple, Dict
 from io import BytesIO
 import os
 import logging
@@ -305,6 +305,25 @@ class KSStarDataReader(KSBinFileReader):
 
     def __repr__(self):
         return super().__repr__()[:-2] + f', maglim={self.maglim}, htm_level={self.htm_level}, max_stars_per_trixel={self.max_stars_per_trixel})'
+
+    def find(self, ra: float, dec: float, radius=1/3600.) -> Dict:
+        """
+        Searches for stars near given (ra, dec) in the given radius
+        RA is in Hours!
+        Dec and radius are in degrees
+        """
+        angular_distance = pykstars.CoordinateConversion.angular_distance
+        stars = []
+        for trixel in self.indexer.get_trixels(ra * 15., dec, radius):
+            for star in self[trixel]:
+                distance = angular_distance(ra * 15., dec, star['RA'] * 15., star['Dec'])
+                if distance <= radius:
+                    stars.append({
+                        'star': star,
+                        'trixel': trixel,
+                        'distance': distance,
+                    })
+        return stars
 
 class TrixelChunk:
     def __init__(self):
