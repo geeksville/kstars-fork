@@ -63,9 +63,9 @@ class TrixelIO:
             case KSDataType.DT_CHAR:
                 return lambda x : x.decode('ascii')
             case KSDataType.DT_INT8:
-                return lambda x : int.from_bytes(x, signed=True)
+                return lambda x : int.from_bytes(x, endian, signed=True)
             case KSDataType.DT_UINT8:
-                return lambda x : int.from_bytes(x, signed=False)
+                return lambda x : int.from_bytes(x, endian, signed=False)
             case KSDataType.DT_INT16:
                 return lambda x : int.from_bytes(x, endian, signed=True)
             case KSDataType.DT_UINT16:
@@ -231,7 +231,7 @@ class KSBinFileReader(TrixelIO):
                 self.endian = 'big'
             case _:
                 raise ValueError(f'Expected endianness indicator, got {_} instead!')
-        self.format_version = int.from_bytes(fd.read(1))
+        self.format_version = int.from_bytes(fd.read(1), self.endian)
 
         logger.info(f'Opened file. Description: {self.description}')
         if self.format_version != 1:
@@ -244,8 +244,8 @@ class KSBinFileReader(TrixelIO):
         for i in range(self.fields_per_entry):
             field_descriptors.append(FieldDescriptor(
                 name=self.cstr(fd.read(10)),
-                bytes=int.from_bytes(fd.read(1)),
-                type=KSDataType(int.from_bytes(fd.read(1))),
+                bytes=int.from_bytes(fd.read(1), self.endian),
+                type=KSDataType(int.from_bytes(fd.read(1), self.endian)),
                 scale=int.from_bytes(fd.read(4), self.endian),
             ))
         self.field_descriptors = field_descriptors
@@ -299,7 +299,8 @@ class KSStarDataReader(KSBinFileReader):
     def read_expansion_fields(self, fd):
         fd.seek(self.data_offset)
         self.maglim = int.from_bytes(fd.read(2), self.endian)
-        self.htm_level = int.from_bytes(fd.read(1))
+        self.htm_level = int.from_bytes(fd.read(1), self.endian)
+        self.indexer = pykstars.Indexer(self.htm_level)
         self.max_stars_per_trixel = int.from_bytes(fd.read(2), self.endian)
 
     def __repr__(self):
