@@ -143,7 +143,7 @@ class SkyObject : public SkyPoint
     static QString typeShortName(const int t);
 
     /** @return object's primary name. */
-    inline virtual QString name(void) const { return hasName() ? Name : unnamedString; }
+    inline virtual QString name(void) const { return hasName() ? Name : unnamedString; } // FIXME: unnamedString is pre-translated, WHY? Shouldn't this translation only apply to `translatedName`? -- asimha
 
     /** @return object's primary name, translated to local language. */
     inline QString translatedName() const

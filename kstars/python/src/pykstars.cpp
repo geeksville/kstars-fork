@@ -17,6 +17,7 @@
 #include "catalogobject.h"
 #include "catalogsdb.h"
 #include <iostream>
+#include <KLocalizedString>
 
 using namespace pybind11::literals;
 namespace py = pybind11;
@@ -228,8 +229,6 @@ struct CoordinateConversion
 ///////////////////////////////////////////////////////////////////////////////
 //                                   PYBIND                                  //
 ///////////////////////////////////////////////////////////////////////////////
-
-const CatalogObject DEFAULT_CATALOG_OBJECT{};
 
 template <typename T>
 T cast_default(const py::object &value, const T &default_value)
