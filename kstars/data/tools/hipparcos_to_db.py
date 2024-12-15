@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
+#
+# SPDX-FileCopyrightText: 2024 Akarsh Simha <akarsh@kde.org>
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
 
+import pykstars
 import sys
 import os
 import argparse
@@ -8,7 +13,6 @@ import astropy.units as u
 from astropy.coordinates import SkyCoord, ICRS
 from astropy.time import Time
 import tqdm
-import pykstars
 import stardataio
 import sqlite3
 import io
@@ -22,6 +26,20 @@ from functools import partial
 from IPython import embed
 import collections
 from common import distance_grid
+from astroquery.gaia import Gaia
+import pickle
+
+Gaia.TYCHO2TDSC_MERGE = "gaiadr3.tycho2tdsc_merge"
+
+def gaia_query(query: str):
+    job = Gaia.launch_job_async(query)
+    status = job.wait_for_job_end()[0]
+    if status != 200:
+        return None
+
+    return job.get_results()
+
+
 logging.basicConfig(level=logging.INFO)
 CC = pykstars.CoordinateConversion
 
@@ -103,6 +121,7 @@ class TABLE_NAMES:
     HIPPARCOS = 'hipparcos'
     TYCHO1 = 'tycho1'
     TYC2_GAIA = 'tyc2_gaiadr3'
+    TYC2TDSC_MERGE = 'tycho2tdsc_merge'
 
     # Tables ingested from KStars binary files
     KSBIN = 'ksbin'
@@ -673,6 +692,97 @@ def ingest_tycho2(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cur
                        })))
     return TABLE_NAME
 
+def ingest_tycho2tdsc_merge(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cursor) -> str:
+    TYC2TDSC_TABLE = TABLE_NAMES.TYC2TDSC_MERGE
+
+    # See: https://gaia.aip.de/metadata/gaiadr3/tycho2tdsc_merge/
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TYC2TDSC_TABLE}` ("
+                   "    TYC TEXT PRIMARY KEY,"          # Tycho-2 designation (`id`)
+                   "    HIP INTEGER,"                   # Hipparcos number (`hip`)
+                   "    Tycho1 TEXT,"                   # Tycho-1 star or not field (`tyc`)
+                   "    epra REAL NOT NULL,"            # ICRS RA in degrees at observation epoch (`ra_deg`)
+                   "    epdec REAL NOT NULL,"           # ICRS Dec in degrees at observation epoch (`de_deg`)
+                   "    mra REAL,"                      # Mean ICRS RA° at J2000.0 epoch as reported in the catalog (`ra_mdeg`)
+                   "    mdec REAL,"                     # Mean ICRS Dec° at J2000.0 epoch as reported in the catalog (`de_mdeg`)
+                   "    pmra REAL,"                     # Proper motion in RA mas/yr (ICRS, cos(dec) baked in) (`pm_ra`)
+                   "    pmdec REAL,"                    # Proper motion in Dec mas/yr (ICRS) (`pm_de`)
+                   "    ra_epoch REAL,"                 # Mean Epoch of RA measurement (year) (`ep_ra_m`)
+                   "    dec_epoch REAL,"                # Mean Epoch of Dec measurement (year) (`ep_de_m`)
+                   "    pflag TEXT,"                    # Mean position flag (`pflag`)
+                   "    posflag TEXT,"                  # Type of Tycho-2 solution (`posflg`)
+                   "    ccdm TEXT,"                     # CCDM component identifier for HIP stars (`ccdm`)
+                   "    BT REAL,"                       # Tycho2 Blue Magnitude (`bt_mag`)
+                   "    VT REAL,"                       # Tycho2 Blue Magnitude (`vt_mag`)
+                   "    TDSC_sysid INTEGER,"            # TDSC identifier for the system (`sys_no`)
+                   "    cmp TEXT,"                      # Component designation (`cmp`)
+                   "    n_main INTEGER,"                # Number of components in TDSC main catalog (`n_main`)
+                   "    n_sup INTEGER,"                 # Number of components in TDSC supplement (`n_sup`)
+                   "    magflag TEXT,"                  # TDSC Photometry Flag (`magflg`)
+                   "    wds TEXT,"                      # WDS identifier for the system (`wds`)
+                   "    note TEXT,"                     # TDSC notes (`note`)
+                   "    HD INTEGER,"                    # HD cross-identification for TDSC entries (`hd`)
+                   "    rcmp TEXT,"                     # Reference component for position angle and separation (`rcmp`)
+                   "    pa REAL,"                       # Position angle (degrees) (`pa`)
+                   "    sep REAL,"                      # Separation in arcsecond (`sep`)
+                   "    ra REAL NOT NULL,"              # Best estimate of epoch=J2000 ICRS RA°: mra, RA as computed by us using pmra/pmdec, or epra in that order of precedence
+                   "    dec REAL NOT NULL,"             # Best estimate of epoch=J2000 ICRS Dec°: mdec, Dec as computed by us using pmra/pmdec, or a copy of epdec in that order of precedence
+                   "    tgt_trixel INTEGER NOT NULL)"   # Trixel ID in target HTMesh (computed by us)
+                   )
+    # cursor.execute("CREATE INDEX IF NOT EXISTS idx_hd ON HenryDraper(HD)")
+    for field in ('TYC', 'tgt_trixel', 'HIP', 'HD', 'TDSC_sysid', 'VT', 'BT'):
+        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_{field}_{TYC2TDSC_TABLE} ON {TYC2TDSC_TABLE}({field})")
+
+
+    pkl_file = os.path.join(cache_dir, 'tycho2tdsc_merge.pkl')
+    fields = (
+        'id', 'hip', 'tyc', 'ra_deg', 'de_deg', 'ra_mdeg', 'de_mdeg', 'pm_ra', 'pm_de',
+        'ep_ra_m', 'ep_de_m', 'pflag', 'posflg', 'ccdm', 'bt_mag', 'vt_mag', 'sys_no',
+        'cmp', 'n_main', 'n_sup', 'magflg', 'wds', 'note', 'hd', 'rcmp', 'pa', 'sep',
+    )
+
+    cursor.execute(f"DELETE FROM {TYC2TDSC_TABLE}")
+    if not os.path.isfile(pkl_file):
+        base_query = 'SELECT ' + ', '.join(fields) + ' FROM gaiadr3.tycho2tdsc_merge'
+
+        cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
+                       (TYC2TDSC_TABLE, json.dumps({
+                           "query": base_query
+                           })))
+        logger.info(f'Running ADQL query on Gaia: {base_query}')
+        result = gaia_query(base_query) # 2.5 million rows!!! will it work!?
+        # Pickle the result
+        with open(pkl_file, 'wb') as pkl:
+            pickle.dump(result, pkl)
+    else:
+        with open(pkl_file, 'rb') as pkl:
+            result = pickle.load(pkl)
+    
+    for row in tqdm.tqdm(result, total=len(result)):
+        index_ra = None
+        index_dec = None
+        if row['ra_mdeg'] is not np.ma.masked and row['de_mdeg'] is not np.ma.masked:
+            index_ra = row['ra_mdeg'].item()
+            index_dec = row['de_mdeg'].item()
+        elif row['pm_ra'] is not np.ma.masked and row['pm_de'] is not np.ma.masked:
+            assert row['ra_deg'] is not np.ma.masked, row
+            assert row['de_deg'] is not np.ma.masked, row
+            if row['ep_ra_m'] is not np.ma.masked and row['ep_de_m'] is not np.ma.masked:
+                src_ep = (row['ep_ra_m'].item() + row['ep_de_m'].item())/2.
+            else:
+                src_ep = 1991.25
+            index_ra, index_dec = CC.proper_motion(row['ra_deg'].item(), row['de_deg'].item(), row['pm_ra'].item(), row['pm_de'].item(), src_ep, 2000.0)
+        else:
+            index_ra, index_dec = row['ra_deg'].item(), row['de_deg'].item()
+        tgt_trixel = indexer.get_trixel(index_ra, index_dec)
+        cursor.execute(f"INSERT INTO {TYC2TDSC_TABLE}(TYC, HIP, Tycho1, epra, epdec, mra, mdec, pmra, pmdec, ra_epoch, dec_epoch, pflag, posflag, ccdm, BT, VT, TDSC_sysid, cmp, n_main, n_sup, magflag, wds, note, HD, rcmp, pa, sep, ra, dec, tgt_trixel)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    tuple(map(lambda key: None if row[key] is np.ma.masked else (row[key] if isinstance(row[key], str) else row[key].item()),
+                              fields)) + (index_ra, index_dec, tgt_trixel,))
+
+    return TYC2TDSC_TABLE
+
+    
+
 def ingest_kstars_binary_files(indexer: pykstars.Indexer, paths: dict, cursor: sqlite3.Cursor) -> str:
     expected_paths = {'named', 'unnamed', 'deep', 'starnames'}
     if len(expected_paths - set(paths)) > 0:
@@ -1074,7 +1184,9 @@ def match_kstars_hip_tyc1(indexer: pykstars.Indexer, cursor: sqlite3.Cursor):
         except Exception as e:
             embed(header=f'{e}')
 
-    return TABLE_NAMES.KS_ATHYG
+    return TABLE_NAMES.KS_TYC1
+
+
 
 def create_xm_view(cursor: sqlite3.Cursor):
     ks = TABLE_NAMES.KSBIN_NODUPS
@@ -1235,6 +1347,12 @@ def main(argv):
         help='Force ingestion of Tycho2-Gaia DR3 cross-match even if it seems like it has been performed.'
     )
 
+    parser.add_argument(
+        '--force-tycho2tdsc', '-fT',
+        action='store_true',
+        help='Force ingestion of Tycho-2/TDSC Merge data even if it seems like it has been performed.'
+    )
+    
     args = parser.parse_args(sys.argv[1:])
     if not os.path.isdir(args.cache_dir):
         os.makedirs(args.cache_dir)
@@ -1318,6 +1436,12 @@ def main(argv):
 
     if args.force_tyc2_gaia or estimated_row_count(TABLE_NAMES.TYC2_GAIA, cursor) < 1:
         logger.info('Ingested Tycho2-Gaia match into ' + ingest_tycho2_gaia_best_neighbor(args.cache_dir, cursor))
+        connection.commit()
+    else:
+        logger.warning('Skipping ingesting of Tycho2-Gaia DR3 cross-match because it seems to have been done already.')
+
+    if args.force_tycho2tdsc or estimated_row_count(TABLE_NAMES.TYC2TDSC_MERGE, cursor) < 1:
+        logger.info('Ingested Tycho-2/TDSC Merge into ' + ingest_tycho2tdsc_merge(indexer, args.cache_dir, cursor))
         connection.commit()
     else:
         logger.warning('Skipping ingesting of Tycho2-Gaia DR3 cross-match because it seems to have been done already.')
