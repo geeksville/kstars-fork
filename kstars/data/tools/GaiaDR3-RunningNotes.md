@@ -230,6 +230,24 @@ trusting the catalog, (a) it is unlikely that we can do better as the
 author has done both positional and magnitude cross-matching, and (b)
 we have positional data from official sources (Tycho-2/TDSC)
 
+## APASS DR9
+
+It appears that [APASS](https://www.aavso.org/apass) has the best sources of Johnson B and V magnitudes. Although DR10 is already out, only DR9 seems to be available on VizieR. See [Tom Polakis' forum post](https://www.aavso.org/apass-dr10-vizier-schedule) which has remained unanswered as of this writing. DR9 has been matched against the Gaia DR3 tables, see [paper for details](https://www.aanda.org/articles/aa/pdf/2019/01/aa34142-18.pdf). The paper points out that in the absence of a unique ID, the VizieR `recno` field was used as the source id field even though this is never recommended. It must be noted as well that results brighter than `V = 7` must not be considered seriously.
+
+Although the [ReadMe](https://cdsarc.cds.unistra.fr/ftp/II/336/ReadMe) and a sample of data is accessible via VizieR FTP, the entire catalog can only be downloaded from the [TAP](https://phalanx.lsst.io/applications/tap/index.html) endpoint. Using `astroquery.vizier` to get the table omits the `recno` field, but we want that very field. Hence, a TAP query on VizieR seems to be the best way. The following URL was discovered to work:
+```
+https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=csv&QUERY=select+*+from+%22II/336/apass9%22
+```
+
+This produces a 9+ GB CSV file, which is unfortunate. Perhaps it would be wise to filter by `Vmag >= 7` in future.
+
+As for the cross-match, instead of us trying to do the cone search (epoch propagation is complicated by the fact that APASS DR9 doesn't list observation epochs; plus, Gaia's [cross-matching algorithm is very sophisticated](https://gea.esac.esa.int/archive/documentation/GDR3/Catalogue_consolidation/chap_crossmatch/sec_crossmatch_algorithm/) and seems superior to cone search), we join the Gaia cross-matches with Tycho2/TDSC and APASS DR9 to get a mapping between Tycho2 IDs and APASS DR9 VizieR `recno` fields. In the query coded into `hipparcos_to_db.py`, I've been conservative in keeping only the very good matches; we're not looking for coverage and when we replace a star's mag with APASS DR9 we want to be as sure as possible that we are talking about the correct star.
+
+The documentation for the Gaia APASS DR9 tables is here:
+* [apassdr9_best_neighbour](https://gaia.aip.de/metadata/gaiadr3/apassdr9_best_neighbour/)
+* [apassdr9_join](https://gaia.aip.de/metadata/gaiadr3/apassdr9_join/) -- not used because the info is redundant in `apassdr9_best_neighbour`, but the documentation is useful
+
+
 ## Tycho-2 / TDSC Merge
 
 Here is [info](https://gea.esac.esa.int/archive/documentation/GDR3/Catalogue_consolidation/chap_crossmatch/sec_crossmatch_externalCat/ssec_crossmatch_tdsc.html) on the catalog, as well as [details on the table](https://gea.esac.esa.int/archive/documentation/GEDR3/Gaia_archive/chap_datamodel/sec_dm_external_catalogues/ssec_dm_tycho2tdsc_merge.html). The script downloads the data by way of ADQL query. Luckily, all 2.5M stars are returned in a single query with no need to break it into chunks.
@@ -325,6 +343,8 @@ I also introduced `v2` replacements for the `DeepStarData` and `StarData` record
 ## Writing `tycho2tdsc_merge`
 
 # Gaia DR3
+
+All tables are listed [here](https://gaia.aip.de/metadata/gaiadr3/)
 
 Caveats:
 
