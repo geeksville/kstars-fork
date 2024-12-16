@@ -291,23 +291,28 @@ So it looks like the most reliable positions will come from taking Tycho-2 posit
 
 My conclusion is that the preference for Johnson-Cousins B and V magnitudes should be as follows:
 
-APASS > AT-HYG / Hipparcos / Tycho-1 > Estimate from Tycho-2 BT/VT > Estimate from Gaia DR3 G/GBP/GRP
+APASS > Hipparcos > Estimate from Tycho-2 BT/VT > Estimate from Gaia DR3 G/GBP/GRP
 
 I base this on the following notes:
 * APASS is true Johnsons B/V although it is ground-based photometry; It was included in UCAC4 by the USNO.
-* AT-HYG / Hipparcos combines many ground-based sources of true Johnsons B/V
+* Hipparcos combines many sources to get a spectral-type-informed best estimate of Johnsons B/V, and many of the time, the source is ground-based (`WHERE hipparcos.mag_src = "G"`), see [documentation](https://heasarc.gsfc.nasa.gov/w3browse/all/hipparcos.html) for the `Vmag_Source` field.
 * Tycho-2 BT and VT filters are close to B and V filters although not perfect
 * The spread of error in G/GBP/GRP estimates of B and V is quite large -- see [here](https://gea.esac.esa.int/archive/documentation/GEDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html)
 
-All of these except for APASS are easy to combine since there are cross-identifications. For APASS, we will have to build a cross-match. Since the cross-match is for photometry, we will be conservative in our cross-matching and accept false negatives rather than have false positives
+*Question:* Should we prefer Hipparcos' `H` and `T` estimates over Tycho-2? I think the answer is yes, we should defer to Tycho-2 only when the star is not present in Hipparcos, because of the information [presented on Page 44, Paragraph 1 here](https://vizier.cfa.harvard.edu/ftp/cati/more/HIP/cdroms/docs/vol1/sect1_03.pdf) – Hipparcos uses spectral type to estimate the color index, I presume the same is used to estimate V mag from Tycho photometry.
 
-4. *Color Index*: At least for Tycho-1, Hipparcos B-Vs are more accurate than Tycho-2 due to the use of actual Johnson-Cousins photometry, see [this document](https://vizier.cfa.harvard.edu/ftp/cati/more/HIP/cdroms/docs/vol1/sect1_03.pdf) Page 44, first paragraph. By the same rationale, I would take the same preference order as magnitude in approaching color index
+*Note:* AT-HYG's magnitudes are either Hipparcos' "V" or Tycho-2's VT. I tried to see if the choice was related to the Hipparcos' [original magnitude source](https://heasarc.gsfc.nasa.gov/w3browse/all/hipparcos.html) (`hipparcos.mag_src`) being "Ground" or "Hipparcos", but I could not infer the pattern. When Tycho2 is used, no conversion formula from VT to V is applied
 
-5. *Spectral Type*: We pick from AT-HYG. Since KStars only supports 2-character spectral types, we will pick the first two characters from AT-HYG's spectral type.
+All of these except for APASS are easy to combine since there are cross-identifications. For APASS, we will either have to build a cross-match or use [the cross-match performed for Gaia DR3](https://gea.esac.esa.int/archive/documentation/GEDR3/Catalogue_consolidation/chap_crossmatch/sec_crossmatch_externalCat/ssec_crossmatch_apass.html). Since the cross-match is for photometry, we will be conservative in our cross-matching and accept false negatives rather than have false positives
+
+4. *Color Index*: Hipparcos B-Vs are more accurate than Tycho-2 due to the use of actual Johnson-Cousins photometry or spectral-type-informed estimates when available, see [this document](https://vizier.cfa.harvard.edu/ftp/cati/more/HIP/cdroms/docs/vol1/sect1_03.pdf) Page 44, first paragraph. By the same rationale, I would take the same preference order used for magnitude in approaching color index
+
+5. *Spectral Type*: We pick from AT-HYG. Since KStars only supports 2-character spectral types, we will pick the first two characters from AT-HYG's spectral type. This is probably from Hipparcos.
 
 5. *Proper Motion and Parallax*: Prefer AT-HYG since it incorporates Gaia data and a thorough job has been done by the author in filtering the data well, [see Changelog](https://github.com/astronexus/ATHYG-Database/blob/main/version-info.md).
 
 6. *Names*: We should pick names from AT-HYG, it seems most thorough and definitely more thorough than our existing `starnames.dat`. We should consider picking up Flamsteed designations.
+
 
 # Writing star data
 
