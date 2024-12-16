@@ -19,7 +19,7 @@ import io
 import requests
 import logging
 import json
-from typing import IO, Union, Dict, Tuple, Callable, Any
+from typing import IO, Union, Dict, Tuple, Callable, Any, Optional
 import gzip
 from functools import partial
 from IPython import embed
@@ -95,6 +95,7 @@ class URL:
     HIP = 'https://cdsarc.cds.unistra.fr/ftp/I/239/hip_main.dat'
     TYC1 = 'https://cdsarc.cds.unistra.fr/ftp/I/239/tyc_main.dat'
     TYC2_GAIA = 'http://cdn.gea.esac.esa.int/Gaia/gedr3/cross_match/tycho2tdsc_merge_best_neighbour/Tycho2tdscMergeBestNeighbour.csv.gz'
+    APASSDR9 = 'https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync/?REQUEST=doQuery&lang=ADQL&FORMAT=csv&QUERY=select+*+from+%22II/336/apass9%22' # APASS DR9 from VizieR through TAP query
 
 TARGET_HTM_LEVEL = 6
 
@@ -124,6 +125,8 @@ class TABLE_NAMES:
     TYCHO1 = 'tycho1'
     TYC2_GAIA = 'tyc2_gaiadr3'
     TYC2TDSC_MERGE = 'tycho2tdsc_merge'
+    APASSDR9 = 'apassdr9'
+    TYC_APASSDR9 = 'tyc_apassdr9'
 
     # Tables ingested from KStars binary files
     KSBIN = 'ksbin'
@@ -162,7 +165,7 @@ def download_and_cache(url: str, path: str, skip_if_exists=True):
 
 def xsv_parser(f: IO, table_name: str, conversions: Dict[str, Tuple[int, Callable[[str], Any]]],
                cursor: sqlite3.Cursor, separator=',',
-               post_processor=Callable[[Dict[str,Any]], None],
+               post_processor: Optional[Callable[[Dict[str,Any]], None]] = None,
                skip_lines=0, comment='#', flush_interval=10000,
                ):
     """ Convenience function to parse CSV / PSV / TSV (XSV) files
@@ -252,6 +255,52 @@ def xsv_parser(f: IO, table_name: str, conversions: Dict[str, Tuple[int, Callabl
 
     return rows
 
+def ingest_apassdr9(cache_dir: str, cursor: sqlite3.Cursor) -> str:
+    """ Read the APASS DR9 from VizieR and ingest into DB """
+    TABLE_NAME = TABLE_NAMES.APASSDR9
+
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS {TABLE_NAME} ("
+                   "    recno INTEGER PRIMARY KEY,"
+                   "    ra REAL NOT NULL,"
+                   "    dec REAL NOT NULL,"
+                   "    Field INTEGER,"
+                   "    nobs INTEGER,"
+                   "    mobs INTEGER,"
+                   "    bv_index REAL,"
+                   "    Vmag REAL,"
+                   "    Bmag REAL)"
+    )
+    cursor.execute(f"DELETE FROM `{TABLE_NAME}`")
+
+    cache_file = os.path.join(cache_dir, 'apassdr9.csv')
+    conversions = {
+        'recno': (0, int),
+        'ra': (1, float),
+        'dec': (2, float),
+        'Field': (5, int),
+        'nobs': (6, int),
+        'mobs': (7, int),
+        'bv_index': (8, float),
+        'Vmag': (10, float),
+        'Bmag': (13, float),
+    }
+        
+    with open(download_and_cache(URL.APASSDR9, cache_file), 'r') as content:
+        logger.info('Parsing APASS DR9')
+        xsv_parser(
+            content, TABLE_NAME, conversions,
+            cursor, skip_lines=1,
+        )
+
+    cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
+                   (TABLE_NAME, json.dumps({
+                       "url": URL.APASSDR9,
+                       "local_file": cache_file,
+     })))
+
+    logger.info(f'APASS DR9 ingested into table {TABLE_NAME}')
+    return TABLE_NAME
+    
 
 def ingest_hd_tyc2(cache_dir: str, cursor: sqlite3.Cursor) -> str:
     """ Read the Henry Draper/Tycho2 cross match from VizieR and ingest into DB """
@@ -382,6 +431,7 @@ def ingest_hipparcos(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.
                    "    epra REAL NOT NULL,"
                    "    epdec REAL NOT NULL,"
                    "    V REAL,"
+                   "    mag_src TEXT,"
                    "    parallax REAL,"
                    "    pmra REAL,"
                    "    pmdec REAL,"
@@ -406,6 +456,7 @@ def ingest_hipparcos(cache_dir: str, indexer: pykstars.Indexer, cursor: sqlite3.
         'epra': (8, float),   # Frame is ICRS
         'epdec': (9, float),  # Frame is ICRS
         'V': (5, float),
+        'mag_src': (7, str),  # Source for `V` mag
         'parallax': (11, float),
         'pmra': (12, float),  # Frame is ICRS
         'pmdec': (13, float), # Frame is ICRS
@@ -694,6 +745,44 @@ def ingest_tycho2(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cur
                        "htm_level": indexer.level,
                        })))
     return TABLE_NAME
+
+def ingest_tyc_apassdr9(cache_dir: str, cursor: sqlite3.Cursor) -> str:
+    TABLE = TABLE_NAMES.TYC_APASSDR9
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TABLE}` ("
+                   "    TYC TEXT PRIMARY KEY,"          # Tycho-2 designation
+                   "    apassdr9_id INTEGER NOT NULL,"  # APASS DR9 VizieR record number
+                   "    tyc_dist REAL,"                 # Angular distance of Tycho2-GDR3 match
+                   "    apassdr9_dist REAL,"            # Angular distance of APASSDR9-GDR3 match
+                   "    tyc_xm_flag INTEGER,"           # Tycho2 cross-match flag
+                   "    apassdr9_xm_flag INTEGER,"      # APASS DR9 cross-match flag
+    )
+    for field in ('TYC', 'apassdr9_id'):
+        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_{field}_{TABLE} ON {TABLE}({field})")
+    cursor.execute(f"DELETE FROM {TABLE}")
+
+    pkl_file = os.path.join(cache_dir, 'tyc_apassdr9.pkl')
+    if not os.path.isfile(pkl_file):
+        query = "SELECT gaiadr3.apassdr9_best_neighbour.original_ext_source_id as apassdr9_id, gaiadr3.tycho2tdsc_merge_best_neighbour.original_ext_source_id as TYC, gaiadr3.tycho2tdsc_merge_best_neighbour.angular_distance as tyc_dist, gaiadr3.apassdr9_best_neighbour.angular_distance as apassdr9_dist, gaiadr3.tycho2tdsc_merge_best_neighbour.xm_flag as tyc_xm_flag, gaiadr3.apassdr9_best_neighbour.xm_flag as apassdr9_xm_flag from gaiadr3.apassdr9_best_neighbour join gaiadr3.tycho2tdsc_merge_best_neighbour using(source_id) where gaiadr3.apassdr9_best_neighbour.angular_distance <= 1.0 and gaiadr3.tycho2tdsc_merge_best_neighbour.angular_distance <= 1.0 and MOD(gaiadr3.apassdr9_best_neighbour.xm_flag, 4) = 0 and MOD(gaiadr3.tycho2tdsc_merge_best_neighbour.xm_flag, 4) = 0"
+        cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
+                       (TABLE, json.dumps({
+                           "query": base_query
+                           })))
+        logger.info(f'Running ADQL query on Gaia: {query}')
+        result = gaia_query(base_query) # ~2 million rows, but lightweight columns; should work
+
+        # Pickle
+        with open(pkl_file, 'wb') as pkl:
+            pickle.dump(result, pkl)
+
+    else:
+        with open(pkl_file, 'rb') as pkl:
+            result = pickle.load(pkl)
+
+    for row in tqdm.tqdm(result, total=len(result)): # Slow and ugly
+        cursor.execute(f"INSERT INTO {TABLE}(" + ", ".join(row.keys()) + ")"
+                    " VALUES (" + ", ".join(['?',] * len(row.keys())) + ")",
+                    tuple(None if row[key] is np.ma.masked else (row[key] if isinstance(row[key], str) else row[key].item())
+                          for key in row.keys()))
 
 def ingest_tycho2tdsc_merge(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Cursor) -> str:
     TYC2TDSC_TABLE = TABLE_NAMES.TYC2TDSC_MERGE
@@ -1356,6 +1445,18 @@ def main(argv):
         help='Force ingestion of Tycho-2/TDSC Merge data even if it seems like it has been performed.'
     )
     
+    parser.add_argument(
+        '--force-apassdr9', '-fA',
+        action='store_true',
+        help='Force ingestion of APASS DR9 data even if it seems like it has been performed.'
+    )
+    
+    parser.add_argument(
+        '--force-tyc-apassdr9', '-fxA',
+        action='store_true',
+        help='Force ingestion of Tycho2TDSC Merge / APASS DR9 data even if it seems like it has been performed.'
+    )
+    
     args = parser.parse_args(sys.argv[1:])
     if not os.path.isdir(args.cache_dir):
         os.makedirs(args.cache_dir)
@@ -1447,7 +1548,19 @@ def main(argv):
         logger.info('Ingested Tycho-2/TDSC Merge into ' + ingest_tycho2tdsc_merge(indexer, args.cache_dir, cursor))
         connection.commit()
     else:
-        logger.warning('Skipping ingesting of Tycho2-Gaia DR3 cross-match because it seems to have been done already.')
+        logger.warning('Skipping ingesting of Tycho2/TDSC Merge because it seems to have been done already.')
+
+    if args.force_apassdr9 or estimated_row_count(TABLE_NAMES.APASSDR9, cursor) < 1:
+        logger.info('Ingested APASS DR9 into ' + ingest_apassdr9(args.cache_dir, cursor))
+        connection.commit()
+    else:
+        logger.warning('Skipping ingesting of APASS DR9 because it seems to have been done already.')
+
+    if args.force_tyc_apassdr9 or estimated_row_count(TABLE_NAMES.TYC_APASSDR9, cursor) < 1:
+        logger.info('Ingested Tycho2TDSC-APASS DR9 cross-match from Gaia DR3 into ' + ingest_tyc_apassdr9(args.cache_dir, cursor))
+        connection.commit()
+    else:
+        logger.warning('Skipping ingesting of Tycho2TDSC-APASS DR9 cross-match because it seems to have been done already.')
 
     # Create cross-match view
     logger.info('Creating cross-match view if it does not exist')
