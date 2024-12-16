@@ -21,7 +21,6 @@ import logging
 import json
 from typing import IO, Union, Dict, Tuple, Callable, Any
 import gzip
-import concurrent.futures
 from functools import partial
 from IPython import embed
 import collections
@@ -89,7 +88,10 @@ Tycho2 IDs. Various catalogs can be cross-matched by DB joins """
 class URL:
     HD_TYC2 = 'https://vizier.cfa.harvard.edu/viz-bin/asu-tsv?-oc.form=dec&-out.max=unlimited&-c.eq=J2000&-c.r=  2&-c.u=arcmin&-c.geom=r&-source=IV/25/tyc2_hd&-order=I&-out=TYC1&-out=TYC2&-out=TYC3&-out=HD&-out=n_HD&-out=n_TYC&Simbad=Simbad&'
     TYC2_BASE = 'https://cdsarc.cds.unistra.fr/ftp/cats/I/259/'
-    ATHYG = 'https://www.astronexus.com/downloads/catalogs/athyg_v24.csv.gz'
+    ATHYG = [
+        f'https://github.com/astronexus/ATHYG-Database/raw/c0b9977b25b834909a6076af4b4c2d629f478fb4/data/athyg_v32-{part}.csv.gz'
+        for part in (1, 2)
+    ]
     HIP = 'https://cdsarc.cds.unistra.fr/ftp/I/239/hip_main.dat'
     TYC1 = 'https://cdsarc.cds.unistra.fr/ftp/I/239/tyc_main.dat'
     TYC2_GAIA = 'http://cdn.gea.esac.esa.int/Gaia/gedr3/cross_match/tycho2tdsc_merge_best_neighbour/Tycho2tdscMergeBestNeighbour.csv.gz'
@@ -117,7 +119,7 @@ class TABLE_NAMES:
     # Tables ingested from downloaded data
     HD_TYC2 = 'hd_tyc2'
     TYCHO2 = 'tycho2'
-    ATHYG = 'athyg'
+    ATHYG = 'athyg32'
     HIPPARCOS = 'hipparcos'
     TYCHO1 = 'tycho1'
     TYC2_GAIA = 'tyc2_gaiadr3'
@@ -136,8 +138,8 @@ class TABLE_NAMES:
     KS_ATHYG = 'ks_athyg'
     KS_XM = 'ks_xm'
 
-if sqlite3.threadsafety != 3:
-    raise RuntimeError(f'The version of SQLite3 used does not support multiple threads!')
+# if sqlite3.threadsafety != 3:
+#     raise RuntimeError(f'The version of SQLite3 used does not support multiple threads!')
 
 def estimated_row_count(table: str, cursor: sqlite3.Cursor) -> int:
     try:
@@ -565,7 +567,7 @@ def ingest_athyg(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Curs
     """ Download the AT-HYG dataset, index it with `indexer`, and ingest it into the DB """
 
     TABLE_NAME = TABLE_NAMES.ATHYG
-    path = download_and_cache(URL.ATHYG, os.path.join(cache_dir, os.path.basename(URL.ATHYG)))
+    paths = list(map(lambda url: download_and_cache(url, os.path.join(cache_dir, os.path.basename(url))), URL.ATHYG))
 
     cursor.execute(f"CREATE TABLE IF NOT EXISTS `{TABLE_NAME}` ("
                    "    id INTEGER PRIMARY KEY,"        # Primary key integer
@@ -631,13 +633,14 @@ def ingest_athyg(indexer: pykstars.Indexer, cache_dir: str, cursor: sqlite3.Curs
     def post_proc(entry: dict):
         entry['tgt_trixel'] = indexer.get_trixel(entry['ra'], entry['dec'])
 
-    f = gzip.open(path, 'rb')
-    xsv_parser(
-        f, TABLE_NAME, conversions,
-        cursor, separator=',',
-        skip_lines=2, # Ignore header and line corresponding to Sun
-        post_processor=post_proc
-    )
+    for path_i, path in enumerate(paths):
+        f = gzip.open(path, 'rb')
+        xsv_parser(
+            f, TABLE_NAME, conversions,
+            cursor, separator=',',
+            skip_lines=(2 if path_i == 0 else 0), # Ignore header and line corresponding to Sun
+            post_processor=post_proc
+        )
     cursor.execute("INSERT OR REPLACE INTO metadata (table_name, info) VALUES (?, ?)",
                    (TABLE_NAME, json.dumps({
                        "url": URL.ATHYG,

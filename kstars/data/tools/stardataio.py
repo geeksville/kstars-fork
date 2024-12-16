@@ -710,6 +710,8 @@ DEEPSTARDATAV2_FIELDS = [
 class KSStarDataStruct(Enum):
     STARDATA = 0
     DEEPSTARDATA = 1
+    STARDATAV2 = 3
+    DEEPSTARDATAV2 = 4
 
 class KSStarDataWriter(KSBinFileWriter):
 
@@ -743,6 +745,12 @@ class KSStarDataWriter(KSBinFileWriter):
                 case KSStarDataStruct.DEEPSTARDATA:
                     for desc in DEEPSTARDATA_FIELDS:
                         self.add_field_descriptor(desc)
+                case KSStarDataStruct.STARDATAV2:
+                    for desc in STARDATAV2_FIELDS:
+                        self.add_field_descriptor(desc)
+                case KSStarDataStruct.DEEPSTARDATAV2:
+                    for desc in DEEPSTARDATAV2_FIELDS:
+                        self.add_field_descriptor(desc)
                 case _:
                     raise ValueError(f'Unhandled star data structure {datastruct}')
         self.maglim = 65.5
@@ -774,6 +782,10 @@ class KSBufferedStarCatalogWriter(KSStarDataWriter):
     duplicates. The catalog coordinates and proper motion are
     assumed to be in the J2000 epoch and ICRS reference
     frame.
+
+    It expects to receive stars in the order we want them placed
+    in trixels (i.e. increasing magnitude)
+    
     """
     def __init__(self, output:str, trixel_dir: str, htm_level: int, datastruct: KSStarDataStruct, append: bool = False, buffer_limit: int = None, proper_motion_duplicates: int = 10000, proper_motion_threshold: float = 0.1):
         """
@@ -788,7 +800,7 @@ class KSBufferedStarCatalogWriter(KSStarDataWriter):
         self._count = 0
         existing_trixel_files = glob.glob(os.path.join(trixel_dir, f'{TRIXEL_PREFIX}*.dat'))
         if len(existing_trixel_files) > 0 and not append:
-            raise RuntimeError(f'Trixel directory {trixel_dir} is not empty while writing in append mode!')
+            raise RuntimeError(f'Trixel directory {trixel_dir} is not empty while writing in non-append mode!')
         super().__init__(output, trixel_dir, self.num_trixels, datastruct, sort_trixels=True, auto_delete_chunks=(not append))
         self.buffer_limit = buffer_limit if buffer_limit is not None else (25 * self.num_trixels)
         self.proper_motion_duplicates = proper_motion_duplicates
@@ -918,6 +930,10 @@ class KSTrixelDirReader():
                     self.io.field_descriptors = STARDATA_FIELDS
                 case KSStarDataStruct.DEEPSTARDATA:
                     self.io.field_descriptors = DEEPSTARDATA_FIELDS
+                case KSStarDataStruct.STARDATAV2:
+                    self.io.field_descriptors = STARDATAV2_FIELDS
+                case KSStarDataStruct.DEEPSTARDATAV2:
+                    self.io.field_descriptors = DEEPSTARDATAV2_FIELDS
                 case _:
                     raise ValueError(f'Unhandled star data structure {datastruct}')
         self.trixel_files = glob.glob(os.path.join(directory, f'{TRIXEL_PREFIX}*.dat'))

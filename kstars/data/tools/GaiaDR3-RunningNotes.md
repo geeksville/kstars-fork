@@ -256,6 +256,8 @@ order by rah
 
 Most of the coordinates pointed to bona fide stars. Sometimes there were unresolved double stars seen on the DSS2. Sometimes there were two stars plotted in KStars binary files at the location. In any case, to fully understand what's going on, we'll need to process Gaia DR3.
 
+I initially did this analysis with AT-HYG v2.4, which the script would put in the `athyg` table. I modified the script to put v3.2 which is current as of Dec 2024 into a table `athg32` and re-did the analysis:
+
 Now for the match against AT-HYG. Firstly AT-HYG returns 981 rows with no `TYC` field, above 10.2 mag. This is not bad, so almost every star in AT-HYG has been identified with the Tychos. Now we check the cross-match against `tycho2tdsc_merge`,
 ```
 select COALESCE(tycho2tdsc_merge.ra, athyg.ra)/15.0 as rah, COALESCE(tycho2tdsc_merge.dec, athyg.dec) as decd, * from tycho2tdsc_merge
@@ -269,3 +271,59 @@ After we build the `tycho2tdsc_merge` into binary files and render it in KStars,
 
 In any case it looks like this is the state-of-the-art catalog we wish to develop into the KStars binary files: we generate this catalog, using AT-HYG to get the data that is missing in `tycho2_tdscmerge`. We then process GDR3 as well, excluding the stars that were cross-matched with `tycho2tdsc_merge`. We then spot-check to see if we caught all the AT-HYG stars that did not match against `tycho2tdsc_merge`, and also spot-check that the GDR3 did not introduce duplicates. This would be made easier once the catalogs are compiled and rendered in KStars.
 
+## How to combine `tycho2tdsc_merge` and `athyg`
+
+1. We will `left join` on `tycho2tdsc_merge`
+2. *Position*: Tycho-2 shockingly has no proper motion on Proxima Centauri (and Lacaille 8760), but it looks like AT-HYG v3.2 has problems too: it interprets Tycho2 RA/Dec values which are at observation epoch as ep=J2000.0 values. These are made evident by the following query:
+```
+SELECT athyg32.ra as athyg_ra, athyg32.dec as atyhg_dec, tycho2tdsc_merge.ra as tyc_ra, tycho2tdsc_merge.dec as tyc_dec, tycho2.jra as tyc2_ra, tycho2.jdec as tyc2_dec, tycho2tdsc_merge.ra - athyg32.ra as err_ra, tycho2tdsc_merge.dec - athyg32.dec as err_dec, tycho2tdsc_merge.pmra as t2t_pmra, tycho2tdsc_merge.pmdec as t2t_pmdec, *
+from tycho2tdsc_merge
+full join athyg32 using(TYC)
+full join tycho2 using (TYC)
+order by err_ra desc
+limit 200
+```
+To confirm that my interpretation of the [`tycho2tdsc_merge` fields](https://gea.esac.esa.int/archive/documentation/GEDR3/Gaia_archive/chap_datamodel/sec_dm_external_catalogues/ssec_dm_tycho2tdsc_merge.html) was not mistaken, I spot-checked one of the stars (HIP 1068) against SIMBAD. SIMBAD claims to report ep=J2000 ICRS coordinates, and the `ra`/`dec` I calculated was off from SIMBAD's value by only 0.2", whereas the AT-HYG value was off by 18".
+
+So it looks like the most reliable positions will come from taking Tycho-2 positions, and when necessary (i.e. no mean J2000.0 position is given in Tycho-2) we should propagate the proper motion using the proper motions coalesced from AT-HYG. We can later bring in Gaia DR3 positions and propagate back from 2016.0 with Gaia proper motions which would be more accurate.
+
+3. *Magnitude*: Going from Jason Harris' comment above and looking into SIMBAD's magnitudes as well, it looks like Tycho-2 should not be relied upon for magnitudes when possible. So it appears that the best magnitudes come from AAVSO Photometric All-Sky Survey (APASS) which are incorporated in UCAC4. Neither UCAC4 or AAVSO provide cross-match ids with Tycho-2. A cross-match between [Gaia DR3 and APASS](https://gea.esac.esa.int/archive/documentation/GEDR3/Catalogue_consolidation/chap_crossmatch/sec_crossmatch_externalCat/ssec_crossmatch_apass.html) exists which can be used to get higher-quality Johnson-Cousins photometry.
+
+My conclusion is that the preference for Johnson-Cousins B and V magnitudes should be as follows:
+
+APASS > AT-HYG / Hipparcos / Tycho-1 > Estimate from Tycho-2 BT/VT > Estimate from Gaia DR3 G/GBP/GRP
+
+I base this on the following notes:
+* APASS is true Johnsons B/V although it is ground-based photometry; It was included in UCAC4 by the USNO.
+* AT-HYG / Hipparcos combines many ground-based sources of true Johnsons B/V
+* Tycho-2 BT and VT filters are close to B and V filters although not perfect
+* The spread of error in G/GBP/GRP estimates of B and V is quite large -- see [here](https://gea.esac.esa.int/archive/documentation/GEDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html)
+
+All of these except for APASS are easy to combine since there are cross-identifications. For APASS, we will have to build a cross-match. Since the cross-match is for photometry, we will be conservative in our cross-matching and accept false negatives rather than have false positives
+
+4. *Color Index*: At least for Tycho-1, Hipparcos B-Vs are more accurate than Tycho-2 due to the use of actual Johnson-Cousins photometry, see [this document](https://vizier.cfa.harvard.edu/ftp/cati/more/HIP/cdroms/docs/vol1/sect1_03.pdf) Page 44, first paragraph. By the same rationale, I would take the same preference order as magnitude in approaching color index
+
+5. *Spectral Type*: We pick from AT-HYG. Since KStars only supports 2-character spectral types, we will pick the first two characters from AT-HYG's spectral type.
+
+5. *Proper Motion and Parallax*: Prefer AT-HYG since it incorporates Gaia data and a thorough job has been done by the author in filtering the data well, [see Changelog](https://github.com/astronexus/ATHYG-Database/blob/main/version-info.md).
+
+6. *Names*: We should pick names from AT-HYG, it seems most thorough and definitely more thorough than our existing `starnames.dat`. We should consider picking up Flamsteed designations.
+
+# Writing star data
+
+## Tooling
+
+The `stardataio` module has several writers to write stars to the disk. All of them assume that you have the stars pre-sorted in magnitude order, but not necessarily trixel order. It appears from my re-reading of the code that `KSStarDataWriter` expects the trixels in order, but the very high-level `KSBufferedStarCatalogWriter` does not – the latter just expects you to stream the data in decreasing order of brightness and it takes care of indexing and distributing across trixels, including handling proper-motion duplication for the specified number of years.
+
+I also introduced `v2` replacements for the `DeepStarData` and `StarData` records that are identical in structure and memory (and therefore can be used with exactly the same data structures), but changes the scale as the proper motion scale is otherwise too limiting; this is however a backwards-incompatible change and requires restructuring some of the code. We should decide if this is worth the effort (probably is). It might also be worth considering new data structures that carry more data, such as Flamsteed numbers. I believe Flamsteed numbers will be very helpful in KStars
+
+## Writing `tycho2tdsc_merge`
+
+# Gaia DR3
+
+Caveats:
+
+* https://www.cloudynights.com/topic/770966-the-use-of-accurate-star-catalogues/?p=11099363
+* https://www.cosmos.esa.int/web/gaia/dr3-known-issues
+* https://www.cosmos.esa.int/web/gaia/dr3-data-gaps
+* An obvious caveat of Gaia DR3 is the G/GBP/GRP photometry
