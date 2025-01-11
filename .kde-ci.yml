@@ -29,3 +29,4 @@ Options:
   setup-dbus-session: True
   setup-x-environment: True
   cmake-options: --trace-expand --debug-find
+  json-validate-ignore: kstars/data/catalog.min.json
