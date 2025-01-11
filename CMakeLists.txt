@@ -15,13 +15,13 @@ set (CMAKE_CXX_STANDARD 17)
 # Option to choose between Qt5 and Qt6
 option(BUILD_WITH_QT6 "Build using Qt6" OFF)
 
-if(BUILD_WITH_QT6)
+if(NOT BUILD_WITH_QT6)
     set(QT_MIN_VERSION 5.12.7)
     set(KF5_MIN_VERSION 5.68.0)
 else()
     set(QT_MIN_VERSION 6.2.4)
     set(KF5_MIN_VERSION 5.68.0)
-endif(BUILD_WITH_QT6)
+endif(NOT BUILD_WITH_QT6)
 
 
 # Build KStars Lite with -DBUILD_KSTARS_LITE=ON
@@ -103,16 +103,16 @@ if(BUILD_KSTARS_LITE)
         find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS Gui Qml Quick QuickControls2 Xml Svg Sql Network Positioning PositioningQuick Concurrent WebSockets ${QT_EXTRA_COMPONENTS})
     endif()
 else()
-    if(BUILD_WITH_QT6)
+    if(NOT BUILD_WITH_QT6)
         find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS Gui Qml Quick Xml Sql Svg Network PrintSupport Concurrent WebSockets)
     else()
         find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Gui Qml Quick Xml Sql Svg SvgWidgets Network PrintSupport Concurrent WebSockets DBus)
-    endif(BUILD_WITH_QT6)
+    endif(NOT BUILD_WITH_QT6)
 endif()
 include(ExternalProject)
 include(ECMInstallIcons)
 include(ECMAddAppIcon)
-if(BUILD_WITH_QT6)
+if(NOT BUILD_WITH_QT6)
     include(KDEInstallDirs)
 else()
     include(KDEInstallDirs6)
@@ -139,7 +139,7 @@ if(BUILD_KSTARS_LITE)
         find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS Auth Config Crash WidgetsAddons NewStuff I18n KIO XmlGui Plotting Notifications)
     endif()
 else(BUILD_KSTARS_LITE)
-    if(BUILD_WITH_QT6)
+    if(NOT BUILD_WITH_QT6)
        # Find Optional package NotifyConfig for desktop notifications
        find_package(KF5 ${KF5_MIN_VERSION} COMPONENTS NotifyConfig)
        MACRO_BOOL_TO_01(KF5NotifyConfig_FOUND HAVE_NOTIFYCONFIG)
@@ -175,7 +175,7 @@ else(BUILD_KSTARS_LITE)
           Notifications
         )
        set(KFX_VERSION ${KF6_VERSION})
-    endif(BUILD_WITH_QT6)
+    endif(NOT BUILD_WITH_QT6)
 endif(BUILD_KSTARS_LITE)
 
 ## Eigen3 Library
@@ -229,7 +229,7 @@ if (ANDROID)
         URL https://github.com/indilib/indi/archive/master.zip
         CONFIGURE_COMMAND cmake . -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \\
              -DINDI_BUILD_POSIX_CLIENT=OFF -DINDI_BUILD_SERVER=OFF -DINDI_BUILD_DRIVERS=OFF -DINDI_BUILD_UNITTESTS=OFF \\
-             -DINDI_BUILD_DRIVERS=OFF -DINDI_BUILD_WITH_QT6_CLIENT=ON -DINDI_CALCULATE_MINMAX=ON \\
+             -DINDI_BUILD_DRIVERS=OFF -DINDI_NOT BUILD_WITH_QT6_CLIENT=ON -DINDI_CALCULATE_MINMAX=ON \\
              -DCFITSIO_DIR=${CMAKE_BINARY_DIR}/packaging/android/3rdparty/cfitsio -DQT_ANDROID=${QT_ANDROID} -DCMAKE_PREFIX_PATH=${QT_ANDROID} ${extra_cmake}
         BUILD_COMMAND make
         BUILD_IN_SOURCE 1
@@ -295,7 +295,7 @@ find_package(Xplanet)
 set_package_properties(Xplanet PROPERTIES DESCRIPTION "Renders an image of all the major planets and most satellites" URL "http://xplanet.sourceforge.net" TYPE RUNTIME PURPOSE "Gives KStars support for xplanet.")
 
 # Qt5/6 Data Visualization
-if (BUILD_WITH_QT6)
+if (NOT BUILD_WITH_QT6)
    find_package(Qt5DataVisualization)
    MACRO_BOOL_TO_01(Qt5DataVisualization_FOUND HAVE_DATAVISUALIZATION)
 else()
@@ -313,7 +313,7 @@ MACRO_BOOL_TO_01(LibXISF_FOUND HAVE_XISF)
 #set_package_properties(AstrometryNet PROPERTIES DESCRIPTION "Astrometrics Library" URL "http://www.astrometry.net" TYPE RUNTIME PURPOSE "Support for plate solving in KStars.")
 
 ## Key Chain
-if (BUILD_WITH_QT6)
+if (NOT BUILD_WITH_QT6)
    find_package(Qt5Keychain)
    MACRO_BOOL_TO_01(Qt5Keychain_FOUND HAVE_KEYCHAIN)
 else()
@@ -520,7 +520,7 @@ IF (NOT ANDROID)
     ENDIF()
     # Make it possible to use the po files fetched by the fetch-translations step    
     ki18n_install(po)
-    if (BUILD_WITH_QT6)
+    if (NOT BUILD_WITH_QT6)
         find_package(KF5DocTools CONFIG)
     else()
         find_package(KF6DocTools CONFIG)
