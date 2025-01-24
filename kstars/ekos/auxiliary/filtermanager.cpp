@@ -415,11 +415,13 @@ bool FilterManager::setFilterPosition(uint8_t position, FilterPolicy policy)
     currentFilter = m_ActiveFilters[m_currentFilterPosition - 1];
     targetFilter = m_ActiveFilters[position - 1];
 
-    if (currentFilter == targetFilter)
+    // JEE even though we may be on the correct filter we may still need
+    // to run an autofocus.
+    /*if (currentFilter == targetFilter)
     {
         emit ready();
         return true;
-    }
+    }*/
 
     buildOperationQueue(FILTER_CHANGE);
 
