@@ -7,6 +7,7 @@
 
 #include "oal/oal.h"
 #include <QString>
+#include <QDateTime>
 #include "ekos/ekos.h"
 
 #define NULL_FILTER "--"
@@ -24,6 +25,7 @@ struct filterProperties
     int absFocusPos;
     double focusTemperature;
     double focusAltitude;
+    QString focusDatetime;
     double focusTicksPerTemp;
     double focusTicksPerAlt;
     double wavelength;
@@ -31,10 +33,10 @@ struct filterProperties
     filterProperties(QString _vendor, QString _model, QString _type, QString _color,
                      int _offset = 0, double _exposure = 1.0, bool _useAutoFocus = false, QString _lockedFilter = NULL_FILTER,
                      int _absFocusPos = 0, double _focusTemperature = Ekos::INVALID_VALUE, double _focusAltitude = Ekos::INVALID_VALUE,
-                     double _focusTicksPerTemp = 0.0, double _focusTicksPerAlt = 0.0, double _wavelength = 500.0) :
+                     QString _focusDatetime = "", double _focusTicksPerTemp = 0.0, double _focusTicksPerAlt = 0.0, double _wavelength = 500.0) :
         vendor(_vendor), model(_model), type(_type), color(_color),
         offset(_offset), exposure(_exposure), useAutoFocus(_useAutoFocus), lockedFilter(_lockedFilter),
-        absFocusPos(_absFocusPos), focusTemperature(_focusTemperature), focusAltitude(_focusAltitude),
+          absFocusPos(_absFocusPos), focusTemperature(_focusTemperature), focusAltitude(_focusAltitude), focusDatetime(_focusDatetime),
         focusTicksPerTemp(_focusTicksPerTemp), focusTicksPerAlt(_focusTicksPerAlt), wavelength(_wavelength) {}
 };
 
@@ -138,6 +140,19 @@ class OAL::Filter
             m_FocusAltitude = newFocusAltitude;
         }
 
+        QDateTime focusDatetime()
+        {
+            QDateTime dt = QDateTime::fromString(m_FocusDatetime, "yyyy-MM-ddThh:mm:ss");
+            bool valid = dt.isValid();
+            if (!valid)
+                dt.setMSecsSinceEpoch(0);
+            return dt;
+        }
+        void setFocusDatetime(QDateTime newFocusDatetime)
+        {
+            m_FocusDatetime = newFocusDatetime.toString("yyyy-MM-ddThh:mm:ss");
+        }
+
         double focusTicksPerTemp()
         {
             return m_FocusTicksPerTemp;
@@ -173,6 +188,7 @@ class OAL::Filter
         bool m_UseAutoFocus { false };
         double m_FocusTemperature { 0 };
         double m_FocusAltitude { 0 };
+        QString m_FocusDatetime { "" };
         double m_FocusTicksPerTemp { 0 };
         double m_FocusTicksPerAlt { 0 };
         double m_Wavelength { 0 };

@@ -25,6 +25,7 @@ class NotEditableDelegate2dp;
 class DoubleDelegate;
 class IntegerDelegate;
 class ToggleDelegate;
+class DatetimeDelegate;
 
 namespace Ekos
 {
@@ -57,6 +58,7 @@ class FilterManager : public QDialog, public Ui::FilterSettings
             FM_LAST_AF_SOLUTION,
             FM_LAST_AF_TEMP,
             FM_LAST_AF_ALT,
+            FM_LAST_AF_DATETIME,
             FM_TICKS_PER_TEMP,
             FM_TICKS_PER_ALT,
             FM_WAVELENGTH
@@ -333,6 +335,7 @@ class FilterManager : public QDialog, public Ui::FilterSettings
         QPointer<IntegerDelegate> lastAFSolutionDelegate;
         QPointer<DoubleDelegate> lastAFTempDelegate;
         QPointer<DoubleDelegate> lastAFAltDelegate;
+        QPointer<DatetimeDelegate> lastAFDTDelegate;
         QPointer<DoubleDelegate> ticksPerTempDelegate;
         QPointer<DoubleDelegate> ticksPerAltDelegate;
         QPointer<IntegerDelegate> wavelengthDelegate;

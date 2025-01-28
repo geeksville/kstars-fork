@@ -323,8 +323,8 @@ void EquipmentWriter::slotAddFilter()
 {
     filterProperties *fp = new filterProperties(ui.f_Vendor->text(), ui.f_Model->text(), ui.f_Type->text(),
             ui.f_Color->text(), ui.f_Offset->value(), ui.f_Exposure->value(), ui.f_UseAutoFocus->isChecked(),
-            ui.f_LockedFilter->text(), 0, Ekos::INVALID_VALUE, Ekos::INVALID_VALUE, ui.f_FocusTicksPerTemp->value(),
-            ui.f_FocusTicksPerAlt->value(), ui.f_Wavelength->value());
+            ui.f_LockedFilter->text(), 0, Ekos::INVALID_VALUE, Ekos::INVALID_VALUE, ui.f_FocusDatetime->dateTime().toString(),
+            ui.f_FocusTicksPerTemp->value(), ui.f_FocusTicksPerAlt->value(), ui.f_Wavelength->value());
     KStarsData::Instance()->userdb()->AddFilter(fp, ui.f_Vendor->text());
 
     loadEquipment();
@@ -339,6 +339,9 @@ void EquipmentWriter::slotAddFilter()
     ui.f_UseAutoFocus->setChecked(false);
     ui.f_FocusTemperature->setValue(Ekos::INVALID_VALUE);
     ui.f_FocusAltitude->setValue(Ekos::INVALID_VALUE);
+    QDateTime dt;
+    dt.setMSecsSinceEpoch(0);
+    ui.f_FocusDatetime->setDateTime(dt);
     ui.f_FocusTicksPerTemp->setValue(0.0);
     ui.f_FocusTicksPerAlt->setValue(0.0);
     ui.f_Wavelength->setValue(500.0);
@@ -360,6 +363,9 @@ void EquipmentWriter::slotRemoveFilter()
     ui.f_UseAutoFocus->setChecked(false);
     ui.f_FocusTemperature->setValue(Ekos::INVALID_VALUE);
     ui.f_FocusAltitude->setValue(Ekos::INVALID_VALUE);
+    QDateTime dt;
+    dt.setMSecsSinceEpoch(0);
+    ui.f_FocusDatetime->setDateTime(dt);
     ui.f_FocusTicksPerTemp->setValue(0.0);
     ui.f_FocusTicksPerAlt->setValue(0.0);
     ui.f_Wavelength->setValue(500.0);
@@ -373,8 +379,8 @@ void EquipmentWriter::slotSaveFilter()
     filterProperties *fp = new filterProperties(ui.f_Vendor->text(), ui.f_Model->text(), ui.f_Type->text(),
             ui.f_Color->text(), ui.f_Offset->value(), ui.f_Exposure->value(), ui.f_UseAutoFocus->isChecked(),
             ui.f_LockedFilter->text(), ui.f_AbsoluteFocusPosition->value(), ui.f_FocusTemperature->value(),
-            ui.f_FocusAltitude->value(), ui.f_FocusTicksPerTemp->value(), ui.f_FocusTicksPerAlt->value(),
-            ui.f_Wavelength->value());
+            ui.f_FocusAltitude->value(), ui.f_FocusDatetime->dateTime().toString(), ui.f_FocusTicksPerTemp->value(),
+            ui.f_FocusTicksPerAlt->value(), ui.f_Wavelength->value());
     // Add
     if (ui.f_Id->text().isEmpty())
         KStarsData::Instance()->userdb()->AddFilter(fp);
@@ -403,6 +409,7 @@ void EquipmentWriter::slotSetFilter(QString name)
         ui.f_AbsoluteFocusPosition->setValue(f->absoluteFocusPosition());
         ui.f_FocusTemperature->setValue(f->focusTemperature());
         ui.f_FocusAltitude->setValue(f->focusAltitude());
+        ui.f_FocusDatetime->setDateTime(f->focusDatetime());
         ui.f_FocusTicksPerTemp->setValue(f->focusTicksPerTemp());
         ui.f_FocusTicksPerAlt->setValue(f->focusTicksPerAlt());
         ui.f_Wavelength->setValue(f->wavelength());
@@ -425,6 +432,9 @@ void EquipmentWriter::slotNewFilter()
     ui.f_AbsoluteFocusPosition->setValue(0);
     ui.f_FocusTemperature->setValue(Ekos::INVALID_VALUE);
     ui.f_FocusAltitude->setValue(Ekos::INVALID_VALUE);
+    QDateTime dt;
+    dt.setMSecsSinceEpoch(0);
+    ui.f_FocusDatetime->setDateTime(dt);
     ui.f_FocusTicksPerTemp->setValue(0.0);
     ui.f_FocusTicksPerAlt->setValue(0.0);
     ui.f_Wavelength->setValue(500.0);

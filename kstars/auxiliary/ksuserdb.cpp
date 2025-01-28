@@ -349,6 +349,15 @@ bool KSUserDB::Initialize()
                         "Thickness INTEGER DEFAULT 1)"))
             qCWarning(KSTARS) << query.lastError();
     }
+
+    // Add focusDatetime to filter table
+    if (currentDBVersion < 315)
+    {
+        QSqlQuery query(db);
+
+        if (!query.exec("ALTER TABLE filter ADD COLUMN FocusDatetime TEXT DEFAULT NULL"))
+            qCWarning(KSTARS) << query.lastError();
+    }
     return true;
 }
 
@@ -437,6 +446,7 @@ bool KSUserDB::RebuildDB()
                   "AbsoluteFocusPosition INTEGER DEFAULT 0,"
                   "FocusTemperature REAL DEFAULT NULL,"
                   "FocusAltitude REAL DEFAULT NULL,"
+                  "FocusDatetime TEXT DEFAULT NULL,"
                   "FocusTicksPerTemp REAL DEFAULT 0.0,"
                   "FocusTicksPerAlt REAL DEFAULT 0.0,"
                   "Wavelength INTEGER DEFAULT 500)");
@@ -1833,6 +1843,7 @@ bool KSUserDB::AddFilter(const filterProperties *fp)
     record.setValue("AbsoluteFocusPosition", fp->absFocusPos);
     record.setValue("FocusTemperature", fp->focusTemperature);
     record.setValue("FocusAltitude", fp->focusAltitude);
+    record.setValue("FocusDatetime", fp->focusDatetime);
     record.setValue("FocusTicksPerTemp", fp->focusTicksPerTemp);
     record.setValue("FocusTicksPerAlt", fp->focusTicksPerAlt);
     record.setValue("Wavelength", fp->wavelength);
@@ -1878,6 +1889,7 @@ bool KSUserDB::AddFilter(const filterProperties *fp, const QString &id)
         record.setValue("AbsoluteFocusPosition", fp->absFocusPos);
         record.setValue("FocusTemperature", fp->focusTemperature);
         record.setValue("FocusAltitude", fp->focusAltitude);
+        record.setValue("FocusDatetime", fp->focusDatetime);
         record.setValue("FocusTicksPerTemp", fp->focusTicksPerTemp);
         record.setValue("FocusTicksPerAlt", fp->focusTicksPerAlt);
         record.setValue("Wavelength", fp->wavelength);
@@ -1925,6 +1937,7 @@ bool KSUserDB::GetAllFilters(QList<OAL::Filter *> &filter_list)
         fp->absFocusPos       = record.value("AbsoluteFocusPosition").toInt();
         fp->focusTemperature  = record.value("FocusTemperature").toDouble();
         fp->focusAltitude     = record.value("FocusAltitude").toDouble();
+        fp->focusDatetime     = record.value("FocusDatetime").toString();
         fp->focusTicksPerTemp = record.value("FocusTicksPerTemp").toDouble();
         fp->focusTicksPerAlt  = record.value("FocusTicksPerAlt").toDouble();
         fp->wavelength        = record.value("Wavelength").toDouble();
@@ -2202,6 +2215,10 @@ void KSUserDB::readFilter()
             else if (reader_->name().toString() == "FocusAltitude")
             {
                 fp->focusAltitude = (reader_->readElementText().toDouble());
+            }
+            else if (reader_->name().toString() == "FocusDatetime")
+            {
+                fp->focusDatetime = (reader_->readElementText());
             }
             else if (reader_->name().toString() == "FocusTicksPerTemp")
             {
