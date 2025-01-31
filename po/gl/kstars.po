@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kstars\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2025-01-23 01:49+0000\n"
-"PO-Revision-Date: 2025-01-19 13:40+0100\n"
+"POT-Creation-Date: 2025-01-30 01:53+0000\n"
+"PO-Revision-Date: 2025-01-29 08:05+0100\n"
 "Last-Translator: Adrián Chaves (Gallaecio) <adrian@chaves.io>\n"
 "Language-Team: Proxecto Trasno (proxecto@trasno.gal)\n"
 "Language: gl\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 24.12.0\n"
+"X-Generator: Lokalize 24.12.1\n"
 
 #, kde-format
 msgctxt "NAME OF TRANSLATORS"
@@ -548,7 +548,7 @@ msgstr "Non"
 #: dialogs/catalogdetails.cpp:213 dialogs/catalogsdbui.cpp:153
 #: dialogs/catalogsdbui.cpp:189 dialogs/catalogsdbui.cpp:210
 #: dialogs/catalogsdbui.cpp:230 dialogs/catalogsdbui.cpp:248
-#: dialogs/catalogsdbui.cpp:283 ekos/align/polaralignmentassistant.cpp:805
+#: dialogs/catalogsdbui.cpp:283 ekos/align/polaralignmentassistant.cpp:814
 #, kde-format
 msgid "Warning"
 msgstr "Aviso"
@@ -2447,13 +2447,13 @@ msgstr "Información de tamaño en minutos de arco"
 #: dialogs/addcatalogobject.ui:146
 #, kde-format
 msgid "Major axis:"
-msgstr "Eixo maior:"
+msgstr "Eixe maior:"
 
 #. i18n: ectx: property (text), widget (QLabel, label_7)
 #: dialogs/addcatalogobject.ui:157
 #, kde-format
 msgid "Minor axis:"
-msgstr "Eixo menor:"
+msgstr "Eixe menor:"
 
 #. i18n: ectx: property (title), widget (QGroupBox, groupBox_4)
 #: dialogs/addcatalogobject.ui:176 ekos/capture/capture.cpp:107
@@ -3246,12 +3246,12 @@ msgstr "Identificador"
 #: dialogs/catalogobjectlistmodel.cpp:79
 #, kde-format
 msgid "Major Axis"
-msgstr "Eixo maior"
+msgstr "Eixe maior"
 
 #: dialogs/catalogobjectlistmodel.cpp:81
 #, kde-format
 msgid "Minor Axis"
-msgstr "Eixo menor"
+msgstr "Eixe menor"
 
 #: dialogs/catalogobjectlistmodel.cpp:83
 #, kde-format
@@ -3859,7 +3859,7 @@ msgstr "0,0 pc"
 #: ekos/auxiliary/darklibrary.ui:693 ekos/auxiliary/darklibrary.ui:713
 #: ekos/auxiliary/darklibrary.ui:733 ekos/auxiliary/darklibrary.ui:753
 #: ekos/auxiliary/darklibrary.ui:773 ekos/auxiliary/darklibrary.ui:793
-#: ekos/capture/camera.cpp:1774 ekos/capture/camera.cpp:1814
+#: ekos/capture/camera.cpp:1779 ekos/capture/camera.cpp:1819
 #: ekos/capture/exposurecalculator/exposurecalculatordialog.ui:898
 #: ekos/capture/sequenceeditor.cpp:133 ekos/capture/sequenceeditor.cpp:136
 #: ekos/focus/focus.cpp:454 ekos/guide/guide.cpp:700 ekos/guide/guide.ui:569
@@ -5332,6 +5332,7 @@ msgstr "An dos píxeles:"
 msgid "Size of chip or film, in millimeters"
 msgstr "O tamaño do chip ou filme, en milímetros"
 
+# skip-rule: trasno-device_reverse
 #. i18n: ectx: property (whatsThis), widget (QDoubleSpinBox, cameraPixelSizeW)
 #. i18n: ectx: property (whatsThis), widget (QDoubleSpinBox, cameraPixelSizeH)
 #. i18n: ectx: property (whatsThis), widget (QDoubleSpinBox, WaveLength)
@@ -5356,6 +5357,7 @@ msgstr ""
 msgid "µm"
 msgstr "µm"
 
+# skip-rule: trasno-device_reverse
 #. i18n: ectx: property (whatsThis), widget (QPushButton, ComputeCameraFOV)
 #: dialogs/newfov.ui:634
 #, kde-format
@@ -6272,6 +6274,7 @@ msgstr ""
 "Faltan a abertura e a distancia focal do telescopio; comproba a "
 "configuración do tren óptico e inténtao de novo."
 
+# skip-rule: trasno-device_reverse
 #: ekos/align/align.cpp:1478
 #, kde-format
 msgid ""
@@ -6513,7 +6516,7 @@ msgstr "A montura sincronizouse coas coordenadas da solución."
 
 #: ekos/align/align.cpp:2746 ekos/align/align.cpp:2764
 #: ekos/align/align.cpp:3376 ekos/align/align.cpp:4098
-#: ekos/align/polaralignmentassistant.cpp:645
+#: ekos/align/polaralignmentassistant.cpp:654
 #, kde-format
 msgid "Settling..."
 msgstr "Asentando…"
@@ -6652,24 +6655,24 @@ msgstr "dα (segundos de arco)"
 msgid "dDE (arcsec)"
 msgstr "dδ (segundos de arco)"
 
-#: ekos/align/align.cpp:3648 ekos/capture/camera.cpp:3418
+#: ekos/align/align.cpp:3648 ekos/capture/camera.cpp:3423
 #: ekos/focus/focus.cpp:5397
 #, kde-format
 msgid "Filter operation failed."
 msgstr "A operación de filtro fallou."
 
-#: ekos/align/align.cpp:3660 ekos/capture/camera.cpp:3916
+#: ekos/align/align.cpp:3660 ekos/capture/camera.cpp:3921
 #, kde-format
 msgid "Changing focus offset by %1 steps..."
 msgstr "Cambiando o desprazamento do foco en %1 pasos…"
 
 #: ekos/align/align.cpp:3667 ekos/auxiliary/buildfilteroffsets.cpp:466
-#: ekos/capture/camera.cpp:3921
+#: ekos/capture/camera.cpp:3926
 #, kde-format
 msgid "Changing filter to %1..."
 msgstr "Cambiando o filtro a %1…"
 
-#: ekos/align/align.cpp:3672 ekos/capture/camera.cpp:3926
+#: ekos/align/align.cpp:3672 ekos/capture/camera.cpp:3931
 #, kde-format
 msgid "Auto focus on filter change..."
 msgstr "Enfoque automático co cambio de filtro…"
@@ -6704,7 +6707,7 @@ msgid "Unable to write to file %1"
 msgstr "Non é posíbel escribir no ficheiro %1."
 
 #: ekos/align/align.cpp:3974 ekos/align/mountmodel.cpp:286
-#: ekos/align/mountmodel.cpp:404 ekos/capture/camera.cpp:2936
+#: ekos/align/mountmodel.cpp:404 ekos/capture/camera.cpp:2941
 #: ekos/capture/cameraprocess.cpp:2585 ekos/capture/sequencequeue.cpp:33
 #: ekos/guide/guidedriftgraph.cpp:488 ekos/scheduler/schedulerprocess.cpp:2978
 #: ekos/scheduler/schedulerprocess.cpp:3324
@@ -7360,7 +7363,7 @@ msgctxt "@title:window"
 msgid "Open Ekos Alignment List"
 msgstr "Abrir a lista de aliñamento de Ekos"
 
-#: ekos/align/mountmodel.cpp:285 ekos/capture/camera.cpp:2935
+#: ekos/align/mountmodel.cpp:285 ekos/capture/camera.cpp:2940
 #: ekos/capture/cameraprocess.cpp:2584 ekos/capture/sequencequeue.cpp:32
 #: ekos/scheduler/schedulerprocess.cpp:3323
 #: ekos/scheduler/schedulerprocess.cpp:4668
@@ -7996,6 +7999,7 @@ msgstr "Abre o perfil de opcións seleccionado no editor de perfís de opcións.
 msgid "Alignment Options"
 msgstr "Opcións de aliñamento"
 
+# skip-rule: trasno-device_reverse
 #. i18n: ectx: property (toolTip), widget (QCheckBox, kcfg_AstrometrySolverWCS)
 #: ekos/align/opsalign.ui:230
 #, kde-format
@@ -8827,11 +8831,12 @@ msgstr ""
 msgid "Open"
 msgstr "Abrir"
 
+# skip-rule: trasno-device_reverse
 #. i18n: ectx: property (text), widget (QLabel, label_28)
 #: ekos/align/opsastrometryindexfiles.ui:295
 #, kde-format
 msgid "Current CCD FOV: "
-msgstr "Campo de visión actual do dispositivo de carga acoplada:"
+msgstr "Campo de visión actual do dispositivo de carga acoplada (CCD):"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_24)
 #: ekos/align/opsastrometryindexfiles.ui:302
@@ -9824,23 +9829,23 @@ msgstr ""
 "Asistente de aliñamento polar: deténdoo, o resolvente fallou demasiadas "
 "veces."
 
-#: ekos/align/polaralignmentassistant.cpp:617
+#: ekos/align/polaralignmentassistant.cpp:626
 #, kde-format
 msgid "Mount first rotation is complete."
 msgstr "Completouse a primeira rotación da montura."
 
-#: ekos/align/polaralignmentassistant.cpp:624
+#: ekos/align/polaralignmentassistant.cpp:633
 #, kde-format
 msgid "Mount second rotation is complete."
 msgstr "Completouse a segunda rotación da montura."
 
-#: ekos/align/polaralignmentassistant.cpp:670
+#: ekos/align/polaralignmentassistant.cpp:679
 #, kde-format
 msgid "Mount aborted. Reverse RA axis direction and try again."
 msgstr ""
 "Interrompeuse a montaxe. Inverta a dirección do eixe de α e inténteo de novo."
 
-#: ekos/align/polaralignmentassistant.cpp:759
+#: ekos/align/polaralignmentassistant.cpp:768
 #, kde-format
 msgid ""
 "Warning: Equatorial Grid Lines will not be drawn due to limited resources "
@@ -9849,41 +9854,41 @@ msgstr ""
 "Aviso: as liñas da grade ecuatorial non se debuxarán debido ao modo de "
 "recursos limitados."
 
-#: ekos/align/polaralignmentassistant.cpp:763
+#: ekos/align/polaralignmentassistant.cpp:772
 #, kde-format
 msgid "Clearing mount Alignment Model..."
 msgstr "Baleirando o modelo de aliñamento da montura…"
 
-#: ekos/align/polaralignmentassistant.cpp:804
+#: ekos/align/polaralignmentassistant.cpp:813
 #, kde-format
 msgid "This could cause the telescope to cross the meridian."
 msgstr "Isto podería facer que o telescopio cruce o meridiano."
 
-#: ekos/align/polaralignmentassistant.cpp:854
+#: ekos/align/polaralignmentassistant.cpp:863
 #, kde-format
 msgid "Parking the mount..."
 msgstr "Estacionando a montaxe…"
 
-#: ekos/align/polaralignmentassistant.cpp:897
+#: ekos/align/polaralignmentassistant.cpp:906
 #, kde-format
 msgid "Please wait until mount completes rotating to RA (%1) DE (%2)"
 msgstr "Agarde ata que a montura complete a rotación a α (%1) δ (%2)"
 
 # skip-rule: trasno-find_reverse
-#: ekos/align/polaralignmentassistant.cpp:913
-#: ekos/align/polaralignmentassistant.cpp:919
+#: ekos/align/polaralignmentassistant.cpp:922
+#: ekos/align/polaralignmentassistant.cpp:928
 #, kde-format
 msgid "PAA: Failed to findCorrectedPixel."
 msgstr ""
 "Asistente de aliñamento polar: non foi posíbel atopar o píxel corrixido."
 
-#: ekos/align/polaralignmentassistant.cpp:945
+#: ekos/align/polaralignmentassistant.cpp:954
 #, kde-format
 msgid "PAA: Failed to find RA Axis center."
 msgstr ""
 "Asistente de aliñamento polar: non foi posíbel atopar o centro do eixe de α."
 
-#: ekos/align/polaralignmentassistant.cpp:1016
+#: ekos/align/polaralignmentassistant.cpp:1025
 #, kde-format
 msgid ""
 "Polar-alignment star cannot be updated during refresh phase as it might "
@@ -9892,17 +9897,17 @@ msgstr ""
 "A estrela de aliñamento polar non pode actualizarse durante a fase de "
 "actualización porque podería afectar a medicións de erros."
 
-#: ekos/align/polaralignmentassistant.cpp:1033
+#: ekos/align/polaralignmentassistant.cpp:1042
 #, kde-format
 msgid "First manual rotation done."
 msgstr "Realizouse a primeira rotación manual."
 
-#: ekos/align/polaralignmentassistant.cpp:1038
+#: ekos/align/polaralignmentassistant.cpp:1047
 #, kde-format
 msgid "Second manual rotation done."
 msgstr "Realizouse a segunda rotación manual."
 
-#: ekos/align/polaralignmentassistant.cpp:1083
+#: ekos/align/polaralignmentassistant.cpp:1092
 #, kde-format
 msgid ""
 "Mount is synced to celestial pole. You can now continue Polar Alignment "
@@ -9911,36 +9916,36 @@ msgstr ""
 "A montura está sincronizada co polo celeste. Agora pode continuar o "
 "procedemento do asistente de aliñamento polar."
 
-#: ekos/align/polaralignmentassistant.cpp:1102
+#: ekos/align/polaralignmentassistant.cpp:1111
 #, kde-format
 msgid "Please wait while WCS data is processed..."
 msgstr "Agarde mentres se procesan os datos de SCM…"
 
-#: ekos/align/polaralignmentassistant.cpp:1133
+#: ekos/align/polaralignmentassistant.cpp:1142
 #, kde-format
 msgid "WCS data processing is complete."
 msgstr "Completouse o procesamento de datos de SCM."
 
-#: ekos/align/polaralignmentassistant.cpp:1142
+#: ekos/align/polaralignmentassistant.cpp:1151
 #, kde-format
 msgid "WCS info is now valid. Capturing next frame..."
 msgstr "Agora a información de SCM é válida. Capturando o seguinte fotograma…"
 
-#: ekos/align/polaralignmentassistant.cpp:1184
+#: ekos/align/polaralignmentassistant.cpp:1193
 #, kde-format
 msgid "Failed to process World Coordinate System: %1. Try again."
 msgstr ""
 "Non foi posíbel procesar o sistema de coordenadas mundial: %1. Inténteo de "
 "novo."
 
-#: ekos/align/polaralignmentassistant.cpp:1202
+#: ekos/align/polaralignmentassistant.cpp:1211
 #, kde-format
 msgid "PAA: Failed to find the RA axis. Quitting."
 msgstr ""
 "Asistente de aliñamento polar: non foi posíbel atopar o eixe de α. Saíndo."
 
 #. i18n: ectx: property (text), widget (QLabel, PAHMessageText)
-#: ekos/align/polaralignmentassistant.cpp:1233
+#: ekos/align/polaralignmentassistant.cpp:1242
 #: ekos/align/polaralignmentassistant.ui:212
 #, kde-format
 msgid ""
@@ -9950,52 +9955,52 @@ msgstr ""
 "<p>O asistente require tres imaxes para atopar unha solución. Ekos está "
 "capturando a primeira imaxe…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1235
+#: ekos/align/polaralignmentassistant.cpp:1244
 #, kde-format
 msgid "<p>Solving the <i>first</i> image...</p>"
 msgstr "<p>Resolvendo a <i>primeira</i> imaxe…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1237
+#: ekos/align/polaralignmentassistant.cpp:1246
 #, kde-format
 msgid "<p>Executing the <i>first</i> mount rotation...</p>"
 msgstr "<p>Executando a <i>primeira</i> rotación da montura…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1239
+#: ekos/align/polaralignmentassistant.cpp:1248
 #, kde-format
 msgid "<p>Settling after the <i>first</i> mount rotation.</p>"
 msgstr "<p>Asentando tras a <i>primeira</i> rotación da montura…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1241
+#: ekos/align/polaralignmentassistant.cpp:1250
 #, kde-format
 msgid "<p>Settling after the <i>second</i> mount rotation.</p>"
 msgstr "<p>Asentando tras a <i>segunda</i> rotación da montura…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1243
+#: ekos/align/polaralignmentassistant.cpp:1252
 #, kde-format
 msgid "<p>Capturing the second image...</p>"
 msgstr "<p>Capturando a segunda imaxe…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1245
+#: ekos/align/polaralignmentassistant.cpp:1254
 #, kde-format
 msgid "<p>Solving the <i>second</i> image...</p>"
 msgstr "<p>Resolvendo a <i>segunda</i> imaxe…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1247
+#: ekos/align/polaralignmentassistant.cpp:1256
 #, kde-format
 msgid "<p>Executing the <i>second</i> mount rotation...</p>"
 msgstr "<p>Executando a <i>segunda</i> rotación da montura…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1249
+#: ekos/align/polaralignmentassistant.cpp:1258
 #, kde-format
 msgid "<p>Capturing the <i>third</i> and final image...</p>"
 msgstr "<p>Capturando a <i>terceira</i> imaxe (a final)…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1251
+#: ekos/align/polaralignmentassistant.cpp:1260
 #, kde-format
 msgid "<p>Solving the <i>third</i> image...</p>"
 msgstr "<p>Resolvendo a <i>terceira</i> imaxe…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1254
+#: ekos/align/polaralignmentassistant.cpp:1263
 #, kde-format
 msgid ""
 "<p>Choose your exposure time & select an adjustment method. Then click "
@@ -10004,7 +10009,7 @@ msgstr ""
 "<p>Escolla o tempo de exposición e seleccione un método de axuste. Despois "
 "prema <i>actualizar</i> para comezar os axustes.</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1256
+#: ekos/align/polaralignmentassistant.cpp:1265
 #, kde-format
 msgid ""
 "<p>Choose your exposure time & select an adjustment method. Click "
@@ -10018,7 +10023,7 @@ msgstr ""
 "recolocar o vector de corrección. Use o método de <i>mover unha estrela e "
 "calcula o erro</i> para estimar o erro restante.</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1259
+#: ekos/align/polaralignmentassistant.cpp:1268
 #, kde-format
 msgid ""
 "<p>Adjust mount's <i>Altitude and Azimuth knobs</i> to reduce the polar "
@@ -10031,7 +10036,7 @@ msgstr ""
 "pode afectar á resolución de placas. Considere usar os resultados tras 2 "
 "imaxes. Prema <i>Deter</i> cando remate.</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1261
+#: ekos/align/polaralignmentassistant.cpp:1270
 #, kde-format
 msgid ""
 "<p>Adjust mount's <i>Altitude knob</i> to move the star along the yellow "
@@ -10044,7 +10049,7 @@ msgstr ""
 "liña verde ata que a estrela seleccionara estea centrada na mira.</"
 "p><p>Prema <i>Deter</i> cando a estrela estea centrada.</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1277
+#: ekos/align/polaralignmentassistant.cpp:1286
 #, kde-format
 msgid "Cannot change to MoveStar algorithm once refresh has begun"
 msgstr ""
@@ -10985,8 +10990,8 @@ msgid ""
 "axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>Os pulsos de guía da ascensión recta (α) en "
-"milisegundos. Prema aquí para ver este eixo nos valores do eixo esquerdo. "
-"Clic duplo para actualizar o eixo.</p></body></html>"
+"milisegundos. Prema aquí para ver este eixe nos valores do eixe esquerdo. "
+"Clic duplo para actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, decPulseCB)
 #: ekos/analyze/analyze.ui:674
@@ -11007,8 +11012,8 @@ msgid ""
 "axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>Os pulsos de guía da declinación (δ) en milisegundos. "
-"Prema aquí para ver este eixo nos valores do eixo esquerdo. Clic duplo para "
-"actualizar o eixo.</p></body></html>"
+"Prema aquí para ver este eixe nos valores do eixe esquerdo. Clic duplo para "
+"actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, driftCB)
 #: ekos/analyze/analyze.ui:721
@@ -11099,8 +11104,8 @@ msgid ""
 "click to update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>O nivel de a luz de fondo do ceo (que SEP calcula a "
-"partir das imaxes de guía). Preme aquí para ver este eixo nos valores do "
-"eixo esquerdo. Clic duplo para actualizar o eixo.</p></body></html>"
+"partir das imaxes de guía). Preme aquí para ver este eixe nos valores do "
+"eixe esquerdo. Clic duplo para actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, numStarsCB)
 #: ekos/analyze/analyze.ui:856
@@ -11135,8 +11140,8 @@ msgid ""
 "axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>O número de estrelas detectadas nas imaxes de guía. "
-"Preme aquí para ver este eixo nos valores do eixo esquerdo. Clic duplo para "
-"actualizar o eixo.</p></body></html>"
+"Preme aquí para ver este eixe nos valores do eixe esquerdo. Clic duplo para "
+"actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, snrCB)
 #: ekos/analyze/analyze.ui:903
@@ -11163,8 +11168,8 @@ msgid ""
 "axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>A relación sinal/ruído (SNR) da estrela de guía. Preme "
-"aquí para ver este eixo nos valores do eixo esquerdo. Clic duplo para "
-"actualizar o eixo.</p></body></html>"
+"aquí para ver este eixe nos valores do eixe esquerdo. Clic duplo para "
+"actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, mountRaCB)
 #: ekos/analyze/analyze.ui:950
@@ -11185,8 +11190,8 @@ msgid ""
 "update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>A ascensión recta (α) onde apunta o telescopio, en "
-"«HMS» (horas, minutos, segundos). Prema aquí para ver este eixo nos valores "
-"do eixo esquerdo. Clic duplo para actualizar o eixo.</p></body></html>"
+"«HMS» (horas, minutos, segundos). Prema aquí para ver este eixe nos valores "
+"do eixe esquerdo. Clic duplo para actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, mountDecCB)
 #: ekos/analyze/analyze.ui:997
@@ -11207,8 +11212,8 @@ msgid ""
 "left-axis values. Double click to update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>A declinación (δ) onde apunta o telescopio, en «graos:"
-"minutos de arco:segundos de arco». Prema aquí para ver este eixo nos valores "
-"do eixo esquerdo. Clic duplo para actualizar o eixo.</p></body></html>"
+"minutos de arco:segundos de arco». Prema aquí para ver este eixe nos valores "
+"do eixe esquerdo. Clic duplo para actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, azCB)
 #: ekos/analyze/analyze.ui:1044
@@ -11234,7 +11239,7 @@ msgid ""
 "this axis on left-axis values. Double click to update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>O acimut do telescopio (en graos). Preme aquí para ver "
-"este eixo nos valores do eixo esquerdo. Clic duplo para actualizar o eixo.</"
+"este eixe nos valores do eixe esquerdo. Clic duplo para actualizar o eixe.</"
 "p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, altCB)
@@ -11261,8 +11266,8 @@ msgid ""
 "this axis on left-axis values. Double click to update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>A altitude do telescopio (en graos). Preme aquí para "
-"ver este eixo nos valores do eixo esquerdo. Clic duplo para actualizar o "
-"eixo.</p></body></html>"
+"ver este eixe nos valores do eixe esquerdo. Clic duplo para actualizar o "
+"eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, pierSideCB)
 #: ekos/analyze/analyze.ui:1138
@@ -11289,8 +11294,8 @@ msgid ""
 "update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>O lado de observación (esquerdo) da montura. Preme "
-"aquí para ver este eixo nos valores do eixo esquerdo. Clic duplo para "
-"actualizar o eixo.</p></body></html>"
+"aquí para ver este eixe nos valores do eixe esquerdo. Clic duplo para "
+"actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, mountHaCB)
 #: ekos/analyze/analyze.ui:1185
@@ -11315,8 +11320,8 @@ msgid ""
 "axis on left-axis values. Double click to update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>O valor de ángulo horario da montura. Preme aquí para "
-"ver este eixo nos valores do eixo esquerdo. Clic duplo para actualizar o "
-"eixo.</p></body></html>"
+"ver este eixe nos valores do eixe esquerdo. Clic duplo para actualizar o "
+"eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, hfrCB)
 #: ekos/analyze/analyze.ui:1232
@@ -11343,8 +11348,8 @@ msgid ""
 "update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>O raio de medio fluxo (en píxeles) das imaxes "
-"capturadas. Preme aquí para ver este eixo nos valores do eixo esquerdo. Clic "
-"duplo para actualizar o eixo.</p></body></html>"
+"capturadas. Preme aquí para ver este eixe nos valores do eixe esquerdo. Clic "
+"duplo para actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, numCaptureStarsCB)
 #: ekos/analyze/analyze.ui:1273
@@ -11365,8 +11370,8 @@ msgid ""
 "update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>Representar o número de estrelas detectadas nas imaxes "
-"capturadas. Preme aquí para ver este eixo nos valores do eixo esquerdo. Clic "
-"duplo para actualizar o eixo.</p></body></html>"
+"capturadas. Preme aquí para ver este eixe nos valores do eixe esquerdo. Clic "
+"duplo para actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, medianCB)
 #: ekos/analyze/analyze.ui:1314
@@ -11393,8 +11398,8 @@ msgid ""
 "axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>Representar a mostra mediana das imaxes capturadas. "
-"Preme aquí para ver este eixo nos valores do eixo esquerdo. Clic duplo para "
-"actualizar o eixo.</p></body></html>"
+"Preme aquí para ver este eixe nos valores do eixe esquerdo. Clic duplo para "
+"actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, eccentricityCB)
 #: ekos/analyze/analyze.ui:1355
@@ -11421,8 +11426,8 @@ msgid ""
 "update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>Representar a excentricidade de estrela mediana das "
-"imaxes capturadas. Preme aquí para ver este eixo nos valores do eixo "
-"esquerdo. Clic duplo para actualizar o eixo.</p></body></html>"
+"imaxes capturadas. Preme aquí para ver este eixe nos valores do eixe "
+"esquerdo. Clic duplo para actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, temperatureCB)
 #: ekos/analyze/analyze.ui:1396
@@ -11445,8 +11450,8 @@ msgid ""
 "axis on left-axis values. Double click to update axis.</p></body></html>"
 msgstr ""
 "<html><head/><body><p>Representar a temperatura ambiente. Preme aquí para "
-"ver este eixo nos valores do eixo esquerdo. Clic duplo para actualizar o "
-"eixo.</p></body></html>"
+"ver este eixe nos valores do eixe esquerdo. Clic duplo para actualizar o "
+"eixe.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, rmsCCB)
 #: ekos/analyze/analyze.ui:1443
@@ -11506,8 +11511,8 @@ msgid ""
 msgstr ""
 "<html><head/><body><p>Representar a distancia entre a imaxe capturada "
 "resolta con placas e a posición de destino en arcos de segundo. Debe "
-"activarse nas opcións do planificador. Preme aquí para ver este eixo nos "
-"valores do eixo esquerdo. Clic duplo para actualizar o eixo.</p></body></"
+"activarse nas opcións do planificador. Preme aquí para ver este eixe nos "
+"valores do eixe esquerdo. Clic duplo para actualizar o eixe.</p></body></"
 "html>"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, focusPositionCB)
@@ -11534,8 +11539,8 @@ msgid ""
 "html>"
 msgstr ""
 "<html><head/><body><p>Representar a posición da solución de enfoque "
-"automático. Preme aquí para ver este eixo nos valores do eixo esquerdo. Clic "
-"duplo para actualizar o eixo.</p></body></html>"
+"automático. Preme aquí para ver este eixe nos valores do eixe esquerdo. Clic "
+"duplo para actualizar o eixe.</p></body></html>"
 
 #. i18n: ectx: property (text), widget (QCheckBox, detailsCB)
 #. i18n: ectx: property (text), widget (QPushButton, DetailsButton)
@@ -14498,12 +14503,12 @@ msgstr "s"
 msgid "frames"
 msgstr "fotogramas"
 
-#: ekos/capture/camera.cpp:170 ekos/capture/camera.cpp:4041
+#: ekos/capture/camera.cpp:170 ekos/capture/camera.cpp:4046
 #, kde-format
 msgid "Add job to sequence queue"
 msgstr "Engadir a tarefa á fila da secuencia"
 
-#: ekos/capture/camera.cpp:171 ekos/capture/camera.cpp:4042
+#: ekos/capture/camera.cpp:171 ekos/capture/camera.cpp:4047
 #, kde-format
 msgid "Remove job from sequence queue"
 msgstr "Retirar a tarefa da fila da secuencia"
@@ -14666,64 +14671,64 @@ msgstr "Gardar a fila da secuencia de Ekos"
 msgid "Failed to save sequence queue"
 msgstr "Non foi posíbel gardar a fila da secuencia."
 
-#: ekos/capture/camera.cpp:1347 ekos/capture/camera.cpp:2413
+#: ekos/capture/camera.cpp:1347 ekos/capture/camera.cpp:2418
 #, kde-format
 msgid "Dark Flat"
 msgstr "Plano escuro"
 
-#: ekos/capture/camera.cpp:2076 ekos/scheduler/framingassistant.cpp:220
+#: ekos/capture/camera.cpp:2081 ekos/scheduler/framingassistant.cpp:220
 #, kde-format
 msgctxt "@title:window"
 msgid "FITS Save Directory"
 msgstr "Cartafol de garda de FITS"
 
-#: ekos/capture/camera.cpp:2189
+#: ekos/capture/camera.cpp:2194
 #, kde-format
 msgid "Reset %1 configuration to default?"
 msgstr "Restaurar a configuración predeterminada de %1?"
 
-#: ekos/capture/camera.cpp:2191
+#: ekos/capture/camera.cpp:2196
 #, kde-format
 msgid "Confirmation"
 msgstr "Confirmación"
 
-#: ekos/capture/camera.cpp:2390
+#: ekos/capture/camera.cpp:2395
 #, kde-format
 msgid "You must set local or remote directory for Remotely & Both modes."
 msgstr "Debe definir un cartafol local ou remoto para os modos remoto e ambos."
 
-#: ekos/capture/camera.cpp:2396
+#: ekos/capture/camera.cpp:2401
 #, kde-format
 msgid "You must set local directory for Locally & Both modes."
 msgstr "Debe definir un directorio local para os modos local e ambos."
 
-#: ekos/capture/camera.cpp:3578
+#: ekos/capture/camera.cpp:3583
 #, kde-format
 msgid "Paused..."
 msgstr "En pausa…"
 
-#: ekos/capture/camera.cpp:3583
+#: ekos/capture/camera.cpp:3588
 #, kde-format
 msgid "Meridian Flip..."
 msgstr "Volta do meridiano…"
 
-#: ekos/capture/camera.cpp:3584
+#: ekos/capture/camera.cpp:3589
 #, kde-format
 msgid "Meridian flip started"
 msgstr "Iniciouse a volta do meridiano"
 
-#: ekos/capture/camera.cpp:3588
+#: ekos/capture/camera.cpp:3593
 #, kde-format
 msgid "Flip complete."
 msgstr "Completouse a volta."
 
-#: ekos/capture/camera.cpp:3648
+#: ekos/capture/camera.cpp:3653
 #, kde-format
 msgctxt "Maximum temperature variation over time when regulating."
 msgid "Ramp (°C/min):"
 msgstr "Aumento (°C/min):"
 
-#: ekos/capture/camera.cpp:3654
+#: ekos/capture/camera.cpp:3659
 #, kde-format
 msgid ""
 "<html><body><p>Maximum temperature change per minute when cooling or warming "
@@ -14734,13 +14739,13 @@ msgstr ""
 "quentar a cámara. Use cero para desactivalo.<p>Esta opción defínese na "
 "configuración do controlador da cámara de INDI.</body></html>"
 
-#: ekos/capture/camera.cpp:3659
+#: ekos/capture/camera.cpp:3664
 #, kde-format
 msgctxt "Temperature threshold above which regulation triggers."
 msgid "Threshold (°C):"
 msgstr "Limiar (°C):"
 
-#: ekos/capture/camera.cpp:3665
+#: ekos/capture/camera.cpp:3670
 #, kde-format
 msgid ""
 "<html><body><p>Maximum difference between camera and target temperatures "
@@ -14751,70 +14756,70 @@ msgstr ""
 "que disparan a regulación.<p>Esta opción defínese na configuración do "
 "controlador da cámara de INDI.</body></html>"
 
-#: ekos/capture/camera.cpp:3678
+#: ekos/capture/camera.cpp:3683
 #, kde-format
 msgctxt "@title:window"
 msgid "Set Temperature Regulation"
 msgstr "Definir a regulación de temperatura"
 
-#: ekos/capture/camera.cpp:3718
+#: ekos/capture/camera.cpp:3723
 #, kde-format
 msgctxt "@title:window"
 msgid "Select Current Observer"
 msgstr "Seleccione o observador actual"
 
-#: ekos/capture/camera.cpp:3720
+#: ekos/capture/camera.cpp:3725
 #, kde-format
 msgid "Current Observer:"
 msgstr "Observador actual:"
 
 #. i18n: ectx: property (windowTitle), widget (QWidget, ObserverAdd)
-#: ekos/capture/camera.cpp:3731 oal/execute.cpp:38 oal/observeradd.ui:26
+#: ekos/capture/camera.cpp:3736 oal/execute.cpp:38 oal/observeradd.ui:26
 #, kde-format
 msgid "Manage Observers"
 msgstr "Xestionar os observadores"
 
-#: ekos/capture/camera.cpp:3903
+#: ekos/capture/camera.cpp:3908
 #, kde-format
 msgid "Cooler is on"
 msgstr "A refrixeración está acendida"
 
-#: ekos/capture/camera.cpp:3903
+#: ekos/capture/camera.cpp:3908
 #, kde-format
 msgid "Cooler is off"
 msgstr "A refrixeración está apagada"
 
-#: ekos/capture/camera.cpp:3933
+#: ekos/capture/camera.cpp:3938
 #, kde-format
 msgid "Filter set to %1."
 msgstr "Púxose o filtro %1."
 
-#: ekos/capture/camera.cpp:3966
+#: ekos/capture/camera.cpp:3971
 #, kde-format
 msgid "Are you sure you want to reset status of all jobs?"
 msgstr "Seguro que quere restabelecer o estado de todas as tarefas?"
 
-#: ekos/capture/camera.cpp:3966 ekos/capture/cameraprocess.cpp:2705
+#: ekos/capture/camera.cpp:3971 ekos/capture/cameraprocess.cpp:2705
 #, kde-format
 msgid "Reset job status"
 msgstr "Reiniciar o estado das tarefas"
 
-#: ekos/capture/camera.cpp:4019
+#: ekos/capture/camera.cpp:4024
 #, kde-format
 msgid "Editing job #%1..."
 msgstr "Editando a tarefa %1…"
 
-#: ekos/capture/camera.cpp:4022 ekos/scheduler/scheduler.cpp:1303
+#: ekos/capture/camera.cpp:4027 ekos/scheduler/scheduler.cpp:1303
 #, kde-format
 msgid "Apply job changes."
 msgstr "Aplicar os cambios da tarefa."
 
-#: ekos/capture/camera.cpp:4023
+#: ekos/capture/camera.cpp:4028
 #, kde-format
 msgid "Cancel job changes."
 msgstr "Cancelar os cambios da tarefa."
 
-#: ekos/capture/camera.cpp:4036
+#: ekos/capture/camera.cpp:4041
 #, kde-format
 msgid "Editing job canceled."
 msgstr "Cancelouse a edición da tarefa."
@@ -15128,6 +15133,7 @@ msgstr ""
 msgid "Tº"
 msgstr "T°"
 
+# skip-rule: trasno-device_reverse
 #. i18n: ectx: property (toolTip), widget (QPushButton, setTemperatureB)
 #: ekos/capture/camera.ui:1507
 #, kde-format
@@ -15843,6 +15849,7 @@ msgstr "Aviso: o proceso de calibración rematouse de maneira prematura."
 msgid "CCD capture sequence completed"
 msgstr "Completouse a secuencia de captura do CCD."
 
+# skip-rule: trasno-device_reverse
 #: ekos/capture/cameraprocess.cpp:1455
 #, kde-format
 msgid "Error: Lost connection to CCD."
@@ -18958,6 +18965,7 @@ msgstr "Por fin se atopou a orixe de temperatura %1"
 msgid "No Focuser connected."
 msgstr "Non hai ningún enfocador conectado."
 
+# skip-rule: trasno-device_reverse
 #: ekos/focus/focus.cpp:1025 ekos/focus/focus.cpp:4556
 #, kde-format
 msgid "No CCD connected."
@@ -22003,11 +22011,13 @@ msgstr ""
 "os fotogramas de guía externos completos ou simplemente recibir a imaxe de "
 "estrela guía de PHD2 usando a caixa para marcar de «Recorte»."
 
+# skip-rule: trasno-device_reverse
 #: ekos/guide/guide.cpp:583
 #, kde-format
 msgid "Connection to the guide CCD is lost."
 msgstr "Perdeuse a conexión ao dispositivo de carga acoplada (CCD) de guía."
 
+# skip-rule: trasno-device_reverse
 #: ekos/guide/guide.cpp:821
 #, kde-format
 msgid "Error: lost connection to CCD."
@@ -22040,17 +22050,14 @@ msgid "Exposure timeout. Too many. Restarting driver."
 msgstr "A exposición fallou. Demasiadas. Reiniciarase o controlador."
 
 #: ekos/guide/guide.cpp:1299
-#, fuzzy, kde-format
-#| msgid ""
-#| "No camera detected. Check train configuration and connection settings."
+#, kde-format
 msgid "No camera detected. Check camera in optical trains."
-msgstr ""
-"Non se detectou ningunha cámara. Revise a configuración xeral e de conexión."
+msgstr "Non se detectou ningunha cámara. Revise os trens ópticos da cámara."
 
 #: ekos/guide/guide.cpp:1305
 #, kde-format
 msgid "No guider detected. Check guide-via in optical trains."
-msgstr ""
+msgstr "Non se detectou ningunha guía. Revise a vía da guía nos trens ópticos."
 
 #: ekos/guide/guide.cpp:1386
 #, kde-format
@@ -22174,37 +22181,37 @@ msgstr ""
 "Aviso: o restablecemento da calibración de guía está activada. Recoméndase "
 "desactivar esta opción para PHD2."
 
-#: ekos/guide/guide.cpp:2408
+#: ekos/guide/guide.cpp:2412
 #, kde-format
 msgid "Calibration failed to start."
 msgstr "Non foi posíbel iniciar a calibración."
 
-#: ekos/guide/guide.cpp:2559
+#: ekos/guide/guide.cpp:2563
 #, kde-format
 msgid "Auto star selected."
 msgstr "Seleccionouse unha estrela automaticamente."
 
-#: ekos/guide/guide.cpp:2563
+#: ekos/guide/guide.cpp:2567
 #, kde-format
 msgid "Failed to select an auto star."
 msgstr "Non foi posíbel seleccionar unha estrela automática."
 
-#: ekos/guide/guide.cpp:2572
+#: ekos/guide/guide.cpp:2576
 #, kde-format
 msgid "Select a guide star to calibrate."
 msgstr "Seleccione unha estrela guía para calibrar."
 
-#: ekos/guide/guide.cpp:2822
+#: ekos/guide/guide.cpp:2826
 #, kde-format
 msgid "dx (pixels)"
 msgstr "dx (píxeles)"
 
-#: ekos/guide/guide.cpp:2823
+#: ekos/guide/guide.cpp:2827
 #, kde-format
 msgid "dy (pixels)"
 msgstr "dy (píxeles)"
 
-#: ekos/guide/guide.cpp:2962 ekos/guide/guide.cpp:3088
+#: ekos/guide/guide.cpp:2969 ekos/guide/guide.cpp:3095
 #, kde-format
 msgid ""
 "The PHD2 camera is not available to Ekos, so you cannot see the captured "
@@ -22213,7 +22220,7 @@ msgstr ""
 "A cámara PHD2 non está dispoñíbel para Ekos así que vostede non pode ver as "
 "imaxes capturadas. Pero aínda así verá a imaxe de estrela de guía cando guíe."
 
-#: ekos/guide/guide.cpp:2966 ekos/guide/guide.cpp:3092
+#: ekos/guide/guide.cpp:2973 ekos/guide/guide.cpp:3099
 #, kde-format
 msgid ""
 "To receive PHD2 images other than the Guide Star Image, SubFrame must be "
@@ -22224,7 +22231,7 @@ msgstr ""
 "desmarcar «Recorte». Desmarcarase agora para activar as súas capturas de "
 "imaxe. Pode activar a opción de novo antes da guía"
 
-#: ekos/guide/guide.cpp:3259
+#: ekos/guide/guide.cpp:3266
 #, kde-format
 msgid "Cannot change active optical train while PHD2 is connected"
 msgstr ""
@@ -22634,13 +22641,13 @@ msgstr "RMS"
 #: ekos/guide/guide.ui:1349
 #, kde-format
 msgid "<html><head/><body><p>Zoom in for the X-Axis.</p></body></html>"
-msgstr "<html><head/><body><p>Achegar no eixo X.</p></body></html>"
+msgstr "<html><head/><body><p>Achegar no eixe X.</p></body></html>"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, guideZoomOutXB)
 #: ekos/guide/guide.ui:1377
 #, kde-format
 msgid "<html><head/><body><p>Zoom out for the X-Axis.</p></body></html>"
-msgstr "<html><head/><body><p>Afastar no eixo X.</p></body></html>"
+msgstr "<html><head/><body><p>Afastar no eixe X.</p></body></html>"
 
 #. i18n: ectx: property (text), widget (QLabel, label_10)
 #: ekos/guide/guide.ui:1403
@@ -23246,10 +23253,11 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_ReverseDecOnPierSideChange)
 #: ekos/guide/opscalibration.ui:411
 #, kde-format
-msgid "Accept reversed DEC on pier-side change reusing calibration."
+msgid ""
+"Reverse DEC guide pulses when changing pier-side and reusing calibration."
 msgstr ""
-"Aceptar δ invertido ao cambiar de lado de observación reutilizando unha "
-"calibración."
+"Inverter os pulsos de guía de δ ao cambiar de lado de observación e "
+"reutilizar unha calibración."
 
 #. i18n: ectx: property (toolTip), widget (QDoubleSpinBox, kcfg_DitherPixels)
 #: ekos/guide/opsdither.ui:43
@@ -24284,6 +24292,7 @@ msgctxt "@title:window"
 msgid "Ekos"
 msgstr "Ekos"
 
+# skip-rule: trasno-device_reverse
 #: ekos/manager.cpp:931 ekos/manager.cpp:957
 #, kde-format
 msgid "Ekos requires at least one CCD or Guider to operate."
@@ -24476,7 +24485,7 @@ msgstr "Detivéronse os servizos de INDI."
 #: ekos/manager.cpp:1548
 #, kde-format
 msgid "Remote devices established."
-msgstr "Estabelecéronse os servizos remotos."
+msgstr "Estabelecéronse os dispositivos remotos."
 
 #: ekos/manager.cpp:1550
 #, kde-format
@@ -25266,8 +25275,7 @@ msgstr "Fontes"
 #: ekos/mount/mount.ui:807
 #, kde-format
 msgid "Enable time synchronization upon connection between KStars and INDI"
-msgstr ""
-"Activar a sincronización de hora ao conectar KStars con dispositivos INDI."
+msgstr "Activar a sincronización de hora ao conectar KStars con INDI."
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, useGeographicUpdate)
 #: ekos/mount/mount.ui:823
@@ -25276,8 +25284,7 @@ msgid ""
 "Enable geographic location synchronization upon connection between KStars "
 "and INDI"
 msgstr ""
-"Activar a sincronización de situación xeográfica ao conectar KStars con "
-"dispositivos INDI."
+"Activar a sincronización de situación xeográfica ao conectar KStars con INDI."
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, clearAlignmentModelB)
 #: ekos/mount/mount.ui:857
@@ -25730,7 +25737,7 @@ msgid ""
 "<html><head/><body><p>Scale the value axis to the current value range.</p></"
 "body></html>"
 msgstr ""
-"<html><head/><body><p>Axustar a escala do eixo de valores ao intervalo de "
+"<html><head/><body><p>Axustar a escala do eixe de valores ao intervalo de "
 "valores actual.</p></body></html>"
 
 #. i18n: ectx: property (text), widget (QCheckBox, autoscaleValuesCB)
@@ -26006,23 +26013,23 @@ msgstr "Cartafol alternativo de imaxes: "
 msgid "Set the alternative image directory for Analyze"
 msgstr "Definir o cartafol alternativo de imaxes para Analyze."
 
-#: ekos/profileeditor.cpp:49
+#: ekos/profileeditor.cpp:81
 #, kde-format
 msgctxt "@title:window"
 msgid "Profile Editor"
 msgstr "Editor de perfís"
 
-#: ekos/profileeditor.cpp:117
+#: ekos/profileeditor.cpp:149
 #, kde-format
 msgid "Cannot save an empty profile."
 msgstr "Non é posíbel gardar un perfil baleiro."
 
-#: ekos/profileeditor.cpp:129
+#: ekos/profileeditor.cpp:161
 #, kde-format
 msgid "Profile name already exists."
 msgstr "Xa existe un perfil con ese nome."
 
-#: ekos/profileeditor.cpp:506
+#: ekos/profileeditor.cpp:539
 #, kde-format
 msgid ""
 "<nobr>Available as <b>Remote</b> Driver. To use locally, install the "
@@ -26031,7 +26038,7 @@ msgstr ""
 "<nobr>Dispoñíbel como controlador <b>remoto</b>. Para usar localmente, "
 "instale o controlador correspondente.<nobr/>"
 
-#: ekos/profileeditor.cpp:508
+#: ekos/profileeditor.cpp:541
 #, kde-format
 msgid ""
 "<nobr><b>Label</b>: %1 &#9473; <b>Driver</b>: %2 &#9473; <b>Exec</b>: "
@@ -26041,23 +26048,23 @@ msgstr ""
 "<b>Executábel</b>: %3<nobr/>"
 
 #. i18n: ectx: property (text), item, widget (QComboBox, guideTypeCombo)
-#: ekos/profileeditor.cpp:809 ekos/profileeditor.ui:369
+#: ekos/profileeditor.cpp:696 ekos/profileeditor.ui:369
 #, kde-format
 msgid "Internal"
 msgstr "Interna"
 
-#: ekos/profileeditor.cpp:900
+#: ekos/profileeditor.cpp:787
 #, kde-format
 msgctxt "@title:window"
 msgid "Scanning Network"
 msgstr "Examinando a rede"
 
-#: ekos/profileeditor.cpp:901
+#: ekos/profileeditor.cpp:788
 #, kde-format
 msgid "Scanning network for INDI Web Managers..."
 msgstr "Examinando a rede en busca de xestores web de INDI…"
 
-#: ekos/profileeditor.cpp:965
+#: ekos/profileeditor.cpp:852
 #, kde-format
 msgid "Found INDI Web Manager at %1"
 msgstr "Atopouse un xestor web de INDI en %1"
@@ -27995,14 +28002,14 @@ msgid ""
 "Observatory startup script is normally only executed if Ekos is offline. "
 "Enable this option to start it whenever scheduler is starting up."
 msgstr ""
+"O guión de inicio do observatorio só se executa se Ekos está desconectado. "
+"Active esta opción para inicialo sempre que se inicie o planificador."
 
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_AlwaysExecuteStartupScript)
 #: ekos/scheduler/opsscriptssettings.ui:51
-#, fuzzy, kde-format
-#| msgctxt "@title:window"
-#| msgid "Select Startup Script"
+#, kde-format
 msgid "Always Execute Startup Script"
-msgstr "Seleccionar un guión de inicio"
+msgstr "Executar sempre o guión de inicio."
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, kcfg_ShutdownScriptTerminatesINDI)
 #: ekos/scheduler/opsscriptssettings.ui:58
@@ -29270,10 +29277,9 @@ msgstr ""
 "montaxe ata que a tarefa estea lista."
 
 #: ekos/scheduler/schedulerprocess.cpp:699
-#, fuzzy, kde-format
-#| msgid "Sleeping until observation job %1 is ready at %2..."
+#, kde-format
 msgid "Sleeping until observation job %1 is ready at %2"
-msgstr "Agardando a que o traballo de observación %1 estea listo ás %2…"
+msgstr "Agardando a que o traballo de observación %1 estea listo ás %2."
 
 #: ekos/scheduler/schedulerprocess.cpp:710
 #, kde-format
@@ -33185,14 +33191,14 @@ msgstr "Non é posíbel crear o ficheiro FIFO de INDI %1."
 msgid "INDI server failed to start: %1"
 msgstr "O servidor de INDI non puido iniciarse: %1"
 
-#: indi/servermanager.cpp:204
+#: indi/servermanager.cpp:211
 #, kde-format
 msgid "Pre driver startup script failed with exit code: %1"
 msgstr ""
 "O guión para executar antes do inicio do controlador fallou co código de "
 "saída: %1."
 
-#: indi/servermanager.cpp:228
+#: indi/servermanager.cpp:235
 #, kde-format
 msgid ""
 "Driver %1 was not found on the system. Please make sure the package that "
@@ -33201,24 +33207,24 @@ msgstr ""
 "Non se atopou o controlador %1 neste sistema. Asegúrese de que o paquete que "
 "fornece o executábel «%1» estea instalado."
 
-#: indi/servermanager.cpp:275
+#: indi/servermanager.cpp:282
 #, kde-format
 msgid "Post driver startup script failed with exit code: %1"
 msgstr ""
 "O guión para executar despois do inicio do controlador fallou co código de "
 "saída: %1."
 
-#: indi/servermanager.cpp:435
+#: indi/servermanager.cpp:461
 #, kde-format
 msgid "Connection to INDI server %1:%2 terminated: %3."
 msgstr "Finalizouse a conexión ao servidor de INDI %1:%2: %3."
 
-#: indi/servermanager.cpp:481
+#: indi/servermanager.cpp:514
 #, kde-format
 msgid "INDI Driver <b>%1</b> crashed. Restart it?"
 msgstr "O controlador de INDI <b>%1</b> quebrou. Quere reinicialo?"
 
-#: indi/servermanager.cpp:482
+#: indi/servermanager.cpp:515
 #, kde-format
 msgid "Driver crash"
 msgstr "Quebra de controlador"
@@ -39633,6 +39639,7 @@ msgstr ""
 "O rotor acepta unha rotación de 180° do ángulo de posición tras a volta da "
 "montura."
 
+# skip-rule: trasno-device_reverse
 #. i18n: ectx: label, entry (AstrometrySolverWCS), group (Align)
 #: kstars.kcfg:2670
 #, kde-format
@@ -39640,9 +39647,9 @@ msgid ""
 "World Coordinate System (WCS). WCS is used to encode RA/DEC coordinates in "
 "captured CCD images."
 msgstr ""
-"Sistema de coordenadas mundial (SCM). O sistema de coordenadas mundial úsase "
-"para codificar as coordenadas de ascensión recta (α) e declinación (δ) das "
-"imaxes capturadas mediante dispositivos de carga acoplada (CCD)."
+"Sistema de coordenadas mundial (SCM). Úsase para codificar as coordenadas de "
+"ascensión recta (α) e declinación (δ) das imaxes capturadas mediante "
+"dispositivos de carga acoplada (CCD)."
 
 #. i18n: ectx: label, entry (AstrometrySolverOverlay), group (Align)
 #: kstars.kcfg:2674
@@ -40193,37 +40200,37 @@ msgstr "Tramar incluso mentres non se guía."
 #: kstars.kcfg:2978
 #, kde-format
 msgid "Enable autoguiding in the RA axis."
-msgstr "Activar a guía automática no eixo de ascensión recta (α)."
+msgstr "Activar a guía automática no eixe de ascensión recta (α)."
 
 #. i18n: ectx: label, entry (DECGuideEnabled), group (Guide)
 #: kstars.kcfg:2982
 #, kde-format
 msgid "Enable autoguiding in the DEC axis."
-msgstr "Activar a guía automática no eixo de declinación (δ)."
+msgstr "Activar a guía automática no eixe de declinación (δ)."
 
 #. i18n: ectx: label, entry (NorthDECGuideEnabled), group (Guide)
 #: kstars.kcfg:2986
 #, kde-format
 msgid "Enable North autoguiding in the DEC axis."
-msgstr "Activar a guía automática do norte no eixo de declinación (δ)."
+msgstr "Activar a guía automática do norte no eixe de declinación (δ)."
 
 #. i18n: ectx: label, entry (SouthDECGuideEnabled), group (Guide)
 #: kstars.kcfg:2990
 #, kde-format
 msgid "Enable South autoguiding in the DEC axis."
-msgstr "Activar a guía automática do sur no eixo de declinación (δ)."
+msgstr "Activar a guía automática do sur no eixe de declinación (δ)."
 
 #. i18n: ectx: label, entry (EastRAGuideEnabled), group (Guide)
 #: kstars.kcfg:2994
 #, kde-format
 msgid "Enable East autoguiding in the RA axis."
-msgstr "Activar a guía automática do leste no eixo de ascensión recta (α)."
+msgstr "Activar a guía automática do leste no eixe de ascensión recta (α)."
 
 #. i18n: ectx: label, entry (WestRAGuideEnabled), group (Guide)
 #: kstars.kcfg:2998
 #, kde-format
 msgid "Enable West autoguiding in the RA axis."
-msgstr "Activar a guía automática do oeste no eixo de ascensión recta (α)."
+msgstr "Activar a guía automática do oeste no eixe de ascensión recta (α)."
 
 #. i18n: ectx: label, entry (GuiderAccuracyThreshold), group (Guide)
 #: kstars.kcfg:3077
@@ -40292,7 +40299,7 @@ msgstr "Tras executar o proceso de apagado, apagar INDI e Ekos."
 #: kstars.kcfg:3119
 #, kde-format
 msgid "Always execute startup script regardless of Ekos status."
-msgstr ""
+msgstr "Executar sempre o guión de inicio, sen importar o estado de Ekos."
 
 #. i18n: ectx: label, entry (ShutdownScriptTerminatesINDI), group (Scheduler)
 #: kstars.kcfg:3123
@@ -40887,7 +40894,7 @@ msgstr ""
 #, kde-format
 msgid "Stored Y-axis upper and lower limits for the Analyze Stats Plot."
 msgstr ""
-"Límites superior e inferior do eixo y almacenados para a representación das "
+"Límites superior e inferior do eixe y almacenados para a representación das "
 "estatísticas de análise."
 
 #. i18n: ectx: label, entry (LastServer), group (INDI Lite)
@@ -41229,7 +41236,7 @@ msgstr "Estado meteorolóxico relevante para o estado do observatorio."
 #, kde-format
 msgid "Scale the sensor graph value axis to the values range."
 msgstr ""
-"Axustar a escala do eixo de valores do gráfico do sensor ao intervalo de "
+"Axustar a escala do eixe de valores do gráfico do sensor ao intervalo de "
 "valores."
 
 #. i18n: ectx: label, entry (ASTAPExecutable), group (ASTAP)
@@ -70203,7 +70210,7 @@ msgstr "suroeste"
 msgid "northwest"
 msgstr "noroeste"
 
-#: kstarsdbus.cpp:1018
+#: kstarsdbus.cpp:1026
 #, kde-format
 msgctxt "@title:window"
 msgid "Print Sky"
@@ -72816,7 +72823,7 @@ msgstr "δ D:M:S"
 #, kde-kuit-format
 msgctxt "string from libindi, used in the config dialog"
 msgid "Declination axis"
-msgstr "Eixo de declinación (δ)"
+msgstr "Eixe de declinación (δ)"
 
 #: libindi_strings.cpp:104
 #, kde-kuit-format
@@ -73650,7 +73657,7 @@ msgstr "Coordenadas horizontais"
 #, kde-kuit-format
 msgctxt "string from libindi, used in the config dialog"
 msgid "Hour axis"
-msgstr "Eixo horario"
+msgstr "Eixe horario"
 
 #: libindi_strings.cpp:246
 #, kde-kuit-format
@@ -88272,6 +88279,11 @@ msgstr "Cor do fondo:"
 #, kde-format
 msgid "Set the color for the background."
 msgstr "Indicar a cor do fondo."
+
+#~ msgid "Accept reversed DEC on pier-side change reusing calibration."
+#~ msgstr ""
+#~ "Aceptar δ invertido ao cambiar de lado de observación reutilizando unha "
+#~ "calibración."
 
 #~ msgid "Scheduler Offset"
 #~ msgstr "Desprazamento do planificador"

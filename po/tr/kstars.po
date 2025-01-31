@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kstars\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2025-01-23 01:49+0000\n"
-"PO-Revision-Date: 2025-01-21 10:36+0300\n"
+"POT-Creation-Date: 2025-01-30 01:53+0000\n"
+"PO-Revision-Date: 2025-01-28 16:41+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -552,7 +552,7 @@ msgstr "Hayır"
 #: dialogs/catalogdetails.cpp:213 dialogs/catalogsdbui.cpp:153
 #: dialogs/catalogsdbui.cpp:189 dialogs/catalogsdbui.cpp:210
 #: dialogs/catalogsdbui.cpp:230 dialogs/catalogsdbui.cpp:248
-#: dialogs/catalogsdbui.cpp:283 ekos/align/polaralignmentassistant.cpp:805
+#: dialogs/catalogsdbui.cpp:283 ekos/align/polaralignmentassistant.cpp:814
 #, kde-format
 msgid "Warning"
 msgstr "Uyarı"
@@ -3857,7 +3857,7 @@ msgstr "0,0 pc"
 #: ekos/auxiliary/darklibrary.ui:693 ekos/auxiliary/darklibrary.ui:713
 #: ekos/auxiliary/darklibrary.ui:733 ekos/auxiliary/darklibrary.ui:753
 #: ekos/auxiliary/darklibrary.ui:773 ekos/auxiliary/darklibrary.ui:793
-#: ekos/capture/camera.cpp:1774 ekos/capture/camera.cpp:1814
+#: ekos/capture/camera.cpp:1779 ekos/capture/camera.cpp:1819
 #: ekos/capture/exposurecalculator/exposurecalculatordialog.ui:898
 #: ekos/capture/sequenceeditor.cpp:133 ekos/capture/sequenceeditor.cpp:136
 #: ekos/focus/focus.cpp:454 ekos/guide/guide.cpp:700 ekos/guide/guide.ui:569
@@ -6497,7 +6497,7 @@ msgstr "Kaide, çözüm koordinatlarıyla eşzamanlıdır."
 
 #: ekos/align/align.cpp:2746 ekos/align/align.cpp:2764
 #: ekos/align/align.cpp:3376 ekos/align/align.cpp:4098
-#: ekos/align/polaralignmentassistant.cpp:645
+#: ekos/align/polaralignmentassistant.cpp:654
 #, kde-format
 msgid "Settling..."
 msgstr "Yerleştiriliyor…"
@@ -6633,24 +6633,24 @@ msgstr "dRA (yaydak)"
 msgid "dDE (arcsec)"
 msgstr "dDE (yaysan)"
 
-#: ekos/align/align.cpp:3648 ekos/capture/camera.cpp:3418
+#: ekos/align/align.cpp:3648 ekos/capture/camera.cpp:3423
 #: ekos/focus/focus.cpp:5397
 #, kde-format
 msgid "Filter operation failed."
 msgstr "Süzme işlemi başarısız oldu."
 
-#: ekos/align/align.cpp:3660 ekos/capture/camera.cpp:3916
+#: ekos/align/align.cpp:3660 ekos/capture/camera.cpp:3921
 #, kde-format
 msgid "Changing focus offset by %1 steps..."
 msgstr "Odak ofseti %1 adım kadar değiştiriliyor…"
 
 #: ekos/align/align.cpp:3667 ekos/auxiliary/buildfilteroffsets.cpp:466
-#: ekos/capture/camera.cpp:3921
+#: ekos/capture/camera.cpp:3926
 #, kde-format
 msgid "Changing filter to %1..."
 msgstr "Süzgeç %1 olarak değiştiriliyor…"
 
-#: ekos/align/align.cpp:3672 ekos/capture/camera.cpp:3926
+#: ekos/align/align.cpp:3672 ekos/capture/camera.cpp:3931
 #, kde-format
 msgid "Auto focus on filter change..."
 msgstr "Süzgeç değişikliğinde kendiliğinden odaklanıyor…"
@@ -6685,7 +6685,7 @@ msgid "Unable to write to file %1"
 msgstr "%1 dosyasına yazılamadı."
 
 #: ekos/align/align.cpp:3974 ekos/align/mountmodel.cpp:286
-#: ekos/align/mountmodel.cpp:404 ekos/capture/camera.cpp:2936
+#: ekos/align/mountmodel.cpp:404 ekos/capture/camera.cpp:2941
 #: ekos/capture/cameraprocess.cpp:2585 ekos/capture/sequencequeue.cpp:33
 #: ekos/guide/guidedriftgraph.cpp:488 ekos/scheduler/schedulerprocess.cpp:2978
 #: ekos/scheduler/schedulerprocess.cpp:3324
@@ -7337,7 +7337,7 @@ msgctxt "@title:window"
 msgid "Open Ekos Alignment List"
 msgstr "Ekos Hizalama Listesini Aç"
 
-#: ekos/align/mountmodel.cpp:285 ekos/capture/camera.cpp:2935
+#: ekos/align/mountmodel.cpp:285 ekos/capture/camera.cpp:2940
 #: ekos/capture/cameraprocess.cpp:2584 ekos/capture/sequencequeue.cpp:32
 #: ekos/scheduler/schedulerprocess.cpp:3323
 #: ekos/scheduler/schedulerprocess.cpp:4668
@@ -9791,23 +9791,23 @@ msgstr "PAA: Çözücü başarısız oldu; yeniden deneniyor."
 msgid "PAA: Stopping, solver failed too many times."
 msgstr "PAA: Durduruluyor; çözücü pek çok kez başarısız oldu."
 
-#: ekos/align/polaralignmentassistant.cpp:617
+#: ekos/align/polaralignmentassistant.cpp:626
 #, kde-format
 msgid "Mount first rotation is complete."
 msgstr "Kaidenin ilk dönüşü tamamlandı."
 
-#: ekos/align/polaralignmentassistant.cpp:624
+#: ekos/align/polaralignmentassistant.cpp:633
 #, kde-format
 msgid "Mount second rotation is complete."
 msgstr "Kaidenin ikinci dönüşü tamamlandı."
 
-#: ekos/align/polaralignmentassistant.cpp:670
+#: ekos/align/polaralignmentassistant.cpp:679
 #, kde-format
 msgid "Mount aborted. Reverse RA axis direction and try again."
 msgstr ""
 "Bağlama iptal edildi. RA ekseni yönünü tersine çevirin ve yeniden deneyin."
 
-#: ekos/align/polaralignmentassistant.cpp:759
+#: ekos/align/polaralignmentassistant.cpp:768
 #, kde-format
 msgid ""
 "Warning: Equatorial Grid Lines will not be drawn due to limited resources "
@@ -9816,39 +9816,39 @@ msgstr ""
 "Uyarı: Sınırlı özkaynak kullanımı kipi nedeniyle Ekvatoryal Izgara Çizgileri "
 "çizilmeyecek."
 
-#: ekos/align/polaralignmentassistant.cpp:763
+#: ekos/align/polaralignmentassistant.cpp:772
 #, kde-format
 msgid "Clearing mount Alignment Model..."
 msgstr "Kaide hizalama modeli temizleniyor…"
 
-#: ekos/align/polaralignmentassistant.cpp:804
+#: ekos/align/polaralignmentassistant.cpp:813
 #, kde-format
 msgid "This could cause the telescope to cross the meridian."
 msgstr "Bu, teleskopun meridyeni geçmesine neden olabilir."
 
-#: ekos/align/polaralignmentassistant.cpp:854
+#: ekos/align/polaralignmentassistant.cpp:863
 #, kde-format
 msgid "Parking the mount..."
 msgstr "Kaide park ediliyor…"
 
-#: ekos/align/polaralignmentassistant.cpp:897
+#: ekos/align/polaralignmentassistant.cpp:906
 #, kde-format
 msgid "Please wait until mount completes rotating to RA (%1) DE (%2)"
 msgstr ""
 "Kaide RA (%1) DE (%2) konumuna dönüşünü tamamlayana kadar lütfen bekleyin."
 
-#: ekos/align/polaralignmentassistant.cpp:913
-#: ekos/align/polaralignmentassistant.cpp:919
+#: ekos/align/polaralignmentassistant.cpp:922
+#: ekos/align/polaralignmentassistant.cpp:928
 #, kde-format
 msgid "PAA: Failed to findCorrectedPixel."
 msgstr "PAA: Düzeltilen piksel bulunamadı."
 
-#: ekos/align/polaralignmentassistant.cpp:945
+#: ekos/align/polaralignmentassistant.cpp:954
 #, kde-format
 msgid "PAA: Failed to find RA Axis center."
 msgstr "PAA: RA ekseni merkezi bulunamadı."
 
-#: ekos/align/polaralignmentassistant.cpp:1016
+#: ekos/align/polaralignmentassistant.cpp:1025
 #, kde-format
 msgid ""
 "Polar-alignment star cannot be updated during refresh phase as it might "
@@ -9857,17 +9857,17 @@ msgstr ""
 "Kutupsal hizalama yıldızı, hata ölçümlerini etkileyebileceğinden yenileme "
 "aşamasında güncellenemez."
 
-#: ekos/align/polaralignmentassistant.cpp:1033
+#: ekos/align/polaralignmentassistant.cpp:1042
 #, kde-format
 msgid "First manual rotation done."
 msgstr "İlk elle döndürme tamamlandı."
 
-#: ekos/align/polaralignmentassistant.cpp:1038
+#: ekos/align/polaralignmentassistant.cpp:1047
 #, kde-format
 msgid "Second manual rotation done."
 msgstr "İkinci elle döndürme tamamlandı."
 
-#: ekos/align/polaralignmentassistant.cpp:1083
+#: ekos/align/polaralignmentassistant.cpp:1092
 #, kde-format
 msgid ""
 "Mount is synced to celestial pole. You can now continue Polar Alignment "
@@ -9876,33 +9876,33 @@ msgstr ""
 "Kaide, gök kutbuyla eşzamanlandı. Artık Kutupsal Hizalama Yardımcısı "
 "prosedürünü sürdürebilirsiniz."
 
-#: ekos/align/polaralignmentassistant.cpp:1102
+#: ekos/align/polaralignmentassistant.cpp:1111
 #, kde-format
 msgid "Please wait while WCS data is processed..."
 msgstr "WCS verisi işlenirken lütfen bekleyin…"
 
-#: ekos/align/polaralignmentassistant.cpp:1133
+#: ekos/align/polaralignmentassistant.cpp:1142
 #, kde-format
 msgid "WCS data processing is complete."
 msgstr "WCS verisini işleme tamamlandı."
 
-#: ekos/align/polaralignmentassistant.cpp:1142
+#: ekos/align/polaralignmentassistant.cpp:1151
 #, kde-format
 msgid "WCS info is now valid. Capturing next frame..."
 msgstr "WCS bilgisi artık geçerli. Sonraki kare yakalanıyor…"
 
-#: ekos/align/polaralignmentassistant.cpp:1184
+#: ekos/align/polaralignmentassistant.cpp:1193
 #, kde-format
 msgid "Failed to process World Coordinate System: %1. Try again."
 msgstr "Dünya Koordinat Sistemi işlenemedi: %1. Yeniden deneyin."
 
-#: ekos/align/polaralignmentassistant.cpp:1202
+#: ekos/align/polaralignmentassistant.cpp:1211
 #, kde-format
 msgid "PAA: Failed to find the RA axis. Quitting."
 msgstr "PAA: RA ekseni bulunamadı. Çıkılıyor."
 
 #. i18n: ectx: property (text), widget (QLabel, PAHMessageText)
-#: ekos/align/polaralignmentassistant.cpp:1233
+#: ekos/align/polaralignmentassistant.cpp:1242
 #: ekos/align/polaralignmentassistant.ui:212
 #, kde-format
 msgid ""
@@ -9912,52 +9912,52 @@ msgstr ""
 "<p>Yardımcının bir çözüm bulması için üç görsele gereksinimi var. Ekos şimdi "
 "ilk görseli çekiyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1235
+#: ekos/align/polaralignmentassistant.cpp:1244
 #, kde-format
 msgid "<p>Solving the <i>first</i> image...</p>"
 msgstr "<p><i>İlk</i> görsel çözülüyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1237
+#: ekos/align/polaralignmentassistant.cpp:1246
 #, kde-format
 msgid "<p>Executing the <i>first</i> mount rotation...</p>"
 msgstr "<p><i>İlk</i> kaide dönüşü gerçekleştiriliyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1239
+#: ekos/align/polaralignmentassistant.cpp:1248
 #, kde-format
 msgid "<p>Settling after the <i>first</i> mount rotation.</p>"
 msgstr "<p><i>İlk</i> kaide dönüşü ardından yerleşiliyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1241
+#: ekos/align/polaralignmentassistant.cpp:1250
 #, kde-format
 msgid "<p>Settling after the <i>second</i> mount rotation.</p>"
 msgstr "<p><i>İkinci</i> kaide dönüşü ardından yerleşiliyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1243
+#: ekos/align/polaralignmentassistant.cpp:1252
 #, kde-format
 msgid "<p>Capturing the second image...</p>"
 msgstr "<p>İkinci görsel yakalanıyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1245
+#: ekos/align/polaralignmentassistant.cpp:1254
 #, kde-format
 msgid "<p>Solving the <i>second</i> image...</p>"
 msgstr "<p><i>İkinci</i> görsel çözülüyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1247
+#: ekos/align/polaralignmentassistant.cpp:1256
 #, kde-format
 msgid "<p>Executing the <i>second</i> mount rotation...</p>"
 msgstr "<p><i>İkinci</i> kaide dönüşü gerçekleştiriliyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1249
+#: ekos/align/polaralignmentassistant.cpp:1258
 #, kde-format
 msgid "<p>Capturing the <i>third</i> and final image...</p>"
 msgstr "<p><i>Üçüncü</i> ve son görsel yakalanıyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1251
+#: ekos/align/polaralignmentassistant.cpp:1260
 #, kde-format
 msgid "<p>Solving the <i>third</i> image...</p>"
 msgstr "<p><i>Üçüncü</i> görsel çözülüyor…</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1254
+#: ekos/align/polaralignmentassistant.cpp:1263
 #, kde-format
 msgid ""
 "<p>Choose your exposure time & select an adjustment method. Then click "
@@ -9966,7 +9966,7 @@ msgstr ""
 "<p>Pozlama zamanınızı ve bir ayar yöntemi seçin. Sonrasında ayarlamalara "
 "başlamak için <i>Yenile</i> düğmesine basın.</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1256
+#: ekos/align/polaralignmentassistant.cpp:1265
 #, kde-format
 msgid ""
 "<p>Choose your exposure time & select an adjustment method. Click "
@@ -9980,7 +9980,7 @@ msgstr ""
 "ve parlak bir yıldız seçin</i>. Kalan hatayı tahmin etmek için <i>Yıldızı "
 "Taşı ve Hatayı Hesapla</i> yöntemini kullanın.</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1259
+#: ekos/align/polaralignmentassistant.cpp:1268
 #, kde-format
 msgid ""
 "<p>Adjust mount's <i>Altitude and Azimuth knobs</i> to reduce the polar "
@@ -9993,7 +9993,7 @@ msgstr ""
 "hareketinden etkilenebilir. Sonuçları 2 görselden sonra kullanmayı düşünün. "
 "İşiniz bittiğinde <i>Durdur</i> düğmesine tıklayın.</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1261
+#: ekos/align/polaralignmentassistant.cpp:1270
 #, kde-format
 msgid ""
 "<p>Adjust mount's <i>Altitude knob</i> to move the star along the yellow "
@@ -10007,7 +10007,7 @@ msgstr ""
 "düğmesini kullanın.</p><p>Yıldız ortalandığında <i>Durdur</i> düğmesine "
 "tıklayın.</p>"
 
-#: ekos/align/polaralignmentassistant.cpp:1277
+#: ekos/align/polaralignmentassistant.cpp:1286
 #, kde-format
 msgid "Cannot change to MoveStar algorithm once refresh has begun"
 msgstr "Yenileme başladığında artık Yıldızı Taşı algoritmasına geçiş yapılamaz"
@@ -14427,12 +14427,12 @@ msgstr "san"
 msgid "frames"
 msgstr "kare"
 
-#: ekos/capture/camera.cpp:170 ekos/capture/camera.cpp:4041
+#: ekos/capture/camera.cpp:170 ekos/capture/camera.cpp:4046
 #, kde-format
 msgid "Add job to sequence queue"
 msgstr "İşi sekans kuyruğuna ekle"
 
-#: ekos/capture/camera.cpp:171 ekos/capture/camera.cpp:4042
+#: ekos/capture/camera.cpp:171 ekos/capture/camera.cpp:4047
 #, kde-format
 msgid "Remove job from sequence queue"
 msgstr "İşi sekans kuyruğundan kaldır"
@@ -14595,65 +14595,65 @@ msgstr "Ekos Sekansı Kuyruğunu Kaydet"
 msgid "Failed to save sequence queue"
 msgstr "Sekans kuyruğu kaydedilemedi"
 
-#: ekos/capture/camera.cpp:1347 ekos/capture/camera.cpp:2413
+#: ekos/capture/camera.cpp:1347 ekos/capture/camera.cpp:2418
 #, kde-format
 msgid "Dark Flat"
 msgstr "Karanlık Düz"
 
-#: ekos/capture/camera.cpp:2076 ekos/scheduler/framingassistant.cpp:220
+#: ekos/capture/camera.cpp:2081 ekos/scheduler/framingassistant.cpp:220
 #, kde-format
 msgctxt "@title:window"
 msgid "FITS Save Directory"
 msgstr "FITS Kayıt Dizini"
 
-#: ekos/capture/camera.cpp:2189
+#: ekos/capture/camera.cpp:2194
 #, kde-format
 msgid "Reset %1 configuration to default?"
 msgstr "%1 yapılandırması öntanımlılara sıfırlansın mı?"
 
-#: ekos/capture/camera.cpp:2191
+#: ekos/capture/camera.cpp:2196
 #, kde-format
 msgid "Confirmation"
 msgstr "Onay"
 
-#: ekos/capture/camera.cpp:2390
+#: ekos/capture/camera.cpp:2395
 #, kde-format
 msgid "You must set local or remote directory for Remotely & Both modes."
 msgstr ""
 "Yerel veya uzak dizini hem uzak hem de her iki kip için ayarlamalısınız."
 
-#: ekos/capture/camera.cpp:2396
+#: ekos/capture/camera.cpp:2401
 #, kde-format
 msgid "You must set local directory for Locally & Both modes."
 msgstr "Yerel dizini hem yerel hem de her iki kip için ayarlamalısınız."
 
-#: ekos/capture/camera.cpp:3578
+#: ekos/capture/camera.cpp:3583
 #, kde-format
 msgid "Paused..."
 msgstr "Duraklatıldı…"
 
-#: ekos/capture/camera.cpp:3583
+#: ekos/capture/camera.cpp:3588
 #, kde-format
 msgid "Meridian Flip..."
 msgstr "Meridyen Geçişi…"
 
-#: ekos/capture/camera.cpp:3584
+#: ekos/capture/camera.cpp:3589
 #, kde-format
 msgid "Meridian flip started"
 msgstr "Meridyen geçişi başladı"
 
-#: ekos/capture/camera.cpp:3588
+#: ekos/capture/camera.cpp:3593
 #, kde-format
 msgid "Flip complete."
 msgstr "Döndürme tamamlandı."
 
-#: ekos/capture/camera.cpp:3648
+#: ekos/capture/camera.cpp:3653
 #, kde-format
 msgctxt "Maximum temperature variation over time when regulating."
 msgid "Ramp (°C/min):"
 msgstr "Rampa (°C/en düşük):"
 
-#: ekos/capture/camera.cpp:3654
+#: ekos/capture/camera.cpp:3659
 #, kde-format
 msgid ""
 "<html><body><p>Maximum temperature change per minute when cooling or warming "
@@ -14664,13 +14664,13 @@ msgstr ""
 "sıcaklık değişimi. Devre dışı bırakmak için sıfıra ayarlayın.<p>Bu ayar INDI "
 "kamera sürücüsü yapılandırmasından okunur ve burada depolanır.</body></html>"
 
-#: ekos/capture/camera.cpp:3659
+#: ekos/capture/camera.cpp:3664
 #, kde-format
 msgctxt "Temperature threshold above which regulation triggers."
 msgid "Threshold (°C):"
 msgstr "Eşik (°C):"
 
-#: ekos/capture/camera.cpp:3665
+#: ekos/capture/camera.cpp:3670
 #, kde-format
 msgid ""
 "<html><body><p>Maximum difference between camera and target temperatures "
@@ -14681,70 +14681,70 @@ msgstr ""
 "en yüksek fark.<p>Bu ayar, INDI kamera sürücüsü yapılandırmasından okunur ve "
 "burada depolanır.</body></html>"
 
-#: ekos/capture/camera.cpp:3678
+#: ekos/capture/camera.cpp:3683
 #, kde-format
 msgctxt "@title:window"
 msgid "Set Temperature Regulation"
 msgstr "Sıcaklık Regülasyonunu Ayarla"
 
-#: ekos/capture/camera.cpp:3718
+#: ekos/capture/camera.cpp:3723
 #, kde-format
 msgctxt "@title:window"
 msgid "Select Current Observer"
 msgstr "Geçerli Gözlemciyi Seç"
 
-#: ekos/capture/camera.cpp:3720
+#: ekos/capture/camera.cpp:3725
 #, kde-format
 msgid "Current Observer:"
 msgstr "Geçerli gözlemci:"
 
 #. i18n: ectx: property (windowTitle), widget (QWidget, ObserverAdd)
-#: ekos/capture/camera.cpp:3731 oal/execute.cpp:38 oal/observeradd.ui:26
+#: ekos/capture/camera.cpp:3736 oal/execute.cpp:38 oal/observeradd.ui:26
 #, kde-format
 msgid "Manage Observers"
 msgstr "Gözlemcileri Yönet"
 
-#: ekos/capture/camera.cpp:3903
+#: ekos/capture/camera.cpp:3908
 #, kde-format
 msgid "Cooler is on"
 msgstr "Soğutucu açık"
 
-#: ekos/capture/camera.cpp:3903
+#: ekos/capture/camera.cpp:3908
 #, kde-format
 msgid "Cooler is off"
 msgstr "Soğutucu kapalı"
 
-#: ekos/capture/camera.cpp:3933
+#: ekos/capture/camera.cpp:3938
 #, kde-format
 msgid "Filter set to %1."
 msgstr "Süzgeç %1 olarak ayarlandı."
 
-#: ekos/capture/camera.cpp:3966
+#: ekos/capture/camera.cpp:3971
 #, kde-format
 msgid "Are you sure you want to reset status of all jobs?"
 msgstr "Tüm işlerin durumunu sıfırlamak istediğinizden emin misiniz?"
 
-#: ekos/capture/camera.cpp:3966 ekos/capture/cameraprocess.cpp:2705
+#: ekos/capture/camera.cpp:3971 ekos/capture/cameraprocess.cpp:2705
 #, kde-format
 msgid "Reset job status"
 msgstr "İş durumunu sıfırla"
 
-#: ekos/capture/camera.cpp:4019
+#: ekos/capture/camera.cpp:4024
 #, kde-format
 msgid "Editing job #%1..."
 msgstr "№%1. iş düzenleniyor…"
 
-#: ekos/capture/camera.cpp:4022 ekos/scheduler/scheduler.cpp:1303
+#: ekos/capture/camera.cpp:4027 ekos/scheduler/scheduler.cpp:1303
 #, kde-format
 msgid "Apply job changes."
 msgstr "İş değişikliklerini uygulayın."
 
-#: ekos/capture/camera.cpp:4023
+#: ekos/capture/camera.cpp:4028
 #, kde-format
 msgid "Cancel job changes."
 msgstr "İş değişikliklerini iptal edin."
 
-#: ekos/capture/camera.cpp:4036
+#: ekos/capture/camera.cpp:4041
 #, kde-format
 msgid "Editing job canceled."
 msgstr "Düzenleme işi iptal edildi."
@@ -22007,37 +22007,37 @@ msgstr ""
 "Uyarı: Kılavuz kalibrasyonunu sıfırlama etkin. Bu seçeneğin PHD2 için "
 "kapatılması önerilir."
 
-#: ekos/guide/guide.cpp:2408
+#: ekos/guide/guide.cpp:2412
 #, kde-format
 msgid "Calibration failed to start."
 msgstr "Kalibrasyon başlatılamadı."
 
-#: ekos/guide/guide.cpp:2559
+#: ekos/guide/guide.cpp:2563
 #, kde-format
 msgid "Auto star selected."
 msgstr "Kendiliğinden yıldız seçildi."
 
-#: ekos/guide/guide.cpp:2563
+#: ekos/guide/guide.cpp:2567
 #, kde-format
 msgid "Failed to select an auto star."
 msgstr "Kendiliğinden bir yıldız seçilemedi."
 
-#: ekos/guide/guide.cpp:2572
+#: ekos/guide/guide.cpp:2576
 #, kde-format
 msgid "Select a guide star to calibrate."
 msgstr "Kalibre etmek için bir kılavuz yıldız seçin."
 
-#: ekos/guide/guide.cpp:2822
+#: ekos/guide/guide.cpp:2826
 #, kde-format
 msgid "dx (pixels)"
 msgstr "dx (piksel)"
 
-#: ekos/guide/guide.cpp:2823
+#: ekos/guide/guide.cpp:2827
 #, kde-format
 msgid "dy (pixels)"
 msgstr "dy (piksel)"
 
-#: ekos/guide/guide.cpp:2962 ekos/guide/guide.cpp:3088
+#: ekos/guide/guide.cpp:2969 ekos/guide/guide.cpp:3095
 #, kde-format
 msgid ""
 "The PHD2 camera is not available to Ekos, so you cannot see the captured "
@@ -22047,7 +22047,7 @@ msgstr ""
 "göremezsiniz. Ancak kılavuzluk ettiğinizde Kılavuz Yıldız Görseli’ni yine de "
 "göreceksiniz."
 
-#: ekos/guide/guide.cpp:2966 ekos/guide/guide.cpp:3092
+#: ekos/guide/guide.cpp:2973 ekos/guide/guide.cpp:3099
 #, kde-format
 msgid ""
 "To receive PHD2 images other than the Guide Star Image, SubFrame must be "
@@ -22058,7 +22058,7 @@ msgstr ""
 "işareti kaldırılmalıdır. Görsel yakalamalarınızı etkinleştirmek için şimdi "
 "işaretini kaldırın. Kılavuzluktan önce yeniden etkinleştirebilirsiniz."
 
-#: ekos/guide/guide.cpp:3259
+#: ekos/guide/guide.cpp:3266
 #, kde-format
 msgid "Cannot change active optical train while PHD2 is connected"
 msgstr "PHD2 bağlıyken etkin optik katar değiştirilemiyor"
@@ -23077,10 +23077,11 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QCheckBox, kcfg_ReverseDecOnPierSideChange)
 #: ekos/guide/opscalibration.ui:411
 #, kde-format
-msgid "Accept reversed DEC on pier-side change reusing calibration."
+msgid ""
+"Reverse DEC guide pulses when changing pier-side and reusing calibration."
 msgstr ""
-"Kalibrasyonu yeniden kullanımında iskele tarafındaki değişiklikte tersine "
-"çevrilmiş DEC’i kabul edin."
+"Kalibrasyonu yeniden kullanırken ve iskele tarafını değiştirirken DEC "
+"kılavuzu darbelerini tersine çevirin."
 
 #. i18n: ectx: property (toolTip), widget (QDoubleSpinBox, kcfg_DitherPixels)
 #: ekos/guide/opsdither.ui:43
@@ -25819,23 +25820,23 @@ msgstr "Alternatif görsel dizini: "
 msgid "Set the alternative image directory for Analyze"
 msgstr "Analyze için olan alternatif görsel dizinini ayarla"
 
-#: ekos/profileeditor.cpp:49
+#: ekos/profileeditor.cpp:81
 #, kde-format
 msgctxt "@title:window"
 msgid "Profile Editor"
 msgstr "Profil Düzenleyicisi"
 
-#: ekos/profileeditor.cpp:117
+#: ekos/profileeditor.cpp:149
 #, kde-format
 msgid "Cannot save an empty profile."
 msgstr "Boş bir profil kaydedilemez."
 
-#: ekos/profileeditor.cpp:129
+#: ekos/profileeditor.cpp:161
 #, kde-format
 msgid "Profile name already exists."
 msgstr "Profil adı halihazırda var."
 
-#: ekos/profileeditor.cpp:506
+#: ekos/profileeditor.cpp:539
 #, kde-format
 msgid ""
 "<nobr>Available as <b>Remote</b> Driver. To use locally, install the "
@@ -25844,7 +25845,7 @@ msgstr ""
 "<nobr><b>Uzak</b> sürücü olarak kullanılabilir. Yerel olarak kullanmak için "
 "gerekli sürücüyü kurun.<nobr/>"
 
-#: ekos/profileeditor.cpp:508
+#: ekos/profileeditor.cpp:541
 #, kde-format
 msgid ""
 "<nobr><b>Label</b>: %1 &#9473; <b>Driver</b>: %2 &#9473; <b>Exec</b>: "
@@ -25854,23 +25855,23 @@ msgstr ""
 "%3<nobr/>"
 
 #. i18n: ectx: property (text), item, widget (QComboBox, guideTypeCombo)
-#: ekos/profileeditor.cpp:809 ekos/profileeditor.ui:369
+#: ekos/profileeditor.cpp:696 ekos/profileeditor.ui:369
 #, kde-format
 msgid "Internal"
 msgstr "İçsel"
 
-#: ekos/profileeditor.cpp:900
+#: ekos/profileeditor.cpp:787
 #, kde-format
 msgctxt "@title:window"
 msgid "Scanning Network"
 msgstr "Ağ Taranıyor"
 
-#: ekos/profileeditor.cpp:901
+#: ekos/profileeditor.cpp:788
 #, kde-format
 msgid "Scanning network for INDI Web Managers..."
 msgstr "INDI web yöneticileri için ağ taranıyor…"
 
-#: ekos/profileeditor.cpp:965
+#: ekos/profileeditor.cpp:852
 #, kde-format
 msgid "Found INDI Web Manager at %1"
 msgstr "%1 konumunda INDI web yöneticisi bulundu"
@@ -32919,12 +32920,12 @@ msgstr "INDI FIFO dosyası %1 oluşturulamadı"
 msgid "INDI server failed to start: %1"
 msgstr "INDI sunucusu başlatılamadı: %1"
 
-#: indi/servermanager.cpp:204
+#: indi/servermanager.cpp:211
 #, kde-format
 msgid "Pre driver startup script failed with exit code: %1"
 msgstr "Sürücü öncesi başlangıç betiği şu çıkış koduyla başarısız oldu: %1"
 
-#: indi/servermanager.cpp:228
+#: indi/servermanager.cpp:235
 #, kde-format
 msgid ""
 "Driver %1 was not found on the system. Please make sure the package that "
@@ -32933,22 +32934,22 @@ msgstr ""
 "%1 sürücüsü sistemde bulunamadı. Lütfen “%1” ikilisini sağlayan paketin "
 "kurulu olduğundan emin olun."
 
-#: indi/servermanager.cpp:275
+#: indi/servermanager.cpp:282
 #, kde-format
 msgid "Post driver startup script failed with exit code: %1"
 msgstr "Sürücü sonrası başlangıç betiği şu çıkış koduyla başarısız oldu: %1"
 
-#: indi/servermanager.cpp:435
+#: indi/servermanager.cpp:461
 #, kde-format
 msgid "Connection to INDI server %1:%2 terminated: %3."
 msgstr "%1 INDI sunucusu bağlantısı: %2 sonlandırıldı. %3."
 
-#: indi/servermanager.cpp:481
+#: indi/servermanager.cpp:514
 #, kde-format
 msgid "INDI Driver <b>%1</b> crashed. Restart it?"
 msgstr "INDI sunucusu <b>%1</b> çöktü. Rapor edilsin mi?"
 
-#: indi/servermanager.cpp:482
+#: indi/servermanager.cpp:515
 #, kde-format
 msgid "Driver crash"
 msgstr "Sürücü Çöktü"
@@ -69851,7 +69852,7 @@ msgstr "güneybatı"
 msgid "northwest"
 msgstr "kuzeybatı"
 
-#: kstarsdbus.cpp:1018
+#: kstarsdbus.cpp:1026
 #, kde-format
 msgctxt "@title:window"
 msgid "Print Sky"
@@ -87803,6 +87804,11 @@ msgstr "Arka plan rengi:"
 #, kde-format
 msgid "Set the color for the background."
 msgstr "Arka plan rengini ayarlayın."
+
+#~ msgid "Accept reversed DEC on pier-side change reusing calibration."
+#~ msgstr ""
+#~ "Kalibrasyonu yeniden kullanımında iskele tarafındaki değişiklikte tersine "
+#~ "çevrilmiş DEC’i kabul edin."
 
 #~ msgid "Scheduler Offset"
 #~ msgstr "Zamanlayıcı Ofseti"
