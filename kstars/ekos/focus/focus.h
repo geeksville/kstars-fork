@@ -949,6 +949,15 @@ public slots:
          */
         void donutTimeDilation();
 
+        /**
+         * @brief Filter out duplicate Autofocus requests
+         * @param autofocusReason reason for running this Autofocus
+         * @param filter current filter
+         * @param lastFilter filter used by previous Autofocus run
+         * @return true means do not run AF (previous run only just completed)
+         */
+        bool checkAFOptimisation(const AutofocusReason autofocusReason, const QString filter, const QString lastFilter);
+
         /// Focuser device needed for focus operation
         ISD::Focuser *m_Focuser { nullptr };
         int m_focuserId;
@@ -1312,6 +1321,9 @@ public slots:
         QVector<int> m_scanPosition;
         QVector<double> m_scanMeasure;
         QString m_AFfilter = NULL_FILTER;
+
+        // Autofocus Optimisation
+        QString m_AFlastFilter = NULL_FILTER;
 };
 
 }

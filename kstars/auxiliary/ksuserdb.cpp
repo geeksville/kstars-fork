@@ -350,12 +350,47 @@ bool KSUserDB::Initialize()
             qCWarning(KSTARS) << query.lastError();
     }
 
-    // Add focusDatetime to filter table
+    // Add focusDatetime to filter table. Add the column in the middle of the table
+    // but sqlite only allows columns to be added at the end of the table so create
+    // a new table with the correct column order, copy the data, delete the original
+    // table and rename the new table.
     if (currentDBVersion < 315)
     {
         QSqlQuery query(db);
 
-        if (!query.exec("ALTER TABLE filter ADD COLUMN FocusDatetime TEXT DEFAULT NULL"))
+        bool ok = query.exec("CREATE TABLE tempfilter ( "
+                        "id INTEGER DEFAULT NULL PRIMARY KEY AUTOINCREMENT , "
+                        "Vendor TEXT DEFAULT NULL, "
+                        "Model TEXT DEFAULT NULL, "
+                        "Type TEXT DEFAULT NULL, "
+                        "Color TEXT DEFAULT NULL,"
+                        "Exposure REAL DEFAULT 1.0,"
+                        "Offset INTEGER DEFAULT 0,"
+                        "UseAutoFocus INTEGER DEFAULT 0,"
+                        "LockedFilter TEXT DEFAULT '--',"
+                        "AbsoluteFocusPosition INTEGER DEFAULT 0,"
+                        "FocusTemperature REAL DEFAULT NULL,"
+                        "FocusAltitude REAL DEFAULT NULL,"
+                        "FocusDatetime TEXT DEFAULT NULL,"
+                        "FocusTicksPerTemp REAL DEFAULT 0.0,"
+                        "FocusTicksPerAlt REAL DEFAULT 0.0,"
+                        "Wavelength INTEGER DEFAULT 500)");
+
+        if (ok)
+            ok = query.exec("INSERT INTO tempfilter (id, Vendor, Model, Type, Color, Exposure, Offset, "
+                                  "UseAutoFocus, LockedFilter, AbsoluteFocusPosition, FocusTemperature, "
+                                  "FocusAltitude, FocusTicksPerTemp, FocusTicksPerAlt, Wavelength) "
+                             "SELECT id, Vendor, Model, Type, Color, Exposure, Offset, "
+                                  "UseAutoFocus, LockedFilter, AbsoluteFocusPosition, FocusTemperature, "
+                                  "FocusAltitude, FocusTicksPerTemp, FocusTicksPerAlt, Wavelength FROM filter");
+
+        if (ok)
+            ok = query.exec("DROP TABLE filter");
+
+        if (ok)
+            ok = query.exec("ALTER TABLE tempfilter RENAME to filter");
+
+        if (!ok)
             qCWarning(KSTARS) << query.lastError();
     }
     return true;

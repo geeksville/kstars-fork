@@ -11,6 +11,7 @@
 #include "ekos/ekos.h"
 
 #define NULL_FILTER "--"
+#define DATETIME_FORMAT "yyyy-MM-dd hh:mm:ss"
 
 struct filterProperties
 {
@@ -142,15 +143,11 @@ class OAL::Filter
 
         QDateTime focusDatetime()
         {
-            QDateTime dt = QDateTime::fromString(m_FocusDatetime, "yyyy-MM-ddThh:mm:ss");
-            bool valid = dt.isValid();
-            if (!valid)
-                dt.setMSecsSinceEpoch(0);
-            return dt;
+            return QDateTime::fromString(m_FocusDatetime, DATETIME_FORMAT);
         }
         void setFocusDatetime(QDateTime newFocusDatetime)
         {
-            m_FocusDatetime = newFocusDatetime.toString("yyyy-MM-ddThh:mm:ss");
+            m_FocusDatetime = newFocusDatetime.toString(DATETIME_FORMAT);
         }
 
         double focusTicksPerTemp()

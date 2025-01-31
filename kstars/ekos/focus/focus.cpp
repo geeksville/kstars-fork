@@ -1084,7 +1084,21 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
         forceInSeqAF->setChecked(false);
         emit inSequenceAF(false, opticalTrain());
     }
+
     inAutoFocus = true;
+    // JEE check for AF optimisation. The purpose of this to optimise out automated AF requests,
+    // for example, on startup where an AF can be run prior to alignment and then repeated a few
+    // seconds later at the start of the schedule. In the case that the AF run is optimised out,
+    // don't signal AF event or Analyze but we do need to signal Capture / Scheduler and do a
+    // proper AF close down.
+    if ((m_FocusAlgorithm == FOCUS_LINEAR || m_FocusAlgorithm == FOCUS_LINEAR1PASS) &&
+            checkAFOptimisation(autofocusReason, filter(), m_AFlastFilter))
+    {
+        appendLogText(i18n("No need to run Autofocus as it has already been done."));
+        completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_OPTIMISED_OUT);
+        return;
+    }
+
     m_AFRun++;
     m_StartRetries = 0;
     m_LastFocusDirection = FOCUS_NONE;
@@ -1292,6 +1306,47 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     capture();
 }
 
+bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason, const QString filter, const QString lastFilter)
+{
+    bool dontRunAF = false;
+
+    // Check that the optimisation control has been set, if not then nothing to do
+    if (m_OpsFocusSettings->focusAFOptimize->value() <= 0)
+        return dontRunAF;
+
+    if (autofocusReason == FOCUS_FILTER ||
+            autofocusReason == FOCUS_TIME ||
+            autofocusReason == FOCUS_TEMPERATURE ||
+            autofocusReason == FOCUS_HFR_CHECK ||
+            autofocusReason == FOCUS_SCHEDULER)
+    {
+        // Only optimise out AF runs that are requested by an automated process
+        bool sameFilter = false;
+        if (m_FilterManager)
+        {
+            QString lockFilter = m_FilterManager->getFilterLock(filter);
+            if (lockFilter == NULL_FILTER)
+                sameFilter = (filter == lastFilter);
+            else
+                sameFilter = (lockFilter == lastFilter);
+        }
+
+        if (sameFilter)
+        {
+            // Check when the last AF run completed.
+            QDateTime lastAFDatetime;
+            if (m_FilterManager->getAFDatetime(lastFilter, lastAFDatetime))
+            {
+                QDateTime now = KStarsData::Instance()->lt();
+                auto lastAF = lastAFDatetime.secsTo(now);
+                if (lastAF < m_OpsFocusSettings->focusAFOptimize->value())
+                    dontRunAF = true;
+            }
+        }
+    }
+    return dontRunAF;
+}
+
 void Focus::setupLinearFocuser(int initialPosition)
 {
     FocusAlgorithmInterface::FocusParams params(curveFitting.get(),
@@ -1436,8 +1491,12 @@ void Focus::processAbort()
 
 void Focus::stop(Ekos::FocusState completionState)
 {
-    Q_UNUSED(completionState);
     qCDebug(KSTARS_EKOS_FOCUS) << "Stopping Focus";
+
+    // m_AFlastFilter holds the filter last used for autofocus which is
+    // used by AF optimisation, so reset it on focus failure
+    if (inAutoFocus)
+        m_AFlastFilter = (completionState == FOCUS_COMPLETE) ? filter() : NULL_FILTER;
 
     captureTimeout.stop();
     m_FocusMotionTimer.stop();
@@ -2337,7 +2396,7 @@ bool Focus::appendMeasure(double newMeasure)
 void Focus::settle(const FocusState completionState, const bool autoFocusUsed, const bool buildOffsetsUsed,
                    const AutofocusFailReason failCode, const QString failCodeInfo)
 {
-    if (autoFocusUsed)
+    if (autoFocusUsed && failCode != FOCUS_FAIL_OPTIMISED_OUT)
     {
         if (completionState == Ekos::FOCUS_COMPLETE)
         {
@@ -2412,8 +2471,8 @@ QString Focus::getAnalyzeData()
 void Focus::completeFocusProcedure(FocusState completionState, AutofocusFailReason failCode, QString failCodeInfo,
                                    bool plot)
 {
-    // On an Advisor complete, Autofocus wasn't run so don't update values / modules as per normal AF success
-    if (inAutoFocus && failCode != Ekos::FOCUS_FAIL_ADVISOR_COMPLETE)
+    // On Advisor complete or Optimised out, Autofocus wasn't run so don't update values / modules as per normal
+    if (inAutoFocus && failCode != FOCUS_FAIL_ADVISOR_COMPLETE && failCode != FOCUS_FAIL_OPTIMISED_OUT)
     {
         // Update the plot vectors (used by Analyze)
         updatePlotPosition();

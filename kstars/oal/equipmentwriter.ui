@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>426</width>
-    <height>619</height>
+    <height>655</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
@@ -1214,30 +1214,43 @@
                <hour>0</hour>
                <minute>0</minute>
                <second>0</second>
-               <year>1970</year>
+               <year>2025</year>
                <month>1</month>
                <day>1</day>
               </datetime>
              </property>
              <property name="maximumDateTime">
               <datetime>
-               <hour>23</hour>
-               <minute>59</minute>
-               <second>59</second>
+               <hour>0</hour>
+               <minute>0</minute>
+               <second>0</second>
                <year>2100</year>
+               <month>1</month>
+               <day>1</day>
+              </datetime>
+             </property>
+             <property name="minimumDateTime">
+              <datetime>
+               <hour>0</hour>
+               <minute>0</minute>
+               <second>0</second>
+               <year>2025</year>
                <month>1</month>
                <day>1</day>
               </datetime>
              </property>
              <property name="minimumDate">
               <date>
-               <year>1970</year>
+               <year>2025</year>
                <month>1</month>
                <day>1</day>
               </date>
              </property>
              <property name="displayFormat">
-              <string>yyyy/MM/ddThh:mm:ss</string>
+              <string>yyyy-MM-dd hh:mm:ss</string>
+             </property>
+             <property name="calendarPopup">
+              <bool>false</bool>
              </property>
             </widget>
            </item>

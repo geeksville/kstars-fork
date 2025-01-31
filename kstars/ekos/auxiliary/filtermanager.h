@@ -113,6 +113,14 @@ class FilterManager : public QDialog, public Ui::FilterSettings
          */
         bool getFilterAbsoluteFocusDetails(const QString &name, int &focusPos, double &focusTemp, double &focusAlt) const;
 
+        /**
+         * @brief getAFDatetime get timestamp of the last successful autofocus run
+         * @param name filter name
+         * @param datetime
+         * @return whether function worked or not
+         */
+        bool getAFDatetime(const QString &name, QDateTime &datetime) const;
+
         // Set absolute focus position, if supported, to the current filter absolute focus position.
         bool syncAbsoluteFocusPosition(int index);
 

@@ -203,7 +203,10 @@ void ComboDelegate::setValues(const QStringList &list)
 QWidget * DatetimeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &) const
 {
     QDateTimeEdit *editor = new QDateTimeEdit(parent);
-    editor->setDisplayFormat("yyyy/MM/ddThh:mm:ss");
+    editor->setDisplayFormat(format);
+    editor->setMaximumDateTime(QDateTime::fromString(maxDT));
+    editor->setMinimumDateTime(QDateTime::fromString(minDT));
+    editor->setCalendarPopup(calPopup);
     editor->setFrame(false);
     return editor;
 }
@@ -217,7 +220,7 @@ void DatetimeDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
 void DatetimeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     QDateTime value = dynamic_cast<QDateTimeEdit*>(editor)->dateTime();
-    model->setData(index, value, Qt::EditRole);
+    model->setData(index, value.toString(format), Qt::EditRole);
 }
 
 void DatetimeDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const

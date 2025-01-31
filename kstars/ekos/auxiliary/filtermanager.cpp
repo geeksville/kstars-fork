@@ -90,7 +90,7 @@ FilterManager::FilterManager(QWidget *parent) : QDialog(parent)
     m_FilterView->setItemDelegateForColumn(FM_LAST_AF_ALT, lastAFAltDelegate);
 
     // JEE Last AF solution datetime delegate
-    lastAFDTDelegate = new DatetimeDelegate(m_FilterView);
+    lastAFDTDelegate = new DatetimeDelegate(m_FilterView, DATETIME_FORMAT, "2025-01-01", "2100-01-01", false);
     m_FilterView->setItemDelegateForColumn(FM_LAST_AF_DATETIME, lastAFDTDelegate);
 
     // Ticks / °C delegate
@@ -724,13 +724,24 @@ bool FilterManager::setFilterAbsoluteFocusDetails(int index, int focusPos, doubl
             m_FilterModel->setData(m_FilterModel->index(i, FM_LAST_AF_TEMP), focusTemp);
             m_FilterModel->setData(m_FilterModel->index(i, FM_LAST_AF_ALT), focusAlt);
             m_FilterModel->setData(m_FilterModel->index(i, FM_LAST_AF_DATETIME),
-                                   KStarsData::Instance()->lt().toString("yyyy-MM-ddThh:mm:ss"));
+                                   KStarsData::Instance()->lt().toString(DATETIME_FORMAT));
             m_FilterModel->submitAll();
             refreshFilterModel();
             return true;
         }
     }
 
+    return false;
+}
+
+bool FilterManager::getAFDatetime(const QString &name, QDateTime &datetime) const
+{
+    auto filterDetails = getFilterByName(name);
+    if (filterDetails)
+    {
+        datetime = filterDetails->focusDatetime();
+        return true;
+    }
     return false;
 }
 
@@ -967,7 +978,7 @@ void FilterManager::setFilterData(const QJsonObject &settings)
         m_FilterModel->setData(m_FilterModel->index(row, FM_LAST_AF_SOLUTION), oneFilter["lastafsolution"].toInt());
         m_FilterModel->setData(m_FilterModel->index(row, FM_LAST_AF_TEMP), oneFilter["lastaftemp"].toDouble());
         m_FilterModel->setData(m_FilterModel->index(row, FM_LAST_AF_ALT), oneFilter["lastafalt"].toDouble());
-        m_FilterModel->setData(m_FilterModel->index(row, FM_LAST_AF_DATETIME), oneFilter["lastafdt"].toString());
+        m_FilterModel->setData(m_FilterModel->index(row, FM_LAST_AF_DATETIME), oneFilter["lastafdt"].toString(DATETIME_FORMAT));
         m_FilterModel->setData(m_FilterModel->index(row, FM_TICKS_PER_TEMP), oneFilter["tickspertemp"].toDouble());
         m_FilterModel->setData(m_FilterModel->index(row, FM_TICKS_PER_ALT), oneFilter["ticksperalt"].toDouble());
         m_FilterModel->setData(m_FilterModel->index(row, FM_WAVELENGTH), oneFilter["wavelength"].toInt());
