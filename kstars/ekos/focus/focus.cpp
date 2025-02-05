@@ -1086,7 +1086,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     }
 
     inAutoFocus = true;
-    // JEE check for AF optimisation. The purpose of this to optimise out automated AF requests,
+    // JEE Check for AF optimisation. The purpose of this to optimise out automated AF requests,
     // for example, on startup where an AF can be run prior to alignment and then repeated a few
     // seconds later at the start of the schedule. In the case that the AF run is optimised out,
     // don't signal AF event or Analyze but we do need to signal Capture / Scheduler and do a
@@ -1094,7 +1094,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     if ((m_FocusAlgorithm == FOCUS_LINEAR || m_FocusAlgorithm == FOCUS_LINEAR1PASS) &&
             checkAFOptimisation(autofocusReason, filter(), m_AFlastFilter))
     {
-        appendLogText(i18n("No need to run Autofocus as it has already been done."));
+        appendLogText(i18n("Autofocus request optimized out."));
         completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_OPTIMISED_OUT);
         return;
     }
@@ -1311,7 +1311,7 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason, const QSt
     bool dontRunAF = false;
 
     // Check that the optimisation control has been set, if not then nothing to do
-    if (m_OpsFocusSettings->focusAFOptimize->value() <= 0)
+    if (!m_FilterManager || m_OpsFocusSettings->focusAFOptimize->value() <= 0)
         return dontRunAF;
 
     if (autofocusReason == FOCUS_FILTER ||
@@ -1322,14 +1322,11 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason, const QSt
     {
         // Only optimise out AF runs that are requested by an automated process
         bool sameFilter = false;
-        if (m_FilterManager)
-        {
-            QString lockFilter = m_FilterManager->getFilterLock(filter);
-            if (lockFilter == NULL_FILTER)
-                sameFilter = (filter == lastFilter);
-            else
-                sameFilter = (lockFilter == lastFilter);
-        }
+        QString lockFilter = m_FilterManager->getFilterLock(filter);
+        if (lockFilter == NULL_FILTER)
+            sameFilter = (filter == lastFilter);
+        else
+            sameFilter = (lockFilter == lastFilter);
 
         if (sameFilter)
         {
@@ -1340,7 +1337,15 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason, const QSt
                 QDateTime now = KStarsData::Instance()->lt();
                 auto lastAF = lastAFDatetime.secsTo(now);
                 if (lastAF < m_OpsFocusSettings->focusAFOptimize->value())
-                    dontRunAF = true;
+                {
+                    int lastPos;
+                    double lastTemp, lastAlt;
+                    if(m_FilterManager->getFilterAbsoluteFocusDetails(lastFilter, lastPos, lastTemp, lastAlt))
+                    {
+                        qCDebug(KSTARS_EKOS_FOCUS) << QString("JEE: currentPositiom %1, lastPos %2").arg(currentPosition).arg(lastPos);
+                        dontRunAF = true;
+                    }
+                }
             }
         }
     }
@@ -6411,6 +6416,9 @@ void Focus::setFocusAlgorithm(Algorithm algorithm)
             m_OpsFocusSettings->focusAdaptive->setChecked(false);
             m_OpsFocusSettings->focusAdaptStart->setChecked(false);
             m_OpsFocusSettings->adaptiveFocusGroup->setEnabled(false);
+            // Disable Autofocus optimisation
+            m_OpsFocusSettings->focusAFOptimize->setValue(0);
+            m_OpsFocusSettings->focusAFOptimize->setEnabled(false);
 
             // Mechanics changes
             m_OpsFocusMechanics->focusMaxSingleStep->setEnabled(true);
@@ -6549,6 +6557,9 @@ void Focus::setFocusAlgorithm(Algorithm algorithm)
             m_OpsFocusSettings->focusAdaptive->setChecked(false);
             m_OpsFocusSettings->focusAdaptStart->setChecked(false);
             m_OpsFocusSettings->adaptiveFocusGroup->setEnabled(false);
+            // Disable Autofocus optimisation
+            m_OpsFocusSettings->focusAFOptimize->setValue(0);
+            m_OpsFocusSettings->focusAFOptimize->setEnabled(false);
 
             // Mechanics changes
             m_OpsFocusMechanics->focusMaxSingleStep->setEnabled(true);
@@ -6682,6 +6693,14 @@ void Focus::setFocusAlgorithm(Algorithm algorithm)
             m_OpsFocusSettings->focusAdaptive->setChecked(false);
             m_OpsFocusSettings->focusAdaptStart->setChecked(false);
             m_OpsFocusSettings->adaptiveFocusGroup->setEnabled(false);
+            // Enable Autofocus optimisation if Filter Manager set
+            if (m_FilterManager)
+                m_OpsFocusSettings->focusAFOptimize->setEnabled(true);
+            else
+            {
+                m_OpsFocusSettings->focusAFOptimize->setValue(0);
+                m_OpsFocusSettings->focusAFOptimize->setEnabled(false);
+            }
 
             // Mechanics changes
             m_OpsFocusMechanics->focusMaxSingleStep->setEnabled(false);
@@ -6839,6 +6858,14 @@ void Focus::setFocusAlgorithm(Algorithm algorithm)
             // Settings changes
             // Enable adaptive focus for Absolute focusers
             m_OpsFocusSettings->adaptiveFocusGroup->setEnabled(canAbsMove);
+            // Enable Autofocus optimisation if Filter Manager set
+            if (m_FilterManager)
+                m_OpsFocusSettings->focusAFOptimize->setEnabled(true);
+            else
+            {
+                m_OpsFocusSettings->focusAFOptimize->setValue(0);
+                m_OpsFocusSettings->focusAFOptimize->setEnabled(false);
+            }
 
             // Mechanics changes
             // Firstly max Single Step is not used by Linear 1 Pass
