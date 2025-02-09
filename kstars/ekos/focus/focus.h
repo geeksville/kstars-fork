@@ -495,6 +495,7 @@ public slots:
         void absolutePositionChanged(int value);
         void focusPositionAdjusted();
         void focusAdaptiveComplete(bool success, const QString &trainname);
+        void focusAFOptimise();
 
         void trainChanged();
         void focuserChanged(int id, bool isValid);
@@ -952,11 +953,9 @@ public slots:
         /**
          * @brief Filter out duplicate Autofocus requests
          * @param autofocusReason reason for running this Autofocus
-         * @param filter current filter
-         * @param lastFilter filter used by previous Autofocus run
          * @return true means do not run AF (previous run only just completed)
          */
-        bool checkAFOptimisation(const AutofocusReason autofocusReason, const QString filter, const QString lastFilter);
+        bool checkAFOptimisation(const AutofocusReason autofocusReason);
 
         /// Focuser device needed for focus operation
         ISD::Focuser *m_Focuser { nullptr };
@@ -1093,6 +1092,8 @@ public slots:
         bool inAdjustFocus { false };
         /// Build offsets is a special case of the Autofocus run
         bool inBuildOffsets { false };
+        /// AF Optimise is a special case of the Autofocus run
+        bool inAFOptimise { false };
         // Target frame dimensions
         //int fx,fy,fw,fh;
         /// If HFR=-1 which means no stars detected, we need to decide how many times should the re-capture process take place before we give up or reverse direction.
@@ -1321,9 +1322,6 @@ public slots:
         QVector<int> m_scanPosition;
         QVector<double> m_scanMeasure;
         QString m_AFfilter = NULL_FILTER;
-
-        // Autofocus Optimisation
-        QString m_AFlastFilter = NULL_FILTER;
 };
 
 }

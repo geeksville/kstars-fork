@@ -1090,12 +1090,13 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     // for example, on startup where an AF can be run prior to alignment and then repeated a few
     // seconds later at the start of the schedule. In the case that the AF run is optimised out,
     // don't signal AF event or Analyze but we do need to signal Capture / Scheduler and do a
-    // proper AF close down.
-    if ((m_FocusAlgorithm == FOCUS_LINEAR || m_FocusAlgorithm == FOCUS_LINEAR1PASS) &&
-            checkAFOptimisation(autofocusReason, filter(), m_AFlastFilter))
+    // proper AF close down. We can do this now if no focuser move is required, otherwise we'll wait
+    // for the focuser move to complete before completing the Autofocus.
+    if ((m_FocusAlgorithm == FOCUS_LINEAR || m_FocusAlgorithm == FOCUS_LINEAR1PASS) && checkAFOptimisation(autofocusReason))
     {
         appendLogText(i18n("Autofocus request optimized out."));
-        completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_OPTIMISED_OUT);
+        if (!inAFOptimise)
+            completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_OPTIMISED_OUT);
         return;
     }
 
@@ -1193,6 +1194,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
                                << " Suspend Guiding:" << ( m_OpsFocusSettings->focusSuspendGuiding->isChecked() ? "yes" : "no " )
                                << " Guide Settle:" << m_OpsFocusSettings->focusGuideSettleTime->value()
                                << " Display Units:" << m_OpsFocusSettings->focusUnits->currentText()
+                               << " AF Optimize:" << m_OpsFocusSettings->focusAFOptimize->value()
                                << " Adaptive Focus:" << ( m_OpsFocusSettings->focusAdaptive->isChecked() ? "yes" : "no" )
                                << " Min Move:" << m_OpsFocusSettings->focusAdaptiveMinMove->value()
                                << " Adapt Start:" << ( m_OpsFocusSettings->focusAdaptStart->isChecked() ? "yes" : "no" )
@@ -1306,9 +1308,10 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     capture();
 }
 
-bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason, const QString filter, const QString lastFilter)
+bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
 {
     bool dontRunAF = false;
+    inAFOptimise = false;
 
     // Check that the optimisation control has been set, if not then nothing to do
     if (!m_FilterManager || m_OpsFocusSettings->focusAFOptimize->value() <= 0)
@@ -1320,31 +1323,58 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason, const QSt
             autofocusReason == FOCUS_HFR_CHECK ||
             autofocusReason == FOCUS_SCHEDULER)
     {
-        // Only optimise out AF runs that are requested by an automated process
-        bool sameFilter = false;
-        QString lockFilter = m_FilterManager->getFilterLock(filter);
-        if (lockFilter == NULL_FILTER)
-            sameFilter = (filter == lastFilter);
-        else
-            sameFilter = (lockFilter == lastFilter);
+        int position = currentPosition;
+        QString filterToUse = filter();
 
-        if (sameFilter)
+        // Filter offsets have already been set and the focuser positioned correctly by now
+        // However, if Adapt Start Pos is set then we need to adjust the focuser position based on the settings
+        if (m_OpsFocusSettings->focusAdaptStart->isChecked())
         {
-            // Check when the last AF run completed.
-            QDateTime lastAFDatetime;
-            if (m_FilterManager->getAFDatetime(lastFilter, lastAFDatetime))
+            position = adaptFocus->adaptStartPosition(currentPosition, filterToUse);
+
+            // Add on any filter offset between the requested filter() and filterToUse
+            if (filterToUse != filter())
             {
-                QDateTime now = KStarsData::Instance()->lt();
-                auto lastAF = lastAFDatetime.secsTo(now);
-                if (lastAF < m_OpsFocusSettings->focusAFOptimize->value())
+                int filterOffset = m_FilterManager->getFilterOffset(filter());
+                int filterToUseOffset = m_FilterManager->getFilterOffset(filterToUse);
+                if (filterOffset != INVALID_VALUE && filterToUseOffset != INVALID_VALUE)
+                    position += filterOffset - filterToUseOffset;
+                else
                 {
-                    int lastPos;
-                    double lastTemp, lastAlt;
-                    if(m_FilterManager->getFilterAbsoluteFocusDetails(lastFilter, lastPos, lastTemp, lastAlt))
+                    qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to calculate filter offsets").arg(__FUNCTION__);
+                    return dontRunAF;
+                }
+            }
+        }
+
+        // Now get the time the last successful Autofocus was run on the filterToUse
+        QDateTime lastAFDatetime;
+        if (m_FilterManager->getAFDatetime(filterToUse, lastAFDatetime))
+        {
+            QDateTime now = KStarsData::Instance()->lt();
+            auto lastAFDelta = lastAFDatetime.secsTo(now);
+            if (lastAFDelta < m_OpsFocusSettings->focusAFOptimize->value())
+            {
+                if (abs(position - currentPosition) <= 1)
+                {
+                    // Focuser at correct position so nothing more to do
+                    dontRunAF = true;
+                    qCDebug(KSTARS_EKOS_FOCUS) << QString("JEE Autofocus (%1) on %2 optimised out by Autofocus at %3")
+                         .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse).arg(lastAFDatetime.toString());
+                }
+                else
+                {
+                    // Need to wait for the focuser to move before signalling DONE
+                    if (changeFocus(position - currentPosition))
                     {
-                        qCDebug(KSTARS_EKOS_FOCUS) << QString("JEE: currentPositiom %1, lastPos %2").arg(currentPosition).arg(lastPos);
-                        dontRunAF = true;
+                        inAFOptimise = dontRunAF = true;
+                        qCDebug(KSTARS_EKOS_FOCUS) << QString("JEE Autofocus (%1) on %2 optimised out by Autofocus at %3."
+                                                              " Current Position %4, Target Position %5")
+                                                    .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse)
+                                                    .arg(lastAFDatetime.toString()).arg(currentPosition).arg(position);
                     }
+                    else
+                        qCDebug(KSTARS_EKOS_FOCUS) << QString("JEE: %1 unable to move focuser... trying full Autofocus").arg(__FUNCTION__);
                 }
             }
         }
@@ -1496,12 +1526,8 @@ void Focus::processAbort()
 
 void Focus::stop(Ekos::FocusState completionState)
 {
+    Q_UNUSED(completionState);
     qCDebug(KSTARS_EKOS_FOCUS) << "Stopping Focus";
-
-    // m_AFlastFilter holds the filter last used for autofocus which is
-    // used by AF optimisation, so reset it on focus failure
-    if (inAutoFocus)
-        m_AFlastFilter = (completionState == FOCUS_COMPLETE) ? filter() : NULL_FILTER;
 
     captureTimeout.stop();
     m_FocusMotionTimer.stop();
@@ -1515,6 +1541,7 @@ void Focus::stop(Ekos::FocusState completionState)
     inAdjustFocus = false;
     adaptFocus->setInAdaptiveFocus(false);
     inBuildOffsets = false;
+    inAFOptimise = false;
     inScanStartPos = false;
     focusAdvisor->reset();
     m_AutofocusReason = AutofocusReason::FOCUS_NONE;
@@ -4170,7 +4197,7 @@ void Focus::autoFocusProcessPositionChange(IPState state)
                 }
             });
         }
-        else if (inAutoFocus)
+        else if (inAutoFocus && !inAFOptimise)
         {
             // Add a check that the current position matches the requested position (within a tolerance)
             if (m_FocusAlgorithm == FOCUS_LINEAR || m_FocusAlgorithm == FOCUS_LINEAR1PASS)
@@ -4322,6 +4349,16 @@ void Focus::updateProperty(INDI::Property prop)
                 }
             }
 
+            if (inAFOptimise)
+            {
+                if (focuserAdditionalMovement == 0)
+                {
+                    inAFOptimise = false;
+                    emit focusAFOptimise();
+                    return;
+                }
+            }
+
             if (adaptFocus->inAdaptiveFocus())
             {
                 if (focuserAdditionalMovement == 0)
@@ -4337,7 +4374,7 @@ void Focus::updateProperty(INDI::Property prop)
                 {
                     m_RestartState = RESTART_NONE;
                     m_AFRerun = true;
-                    inAutoFocus = inBuildOffsets = inAdjustFocus = inScanStartPos = false;
+                    inAutoFocus = inBuildOffsets = inAFOptimise = inAdjustFocus = inScanStartPos = false;
                     adaptFocus->setInAdaptiveFocus(false);
                     focusAdvisor->setInFocusAdvisor(false);
                     appendLogText(i18n("Restarting autofocus process..."));
@@ -4353,7 +4390,7 @@ void Focus::updateProperty(INDI::Property prop)
                 // processing already done in completeFocusProcedure
                 completeFocusProcedure(Ekos::FOCUS_ABORTED, Ekos::FOCUS_FAIL_FORCE_ABORT);
                 m_RestartState = RESTART_NONE;
-                inAutoFocus = inBuildOffsets = inAdjustFocus = inScanStartPos = false;
+                inAutoFocus = inBuildOffsets = inAFOptimise = inAdjustFocus = inScanStartPos = false;
                 adaptFocus->setInAdaptiveFocus(false);
                 focusAdvisor->setInFocusAdvisor(false);
                 return;
@@ -4408,6 +4445,16 @@ void Focus::updateProperty(INDI::Property prop)
             }
         }
 
+        if (inAFOptimise && newState == IPS_OK)
+        {
+            if (focuserAdditionalMovement == 0)
+            {
+                inAFOptimise = false;
+                emit focusAFOptimise();
+                return;
+            }
+        }
+
         if (adaptFocus->inAdaptiveFocus() && newState == IPS_OK)
         {
             if (focuserAdditionalMovement == 0)
@@ -4424,7 +4471,7 @@ void Focus::updateProperty(INDI::Property prop)
             {
                 m_RestartState = RESTART_NONE;
                 m_AFRerun = true;
-                inAutoFocus = inBuildOffsets = inAdjustFocus = inScanStartPos = false;
+                inAutoFocus = inBuildOffsets = inAFOptimise = inAdjustFocus = inScanStartPos = false;
                 adaptFocus->setInAdaptiveFocus(false);
                 focusAdvisor->setInFocusAdvisor(false);
                 appendLogText(i18n("Restarting autofocus process..."));
@@ -4437,7 +4484,7 @@ void Focus::updateProperty(INDI::Property prop)
             // Abort the autofocus run now the focuser has finished moving to its start position
             completeFocusProcedure(Ekos::FOCUS_ABORTED, Ekos::FOCUS_FAIL_FORCE_ABORT);
             m_RestartState = RESTART_NONE;
-            inAutoFocus = inBuildOffsets = inAdjustFocus = inScanStartPos = false;
+            inAutoFocus = inBuildOffsets = inAFOptimise = inAdjustFocus = inScanStartPos = false;
             adaptFocus->setInAdaptiveFocus(false);
             focusAdvisor->setInFocusAdvisor(false);
             return;
@@ -4480,6 +4527,16 @@ void Focus::updateProperty(INDI::Property prop)
             }
         }
 
+        if (inAFOptimise && newState == IPS_OK)
+        {
+            if (focuserAdditionalMovement == 0)
+            {
+                inAFOptimise = false;
+                emit focusAFOptimise();
+                return;
+            }
+        }
+
         if (adaptFocus->inAdaptiveFocus() && newState == IPS_OK)
         {
             if (focuserAdditionalMovement == 0)
@@ -4496,7 +4553,7 @@ void Focus::updateProperty(INDI::Property prop)
             {
                 m_RestartState = RESTART_NONE;
                 m_AFRerun = true;
-                inAutoFocus = inBuildOffsets = inAdjustFocus = inScanStartPos = false;
+                inAutoFocus = inBuildOffsets = inAFOptimise = inAdjustFocus = inScanStartPos = false;
                 adaptFocus->setInAdaptiveFocus(false);
                 focusAdvisor->setInFocusAdvisor(false);
                 appendLogText(i18n("Restarting autofocus process..."));
@@ -4509,7 +4566,7 @@ void Focus::updateProperty(INDI::Property prop)
             // Abort the autofocus run now the focuser has finished moving to its start position
             completeFocusProcedure(Ekos::FOCUS_ABORTED, Ekos::FOCUS_FAIL_FORCE_ABORT);
             m_RestartState = RESTART_NONE;
-            inAutoFocus = inBuildOffsets = inAdjustFocus = inScanStartPos = false;
+            inAutoFocus = inBuildOffsets = inAFOptimise = inAdjustFocus = inScanStartPos = false;
             adaptFocus->setInAdaptiveFocus(false);
             focusAdvisor->setInFocusAdvisor(false);
             return;
@@ -4537,7 +4594,7 @@ void Focus::updateProperty(INDI::Property prop)
             {
                 m_RestartState = RESTART_NONE;
                 m_AFRerun = true;
-                inAutoFocus = inBuildOffsets = inAdjustFocus = inScanStartPos = false;
+                inAutoFocus = inBuildOffsets = inAFOptimise = inAdjustFocus = inScanStartPos = false;
                 adaptFocus->setInAdaptiveFocus(false);
                 focusAdvisor->setInFocusAdvisor(false);
                 appendLogText(i18n("Restarting autofocus process..."));
@@ -4550,7 +4607,7 @@ void Focus::updateProperty(INDI::Property prop)
             // Abort the autofocus run now the focuser has finished moving to its start position
             completeFocusProcedure(Ekos::FOCUS_ABORTED, Ekos::FOCUS_FAIL_FORCE_ABORT);
             m_RestartState = RESTART_NONE;
-            inAutoFocus = inBuildOffsets = inAdjustFocus = inScanStartPos = false;
+            inAutoFocus = inBuildOffsets = inAFOptimise = inAdjustFocus = inScanStartPos = false;
             adaptFocus->setInAdaptiveFocus(false);
             focusAdvisor->setInFocusAdvisor(false);
             return;
@@ -4577,6 +4634,16 @@ void Focus::updateProperty(INDI::Property prop)
                 {
                     inAdjustFocus = false;
                     emit focusPositionAdjusted();
+                    return;
+                }
+            }
+
+            if (inAFOptimise && newState == IPS_OK)
+            {
+                if (focuserAdditionalMovement == 0)
+                {
+                    inAFOptimise = false;
+                    emit focusAFOptimise();
                     return;
                 }
             }
@@ -5529,6 +5596,12 @@ void Focus::connectFilterManager()
                 emit resumeGuiding();
             });
         }
+    });
+
+    // Focuser move as part of AF Optimisation just completed so signal the end of the Autofocus
+    connect(this, &Focus::focusAFOptimise, this, [this]()
+    {
+        completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_OPTIMISED_OUT);
     });
 
     // Save focus exposure for a particular filter

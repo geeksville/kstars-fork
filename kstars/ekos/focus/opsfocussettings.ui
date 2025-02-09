@@ -258,7 +258,7 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Don't run a scheduled Autofocus on Filter X if Autofocus has previously run within the specified number of seconds on X.&lt;/p&gt;&lt;p&gt;NOTE: manually initiated runs will always be performed.&lt;/p&gt;&lt;p&gt;Set to zero to disable this feature.&lt;/p&gt;&lt;p&gt;This is currently an experimental feature enabled for Linear and Linear 1 pass only.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create an &amp;quot;optimization zone&amp;quot; of this many seconds. When an automated Autofocus run is requested by another process, e.g. Scheduler or Capture, a check is performed on the timestamp of the last successful Autofocus for that filter. If we are within the optimization zone then no Autofocus is run; if outside the zone, Autofocus is run as normal.&lt;/p&gt;&lt;p&gt;Note that filter offsets and Adaptive Focus settings are always honoured.&lt;/p&gt;&lt;p&gt;Set to zero to disable this feature.&lt;/p&gt;&lt;p&gt;NOTE: manually initiated runs will always be performed.&lt;/p&gt;&lt;p&gt;This is currently an experimental feature enabled for Linear and Linear 1 Pass only.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
