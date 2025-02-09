@@ -82,12 +82,6 @@ Focus::Focus(int id) : QWidget()
     // #1a Prepare UI
     prepareGUI();
 
-    // #2 Register DBus
-    qRegisterMetaType<Ekos::FocusState>("Ekos::FocusState");
-    qDBusRegisterMetaType<Ekos::FocusState>();
-    new FocusAdaptor(this);
-    QDBusConnection::sessionBus().registerObject("/KStars/Ekos/Focus", this);
-
     // #3 Init connections
     initConnections();
 
@@ -1560,6 +1554,7 @@ void Focus::stop(Ekos::FocusState completionState)
     m_abInsOn = false;
     m_StartRetries = 0;
     m_AFRerun = false;
+    m_R2Retries = 0;
 
     // Check if CCD was not removed due to crash or other reasons.
     if (m_Camera)
@@ -3637,9 +3632,9 @@ void Focus::autoFocusLinear()
                 qCDebug(KSTARS_EKOS_FOCUS) << QString("Linear Curve Fit check passed R2=%1 focusR2Limit=%2").arg(R2).arg(
                                                m_OpsFocusProcess->focusR2Limit->value());
                 completeFocusProcedure(Ekos::FOCUS_COMPLETE, FOCUS_FAIL_NONE, "", false);
-                R2Retries = 0;
+                m_R2Retries = 0;
             }
-            else if (R2Retries == 0)
+            else if (m_R2Retries == 0)
             {
                 // Failed the R2 check for the first time so retry...
                 appendLogText(i18n("Curve Fit check failed R2=%1 focusR2Limit=%2 retrying...", R2,
@@ -3647,7 +3642,7 @@ void Focus::autoFocusLinear()
                 QString failCodeInfo = i18n("R2=%1 < Limit=%2", QString::number(R2, 'f', 2),
                                             QString::number(m_OpsFocusProcess->focusR2Limit->value(), 'f', 2));
                 completeFocusProcedure(Ekos::FOCUS_ABORTED, Ekos::FOCUS_FAIL_R2, failCodeInfo, false);
-                R2Retries++;
+                m_R2Retries++;
             }
             else
             {
@@ -3655,7 +3650,7 @@ void Focus::autoFocusLinear()
                 appendLogText(i18n("Curve Fit check failed again R2=%1 focusR2Limit=%2 but continuing...", R2,
                                    m_OpsFocusProcess->focusR2Limit->value()));
                 completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_NONE, "", false);
-                R2Retries = 0;
+                m_R2Retries = 0;
             }
         }
         else
