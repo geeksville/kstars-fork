@@ -713,10 +713,6 @@ void SequenceJobState::setCurrentFilterID(int value)
         return;
 
     m_CameraState->currentFilterID = value;
-    // JEE Force a filter change even if value != targetFilterID. This will ensure that, if set,
-    // the filter change will trigger an Autofocus via FilterManager and deals with the case where
-    // we're retrying a job because Autofocus on filter change failed.
-    // JEE if (isInitialized(CAPTURE_ACTION_FILTER) == false && value != targetFilterID)
     if (isInitialized(CAPTURE_ACTION_FILTER) == false)
     {
         // mark filter preparation action

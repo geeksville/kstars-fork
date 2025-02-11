@@ -355,8 +355,8 @@ void FocusAdvisor::setupParams(const QString &OTName)
     processParam(m_focus->m_OpsFocusSettings->focusGuideSettleTime->value(), row, m_map,
                  m_focus->m_OpsFocusSettings->focusGuideSettleTime, "Guide Settle");
 
-    // AF Optimize - leave alone
-    processParam(m_focus->m_OpsFocusSettings->focusAFOptimize->value(), row, m_map,
+    // AF Optimize - switch off
+    processParam(0, row, m_map,
                  m_focus->m_OpsFocusSettings->focusAFOptimize, "AF Optimize");
 
     // Mask

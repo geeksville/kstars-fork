@@ -89,7 +89,7 @@ FilterManager::FilterManager(QWidget *parent) : QDialog(parent)
     lastAFAltDelegate = new DoubleDelegate(m_FilterView, 0.0, 90.0, 1.0);
     m_FilterView->setItemDelegateForColumn(FM_LAST_AF_ALT, lastAFAltDelegate);
 
-    // JEE Last AF solution datetime delegate
+    // Last AF solution datetime delegate
     lastAFDTDelegate = new DatetimeDelegate(m_FilterView, DATETIME_FORMAT, "2025-01-01", "2100-01-01", false);
     m_FilterView->setItemDelegateForColumn(FM_LAST_AF_DATETIME, lastAFDTDelegate);
 
@@ -424,7 +424,7 @@ bool FilterManager::setFilterPosition(uint8_t position, FilterPolicy policy)
     currentFilter = m_ActiveFilters[m_currentFilterPosition - 1];
     targetFilter = m_ActiveFilters[position - 1];
 
-    // JEE even though we may be on the correct filter we may still need
+    // Even though we may be on the correct filter we may still need
     // to run an autofocus.
     /*if (currentFilter == targetFilter)
     {

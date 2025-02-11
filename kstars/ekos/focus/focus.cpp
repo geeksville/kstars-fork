@@ -1080,12 +1080,11 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     }
 
     inAutoFocus = true;
-    // JEE Check for AF optimisation. The purpose of this to optimise out automated AF requests,
-    // for example, on startup where an AF can be run prior to alignment and then repeated a few
-    // seconds later at the start of the schedule. In the case that the AF run is optimised out,
-    // don't signal AF event or Analyze but we do need to signal Capture / Scheduler and do a
-    // proper AF close down. We can do this now if no focuser move is required, otherwise we'll wait
-    // for the focuser move to complete before completing the Autofocus.
+    // Check for AF optimisation. The purpose of this to optimise out automated AF requests, e.g., on startup where an
+    // AF can be run prior to alignment and then repeated a few seconds later at the start of the schedule. In the case
+    // that the AF run is optimised out, don't signal AF event or Analyze but we do need to signal Capture / Scheduler
+    // and do a proper AF close down. We can do this now if no focuser move is required, otherwise we'll wait for the
+    // focuser move to complete before completing the Autofocus.
     if ((m_FocusAlgorithm == FOCUS_LINEAR || m_FocusAlgorithm == FOCUS_LINEAR1PASS) && checkAFOptimisation(autofocusReason))
     {
         appendLogText(i18n("Autofocus request optimized out."));
@@ -1353,7 +1352,7 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
                 {
                     // Focuser at correct position so nothing more to do
                     dontRunAF = true;
-                    qCDebug(KSTARS_EKOS_FOCUS) << QString("JEE Autofocus (%1) on %2 optimised out by Autofocus at %3")
+                    qCDebug(KSTARS_EKOS_FOCUS) << QString("Autofocus (%1) on %2 optimised out by Autofocus at %3")
                          .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse).arg(lastAFDatetime.toString());
                 }
                 else
@@ -1362,13 +1361,13 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
                     if (changeFocus(position - currentPosition))
                     {
                         inAFOptimise = dontRunAF = true;
-                        qCDebug(KSTARS_EKOS_FOCUS) << QString("JEE Autofocus (%1) on %2 optimised out by Autofocus at %3."
+                        qCDebug(KSTARS_EKOS_FOCUS) << QString("Autofocus (%1) on %2 optimised out by Autofocus at %3."
                                                               " Current Position %4, Target Position %5")
                                                     .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse)
                                                     .arg(lastAFDatetime.toString()).arg(currentPosition).arg(position);
                     }
                     else
-                        qCDebug(KSTARS_EKOS_FOCUS) << QString("JEE: %1 unable to move focuser... trying full Autofocus").arg(__FUNCTION__);
+                        qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to move focuser... trying full Autofocus").arg(__FUNCTION__);
                 }
             }
         }
@@ -2470,7 +2469,7 @@ void Focus::settle(const FocusState completionState, const bool autoFocusUsed, c
         m_FilterManager->setFilterPosition(fallbackFilterPosition, policy);
     }
     else
-        setState(completionState);
+        setState(completionState, failCode != FOCUS_FAIL_OPTIMISED_OUT);
 
     if (autoFocusUsed && buildOffsetsUsed)
         // If we are building filter offsets signal AF run is complete
@@ -5468,12 +5467,13 @@ void Focus::setupFilterManager()
     connect(this, &Focus::absolutePositionChanged, m_FilterManager.get(), &FilterManager::setFocusAbsolutePosition);
 
     // Update Filter Manager state
-    connect(this, &Focus::newStatus, this, [this](Ekos::FocusState state)
+    connect(this, &Focus::newStatus, this, [this](Ekos::FocusState state, const QString trainname, const bool update)
     {
+        Q_UNUSED(trainname);
         if (m_FilterManager)
         {
             m_FilterManager->setFocusStatus(state);
-            if (focusFilter->currentIndex() != -1 && canAbsMove && state == Ekos::FOCUS_COMPLETE)
+            if (update && focusFilter->currentIndex() != -1 && canAbsMove && state == Ekos::FOCUS_COMPLETE)
             {
                 m_FilterManager->setFilterAbsoluteFocusDetails(focusFilter->currentIndex(), currentPosition,
                         m_LastSourceAutofocusTemperature, m_LastSourceAutofocusAlt);
@@ -7321,12 +7321,12 @@ void Focus::resetCFZToOT()
     calcCFZ();
 }
 
-void Focus::setState(FocusState newState)
+void Focus::setState(FocusState newState, const bool update)
 {
     qCDebug(KSTARS_EKOS_FOCUS) << "Focus State changes from" << getFocusStatusString(m_state) << "to" << getFocusStatusString(
                                    newState);
     m_state = newState;
-    emit newStatus(m_state, opticalTrain());
+    emit newStatus(m_state, opticalTrain(), update);
 }
 
 void Focus::initView()

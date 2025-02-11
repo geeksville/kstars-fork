@@ -486,7 +486,7 @@ public slots:
     signals:
         void newLog(const QString &text);
         void newFocusLog(const QString &text);
-        void newStatus(Ekos::FocusState state, const QString &trainname);
+        void newStatus(Ekos::FocusState state, const QString &trainname, const bool update = true);
         void newHFR(double hfr, int position, bool inAutofocus, const QString &trainname);
         void newFocusTemperatureDelta(double delta, double absTemperature, const QString &trainname);
         void inSequenceAF(bool requested, const QString &trainname);
@@ -1154,7 +1154,7 @@ public slots:
         {
             return m_state;
         }
-        void setState(FocusState newState);
+        void setState(FocusState newState, const bool update = true);
 
         bool isBusy()
         {

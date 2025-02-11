@@ -197,7 +197,7 @@ void ComboDelegate::setValues(const QStringList &list)
 }
 
 /////////////////////////////////////////////////////////
-// JEE Datetime Delegate
+// Datetime Delegate
 /////////////////////////////////////////////////////////
 
 QWidget * DatetimeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &) const
