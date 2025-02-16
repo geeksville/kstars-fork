@@ -105,6 +105,8 @@ class FITSViewer : public KXmlGuiWindow
         void blink();
         void nextBlink();
         void previousBlink();
+        // JEE
+        void stack();
         void saveFile();
         void saveFileAs();
         void copyFITS();
@@ -175,6 +177,11 @@ class FITSViewer : public KXmlGuiWindow
         QList<QUrl> m_urls;
         void changeBlink(bool increment);
         static bool m_BlinkBusy;
+
+        // JEE Stacking
+        static bool m_StackBusy;
+        void stackImages(QList<QString> subs);
+
 
     signals:
         void trackingStarSelected(int x, int y);

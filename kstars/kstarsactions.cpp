@@ -1325,6 +1325,15 @@ void KStars::slotBlink()
 #endif
 }
 
+// JEE
+void KStars::slotStack()
+{
+#if defined(HAVE_CFITSIO) && defined(HAVE_OPENCV)
+    auto fv = createFITSViewer();
+    fv->stack();
+#endif
+}
+
 void KStars::slotExportImage()
 {
     //TODO Check this

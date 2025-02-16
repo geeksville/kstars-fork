@@ -35,10 +35,20 @@
 
 #include <fits_debug.h>
 
+// JEE
+#ifdef HAVE_OPENCV
+#include "opencv2/opencv.hpp"
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/video/tracking.hpp"
+#endif
+
+
 #define INITIAL_W 785
 #define INITIAL_H 640
 
 bool FITSViewer::m_BlinkBusy = false;
+// JEE
+bool FITSViewer::m_StackBusy = false;
 
 QList<KLocalizedString> FITSViewer::filterTypes = {ki18n("Auto Stretch"), ki18n("High Contrast"), ki18n("Equalize"),
                                                    ki18n("High Pass"), ki18n("Median"), ki18n("Gaussian blur"), ki18n("Rotate Right"), ki18n("Rotate Left"), ki18n("Flip Horizontal"),
@@ -1000,6 +1010,39 @@ void FITSViewer::previousBlink()
     changeBlink(false);
 }
 
+// JEE
+QList<QString> findAllSubsBelowDir(const QDir &topDir)
+{
+    QList<QString> result;
+    QList<QString> nameFilter = { "*" };
+    QDir::Filters filterFlags = QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Files | QDir::NoSymLinks;
+    QDir::SortFlags sortFlags = QDir::Time;
+
+    QList<QDir> dirs;
+    dirs.push_back(topDir);
+
+    QRegularExpression re(".*(fits|fits.fz|fit|fts|xisf|jpg|jpeg|png|gif|bmp|cr2|cr3|crw|nef|raf|dng|arw|orf)$");
+    while (!dirs.empty())
+    {
+        auto dir = dirs.back();
+        dirs.removeLast();
+        auto list = dir.entryInfoList( nameFilter, filterFlags, sortFlags );
+        foreach( const QFileInfo &entry,  list)
+        {
+            if( entry.isDir() )
+                dirs.push_back(entry.filePath());
+            else
+            {
+                const QString suffix = entry.completeSuffix();
+                QRegularExpressionMatch match = re.match(suffix);
+                if (match.hasMatch())
+                    result.append(entry.absoluteFilePath());
+            }
+        }
+    }
+    return result;
+}
+
 void FITSViewer::openFile()
 {
     QFileDialog dialog(KStars::Instance(), i18nc("@title:window", "Open Image"));
@@ -1021,6 +1064,119 @@ void FITSViewer::openFile()
     lastURL = QUrl(m_urls[0].url(QUrl::RemoveFilename));
     loadFiles();
 }
+
+// JEE
+void FITSViewer::stack()
+{
+    if (m_StackBusy)
+        return;
+    m_StackBusy = true;
+    QFileDialog dialog(KStars::Instance(), i18nc("@title:window", "Stack Top Directory"));
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setDirectoryUrl(lastURL);
+
+    if (!dialog.exec())
+    {
+        m_StackBusy = false;
+        return;
+    }
+    QStringList selected = dialog.selectedFiles();
+    if (selected.size() < 1)
+    {
+        m_StackBusy = false;
+        return;
+    }
+    QString topDir = selected[0];
+
+    QList<QString> allImages = findAllSubsBelowDir(QDir(topDir));
+    if (allImages.size() == 0)
+    {
+        m_StackBusy = false;
+        return;
+    }
+
+    const QUrl imageName(QUrl::fromLocalFile(allImages[0]));
+
+    led.setColor(Qt::yellow);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    QSharedPointer<FITSTab> tab(new FITSTab(this));
+
+    stackImages(allImages);
+
+    int tabIndex = m_Tabs.size();
+    if (allImages.size() > 1)
+    {
+        m_Tabs.push_back(tab);
+        tab->initStack(allImages);
+        tab->setStackUpto(1);
+    }
+    QString tabName = QString("Stack of %1").arg(topDir);
+    connect(tab.get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
+        {
+            Q_UNUSED(errorMessage);
+            QObject::sender()->disconnect(this);
+            QApplication::restoreOverrideCursor();
+            led.setColor(Qt::red);
+            m_StackBusy = false;
+        }, Qt::UniqueConnection);
+
+    connect(tab.get(), &FITSTab::loaded, this, [ = ]()
+        {
+            QObject::sender()->disconnect(this);
+            addFITSCommon(m_Tabs.last(), imageName, FITS_NORMAL, "");
+            fitsTabWidget->setTabText(tabIndex, tabName);
+            m_StackBusy = false;
+        }, Qt::UniqueConnection);
+
+    tab->loadFile(imageName, FITS_NORMAL, FITS_NONE);
+}
+
+// JEE
+#ifdef HAVE_OPENCV
+void FITSViewer::stackImages(QList<QString> subs)
+{
+    bool first = true;
+
+    try
+    {
+        cv::Mat refImage, stackedImage;
+
+        for(QString sub : subs)
+        {
+            cv::Mat image = cv::imread(sub.toStdString(), cv::IMREAD_GRAYSCALE);
+            cv::imshow("Raw Image", image);
+            cv::waitKey(0);
+            if (first)
+            {
+                first = false;
+                refImage = image;
+                stackedImage = image;
+            }
+            else
+            {
+                const int warp_mode = cv::MOTION_HOMOGRAPHY;
+                cv::TermCriteria criteria(cv::TermCriteria::Type::COUNT + cv::TermCriteria::Type::EPS, 5000, 1e-10);
+                cv::Mat warp = cv::Mat::eye(3, 3, CV_32FC1);
+                cv::findTransformECC(image, refImage, warp, warp_mode, criteria);
+                cv::Mat warpedImage;
+                cv::warpPerspective(image, warpedImage, warp, image.size(), cv::INTER_LINEAR + cv::WARP_INVERSE_MAP);
+                stackedImage += warpedImage;
+            }
+        }
+        stackedImage /= subs.size();
+        cv::imshow("Stacked Image", stackedImage);
+        cv::waitKey(0);
+        cv::destroyAllWindows();
+    }
+    catch (const cv::Exception &ex)
+    {
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+    }
+
+}
+#endif
 
 void FITSViewer::saveFile()
 {

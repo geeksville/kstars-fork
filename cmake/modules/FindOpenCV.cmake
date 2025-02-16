@@ -57,10 +57,24 @@ else (OpenCV_INCLUDE_DIR AND OpenCV_LIBRARIES)
     ${_obLinkDir}
     ${GNUWIN32_DIR}/lib
   )
+  find_library(OpenCV_imgcodecs_LIBRARY NAMES opencv_imgcodecs
+    PATHS
+    ${PC_OPENCV_LIBRARY_DIRS}
+    ${_obLinkDir}
+    ${GNUWIN32_DIR}/lib
+  )
+  find_library(OpenCV_video_LIBRARY NAMES opencv_video
+    PATHS
+    ${PC_OPENCV_LIBRARY_DIRS}
+    ${_obLinkDir}
+    ${GNUWIN32_DIR}/lib
+  )
   set(OpenCV_LIBRARIES
     ${OpenCV_core_LIBRARY}
     ${OpenCV_imgproc_LIBRARY}
-    ${OpenCV_highgui_LIBRARY})
+    ${OpenCV_highgui_LIBRARY}
+    ${OpenCV_imgcodecs_LIBRARY}
+    ${OpenCV_video_LIBRARY})
 
   if(OpenCV_INCLUDE_DIR AND OpenCV_LIBRARIES)
     set(OpenCV_FOUND TRUE)
