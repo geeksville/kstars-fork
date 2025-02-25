@@ -65,6 +65,14 @@ class FITSView : public QScrollArea
         void loadFile(const QString &inFilename);
 
         /**
+         * @brief Loads a stack of FITS files and displays in a FITSView frame
+         * @param inDir directory of FITS files
+         * @note If image is successfully, loaded() signal is emitted, otherwise failed() signal is emitted.
+         * Obtain error by calling lastError()
+         */
+        void loadStack(const QString &inDir);
+
+        /**
          * @brief loadFITSFromData Takes ownership of the FITSData instance passed in and displays it in a FITSView frame
          * @param data pointer to FITSData objects
          */

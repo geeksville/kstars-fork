@@ -868,7 +868,7 @@ bool Focus::setCamera(ISD::Camera *device)
     }
 
     auto isConnected = m_Camera && m_Camera->isConnected();
-    focuserGroup->setEnabled(isConnected);
+    focuserGroup->setEnabled(isConnected || (m_Focuser && m_Focuser->isConnected()));
     ccdGroup->setEnabled(isConnected);
     toolsGroup->setEnabled(isConnected);
 
@@ -1087,7 +1087,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     // focuser move to complete before completing the Autofocus.
     if ((m_FocusAlgorithm == FOCUS_LINEAR || m_FocusAlgorithm == FOCUS_LINEAR1PASS) && checkAFOptimisation(autofocusReason))
     {
-        appendLogText(i18n("Autofocus request optimized out."));
+        appendLogText(i18n("Autofocus request [%1] optimized out.",filter()));
         if (!inAFOptimise)
             completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_OPTIMISED_OUT);
         return;
@@ -1310,67 +1310,98 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
     if (!m_FilterManager || m_OpsFocusSettings->focusAFOptimize->value() <= 0)
         return dontRunAF;
 
-    if (autofocusReason == FOCUS_FILTER ||
-            autofocusReason == FOCUS_TIME ||
-            autofocusReason == FOCUS_TEMPERATURE ||
-            autofocusReason == FOCUS_HFR_CHECK ||
-            autofocusReason == FOCUS_SCHEDULER)
+    // Now check why Autofocus is being requested... only optimise automatically requested AF runs
+    // so manual runs, Build Filter Offsets, and AF after Meridian flip are always performed.
+    if (autofocusReason != FOCUS_FILTER &&
+            autofocusReason != FOCUS_TIME &&
+            autofocusReason != FOCUS_TEMPERATURE &&
+            autofocusReason != FOCUS_HFR_CHECK &&
+            autofocusReason != FOCUS_SCHEDULER)
+        return dontRunAF;
+
+    // Get the filter we would use for Autofocus where we to run it
+    QString filterToUse = filter();
+    QString lockFilter = m_FilterManager->getFilterLock(filterToUse);
+    if (lockFilter != NULL_FILTER && lockFilter != filterToUse)
+        filterToUse = lockFilter;
+
+    // Check when the last successful Autofocus was run on filterToUse
+    QDateTime lastAFDatetime;
+    if (!m_FilterManager->getAFDatetime(filterToUse, lastAFDatetime))
     {
-        int position = currentPosition;
-        QString filterToUse = filter();
+        qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to get last Autofocus run timestamp on %2")
+                                      .arg(__FUNCTION__).arg(filterToUse);
+        return dontRunAF;
+    }
 
-        // Filter offsets have already been set and the focuser positioned correctly by now
-        // However, if Adapt Start Pos is set then we need to adjust the focuser position based on the settings
-        if (m_OpsFocusSettings->focusAdaptStart->isChecked())
+    // Check if the last Autofocus run is within the user defined optimisation zone
+    QDateTime now = KStarsData::Instance()->lt();
+    auto lastAFDelta = lastAFDatetime.secsTo(now);
+    if (lastAFDelta > m_OpsFocusSettings->focusAFOptimize->value())
+        return dontRunAF;
+
+    // If Adapt Start Pos is set then we need to adjust the focuser position based on the settings (temp, alt)
+    int position = currentPosition;
+    if (m_OpsFocusSettings->focusAdaptStart->isChecked())
+        position = adaptFocus->adaptStartPosition(currentPosition, filterToUse);
+    else
+    {
+        // Start with the last AF run result for the Autofocus filter
+        double lastTemp, lastAlt;
+        if(!m_FilterManager->getFilterAbsoluteFocusDetails(filterToUse, position, lastTemp, lastAlt))
         {
-            position = adaptFocus->adaptStartPosition(currentPosition, filterToUse);
-
-            // Add on any filter offset between the requested filter() and filterToUse
-            if (filterToUse != filter())
-            {
-                int filterOffset = m_FilterManager->getFilterOffset(filter());
-                int filterToUseOffset = m_FilterManager->getFilterOffset(filterToUse);
-                if (filterOffset != INVALID_VALUE && filterToUseOffset != INVALID_VALUE)
-                    position += filterOffset - filterToUseOffset;
-                else
-                {
-                    qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to calculate filter offsets").arg(__FUNCTION__);
-                    return dontRunAF;
-                }
-            }
+            // Unable to get the last AF run information for the filter
+            qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to get last Autofocus info on %2")
+                                              .arg(__FUNCTION__).arg(filterToUse);
+            return dontRunAF;
+        }
+        // Do some sanity checks on lastPos
+        int minTravelLimit = qMax(0.0, currentPosition - m_OpsFocusMechanics->focusMaxTravel->value());
+        int maxTravelLimit = qMin(absMotionMax, currentPosition + m_OpsFocusMechanics->focusMaxTravel->value());
+        if (position < minTravelLimit || position > maxTravelLimit)
+        {
+            qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 Bad last Autofocus solution found on %2")
+                                              .arg(__FUNCTION__).arg(position);
+            return dontRunAF;
         }
 
-        // Now get the time the last successful Autofocus was run on the filterToUse
-        QDateTime lastAFDatetime;
-        if (m_FilterManager->getAFDatetime(filterToUse, lastAFDatetime))
+    }
+
+    // Add on any filter offset between the requested filter() and Autofocus filterToUse
+    if (filterToUse != filter())
+    {
+        int filterOffset = m_FilterManager->getFilterOffset(filter());
+        int filterToUseOffset = m_FilterManager->getFilterOffset(filterToUse);
+        if (filterOffset != INVALID_VALUE && filterToUseOffset != INVALID_VALUE)
+            position += filterOffset - filterToUseOffset;
+        else
         {
-            QDateTime now = KStarsData::Instance()->lt();
-            auto lastAFDelta = lastAFDatetime.secsTo(now);
-            if (lastAFDelta < m_OpsFocusSettings->focusAFOptimize->value())
-            {
-                if (abs(position - currentPosition) <= 1)
-                {
-                    // Focuser at correct position so nothing more to do
-                    dontRunAF = true;
-                    qCDebug(KSTARS_EKOS_FOCUS) << QString("Autofocus (%1) on %2 optimised out by Autofocus at %3")
-                         .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse).arg(lastAFDatetime.toString());
-                }
-                else
-                {
-                    // Need to wait for the focuser to move before signalling DONE
-                    if (changeFocus(position - currentPosition))
-                    {
-                        inAFOptimise = dontRunAF = true;
-                        qCDebug(KSTARS_EKOS_FOCUS) << QString("Autofocus (%1) on %2 optimised out by Autofocus at %3."
-                                                              " Current Position %4, Target Position %5")
-                                                    .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse)
-                                                    .arg(lastAFDatetime.toString()).arg(currentPosition).arg(position);
-                    }
-                    else
-                        qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to move focuser... trying full Autofocus").arg(__FUNCTION__);
-                }
-            }
+            qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to calculate filter offsets").arg(__FUNCTION__);
+            return dontRunAF;
         }
+    }
+
+    // We now have all the information required to move the focuser
+    if (abs(position - currentPosition) <= 1)
+    {
+        // Focuser at correct position so nothing more to do
+        dontRunAF = true;
+        qCDebug(KSTARS_EKOS_FOCUS) << QString("Autofocus (%1) on %2 optimised out by Autofocus at %3")
+                     .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse).arg(lastAFDatetime.toString());
+    }
+    else
+    {
+        // Need to wait for the focuser to move before signalling DONE (controlled by inAFOptimise flag)
+        if (changeFocus(position - currentPosition))
+        {
+            inAFOptimise = dontRunAF = true;
+            qCDebug(KSTARS_EKOS_FOCUS) << QString("Autofocus (%1) on %2 optimised out by Autofocus at %3."
+                                                          " Current Position %4, Target Position %5")
+                                                .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse)
+                                                .arg(lastAFDatetime.toString()).arg(currentPosition).arg(position);
+        }
+        else
+            qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to move focuser... trying full Autofocus").arg(__FUNCTION__);
     }
     return dontRunAF;
 }
@@ -1762,7 +1793,7 @@ void Focus::prepareCapture(ISD::CameraChip *targetChip)
         m_Camera->setGain(focusGain->value());
 }
 
-bool Focus::focusIn(int ms)
+bool Focus::focusIn(int ms, int speedFactor)
 {
     if (currentPosition == absMotionMin)
     {
@@ -1774,6 +1805,10 @@ bool Focus::focusIn(int ms)
     startGotoB->setEnabled(false);
     if (ms <= 0)
         ms = m_OpsFocusMechanics->focusTicks->value();
+
+    // apply speed factor
+    ms *= speedFactor;
+
     if (currentPosition - ms <= absMotionMin)
     {
         ms = currentPosition - absMotionMin;
@@ -1782,7 +1817,7 @@ bool Focus::focusIn(int ms)
     return changeFocus(-ms);
 }
 
-bool Focus::focusOut(int ms)
+bool Focus::focusOut(int ms, int speedFactor)
 {
     if (currentPosition == absMotionMax)
     {
@@ -1794,6 +1829,11 @@ bool Focus::focusOut(int ms)
     startGotoB->setEnabled(false);
     if (ms <= 0)
         ms = m_OpsFocusMechanics->focusTicks->value();
+    ms = m_OpsFocusMechanics->focusTicks->value();
+
+    // apply speed factor
+    ms *= speedFactor;
+
     if (currentPosition + ms >= absMotionMax)
     {
         ms = absMotionMax - currentPosition;
@@ -4166,6 +4206,25 @@ void Focus::autoFocusRel()
     }
 }
 
+void Focus::handleFocusButtonEvent()
+{
+    bool inward = (sender() == focusInB);
+    int speedup = 1;
+    bool shift = QApplication::keyboardModifiers() & Qt::ShiftModifier;
+    bool ctrl  = QApplication::keyboardModifiers() & Qt::ControlModifier;
+    updateButtonColors(inward ? focusInB : focusOutB, shift, ctrl);
+
+    if (shift)
+        speedup *= m_OpsFocusMechanics->speedupShift->value();
+    if (ctrl)
+        speedup *= m_OpsFocusMechanics->speedupCtrl->value();
+
+    if (inward)
+        focusIn(-1, speedup);
+    else
+        focusOut(-1, speedup);
+}
+
 void Focus::autoFocusProcessPositionChange(IPState state)
 {
     if (state == IPS_OK)
@@ -4702,6 +4761,10 @@ void Focus::startFraming()
 
 void Focus::resetButtons()
 {
+    // clear focus button colors
+    updateButtonColors(focusInB, false, false);
+    updateButtonColors(focusOutB, false, false);
+
     if (inFocusLoop)
     {
         startFocusB->setEnabled(false);
@@ -4769,6 +4832,8 @@ void Focus::resetButtons()
     captureB->setEnabled(enableCaptureButtons);
     resetFrameB->setEnabled(enableCaptureButtons);
     startLoopB->setEnabled(enableCaptureButtons);
+    startFocusB->setEnabled(enableCaptureButtons);
+
 
     if (cameraConnected)
     {
@@ -4785,7 +4850,6 @@ void Focus::resetButtons()
     {
         focusOutB->setEnabled(true);
         focusInB->setEnabled(true);
-        startFocusB->setEnabled(cameraConnected && m_FocusType == FOCUS_AUTO);
         startAbInsB->setEnabled(canAbInsStart());
         stopFocusB->setEnabled(!enableCaptureButtons);
         startGotoB->setEnabled(canAbsMove);
@@ -4796,13 +4860,26 @@ void Focus::resetButtons()
     {
         focusOutB->setEnabled(false);
         focusInB->setEnabled(false);
-        startFocusB->setEnabled(false);
         startAbInsB->setEnabled(false);
         stopFocusB->setEnabled(false);
         startGotoB->setEnabled(false);
         stopGotoB->setEnabled(false);
-        focuserGroup->setEnabled(false);
+        focuserGroup->setEnabled(cameraConnected);
     }
+}
+
+void Focus::updateButtonColors(QPushButton *button, bool shift, bool ctrl)
+{
+    QString stylesheet = "";
+
+    if (shift && ctrl)
+        stylesheet = "background-color: #D32F2F";
+    else if (shift)
+        stylesheet = "background-color: #FFC107";
+    else if (ctrl)
+        stylesheet = "background-color: #FF5722";
+
+    button->setStyleSheet(stylesheet);
 }
 
 // Return whether the Aberration Inspector Start button should be enabled. The pre-requisties are:
@@ -6126,8 +6203,8 @@ void Focus::initConnections()
     connect(stopFocusB, &QPushButton::clicked, this, &Ekos::Focus::abort);
 
     // Focus IN/OUT
-    connect(focusOutB, &QPushButton::clicked, this, &Ekos::Focus::focusOut);
-    connect(focusInB, &QPushButton::clicked, this, &Ekos::Focus::focusIn);
+    connect(focusOutB, &QPushButton::clicked, this, &Ekos::Focus::handleFocusButtonEvent);
+    connect(focusInB, &QPushButton::clicked, this, &Ekos::Focus::handleFocusButtonEvent);
 
     // Capture a single frame
     connect(captureB, &QPushButton::clicked, this, &Ekos::Focus::capture);
@@ -7665,6 +7742,7 @@ void Focus::refreshOpticalTrain()
     }
 
     opticalTrainCombo->blockSignals(false);
+    resetButtons();
 }
 
 // Function to set member variables based on Optical Train's attached scope

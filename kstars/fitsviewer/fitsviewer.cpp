@@ -1010,39 +1010,6 @@ void FITSViewer::previousBlink()
     changeBlink(false);
 }
 
-// JEE
-QList<QString> findAllSubsBelowDir(const QDir &topDir)
-{
-    QList<QString> result;
-    QList<QString> nameFilter = { "*" };
-    QDir::Filters filterFlags = QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Files | QDir::NoSymLinks;
-    QDir::SortFlags sortFlags = QDir::Time;
-
-    QList<QDir> dirs;
-    dirs.push_back(topDir);
-
-    QRegularExpression re(".*(fits|fits.fz|fit|fts|xisf|jpg|jpeg|png|gif|bmp|cr2|cr3|crw|nef|raf|dng|arw|orf)$");
-    while (!dirs.empty())
-    {
-        auto dir = dirs.back();
-        dirs.removeLast();
-        auto list = dir.entryInfoList( nameFilter, filterFlags, sortFlags );
-        foreach( const QFileInfo &entry,  list)
-        {
-            if( entry.isDir() )
-                dirs.push_back(entry.filePath());
-            else
-            {
-                const QString suffix = entry.completeSuffix();
-                QRegularExpressionMatch match = re.match(suffix);
-                if (match.hasMatch())
-                    result.append(entry.absoluteFilePath());
-            }
-        }
-    }
-    return result;
-}
-
 void FITSViewer::openFile()
 {
     QFileDialog dialog(KStars::Instance(), i18nc("@title:window", "Open Image"));
@@ -1088,29 +1055,15 @@ void FITSViewer::stack()
     }
     QString topDir = selected[0];
 
-    QList<QString> allImages = findAllSubsBelowDir(QDir(topDir));
-    if (allImages.size() == 0)
-    {
-        m_StackBusy = false;
-        return;
-    }
-
-    const QUrl imageName(QUrl::fromLocalFile(allImages[0]));
+    const QUrl imageName(QUrl::fromLocalFile(topDir));
 
     led.setColor(Qt::yellow);
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     QSharedPointer<FITSTab> tab(new FITSTab(this));
 
-    stackImages(allImages);
-
+    m_Tabs.push_back(tab);
     int tabIndex = m_Tabs.size();
-    if (allImages.size() > 1)
-    {
-        m_Tabs.push_back(tab);
-        tab->initStack(allImages);
-        tab->setStackUpto(1);
-    }
     QString tabName = QString("Stack of %1").arg(topDir);
     connect(tab.get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
         {
@@ -1129,7 +1082,7 @@ void FITSViewer::stack()
             m_StackBusy = false;
         }, Qt::UniqueConnection);
 
-    tab->loadFile(imageName, FITS_NORMAL, FITS_NONE);
+    tab->loadStack(topDir, FITS_NORMAL, FITS_NONE);
 }
 
 // JEE

@@ -70,6 +70,8 @@ class FITSTab : public QWidget
         void clearRecentFITS();
         void selectRecentFITS(int i);
         void loadFile(const QUrl &imageURL, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
+        // JEE
+        void loadStack(const QString &dir, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
         bool loadData(const QSharedPointer<FITSData> &data, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
 
         // Methods to setup and control blinking--loading a directory of images one-by-one
@@ -91,31 +93,6 @@ class FITSTab : public QWidget
             if (index >= 0 && index < m_BlinkFilenames.size())
                 m_BlinkIndex = index;
         };
-
-        // JEE Methods to control stacking images into a single tab
-        void initStack(const QList<QString> &filenames)
-        {
-            m_StackFilenames = filenames;
-            m_StackIndex = 0;
-        }
-        const QList<QString> &stackFilenames() const
-        {
-            return m_StackFilenames;
-        }
-        QString stackNext()
-        {
-            m_StackIndex++;
-            if (m_StackIndex >= 0 && m_StackIndex < m_StackFilenames.size())
-                return m_StackFilenames[m_StackIndex];
-            else
-                return "";
-        };
-        void setStackUpto(int index)
-        {
-            if (index >= 0 && index < m_StackFilenames.size())
-                m_StackIndex = index;
-        };
-
         bool saveImage(const QString &filename);
 
         inline QUndoStack *getUndoStack()
@@ -283,9 +260,6 @@ class FITSTab : public QWidget
 
         QList<QString> m_BlinkFilenames;
         int m_BlinkIndex { 0 };
-
-        QList<QString> m_StackFilenames;
-        int m_StackIndex { 0 };
 
         // The StellarSolverProfileEditor is shared among all tabs of all FITS Viewers.
         // They all edit the same (align) profiles.

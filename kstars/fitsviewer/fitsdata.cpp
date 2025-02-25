@@ -45,6 +45,13 @@
 #include <libxisf.h>
 #endif
 
+// JEE
+#ifdef HAVE_OPENCV
+#include "opencv2/opencv.hpp"
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/video/tracking.hpp"
+#endif
+
 #include <cfloat>
 #include <cmath>
 
@@ -195,6 +202,108 @@ QFuture<bool> FITSData::loadFromFile(const QString &inFilename)
     return QtConcurrent::run(this, &FITSData::privateLoad, QByteArray());
 #endif
 }
+
+// JEE
+#ifdef HAVE_OPENCV
+bool FITSData::loadStackFiles(const QString &inDir)
+{
+    QList<QString> subs = findAllImagesInDir(inDir);
+
+    bool first = true;
+
+    try
+    {
+        cv::Mat refImage, stackedImage;
+
+        for(QString sub : subs)
+        {
+            loadCommon(sub);
+            QFileInfo info(m_Filename);
+            m_Extension = info.completeSuffix().toLower();
+            qCDebug(KSTARS_FITS) << "Loading file " << m_Filename;
+            QByteArray buffer;
+            if (!privateLoad(buffer))
+                continue;
+
+            // JEE CV datatypes conversion - hardcoded for now
+            size_t rowLen = m_Statistics.width * m_Statistics.bytesPerPixel;
+            cv::Mat image = cv::Mat(m_Statistics.height, m_Statistics.width, CV_16UC1, (void *) m_ImageBuffer, rowLen);
+            if (first)
+            {
+                first = false;
+                refImage = image;
+                stackedImage = image;
+                // Debug stuff
+                cv::imshow("Raw Image", image);
+                cv::Mat result;
+                double minX, maxX;
+                cv::minMaxIdx(image, &minX, &maxX);
+                cv::convertScaleAbs(image, result, 255.0 / maxX, 0);
+                cv::equalizeHist(result, result);
+                cv::imshow("equalized result", result);
+                cv::waitKey(0);
+            }
+            else
+            {
+                const int warp_mode = cv::MOTION_HOMOGRAPHY;
+                cv::TermCriteria criteria(cv::TermCriteria::Type::COUNT + cv::TermCriteria::Type::EPS, 5000, 1e-10);
+                cv::Mat warp = cv::Mat::eye(3, 3, CV_32FC1);
+                cv::findTransformECC(image, refImage, warp, warp_mode, criteria);
+                cv::Mat warpedImage;
+                cv::warpPerspective(image, warpedImage, warp, image.size(), cv::INTER_LINEAR + cv::WARP_INVERSE_MAP);
+                stackedImage += warpedImage;
+            }
+        }
+        stackedImage /= subs.size();
+        cv::imshow("Stacked Image", stackedImage);
+        cv::waitKey(0);
+        cv::destroyAllWindows();
+        cv::Size size = stackedImage.size();
+        QByteArray stack((char *) stackedImage.data, size.width * size.height);
+        return loadFromBuffer(stack);
+    }
+    catch (const cv::Exception &ex)
+    {
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+    }
+    return false;
+}
+
+// JEE Need to fix searching subdirs
+QList<QString> FITSData::findAllImagesInDir(const QDir &dir)
+{
+    QList<QString> result;
+    QList<QString> nameFilter = { "*" };
+    QDir::Filters filterFlags = QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Files | QDir::NoSymLinks;
+    QDir::SortFlags sortFlags = QDir::Time;
+
+    QList<QDir> dirs;
+    dirs.push_back(dir);
+
+    QRegularExpression re(".*(fits|fits.fz|fit|fts)$");
+    while (!dirs.empty())
+    {
+        auto dir = dirs.back();
+        dirs.removeLast();
+        auto list = dir.entryInfoList(nameFilter, filterFlags, sortFlags );
+        foreach(const QFileInfo &entry, list)
+        {
+            if(entry.isDir() )
+                dirs.push_back(entry.filePath());
+            else
+            {
+                const QString suffix = entry.completeSuffix();
+                QRegularExpressionMatch match = re.match(suffix);
+                if (match.hasMatch())
+                    result.append(entry.absoluteFilePath());
+            }
+        }
+    }
+    return result;
+}
+
+#endif
 
 namespace
 {

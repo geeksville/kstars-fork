@@ -116,6 +116,13 @@ class FITSData : public QObject
         QFuture<bool> loadFromFile(const QString &inFilename);
 
         /**
+         * @brief JEE Load and stack directory of FITS files asynchronously.
+         * @param inDirectory Path to directory of FITS files
+         * @return A QFuture that can be watched until the async operation is complete.
+         */
+        bool loadStackFiles(const QString &inDirectory);
+
+        /**
          * @brief loadFITSFromMemory Loading FITS from memory buffer.
          * @param buffer The memory buffer containing the fits data.
          * @return bool indicating success or failure.
@@ -831,6 +838,14 @@ class FITSData : public QObject
          */
         bool addCatObject(const int num, const QString name, const QString type, const QString coord, const double dist,
                           const double magnitude, const QString sizeStr);
+
+        // JEE Stacking functions
+        /**
+         * @brief add catalog object to the array of objects
+         * @param dir directory to look for images
+         * @return list of pathnames of image files in dir
+         */
+        QList<QString> findAllImagesInDir(const QDir &dir);
 
         /// Pointer to CFITSIO FITS file struct
         fitsfile *fptr { nullptr };

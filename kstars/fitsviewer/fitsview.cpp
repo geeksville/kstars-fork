@@ -404,6 +404,48 @@ void FITSView::loadFile(const QString &inFilename)
     fitsWatcher.setFuture(m_ImageData->loadFromFile(inFilename));
 }
 
+// JEE
+void FITSView::loadStack(const QString &inDir)
+{
+    if (floatingToolBar != nullptr)
+    {
+        floatingToolBar->setVisible(true);
+    }
+
+    bool setBayerParams = false;
+
+    // JEE - do we need this?
+    BayerParams param;
+    if ((m_ImageData != nullptr) && m_ImageData->hasDebayer())
+    {
+        setBayerParams = true;
+        m_ImageData->getBayerParams(&param);
+    }
+
+    // JEE - do we need this?
+    /*
+    // In case image is still loading, wait until it is done.
+    fitsWatcher.waitForFinished();
+    // In case loadWCS is still running for previous image data, let's wait until it's over
+    wcsWatcher.waitForFinished();*/
+
+    //    delete m_ImageData;
+    //    m_ImageData = nullptr;
+
+    filterStack.clear();
+    filterStack.push(FITS_NONE);
+    if (filter != FITS_NONE)
+        filterStack.push(filter);
+
+    m_ImageData.reset(new FITSData(mode), &QObject::deleteLater);
+
+    if (setBayerParams)
+        m_ImageData->setBayerParams(&param);
+
+    // JEE fitsWatcher.setFuture(m_ImageData->loadStackFiles(inDir));
+    m_ImageData->loadStackFiles(inDir);
+}
+
 void FITSView::clearData()
 {
     if (!noImageLabel)

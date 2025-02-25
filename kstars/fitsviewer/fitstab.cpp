@@ -260,6 +260,40 @@ void FITSTab::loadFile(const QUrl &imageURL, FITSMode mode, FITSScale filter)
     m_View->loadFile(imageURL.toLocalFile());
 }
 
+// JEE
+void FITSTab::loadStack(const QString &dir, FITSMode mode, FITSScale filter)
+{
+    // check if the address points to an appropriate address
+    if (dir.isEmpty() || !QFileInfo(dir).isDir())
+    {
+        emit failed(i18nc("Invalid directory: %1", dir.toLatin1()));
+        return;
+    }
+
+    if (setupView(mode, filter))
+    {
+
+        // On Success loading image
+        connect(m_View.get(), &FITSView::loaded, this, [&]()
+        {
+            processData();
+            emit loaded();
+        });
+
+        connect(m_View.get(), &FITSView::updated, this, &FITSTab::updated);
+    }
+    else
+        // JEE check this... update tab text
+        modifyFITSState(true, QUrl(dir));
+
+    // JEE Check this
+    //currentURL = imageURL;
+
+    m_View->setFilter(filter);
+
+    m_View->loadStack(dir);
+}
+
 bool FITSTab::shouldComputeHFR() const
 {
     if (viewer->isStarsMarked())
