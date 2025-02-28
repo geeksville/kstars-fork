@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kstars\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2025-02-20 01:53+0000\n"
+"POT-Creation-Date: 2025-02-28 01:53+0000\n"
 "PO-Revision-Date: 2015-01-30 09:02+0100\n"
 "Last-Translator: Samir Ribic <samir.ribic@etf.unsa.ba>\n"
 "Language-Team: Bosnian <lokal@lugbih.org>\n"
@@ -434,7 +434,7 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, AddDSLRLens)
 #. i18n: ectx: property (text), widget (QPushButton, SavePreset)
 #: auxiliary/imageviewer.cpp:134 ekos/align/mountmodel.cpp:386
-#: ekos/auxiliary/buildfilteroffsets.cpp:343 ekos/capture/camera.cpp:1290
+#: ekos/auxiliary/buildfilteroffsets.cpp:343 ekos/capture/camera.cpp:1288
 #: ekos/scheduler/scheduler.cpp:2079
 #: kstarslite/qml/dialogs/helpers/DetailsAddLink.qml:88
 #: kstarslite/qml/dialogs/helpers/LocationEdit.qml:375
@@ -1103,7 +1103,7 @@ msgstr "Preglednik sunčevog sistema"
 #: skyobjects/satellite.cpp:1223 skyobjects/skyobject.cpp:287
 #: skyobjects/skypoint.cpp:434 skyqpainter.cpp:524 skyqpainter.cpp:548
 #: skyqpainter.cpp:550 tools/conjunctions.cpp:58 tools/conjunctions.cpp:296
-#: tools/imagingplanner.cpp:1526 tools/jmoontool.cpp:106
+#: tools/imagingplanner.cpp:1530 tools/jmoontool.cpp:106
 #: tools/modcalcdaylength.ui:109 tools/modcalcplanets.cpp:262
 #: tools/modcalcplanets.cpp:388 tools/modcalcplanets.ui:190
 #: tools/modcalcplanets.ui:614 tools/pvplotwidget.cpp:94
@@ -1180,8 +1180,8 @@ msgstr "Zemlja"
 #: skyobjects/skyobject.cpp:417 skyqpainter.cpp:525 skyqpainter.cpp:548
 #: skyqpainter.cpp:551 skyqpainter.cpp:573 tools/conjunctions.cpp:59
 #: tools/eclipsetool.cpp:29 tools/eclipsetool/lunareclipsehandler.h:58
-#: tools/imagingplanner.cpp:1122 tools/imagingplanner.cpp:1501
-#: tools/imagingplanner.cpp:2664 tools/ksconjunct.cpp:75
+#: tools/imagingplanner.cpp:1136 tools/imagingplanner.cpp:1505
+#: tools/imagingplanner.cpp:2890 tools/ksconjunct.cpp:75
 #: tools/modcalcdaylength.ui:453 tools/modcalcplanets.cpp:262
 #: tools/modcalcplanets.cpp:392 tools/modcalcplanets.ui:185
 #: tools/modcalcplanets.ui:609 tools/whatsinteresting/wiview.cpp:612
@@ -2733,7 +2733,7 @@ msgstr ""
 
 #: dialogs/addlinkdialog.cpp:60 ekos/align/align.cpp:3965
 #: ekos/align/mountmodel.cpp:267 ekos/align/mountmodel.cpp:393
-#: ekos/capture/camera.cpp:1244 ekos/capture/camera.cpp:1299
+#: ekos/capture/camera.cpp:1242 ekos/capture/camera.cpp:1297
 #: ekos/guide/guidedriftgraph.cpp:479 ekos/scheduler/scheduler.cpp:1979
 #: ekos/scheduler/scheduler.cpp:2089 fitsviewer/fitstab.cpp:1013
 #: tools/scriptbuilder.cpp:832 tools/scriptbuilder.cpp:930
@@ -2756,7 +2756,7 @@ msgstr "Ne pretražuj"
 msgid "Show webpage about "
 msgstr "Prikaži web stranicu o "
 
-#: dialogs/addlinkdialog.h:38 tools/imagingplanner.cpp:2809
+#: dialogs/addlinkdialog.h:38 tools/imagingplanner.cpp:3035
 #, kde-format
 msgid "object"
 msgstr "objekat"
@@ -2885,7 +2885,7 @@ msgstr ""
 msgid "Degrees"
 msgstr "Stepeni"
 
-#: dialogs/catalogcsvimport.cpp:90 tools/imagingplanner.cpp:1122
+#: dialogs/catalogcsvimport.cpp:90 tools/imagingplanner.cpp:1136
 #, fuzzy, kde-format
 msgid "Hours"
 msgstr "sat"
@@ -2940,7 +2940,7 @@ msgstr "Tekst"
 #. i18n: ectx: property (text), widget (QTableWidget, queueTable)
 #. i18n: ectx: property (text), widget (QTreeWidget, OptionsList)
 #: dialogs/catalogcsvimport.cpp:184 dialogs/catalogobjectlistmodel.cpp:65
-#: ekos/capture/camera.ui:2318 tools/imagingplanner.cpp:1122
+#: ekos/capture/camera.ui:2318 tools/imagingplanner.cpp:1136
 #: tools/observinglist.cpp:95 tools/observinglist.cpp:99
 #: tools/optionstreeview.ui:33
 #, kde-format
@@ -3050,7 +3050,7 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, preview_button)
 #. i18n: ectx: property (text), widget (QLabel, previewLabel)
 #: dialogs/catalogcsvimport.ui:297 ekos/capture/camera.ui:2369
-#: ekos/capture/cameraprocess.cpp:2440 ekos/capture/capturecountswidget.cpp:323
+#: ekos/capture/cameraprocess.cpp:2438 ekos/capture/capturecountswidget.cpp:323
 #: fitsviewer/fitsviewer.cpp:730 fitsviewer/fitsviewer.cpp:731
 #, kde-format
 msgid "Preview"
@@ -3333,7 +3333,7 @@ msgstr "Mag."
 #. i18n: ectx: property (text), widget (QTreeWidget, clientTreeWidget)
 #: dialogs/catalogobjectlistmodel.cpp:73 dialogs/catalogsdbui.cpp:25
 #: ekos/scheduler/scheduler.ui:1114 indi/drivermanager.ui:327
-#: tools/imagingplanner.cpp:1122 tools/observinglist.cpp:94
+#: tools/imagingplanner.cpp:1136 tools/observinglist.cpp:94
 #: tools/observinglist.cpp:98
 #, kde-format
 msgid "Name"
@@ -3457,7 +3457,9 @@ msgctxt "@title:window"
 msgid "Export Catalog"
 msgstr "Uvezi katalog"
 
+#. i18n: ectx: property (text), widget (QPushButton, DevelCheckCatalogButton)
 #: dialogs/catalogsdbui.cpp:176 dialogs/catalogsdbui.cpp:196
+#: tools/imagingplanner.ui:508
 #, fuzzy, kde-format
 #| msgid "Catalogs"
 msgid "Catalog"
@@ -4016,7 +4018,7 @@ msgstr "0.0 pc"
 #: ekos/auxiliary/darklibrary.ui:693 ekos/auxiliary/darklibrary.ui:713
 #: ekos/auxiliary/darklibrary.ui:733 ekos/auxiliary/darklibrary.ui:753
 #: ekos/auxiliary/darklibrary.ui:773 ekos/auxiliary/darklibrary.ui:793
-#: ekos/capture/camera.cpp:1779 ekos/capture/camera.cpp:1819
+#: ekos/capture/camera.cpp:1777 ekos/capture/camera.cpp:1817
 #: ekos/capture/exposurecalculator/exposurecalculatordialog.ui:898
 #: ekos/capture/sequenceeditor.cpp:133 ekos/capture/sequenceeditor.cpp:136
 #: ekos/focus/focus.cpp:448 ekos/guide/guide.cpp:700 ekos/guide/guide.ui:569
@@ -6472,7 +6474,7 @@ msgid "Error: lost connection to filter wheel."
 msgstr "Greška: Izgubljena konekcija prema točku filtera."
 
 #: ekos/align/align.cpp:1506 ekos/capture/cameraprocess.cpp:213
-#: ekos/capture/cameraprocess.cpp:633 ekos/focus/focus.cpp:5721
+#: ekos/capture/cameraprocess.cpp:631 ekos/focus/focus.cpp:5721
 #, kde-format
 msgid ""
 "Image transfer is disabled for this camera. Would you like to enable it?"
@@ -6785,8 +6787,8 @@ msgstr "Odaberi koordinantni sistem za Izlaznu datoteku"
 msgid "Capture error. Aborting..."
 msgstr "Dohvaćanje prekinuto."
 
-#: ekos/align/align.cpp:3301 ekos/capture/cameraprocess.cpp:1616
-#: ekos/capture/cameraprocess.cpp:2175
+#: ekos/align/align.cpp:3301 ekos/capture/cameraprocess.cpp:1614
+#: ekos/capture/cameraprocess.cpp:2173
 #, kde-format
 msgid "Restarting capture attempt #%1"
 msgstr ""
@@ -6841,25 +6843,25 @@ msgstr "RA (arcmin)"
 msgid "dDE (arcsec)"
 msgstr "arcsecs"
 
-#: ekos/align/align.cpp:3648 ekos/capture/camera.cpp:3423
+#: ekos/align/align.cpp:3648 ekos/capture/camera.cpp:3419
 #: ekos/focus/focus.cpp:5602
 #, fuzzy, kde-format
 msgid "Filter operation failed."
 msgstr "Provjera skripte nije uspjela"
 
-#: ekos/align/align.cpp:3660 ekos/capture/camera.cpp:3921
+#: ekos/align/align.cpp:3660 ekos/capture/camera.cpp:3917
 #, fuzzy, kde-format
 #| msgid "Changing filter to %1..."
 msgid "Changing focus offset by %1 steps..."
 msgstr "Mijenjanje filtera na %1..."
 
 #: ekos/align/align.cpp:3667 ekos/auxiliary/buildfilteroffsets.cpp:466
-#: ekos/capture/camera.cpp:3926
+#: ekos/capture/camera.cpp:3922
 #, kde-format
 msgid "Changing filter to %1..."
 msgstr "Mijenjanje filtera na %1..."
 
-#: ekos/align/align.cpp:3672 ekos/capture/camera.cpp:3931
+#: ekos/align/align.cpp:3672 ekos/capture/camera.cpp:3927
 #, fuzzy, kde-format
 #| msgid "Autofocus complete."
 msgid "Auto focus on filter change..."
@@ -6879,8 +6881,8 @@ msgid "Export Solution Points"
 msgstr "Očiti sve orbitalne tragove"
 
 #: ekos/align/align.cpp:3964 ekos/align/mountmodel.cpp:266
-#: ekos/align/mountmodel.cpp:392 ekos/capture/camera.cpp:1243
-#: ekos/capture/camera.cpp:1298 ekos/guide/guidedriftgraph.cpp:478
+#: ekos/align/mountmodel.cpp:392 ekos/capture/camera.cpp:1241
+#: ekos/capture/camera.cpp:1296 ekos/guide/guidedriftgraph.cpp:478
 #: ekos/scheduler/scheduler.cpp:1978 ekos/scheduler/scheduler.cpp:2088
 #: fitsviewer/fitstab.cpp:1012 tools/scriptbuilder.cpp:832
 #: tools/scriptbuilder.cpp:929
@@ -6897,8 +6899,8 @@ msgid "Unable to write to file %1"
 msgstr "Nije moguće pisati u datoteku %1"
 
 #: ekos/align/align.cpp:3974 ekos/align/mountmodel.cpp:286
-#: ekos/align/mountmodel.cpp:404 ekos/capture/camera.cpp:2941
-#: ekos/capture/cameraprocess.cpp:2585 ekos/capture/sequencequeue.cpp:33
+#: ekos/align/mountmodel.cpp:404 ekos/capture/camera.cpp:2938
+#: ekos/capture/cameraprocess.cpp:2583 ekos/capture/sequencequeue.cpp:33
 #: ekos/guide/guidedriftgraph.cpp:488 ekos/scheduler/schedulerprocess.cpp:3084
 #: ekos/scheduler/schedulerprocess.cpp:3433
 #: ekos/scheduler/schedulerprocess.cpp:4761
@@ -7573,8 +7575,8 @@ msgctxt "@title:window"
 msgid "Open Ekos Alignment List"
 msgstr "Sekvencijalni red"
 
-#: ekos/align/mountmodel.cpp:285 ekos/capture/camera.cpp:2940
-#: ekos/capture/cameraprocess.cpp:2584 ekos/capture/sequencequeue.cpp:32
+#: ekos/align/mountmodel.cpp:285 ekos/capture/camera.cpp:2937
+#: ekos/capture/cameraprocess.cpp:2582 ekos/capture/sequencequeue.cpp:32
 #: ekos/scheduler/schedulerprocess.cpp:3432
 #: ekos/scheduler/schedulerprocess.cpp:4780
 #, kde-format
@@ -12096,7 +12098,7 @@ msgstr "64x"
 #. i18n: ectx: property (text), widget (QLabel, label_12)
 #. i18n: ectx: property (text), widget (QLabel, exposureOptionsLabel)
 #. i18n: ectx: property (text), widget (QLabel, countLabel)
-#: ekos/auxiliary/darklibrary.ui:339 ekos/capture/camera.cpp:1058
+#: ekos/auxiliary/darklibrary.ui:339 ekos/capture/camera.cpp:1057
 #: ekos/capture/camera.ui:1686 indi/collimationOptions.ui:440
 #, kde-format
 msgid "Count:"
@@ -12648,7 +12650,7 @@ msgstr "Framingham"
 msgid "Waiting..."
 msgstr "Približne boje..."
 
-#: ekos/auxiliary/ledstatuswidget.cpp:46 ekos/capture/camerastate.cpp:413
+#: ekos/auxiliary/ledstatuswidget.cpp:46 ekos/capture/camerastate.cpp:412
 #, fuzzy, kde-format
 #| msgid "Dithering..."
 msgid "Dithering requested..."
@@ -12670,7 +12672,7 @@ msgstr "Automatsko fokusiranje je završeno."
 msgid "Aligning..."
 msgstr "Pokretanje..."
 
-#: ekos/auxiliary/ledstatuswidget.cpp:61 ekos/capture/camera.cpp:848
+#: ekos/auxiliary/ledstatuswidget.cpp:61 ekos/capture/camera.cpp:849
 #, fuzzy, kde-format
 msgid "Calibrating..."
 msgstr "Kalibracija"
@@ -14630,62 +14632,62 @@ msgstr "sek."
 msgid "frames"
 msgstr "Okvir:"
 
-#: ekos/capture/camera.cpp:170 ekos/capture/camera.cpp:4046
+#: ekos/capture/camera.cpp:170 ekos/capture/camera.cpp:4042
 #, fuzzy, kde-format
 #| msgid "Failed to save sequence queue"
 msgid "Add job to sequence queue"
 msgstr "Nije moguće snimiti sekvencijalni red"
 
-#: ekos/capture/camera.cpp:171 ekos/capture/camera.cpp:4047
+#: ekos/capture/camera.cpp:171 ekos/capture/camera.cpp:4043
 #, fuzzy, kde-format
 #| msgid "Failed to save sequence queue"
 msgid "Remove job from sequence queue"
 msgstr "Nije moguće snimiti sekvencijalni red"
 
-#: ekos/capture/camera.cpp:519
+#: ekos/capture/camera.cpp:520
 #, kde-format
 msgid "Downloading..."
 msgstr "Preuzimanje..."
 
-#: ekos/capture/camera.cpp:635 ekos/capture/camera.cpp:636
+#: ekos/capture/camera.cpp:636 ekos/capture/camera.cpp:637
 #, fuzzy, kde-format
 #| msgid "Autofocus complete."
 msgid "Focus complete."
 msgstr "Automatsko fokusiranje je završeno."
 
-#: ekos/capture/camera.cpp:640
+#: ekos/capture/camera.cpp:641
 #, fuzzy, kde-format
 #| msgid "Autofocus complete."
 msgid "Autofocus failed."
 msgstr "Automatsko fokusiranje je završeno."
 
-#: ekos/capture/camera.cpp:827
+#: ekos/capture/camera.cpp:828
 #, fuzzy, kde-format
 #| msgid "Capturing image..."
 msgid "Capturing %1 x %2-second %3 video..."
 msgstr "Dohvatanje slike..."
 
-#: ekos/capture/camera.cpp:833
+#: ekos/capture/camera.cpp:834
 #, fuzzy, kde-format
 #| msgid "Capturing image..."
 msgid "Capturing %1-second %2 image..."
 msgstr "Dohvatanje slike..."
 
-#: ekos/capture/camera.cpp:902
+#: ekos/capture/camera.cpp:903
 #, kde-format
 msgid ""
 "Warning: in-sequence focusing is selected but autofocus process was not "
 "started."
 msgstr ""
 
-#: ekos/capture/camera.cpp:905
+#: ekos/capture/camera.cpp:906
 #, kde-format
 msgid ""
 "Warning: temperature delta check is selected but autofocus process was not "
 "started."
 msgstr ""
 
-#: ekos/capture/camera.cpp:940
+#: ekos/capture/camera.cpp:941
 #, kde-format
 msgid "One dark flats job was created."
 msgid_plural "%1 dark flats jobs were created."
@@ -14693,32 +14695,32 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: ekos/capture/camera.cpp:985
+#: ekos/capture/camera.cpp:986
 #, kde-format
 msgid "Job #%1 changes applied."
 msgstr "Promjene #%1 posla primjenjene."
 
-#: ekos/capture/camera.cpp:998
+#: ekos/capture/camera.cpp:997
 #, fuzzy, kde-format
 #| msgctxt "City name (optional, probably does not need a translation)"
 #| msgid "Framingham"
 msgid "Framing..."
 msgstr "Framingham"
 
-#: ekos/capture/camera.cpp:1009
+#: ekos/capture/camera.cpp:1008
 #, fuzzy, kde-format
 #| msgid "Image received."
 msgid "Captured image received"
 msgstr "Slika dohvaćena."
 
 #. i18n: ectx: property (text), widget (QLabel, frameInfoLabel)
-#: ekos/capture/camera.cpp:1027 ekos/capture/camera.ui:2679
+#: ekos/capture/camera.cpp:1026 ekos/capture/camera.ui:2679
 #, fuzzy, kde-format
 #| msgid "Expose:"
 msgid "Expose (-/-):"
 msgstr "Izložiti:"
 
-#: ekos/capture/camera.cpp:1057
+#: ekos/capture/camera.cpp:1056
 #, fuzzy, kde-format
 #| msgid "Duration of night for selected date"
 msgid "Duration of the video sequence"
@@ -14727,25 +14729,25 @@ msgstr "Vrijeme trajanja noći za izabrani datum"
 #. i18n: ectx: property (toolTip), widget (QLabel, textLabel1_2_4)
 #. i18n: ectx: property (toolTip), widget (QLabel, textLabel1_2_5)
 #. i18n: ectx: property (toolTip), widget (QLabel, FilterPosLabel)
-#: ekos/capture/camera.cpp:1057 ekos/capture/limits.ui:108
+#: ekos/capture/camera.cpp:1056 ekos/capture/limits.ui:108
 #: ekos/capture/limits.ui:378 ekos/focus/focus.ui:713
 #, kde-format
 msgid "Number of images to capture"
 msgstr "Broj slika koje treba uhvatiti"
 
 #. i18n: ectx: property (text), widget (QRadioButton, recordDurationR)
-#: ekos/capture/camera.cpp:1058 indi/recordingoptions.ui:40
+#: ekos/capture/camera.cpp:1057 indi/recordingoptions.ui:40
 #, fuzzy, kde-format
 msgid "Duration:"
 msgstr "Trajanje:"
 
-#: ekos/capture/camera.cpp:1059
+#: ekos/capture/camera.cpp:1058
 #, fuzzy, kde-format
 #| msgid "Start Camera/CCD exposure. The duration is in seconds."
 msgid "Exposure time in seconds of a single video frame"
 msgstr "Postavi ekspoziciju kamere/CCD-a. Trajanje je u sekundama."
 
-#: ekos/capture/camera.cpp:1060
+#: ekos/capture/camera.cpp:1059
 #, fuzzy, kde-format
 #| msgid ""
 #| "Set the exposure time in seconds for individual images, if applicable"
@@ -14754,129 +14756,129 @@ msgstr ""
 "Postavi vrijeme ekspozicije u sekundama za pojedinačne slike, ako je "
 "primjenljivo"
 
-#: ekos/capture/camera.cpp:1075
+#: ekos/capture/camera.cpp:1074
 #, fuzzy, kde-format
 #| msgid "&Start Sequence"
 msgid "Stop Sequence"
 msgstr "&Početak  sekvence"
 
-#: ekos/capture/camera.cpp:1081
+#: ekos/capture/camera.cpp:1080
 #, fuzzy, kde-format
 #| msgid "Frequency:"
 msgid "Resume Sequence"
 msgstr "Učestanost:"
 
-#: ekos/capture/camera.cpp:1112
+#: ekos/capture/camera.cpp:1111
 #, fuzzy, kde-format
 msgid "Setting temperature to %1 °C..."
 msgstr "Postavi temperaturu ciljnog CCD čipa."
 
-#: ekos/capture/camera.cpp:1113
+#: ekos/capture/camera.cpp:1112
 #, fuzzy, kde-format
 msgid "Set Temp to %1 °C..."
 msgstr "Postavi vrijeme..."
 
-#: ekos/capture/camera.cpp:1117
+#: ekos/capture/camera.cpp:1116
 #, fuzzy, kde-format
 #| msgid "Guiding resumed."
 msgid "Waiting for guide drift below %1\"..."
 msgstr "Navođenje nastavljeno."
 
-#: ekos/capture/camera.cpp:1118
+#: ekos/capture/camera.cpp:1117
 #, kde-format
 msgid "Wait for Guider < %1\"..."
 msgstr ""
 
-#: ekos/capture/camera.cpp:1122
+#: ekos/capture/camera.cpp:1121
 #, fuzzy, kde-format
 msgid "Setting camera to %1 degrees E of N..."
 msgstr "Fokusiranje..."
 
-#: ekos/capture/camera.cpp:1123
+#: ekos/capture/camera.cpp:1122
 #, fuzzy, kde-format
 #| msgid "Set Location..."
 msgid "Set Camera to %1 deg..."
 msgstr "Postavi lokaciju..."
 
-#: ekos/capture/camera.cpp:1235
+#: ekos/capture/camera.cpp:1233
 #, fuzzy, kde-format
 msgctxt "@title:window"
 msgid "Open Ekos Sequence Queue"
 msgstr "Sekvencijalni red"
 
-#: ekos/capture/camera.cpp:1268
+#: ekos/capture/camera.cpp:1266
 #, fuzzy, kde-format
 msgctxt "@title:window"
 msgid "Save Ekos Sequence Queue"
 msgstr "Sekvencijalni red"
 
-#: ekos/capture/camera.cpp:1290
+#: ekos/capture/camera.cpp:1288
 #, kde-format
 msgid "Failed to save sequence queue"
 msgstr "Nije moguće snimiti sekvencijalni red"
 
-#: ekos/capture/camera.cpp:1347 ekos/capture/camera.cpp:2418
+#: ekos/capture/camera.cpp:1345 ekos/capture/camera.cpp:2416
 #, fuzzy, kde-format
 #| msgid "Use Dark Frame"
 msgid "Dark Flat"
 msgstr "Koristi tamni okvir"
 
-#: ekos/capture/camera.cpp:2081 ekos/scheduler/framingassistant.cpp:220
+#: ekos/capture/camera.cpp:2079 ekos/scheduler/framingassistant.cpp:220
 #, fuzzy, kde-format
 msgctxt "@title:window"
 msgid "FITS Save Directory"
 msgstr "FITS podrazumijevani direktorij"
 
-#: ekos/capture/camera.cpp:2194
+#: ekos/capture/camera.cpp:2192
 #, fuzzy, kde-format
 #| msgid "Use the specified configuration file"
 msgid "Reset %1 configuration to default?"
 msgstr "Koristi određenu konfiguracionu datoteku"
 
-#: ekos/capture/camera.cpp:2196
+#: ekos/capture/camera.cpp:2194
 #, fuzzy, kde-format
 #| msgid "Configuration"
 msgid "Confirmation"
 msgstr "Konfiguracija"
 
-#: ekos/capture/camera.cpp:2395
+#: ekos/capture/camera.cpp:2393
 #, kde-format
 msgid "You must set local or remote directory for Remotely & Both modes."
 msgstr ""
 
-#: ekos/capture/camera.cpp:2401
+#: ekos/capture/camera.cpp:2399
 #, kde-format
 msgid "You must set local directory for Locally & Both modes."
 msgstr ""
 
-#: ekos/capture/camera.cpp:3583
+#: ekos/capture/camera.cpp:3579
 #, kde-format
 msgid "Paused..."
 msgstr ""
 
-#: ekos/capture/camera.cpp:3588
+#: ekos/capture/camera.cpp:3584
 #, fuzzy, kde-format
 msgid "Meridian Flip..."
 msgstr "Meridian"
 
-#: ekos/capture/camera.cpp:3589
+#: ekos/capture/camera.cpp:3585
 #, fuzzy, kde-format
 msgid "Meridian flip started"
 msgstr "Meridian"
 
-#: ekos/capture/camera.cpp:3593
+#: ekos/capture/camera.cpp:3589
 #, fuzzy, kde-format
 #| msgid "completed"
 msgid "Flip complete."
 msgstr "završeno"
 
-#: ekos/capture/camera.cpp:3653
+#: ekos/capture/camera.cpp:3649
 #, kde-format
 msgctxt "Maximum temperature variation over time when regulating."
 msgid "Ramp (°C/min):"
 msgstr ""
 
-#: ekos/capture/camera.cpp:3659
+#: ekos/capture/camera.cpp:3655
 #, kde-format
 msgid ""
 "<html><body><p>Maximum temperature change per minute when cooling or warming "
@@ -14884,7 +14886,7 @@ msgid ""
 "the INDI camera driver configuration.</body></html>"
 msgstr ""
 
-#: ekos/capture/camera.cpp:3664
+#: ekos/capture/camera.cpp:3660
 #, fuzzy, kde-format
 #| msgctxt "City name (optional, probably does not need a translation)"
 #| msgid "Freehold"
@@ -14892,7 +14894,7 @@ msgctxt "Temperature threshold above which regulation triggers."
 msgid "Threshold (°C):"
 msgstr "Freehold"
 
-#: ekos/capture/camera.cpp:3670
+#: ekos/capture/camera.cpp:3666
 #, kde-format
 msgid ""
 "<html><body><p>Maximum difference between camera and target temperatures "
@@ -14900,75 +14902,75 @@ msgid ""
 "camera driver configuration.</body></html>"
 msgstr ""
 
-#: ekos/capture/camera.cpp:3683
+#: ekos/capture/camera.cpp:3679
 #, fuzzy, kde-format
 msgctxt "@title:window"
 msgid "Set Temperature Regulation"
 msgstr "Postavi temperaturu ciljnog CCD čipa."
 
-#: ekos/capture/camera.cpp:3723
+#: ekos/capture/camera.cpp:3719
 #, fuzzy, kde-format
 #| msgid "Observer:"
 msgctxt "@title:window"
 msgid "Select Current Observer"
 msgstr "Osmatrač:"
 
-#: ekos/capture/camera.cpp:3725
+#: ekos/capture/camera.cpp:3721
 #, fuzzy, kde-format
 #| msgid "Observer:"
 msgid "Current Observer:"
 msgstr "Osmatrač:"
 
 #. i18n: ectx: property (windowTitle), widget (QWidget, ObserverAdd)
-#: ekos/capture/camera.cpp:3736 oal/execute.cpp:38 oal/observeradd.ui:26
+#: ekos/capture/camera.cpp:3732 oal/execute.cpp:38 oal/observeradd.ui:26
 #, fuzzy, kde-format
 #| msgid "Observer"
 msgid "Manage Observers"
 msgstr "Posmatrač"
 
-#: ekos/capture/camera.cpp:3908
+#: ekos/capture/camera.cpp:3904
 #, kde-format
 msgid "Cooler is on"
 msgstr ""
 
-#: ekos/capture/camera.cpp:3908
+#: ekos/capture/camera.cpp:3904
 #, kde-format
 msgid "Cooler is off"
 msgstr ""
 
-#: ekos/capture/camera.cpp:3938
+#: ekos/capture/camera.cpp:3934
 #, fuzzy, kde-format
 #| msgid "File saved to %1"
 msgid "Filter set to %1."
 msgstr "Datoteka snimljena na %1"
 
-#: ekos/capture/camera.cpp:3971
+#: ekos/capture/camera.cpp:3967
 #, kde-format
 msgid "Are you sure you want to reset status of all jobs?"
 msgstr "Da li ste sigurni da želite restovati statuse svih poslova?"
 
-#: ekos/capture/camera.cpp:3971 ekos/capture/cameraprocess.cpp:2705
+#: ekos/capture/camera.cpp:3967 ekos/capture/cameraprocess.cpp:2703
 #, kde-format
 msgid "Reset job status"
 msgstr "Resetuj status posla"
 
-#: ekos/capture/camera.cpp:4024
+#: ekos/capture/camera.cpp:4020
 #, kde-format
 msgid "Editing job #%1..."
 msgstr "Uređivanje posla #%1..."
 
-#: ekos/capture/camera.cpp:4027 ekos/scheduler/scheduler.cpp:1324
+#: ekos/capture/camera.cpp:4023 ekos/scheduler/scheduler.cpp:1324
 #, kde-format
 msgid "Apply job changes."
 msgstr ""
 
-#: ekos/capture/camera.cpp:4028
+#: ekos/capture/camera.cpp:4024
 #, fuzzy, kde-format
 #| msgid "Save changes"
 msgid "Cancel job changes."
 msgstr "Snimi izmjene"
 
-#: ekos/capture/camera.cpp:4041
+#: ekos/capture/camera.cpp:4037
 #, kde-format
 msgid "Editing job canceled."
 msgstr "Uređivanje posla prekinuto."
@@ -15219,7 +15221,7 @@ msgid "Dark & Flat frames automatic calibration options"
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, calibrationLabel)
-#: ekos/capture/camera.ui:1165 ekos/capture/cameraprocess.cpp:2453
+#: ekos/capture/camera.ui:1165 ekos/capture/cameraprocess.cpp:2451
 #: ekos/guide/guide.cpp:70
 #, kde-format
 msgid "Calibration"
@@ -15796,7 +15798,7 @@ msgstr "Nije moguće otvoriti direktorij %1"
 msgid "Save As..."
 msgstr "Snimi skriptu kao..."
 
-#: ekos/capture/cameraprocess.cpp:214 ekos/capture/cameraprocess.cpp:634
+#: ekos/capture/cameraprocess.cpp:214 ekos/capture/cameraprocess.cpp:632
 #, fuzzy, kde-format
 #| msgid "Image Format"
 msgid "Image Transfer"
@@ -15819,7 +15821,7 @@ msgstr "Nisu pronađeni poslovi u toku. Dodaj posao redu sekvence."
 msgid "No new job created."
 msgstr "završeno"
 
-#: ekos/capture/cameraprocess.cpp:308 ekos/capture/cameraprocess.cpp:884
+#: ekos/capture/cameraprocess.cpp:308 ekos/capture/cameraprocess.cpp:882
 #, kde-format
 msgid "Cannot capture while focus module is busy."
 msgstr ""
@@ -15854,249 +15856,249 @@ msgstr "Zaustavi"
 msgid "CCD capture stopped"
 msgstr "Dohvaćanje prekinuto."
 
-#: ekos/capture/cameraprocess.cpp:442
+#: ekos/capture/cameraprocess.cpp:440
 #, kde-format
 msgid "Pausing only possible while frame capture is running."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:449
+#: ekos/capture/cameraprocess.cpp:447
 #, kde-format
 msgid "Sequence shall be paused after current exposure is complete."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:462
+#: ekos/capture/cameraprocess.cpp:460
 #, kde-format
 msgid "No camera detected. Check train configuration and connection settings."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:487
+#: ekos/capture/cameraprocess.cpp:485
 #, kde-format
 msgid "No view available for previews. Enable FITS viewer?"
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:488
+#: ekos/capture/cameraprocess.cpp:486
 #, fuzzy, kde-format
 #| msgid "Print preview"
 msgid "Display preview"
 msgstr "Pregled prije štampanja"
 
-#: ekos/capture/cameraprocess.cpp:572
+#: ekos/capture/cameraprocess.cpp:570
 #, kde-format
 msgid ""
 "Job requires %1-second %2 images, has already %3/%4 captures and does not "
 "need to run."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:587
+#: ekos/capture/cameraprocess.cpp:585
 #, kde-format
 msgid ""
 "Job requires %1-second %2 images, has %3/%4 frames captured and will be "
 "processed."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:600
+#: ekos/capture/cameraprocess.cpp:598
 #, kde-format
 msgid "Job requires %1 x %2-second %3 video and will be processed."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:830
+#: ekos/capture/cameraprocess.cpp:828
 #, fuzzy, kde-format
 #| msgid "Guiding resumed."
 msgid "Autoguiding resumed."
 msgstr "Navođenje nastavljeno."
 
-#: ekos/capture/cameraprocess.cpp:874
+#: ekos/capture/cameraprocess.cpp:872
 #, kde-format
 msgid "Failed to set sub frame."
 msgstr "Postavljanje pod okvira nije uspjelo."
 
-#: ekos/capture/cameraprocess.cpp:879
+#: ekos/capture/cameraprocess.cpp:877
 #, kde-format
 msgid "Failed to set binning."
 msgstr "Postavljanje binninga nije uspjelo."
 
-#: ekos/capture/cameraprocess.cpp:1039
+#: ekos/capture/cameraprocess.cpp:1037
 #, fuzzy, kde-format
 #| msgid "File saved to %1"
 msgid "file saved to %1"
 msgstr "Datoteka snimljena na %1"
 
-#: ekos/capture/cameraprocess.cpp:1049
+#: ekos/capture/cameraprocess.cpp:1047
 #, kde-format
 msgid ""
 "Failed writing image to %1\n"
 "Please check folder, filename & permissions."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:1051
+#: ekos/capture/cameraprocess.cpp:1049
 #, fuzzy, kde-format
 #| msgid "Image received."
 msgid "Image Write Failed"
 msgstr "Slika dohvaćena."
 
-#: ekos/capture/cameraprocess.cpp:1276
+#: ekos/capture/cameraprocess.cpp:1274
 #, fuzzy, kde-format
 #| msgid "Data file saved to %1"
 msgid "Remote image saved to %1"
 msgstr "Datoteka sa podacima je snimljena u %1"
 
-#: ekos/capture/cameraprocess.cpp:1302
+#: ekos/capture/cameraprocess.cpp:1300
 #, fuzzy, kde-format
 #| msgid "Guiding suspended."
 msgid "Autoguiding suspended."
 msgstr "Navođenje obustavljeno."
 
-#: ekos/capture/cameraprocess.cpp:1332
+#: ekos/capture/cameraprocess.cpp:1330
 #, kde-format
 msgid "Warning: Calibration process was prematurely terminated."
 msgstr ""
 
 #. i18n("CCD capture sequence completed"));
-#: ekos/capture/cameraprocess.cpp:1398
+#: ekos/capture/cameraprocess.cpp:1396
 #, fuzzy, kde-format
 #| msgid "Supernovae options"
 msgid "CCD capture sequence completed"
 msgstr "Opcije supernove"
 
-#: ekos/capture/cameraprocess.cpp:1455
+#: ekos/capture/cameraprocess.cpp:1453
 #, kde-format
 msgid "Error: Lost connection to CCD."
 msgstr "Greška: Izgubljena je konekcija za CCD."
 
-#: ekos/capture/cameraprocess.cpp:1483
+#: ekos/capture/cameraprocess.cpp:1481
 #, kde-format
 msgid "Cannot calculate ADU levels in non-FITS images."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:1608 ekos/capture/cameraprocess.cpp:2167
+#: ekos/capture/cameraprocess.cpp:1606 ekos/capture/cameraprocess.cpp:2165
 #, kde-format
 msgid "Capture failed. Check INDI Control Panel for details."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:1708
+#: ekos/capture/cameraprocess.cpp:1706
 #, kde-format
 msgid "Download Time: %1 s, New Download Time Estimate: %2 s."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:1774
+#: ekos/capture/cameraprocess.cpp:1772
 #, kde-format
 msgid "Received image %1 out of %2."
 msgstr "Primljena slika %1 od %2."
 
-#: ekos/capture/cameraprocess.cpp:1811
+#: ekos/capture/cameraprocess.cpp:1809
 #, fuzzy, kde-format
 #| msgid "Capture"
 msgid "Captured %1"
 msgstr "Dohvati"
 
-#: ekos/capture/cameraprocess.cpp:1817
+#: ekos/capture/cameraprocess.cpp:1815
 #, kde-format
 msgid "WARNING: remaining and potentially unknown placeholders %1 in %2"
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:1858
+#: ekos/capture/cameraprocess.cpp:1856
 #, fuzzy, kde-format
 #| msgid "Running script: %1"
 msgid "Executing capture script %1"
 msgstr "Pokretanje skripte: %1"
 
-#: ekos/capture/cameraprocess.cpp:1873
+#: ekos/capture/cameraprocess.cpp:1871
 #, kde-format
 msgid "Pre capture script finished with code %1."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:1884
+#: ekos/capture/cameraprocess.cpp:1882
 #, kde-format
 msgid "Post capture script finished with code %1."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:1896
+#: ekos/capture/cameraprocess.cpp:1894
 #, fuzzy, kde-format
 msgid "Processing meridian flip..."
 msgstr "Meridian"
 
-#: ekos/capture/cameraprocess.cpp:1906
+#: ekos/capture/cameraprocess.cpp:1904
 #, kde-format
 msgid "Pre job script finished with code %1."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:1911
+#: ekos/capture/cameraprocess.cpp:1909
 #, kde-format
 msgid "Post job script finished with code %1."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:2097 ekos/focus/focus.cpp:5773
+#: ekos/capture/cameraprocess.cpp:2095 ekos/focus/focus.cpp:5773
 #: ekos/focus/focus.cpp:5797
 #, fuzzy, kde-format
 #| msgid "Start Camera/CCD exposure. The duration is in seconds."
 msgid "Exposure timeout. Aborting..."
 msgstr "Postavi ekspoziciju kamere/CCD-a. Trajanje je u sekundama."
 
-#: ekos/capture/cameraprocess.cpp:2104
+#: ekos/capture/cameraprocess.cpp:2102
 #, kde-format
 msgid "Exposure timeout. More than 3 have been detected, will restart driver."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:2122 ekos/focus/focus.cpp:5778
+#: ekos/capture/cameraprocess.cpp:2120 ekos/focus/focus.cpp:5778
 #: ekos/guide/guide.cpp:997
 #, fuzzy, kde-format
 #| msgid "Autofocus failed. Aborting exposure..."
 msgid "Exposure timeout. Restarting exposure..."
 msgstr "Autofokus nije uspio.Obustavljanje izlaganja."
 
-#: ekos/capture/cameraprocess.cpp:2148
+#: ekos/capture/cameraprocess.cpp:2146
 #, fuzzy, kde-format
 #| msgid "Start Camera/CCD exposure. The duration is in seconds."
 msgid "Exposure timeout. Too many. Aborting..."
 msgstr "Postavi ekspoziciju kamere/CCD-a. Trajanje je u sekundama."
 
-#: ekos/capture/cameraprocess.cpp:2226
+#: ekos/capture/cameraprocess.cpp:2224
 #, kde-format
 msgid ""
 "Flat calibration failed. Captured image is only %1-bit while requested ADU "
 "is %2."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:2237
+#: ekos/capture/cameraprocess.cpp:2235
 #, kde-format
 msgid "Current image is saturated (%1). Next exposure is %2 seconds."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:2259
+#: ekos/capture/cameraprocess.cpp:2257
 #, kde-format
 msgid "Current ADU %1 within target ADU tolerance range."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:2288
+#: ekos/capture/cameraprocess.cpp:2286
 #, kde-format
 msgid ""
 "Unable to calculate optimal exposure settings, please capture the flats "
 "manually."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:2296
+#: ekos/capture/cameraprocess.cpp:2294
 #, kde-format
 msgid "Current ADU is %1 Next exposure is %2 seconds."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:2437
+#: ekos/capture/cameraprocess.cpp:2435
 #, fuzzy, kde-format
 msgid "%1 Preview"
 msgstr "Predpregled"
 
-#: ekos/capture/cameraprocess.cpp:2448 ekos/capture/cameraprocess.cpp:2450
+#: ekos/capture/cameraprocess.cpp:2446 ekos/capture/cameraprocess.cpp:2448
 #, fuzzy, kde-format
 #| msgid "Calibration"
 msgid "Flat Calibration"
 msgstr "Kalibracija"
 
-#: ekos/capture/cameraprocess.cpp:2654
+#: ekos/capture/cameraprocess.cpp:2652
 #, fuzzy, kde-format
 #| msgid "Sequence Queue"
 msgid "Sequence paused."
 msgstr "Sekvencijalni red"
 
-#: ekos/capture/cameraprocess.cpp:2704
+#: ekos/capture/cameraprocess.cpp:2702
 #, kde-format
 msgid ""
 "All jobs are complete. Do you want to reset the status of all jobs and "
@@ -16105,27 +16107,27 @@ msgstr ""
 "Svi poslovi su završeni. Da li želiš da resetuješ status svih poslova i "
 "restartuješ snimanje?"
 
-#: ekos/capture/cameraprocess.cpp:2718
+#: ekos/capture/cameraprocess.cpp:2716
 #, kde-format
 msgid ""
 "Warning: option \"Always Reset Sequence When Starting\" is enabled and "
 "resets the sequence counts."
 msgstr ""
 
-#: ekos/capture/cameraprocess.cpp:2848
+#: ekos/capture/cameraprocess.cpp:2846
 #, fuzzy, kde-format
 #| msgid "Are you sure you want to remove the %1 client?"
 msgid "Are you sure you want to restart %1 camera driver?"
 msgstr "Sigurno želite ukloniti klijenta %1?"
 
-#: ekos/capture/cameraprocess.cpp:2849
+#: ekos/capture/cameraprocess.cpp:2847
 #, fuzzy, kde-format
 #| msgctxt "string from libindi, used in the config dialog"
 #| msgid "Restart"
 msgid "Driver Restart"
 msgstr "Restartuj"
 
-#: ekos/capture/cameraprocess.cpp:2996 ekos/capture/sequencejobstate.cpp:41
+#: ekos/capture/cameraprocess.cpp:2994 ekos/capture/sequencejobstate.cpp:41
 #, fuzzy, kde-format
 #| msgid "Solver aborted after %1 second."
 #| msgid_plural "Solver aborted after %1 seconds"
@@ -16192,81 +16194,81 @@ msgstr "Dome Creek"
 msgid "Dust cap unparked."
 msgstr "Dome Creek"
 
-#: ekos/capture/camerastate.cpp:504
+#: ekos/capture/camerastate.cpp:503
 #, kde-format
 msgid "Meridian flip is successfully completed"
 msgstr ""
 
-#: ekos/capture/camerastate.cpp:605
+#: ekos/capture/camerastate.cpp:604
 #, kde-format
 msgid "Performing post flip re-calibration and guiding..."
 msgstr ""
 
-#: ekos/capture/camerastate.cpp:618
+#: ekos/capture/camerastate.cpp:617
 #, fuzzy, kde-format
 msgid "Post meridian flip calibration error. Restarting..."
 msgstr "Telescope Wizard je uspješno završen."
 
-#: ekos/capture/camerastate.cpp:638
+#: ekos/capture/camerastate.cpp:637
 #, fuzzy, kde-format
 #| msgid "Autoguiding stopped."
 msgid "Autoguiding stopped. Waiting for autofocus to finish..."
 msgstr "Automatsko navođenje je završeno."
 
-#: ekos/capture/camerastate.cpp:647
+#: ekos/capture/camerastate.cpp:646
 #, fuzzy, kde-format
 #| msgid "Autoguiding stopped."
 msgid "Autoguiding stopped. Aborting..."
 msgstr "Automatsko navođenje je završeno."
 
-#: ekos/capture/camerastate.cpp:654
+#: ekos/capture/camerastate.cpp:653
 #, fuzzy, kde-format
 msgid "Post meridian flip calibration error. Aborting..."
 msgstr "Telescope Wizard je uspješno završen."
 
-#: ekos/capture/camerastate.cpp:676
+#: ekos/capture/camerastate.cpp:675
 #, fuzzy, kde-format
 #| msgid "Autofocus complete."
 msgid "Adaptive focus complete."
 msgstr "Automatsko fokusiranje je završeno."
 
-#: ekos/capture/camerastate.cpp:700
+#: ekos/capture/camerastate.cpp:699
 #, kde-format
 msgid "Autofocus failed. Aborting exposure..."
 msgstr "Autofokus nije uspio.Obustavljanje izlaganja."
 
 #         translations.
 #. i18np since guidingRate is DOUBLE value (e.g. 1.36) so we always use plural with that.
-#: ekos/capture/camerastate.cpp:736
+#: ekos/capture/camerastate.cpp:735
 #, fuzzy, kde-format
 #| msgid "Solver completed in %1 second."
 #| msgid_plural "Solver completed in %1 seconds."
 msgid "Focus complete. Resuming in %1 seconds..."
 msgstr "Rješavač završio za %1 sekundu."
 
-#: ekos/capture/camerastate.cpp:759
+#: ekos/capture/camerastate.cpp:758
 #, kde-format
 msgid "Limit: %1 °C"
 msgstr ""
 
-#: ekos/capture/camerastate.cpp:763
+#: ekos/capture/camerastate.cpp:762
 #, fuzzy, kde-format
 #| msgctxt "string from libindi, used in the config dialog"
 #| msgid "Simulator Settings"
 msgid "Limit: %1 mins"
 msgstr "Podešenja Siulatora"
 
-#: ekos/capture/camerastate.cpp:908
+#: ekos/capture/camerastate.cpp:907
 #, fuzzy, kde-format
 msgid "Performing post flip re-alignment..."
 msgstr "Obrađujem rješenje polarnog poravnanja..."
 
-#: ekos/capture/camerastate.cpp:926
+#: ekos/capture/camerastate.cpp:925
 #, fuzzy, kde-format
 msgid "Guide module timed out."
 msgstr "Navođenje nastavljeno."
 
-#: ekos/capture/camerastate.cpp:958
+#: ekos/capture/camerastate.cpp:957
 #, fuzzy, kde-format
 #| msgid ""
 #| "Guiding deviation %1 is now lower than limit value of %2 arcsecs, "
@@ -16276,7 +16278,7 @@ msgstr ""
 "Odstupanje navođenja %1 je sada manji od nivoa ograničenja od %2 arcsecs, "
 "nastavljanje izlaganja."
 
-#: ekos/capture/camerastate.cpp:967
+#: ekos/capture/camerastate.cpp:966
 #, fuzzy, kde-format
 #| msgid ""
 #| "Guiding deviation %1 is now lower than limit value of %2 arcsecs, "
@@ -16286,12 +16288,12 @@ msgstr ""
 "Odstupanje navođenja %1 je sada manji od nivoa ograničenja od %2 arcsecs, "
 "nastavljanje izlaganja."
 
-#: ekos/capture/camerastate.cpp:989
+#: ekos/capture/camerastate.cpp:988
 #, fuzzy, kde-format
 msgid "Post meridian flip calibration completed successfully."
 msgstr "Telescope Wizard je uspješno završen."
 
-#: ekos/capture/camerastate.cpp:1003
+#: ekos/capture/camerastate.cpp:1002
 #, fuzzy, kde-format
 #| msgid ""
 #| "Guiding deviation %1 is now lower than limit value of %2 arcsecs, "
@@ -16301,7 +16303,7 @@ msgstr ""
 "Odstupanje navođenja %1 je sada manji od nivoa ograničenja od %2 arcsecs, "
 "nastavljanje izlaganja."
 
-#: ekos/capture/camerastate.cpp:1017
+#: ekos/capture/camerastate.cpp:1016
 #, fuzzy, kde-format
 #| msgid ""
 #| "Guiding deviation %1 is now lower than limit value of %2 arcsecs, "
@@ -16311,7 +16313,7 @@ msgstr ""
 "Odstupanje navođenja %1 je sada manji od nivoa ograničenja od %2 arcsecs, "
 "nastavljanje izlaganja."
 
-#: ekos/capture/camerastate.cpp:1044
+#: ekos/capture/camerastate.cpp:1043
 #, fuzzy, kde-format
 #| msgid ""
 #| "Guiding deviation %1 exceeded limit value of %2 arcsecs, aborting "
@@ -16323,7 +16325,7 @@ msgstr ""
 "Odstupanje navođenja %1 premašuje nivo ograničenja od %2 arcsecs, "
 "obustavljanje izlaganja."
 
-#: ekos/capture/camerastate.cpp:1091
+#: ekos/capture/camerastate.cpp:1090
 #, kde-format
 msgid ""
 "Guiding deviation %1 is now lower than limit value of %2 arcsecs, resuming "
@@ -16332,7 +16334,7 @@ msgstr ""
 "Odstupanje navođenja %1 je sada manji od nivoa ograničenja od %2 arcsecs, "
 "nastavljanje izlaganja."
 
-#: ekos/capture/camerastate.cpp:1095
+#: ekos/capture/camerastate.cpp:1094
 #, fuzzy, kde-format
 #| msgid ""
 #| "Guiding deviation %1 is now lower than limit value of %2 arcsecs, "
@@ -16344,7 +16346,7 @@ msgstr ""
 "Odstupanje navođenja %1 je sada manji od nivoa ograničenja od %2 arcsecs, "
 "nastavljanje izlaganja."
 
-#: ekos/capture/camerastate.cpp:1110
+#: ekos/capture/camerastate.cpp:1109
 #, fuzzy, kde-format
 #| msgid ""
 #| "Guiding deviation %1 is now lower than limit value of %2 arcsecs, "
@@ -16354,17 +16356,17 @@ msgstr ""
 "Odstupanje navođenja %1 je sada manji od nivoa ograničenja od %2 arcsecs, "
 "nastavljanje izlaganja."
 
-#: ekos/capture/camerastate.cpp:1490
+#: ekos/capture/camerastate.cpp:1489
 #, fuzzy, kde-format
 msgid "Post flip re-alignment completed successfully."
 msgstr "Telescope Wizard je uspješno završen."
 
-#: ekos/capture/camerastate.cpp:1509
+#: ekos/capture/camerastate.cpp:1508
 #, fuzzy, kde-format
 msgid "Post-flip alignment failed."
 msgstr "Rješavač  pauziran."
 
-#: ekos/capture/camerastate.cpp:1514
+#: ekos/capture/camerastate.cpp:1513
 #, fuzzy, kde-format
 msgid "Post-flip alignment failed. Retrying..."
 msgstr "Rješavač  pauziran."
@@ -17558,7 +17560,7 @@ msgid ""
 "Ekos will refocus as soon as possible, last procedure was %1 seconds ago."
 msgstr ""
 
-#: ekos/capture/rotatorsettings.cpp:123
+#: ekos/capture/rotatorsettings.cpp:124
 #, fuzzy, kde-format
 #| msgid "Telescope Wizard completed successfully."
 msgid "Initial rotator angle %1° is read in successfully."
@@ -26839,7 +26841,7 @@ msgstr "Atik"
 
 #. i18n: ectx: property (text), widget (QPushButton, equipmentOtherB)
 #. i18n: ectx: property (text), widget (QCheckBox, OtherCB)
-#: ekos/profilewizard.ui:432 tools/imagingplanner.ui:1850
+#: ekos/profilewizard.ui:432 tools/imagingplanner.ui:1998
 #, fuzzy, kde-format
 #| msgctxt "Satellite group name"
 #| msgid "Other"
@@ -28860,8 +28862,8 @@ msgstr "Sazvježđa"
 #. i18n: ectx: property (suffix), widget (QDoubleSpinBox, AstrobinMinRadius)
 #. i18n: ectx: property (suffix), widget (QDoubleSpinBox, AstrobinMaxRadius)
 #: ekos/scheduler/scheduler.ui:1656 ekos/scheduler/scheduler.ui:1713
-#: ekos/scheduler/scheduler.ui:1729 tools/imagingplanner.ui:1021
-#: tools/imagingplanner.ui:1368 tools/imagingplanner.ui:1416
+#: ekos/scheduler/scheduler.ui:1729 tools/imagingplanner.ui:1169
+#: tools/imagingplanner.ui:1516 tools/imagingplanner.ui:1564
 #, kde-format
 msgid " °"
 msgstr ""
@@ -30165,14 +30167,14 @@ msgstr "Kalibriranje završeno."
 msgid "Unable to open sequence queue file '%1'"
 msgstr "Nije moguće otvoriti direktorij %1"
 
-#: ekos/scheduler/schedulerutils.cpp:450
+#: ekos/scheduler/schedulerutils.cpp:449
 #, kde-format
 msgid ""
 "Warning: Job '%1' has its focus step disabled, periodic and/or HFR "
 "procedures currently set in its sequence will not occur."
 msgstr ""
 
-#: ekos/scheduler/schedulerutils.cpp:478
+#: ekos/scheduler/schedulerutils.cpp:477
 #, kde-format
 msgid "Job '%1' %2x%3\" %4"
 msgstr ""
@@ -30553,7 +30555,7 @@ msgstr "Reading"
 
 #. i18n: ectx: property (text), widget (QTableWidget, tableWidget)
 #. i18n: ectx: property (text), widget (QCheckBox, keywordCB)
-#: fitsviewer/fitsheaderdialog.ui:48 tools/imagingplanner.ui:1984
+#: fitsviewer/fitsheaderdialog.ui:48 tools/imagingplanner.ui:2132
 #, kde-format
 msgid "Keyword"
 msgstr "Ključna riječ"
@@ -30788,7 +30790,7 @@ msgstr "Portugal"
 #. i18n: ectx: property (text), widget (QPushButton, searchSimbad)
 #. i18n: ectx: property (text), widget (QPushButton, searchSimbad2)
 #: fitsviewer/fitstab.cpp:762 fitsviewer/opsfits.ui:435
-#: tools/imagingplanner.ui:1302 tools/imagingplanner.ui:1627
+#: tools/imagingplanner.ui:1450 tools/imagingplanner.ui:1775
 #, fuzzy, kde-format
 #| msgctxt "Advanced URLs: description or category"
 #| msgid "Simbad"
@@ -30821,7 +30823,7 @@ msgid "Distance"
 msgstr "Razdaljina:"
 
 #: fitsviewer/fitstab.cpp:770 fitsviewer/fitsviewer.cpp:1394
-#: kstarslite/qml/dialogs/DetailsDialog.qml:153 tools/imagingplanner.cpp:1122
+#: kstarslite/qml/dialogs/DetailsDialog.qml:153 tools/imagingplanner.cpp:1136
 #, fuzzy, kde-format, kde-kuit-format
 #| msgid "Size:"
 msgid "Size"
@@ -86280,7 +86282,7 @@ msgstr "Ostaci supernove"
 
 #. i18n: ectx: property (text), widget (QCheckBox, GalaxyCB)
 #: printing/legend.cpp:368 printing/legend.cpp:403 skyobjects/skyobject.cpp:359
-#: skyobjects/skyobject.cpp:409 tools/imagingplanner.ui:1820
+#: skyobjects/skyobject.cpp:409 tools/imagingplanner.ui:1968
 #, kde-format
 msgid "Galaxy"
 msgstr "Galaksija"
@@ -87560,7 +87562,7 @@ msgid "Open Clr"
 msgstr "Otvoreni skup"
 
 #. i18n: ectx: property (text), widget (QCheckBox, GlobularClusterCB)
-#: skyobjects/skyobject.cpp:401 tools/imagingplanner.ui:1790
+#: skyobjects/skyobject.cpp:401 tools/imagingplanner.ui:1938
 #, fuzzy, kde-format
 #| msgctxt "Satellite group name"
 #| msgid "Globalstar"
@@ -87568,21 +87570,21 @@ msgid "Globular"
 msgstr "Globalstar"
 
 #. i18n: ectx: property (text), widget (QCheckBox, NebulaCB)
-#: skyobjects/skyobject.cpp:403 tools/imagingplanner.ui:1780
+#: skyobjects/skyobject.cpp:403 tools/imagingplanner.ui:1928
 #, fuzzy, kde-format
 #| msgid "Nebulae"
 msgid "Nebula"
 msgstr "Magline"
 
 #. i18n: ectx: property (text), widget (QCheckBox, PlanetaryCB)
-#: skyobjects/skyobject.cpp:405 tools/imagingplanner.ui:1800
+#: skyobjects/skyobject.cpp:405 tools/imagingplanner.ui:1948
 #, fuzzy, kde-format
 #| msgid "Planet"
 msgid "Planetary"
 msgstr "Planeta"
 
 #. i18n: ectx: property (text), widget (QCheckBox, SupernovaRemnantCB)
-#: skyobjects/skyobject.cpp:407 tools/imagingplanner.ui:1810
+#: skyobjects/skyobject.cpp:407 tools/imagingplanner.ui:1958
 #, kde-format
 msgid "Remnant"
 msgstr ""
@@ -87594,7 +87596,7 @@ msgid "Galaxy Clr"
 msgstr "Skup galaksija"
 
 #. i18n: ectx: property (text), widget (QCheckBox, DarkNebulaCB)
-#: skyobjects/skyobject.cpp:429 tools/imagingplanner.ui:1840
+#: skyobjects/skyobject.cpp:429 tools/imagingplanner.ui:1988
 #, fuzzy, kde-format
 #| msgid "Dark Nebula"
 msgid "Dark Neb"
@@ -89078,8 +89080,8 @@ msgid "Object Set"
 msgstr "Objekat 1"
 
 #. i18n: ectx: property (text), widget (QPushButton, transitButton)
-#: tools/altvstime.ui:352 tools/imagingplanner.cpp:2681
-#: tools/imagingplanner.cpp:2692 tools/imagingplanner.cpp:2707
+#: tools/altvstime.ui:352 tools/imagingplanner.cpp:2907
+#: tools/imagingplanner.cpp:2918 tools/imagingplanner.cpp:2933
 #, fuzzy, kde-format
 #| msgid "Transit:"
 msgid "Transit"
@@ -90217,285 +90219,285 @@ msgid ""
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QCheckBox, imagedCB)
-#: tools/imagingplanner.cpp:174 tools/imagingplanner.ui:1897
+#: tools/imagingplanner.cpp:174 tools/imagingplanner.ui:2045
 #, fuzzy, kde-format
 #| msgid "Image"
 msgid "Imaged"
 msgstr "Slika"
 
 #. i18n: ectx: property (text), widget (QCheckBox, pickedCB)
-#: tools/imagingplanner.cpp:179 tools/imagingplanner.ui:1867
+#: tools/imagingplanner.cpp:179 tools/imagingplanner.ui:2015
 #, kde-format
 msgid "Picked"
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QCheckBox, ignoredCB)
-#: tools/imagingplanner.cpp:185 tools/imagingplanner.ui:1954
+#: tools/imagingplanner.cpp:185 tools/imagingplanner.ui:2102
 #, fuzzy, kde-format
 #| msgid "Ignore"
 msgid "Ignored"
 msgstr "Zanemari"
 
-#: tools/imagingplanner.cpp:977
+#: tools/imagingplanner.cpp:991
 #, fuzzy, kde-format
 #| msgid "Observation Planner"
 msgctxt "@title:window"
 msgid "Imaging Planner"
 msgstr "Planer observacije"
 
-#: tools/imagingplanner.cpp:1122
+#: tools/imagingplanner.cpp:1136
 #, fuzzy, kde-format
 #| msgctxt "Altitude"
 #| msgid "Alt"
 msgid "Alt"
 msgstr "Vis"
 
-#: tools/imagingplanner.cpp:1123
+#: tools/imagingplanner.cpp:1137
 #, fuzzy, kde-format
 #| msgctxt "City name (optional, probably does not need a translation)"
 #| msgid "Consort"
 msgid "Const"
 msgstr "Consort"
 
-#: tools/imagingplanner.cpp:1123
+#: tools/imagingplanner.cpp:1137
 #, fuzzy, kde-format
 #| msgctxt "string from libindi, used in the config dialog"
 #| msgid "EQ Coord"
 msgid "Coord"
 msgstr "EQ Koordinata"
 
-#: tools/imagingplanner.cpp:1125
+#: tools/imagingplanner.cpp:1139
 #, kde-format
 msgid "Object Name--click header to sort ascending/descending."
 msgstr ""
 
-#: tools/imagingplanner.cpp:1127
+#: tools/imagingplanner.cpp:1141
 #, kde-format
 msgid ""
 "Number of hours the object can be imaged--click header to sort ascending/"
 "descending."
 msgstr ""
 
-#: tools/imagingplanner.cpp:1129
+#: tools/imagingplanner.cpp:1143
 #, kde-format
 msgid "Object Type--click header to sort ascending/descending."
 msgstr ""
 
-#: tools/imagingplanner.cpp:1131
+#: tools/imagingplanner.cpp:1145
 #, kde-format
 msgid ""
 "Maximum object dimension (arcmin)--click header to sort ascending/descending."
 msgstr ""
 
-#: tools/imagingplanner.cpp:1133
+#: tools/imagingplanner.cpp:1147
 #, kde-format
 msgid "Maximum altitude--click header to sort ascending/descending."
 msgstr ""
 
-#: tools/imagingplanner.cpp:1135
+#: tools/imagingplanner.cpp:1149
 #, kde-format
 msgid ""
 "Moon angular separation at midnight--click header to sort ascending/"
 "descending."
 msgstr ""
 
-#: tools/imagingplanner.cpp:1137
+#: tools/imagingplanner.cpp:1151
 #, kde-format
 msgid "Constellation--click header to sort ascending/descending."
 msgstr ""
 
-#: tools/imagingplanner.cpp:1139
+#: tools/imagingplanner.cpp:1153
 #, kde-format
 msgid "RA/DEC coordinates--click header to sort ascending/descending."
 msgstr ""
 
-#: tools/imagingplanner.cpp:1570
+#: tools/imagingplanner.cpp:1574
 #, fuzzy, kde-format
 #| msgctxt "%1 is a location on earth"
 #| msgid "Almanac for %1"
 msgid "No match for \"%1\""
 msgstr "Almanac za %1"
 
-#: tools/imagingplanner.cpp:1634
+#: tools/imagingplanner.cpp:1638
 #, kde-format
 msgid "Open a browser with the 1st link in this note: %1"
 msgstr ""
 
-#: tools/imagingplanner.cpp:1639
+#: tools/imagingplanner.cpp:1643
 #, kde-format
 msgid "Open a browser with the 2nd link in this note: %1"
 msgstr ""
 
-#: tools/imagingplanner.cpp:1644
+#: tools/imagingplanner.cpp:1648
 #, kde-format
 msgid "Open a browser with the 3rd link in this note: %1"
 msgstr ""
 
-#: tools/imagingplanner.cpp:1941
+#: tools/imagingplanner.cpp:1978
 #, fuzzy, kde-format
 #| msgid "Uploading file..."
 msgid "Updating tables..."
 msgstr "Učitavanje datoteke..."
 
-#: tools/imagingplanner.cpp:2136
+#: tools/imagingplanner.cpp:2350
 #, kde-format
 msgid ""
 "You need to load a catalog to start using this tool.\n"
 "See Data -> Download New Data..."
 msgstr ""
 
-#: tools/imagingplanner.cpp:2137
+#: tools/imagingplanner.cpp:2351
 #, fuzzy, kde-format
 #| msgid "Catalogs"
 msgid "No Catalog!"
 msgstr "Katalozi"
 
-#: tools/imagingplanner.cpp:2183
+#: tools/imagingplanner.cpp:2397
 #, fuzzy, kde-format
 #| msgid "Select object..."
 msgid "Select an object."
 msgstr "Odaberi objekt..."
 
-#: tools/imagingplanner.cpp:2185
+#: tools/imagingplanner.cpp:2399
 #, kde-format
 msgid "Check Filters to unhide objects."
 msgstr ""
 
-#: tools/imagingplanner.cpp:2187
+#: tools/imagingplanner.cpp:2401
 #, fuzzy, kde-format
 #| msgid "Load Catalog..."
 msgid "Load a Catalog."
 msgstr "Učitaj katalog..."
 
-#: tools/imagingplanner.cpp:2364
+#: tools/imagingplanner.cpp:2572
 #, fuzzy, kde-format
 #| msgid "Load Catalog..."
 msgid "Loading Catalogs..."
 msgstr "Učitaj katalog..."
 
-#: tools/imagingplanner.cpp:2670
+#: tools/imagingplanner.cpp:2896
 #, fuzzy, kde-format
 #| msgid "Transit:"
 msgid "Transits"
 msgstr "Tranzit:"
 
-#: tools/imagingplanner.cpp:2675 tools/imagingplanner.cpp:2679
+#: tools/imagingplanner.cpp:2901 tools/imagingplanner.cpp:2905
 #, fuzzy, kde-format
 #| msgid "Sets at: %1"
 msgid "Sets at"
 msgstr "Zalazi u: %1"
 
-#: tools/imagingplanner.cpp:2686 tools/imagingplanner.cpp:2690
+#: tools/imagingplanner.cpp:2912 tools/imagingplanner.cpp:2916
 #, fuzzy, kde-format
 #| msgid "Rises at: %1"
 msgid "Rises at"
 msgstr "Izlazi u: %1"
 
-#: tools/imagingplanner.cpp:2697 tools/imagingplanner.cpp:2703
+#: tools/imagingplanner.cpp:2923 tools/imagingplanner.cpp:2929
 #, fuzzy, kde-format
 #| msgid "Rise:"
 msgid "Rises"
 msgstr "Izlazak:"
 
-#: tools/imagingplanner.cpp:2699 tools/imagingplanner.cpp:2705
+#: tools/imagingplanner.cpp:2925 tools/imagingplanner.cpp:2931
 #, kde-format
 msgid "Sets"
 msgstr ""
 
-#: tools/imagingplanner.cpp:2811 tools/imagingplanner.cpp:3067
+#: tools/imagingplanner.cpp:3037 tools/imagingplanner.cpp:3293
 #, fuzzy, kde-format
 #| msgid "object"
 msgid "objects"
 msgstr "objekat"
 
-#: tools/imagingplanner.cpp:3063
+#: tools/imagingplanner.cpp:3289
 #, fuzzy, kde-format
 #| msgid "%1, %2 and %3"
 msgid "%1, %2 and %3 other objects"
 msgstr "%1, %2 i %3"
 
-#: tools/imagingplanner.cpp:3071 tools/imagingplanner.cpp:3075
+#: tools/imagingplanner.cpp:3297 tools/imagingplanner.cpp:3301
 #, kde-format
 msgid "Mark %1 as NOT imaged"
 msgstr ""
 
-#: tools/imagingplanner.cpp:3072 tools/imagingplanner.cpp:3077
+#: tools/imagingplanner.cpp:3298 tools/imagingplanner.cpp:3303
 #, kde-format
 msgid "Mark %1 as already imaged"
 msgstr ""
 
-#: tools/imagingplanner.cpp:3081 tools/imagingplanner.cpp:3085
+#: tools/imagingplanner.cpp:3307 tools/imagingplanner.cpp:3311
 #, kde-format
 msgid "Un-pick %1"
 msgstr ""
 
-#: tools/imagingplanner.cpp:3082 tools/imagingplanner.cpp:3087
+#: tools/imagingplanner.cpp:3308 tools/imagingplanner.cpp:3313
 #, kde-format
 msgid "Pick %1"
 msgstr ""
 
-#: tools/imagingplanner.cpp:3092 tools/imagingplanner.cpp:3097
+#: tools/imagingplanner.cpp:3318 tools/imagingplanner.cpp:3323
 #, fuzzy, kde-format
 #| msgid "Stop &Tracking"
 msgid "Stop ignoring %1"
 msgstr "Zaustavi &praćenje"
 
-#: tools/imagingplanner.cpp:3093 tools/imagingplanner.cpp:3099
+#: tools/imagingplanner.cpp:3319 tools/imagingplanner.cpp:3325
 #, fuzzy, kde-format
 #| msgid "Ignore"
 msgid "Ignore %1"
 msgstr "Zanemari"
 
-#: tools/imagingplanner.cpp:3102
+#: tools/imagingplanner.cpp:3328
 #, fuzzy, kde-format
 msgid "Center %1 on SkyMap"
 msgstr "Centriraj na mapi"
 
-#: tools/imagingplanner.cpp:3241
+#: tools/imagingplanner.cpp:3467
 #, fuzzy, kde-format
 #| msgid "Name of the remote INDI focuser device."
 msgid "Successfully marked %1 objects as read"
 msgstr "Naziv daljinskog INDI fokuser uređaja."
 
-#: tools/imagingplanner.cpp:3243
+#: tools/imagingplanner.cpp:3469
 #, fuzzy, kde-format
 #| msgid "Input file:"
 msgid "Empty file"
 msgstr "Ulazna datoteka:"
 
-#: tools/imagingplanner.cpp:3252
+#: tools/imagingplanner.cpp:3478
 #, fuzzy, kde-format
 #| msgid "Add a name label to the object named %1."
 msgid "Failed marking all of these objects imaged: %1"
 msgstr "Dodaj ime oznake objektu nazvanom %1."
 
-#: tools/imagingplanner.cpp:3254
+#: tools/imagingplanner.cpp:3480
 #, kde-format
 msgid "Failed marking %1 objects imaged, including: %2"
 msgstr ""
 
-#: tools/imagingplanner.cpp:3256
+#: tools/imagingplanner.cpp:3482
 #, kde-format
 msgid "Succeeded marking %1 objects imaged. Failed with %2: %3"
 msgstr ""
 
-#: tools/imagingplanner.cpp:3259
+#: tools/imagingplanner.cpp:3485
 #, kde-format
 msgid "Succeeded marking %1 objects imaged. Failed with %2 including these: %3"
 msgstr ""
 
-#: tools/imagingplanner.cpp:3265 tools/imagingplanner.cpp:3458
+#: tools/imagingplanner.cpp:3491 tools/imagingplanner.cpp:3694
 #, fuzzy, kde-format
 #| msgid "Could not open file %1"
 msgid "Sorry, couldn't open file: \"%1\""
 msgstr "Ne mogu otvoriti datoteku %1"
 
-#: tools/imagingplanner.cpp:3367
+#: tools/imagingplanner.cpp:3603
 #, kde-format
 msgid "Sorry, catalog file doesn't exist: \"%1\""
 msgstr ""
 
-#: tools/imagingplanner.cpp:3439
+#: tools/imagingplanner.cpp:3675
 #, kde-format
 msgid "%1/%2: Adding %3"
 msgstr ""
@@ -90555,39 +90557,74 @@ msgstr "Ime opcije"
 msgid "Open web documentation."
 msgstr ""
 
+#. i18n: ectx: property (text), widget (QLabel, DevelLabel)
+#: tools/imagingplanner.ui:445
+#, kde-format
+msgid ""
+"\n"
+"                 Catalog Development:\n"
+"              "
+msgstr ""
+
+#. i18n: ectx: property (text), widget (QPushButton, DevelDownsampleButton)
+#: tools/imagingplanner.ui:464
+#, fuzzy, kde-format
+#| msgid "Delete all Images"
+msgid "Downsample"
+msgstr "Obriši sve slike"
+
+#. i18n: ectx: property (toolTip), widget (QPushButton, DevelDownsampleButton)
+#. i18n: ectx: property (toolTip), widget (QPushButton, DevelCheckTargetsButton)
+#. i18n: ectx: property (toolTip), widget (QPushButton, DevelCheckCatalogButton)
+#. i18n: ectx: property (toolTip), widget (QPushButton, DevelCheckTargetsPrevButton)
+#. i18n: ectx: property (toolTip), widget (QPushButton, DevelCheckTargetsNextButton)
+#: tools/imagingplanner.ui:467 tools/imagingplanner.ui:489
+#: tools/imagingplanner.ui:511 tools/imagingplanner.ui:536
+#: tools/imagingplanner.ui:568
+#, kde-format
+msgid "For catalog development"
+msgstr ""
+
+#. i18n: ectx: property (text), widget (QPushButton, DevelCheckTargetsButton)
+#: tools/imagingplanner.ui:486
+#, fuzzy, kde-format
+#| msgid "Check URL"
+msgid "Check"
+msgstr "Provjeri adresu"
+
 #. i18n: ectx: property (toolTip), widget (QPushButton, userNotesEditButton)
-#: tools/imagingplanner.ui:565
+#: tools/imagingplanner.ui:713
 #, fuzzy, kde-format
 #| msgid "Set observing notes for the object:"
 msgid "Create/Edit some user notes for this object"
 msgstr "Postavi napomene posmatranja za objekt:"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, userNotesDoneButton)
-#: tools/imagingplanner.ui:597
+#: tools/imagingplanner.ui:745
 #, kde-format
 msgid "Done creating/editing some user notes for this object"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, userNotesOpenLink)
-#: tools/imagingplanner.ui:629
+#: tools/imagingplanner.ui:777
 #, kde-format
 msgid "Open a browser with the 1st link in this note."
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, userNotesOpenLink2)
-#: tools/imagingplanner.ui:661
+#: tools/imagingplanner.ui:809
 #, kde-format
 msgid "Open a browser with the 2nd link in this note."
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, userNotesOpenLink3)
-#: tools/imagingplanner.ui:693
+#: tools/imagingplanner.ui:841
 #, kde-format
 msgid "Open a browser with the 3rd link in this note."
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, userNotesLabel)
-#: tools/imagingplanner.ui:719
+#: tools/imagingplanner.ui:867
 #, fuzzy, kde-format
 #| msgctxt "string from libindi, used in the config dialog"
 #| msgid "Note"
@@ -90595,41 +90632,41 @@ msgid "Note:"
 msgstr "Napomena"
 
 #. i18n: ectx: property (placeholderText), widget (QTextEdit, userNotesEdit)
-#: tools/imagingplanner.ui:745
+#: tools/imagingplanner.ui:893
 #, kde-format
 msgid "Enter notes here"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, hideAltitudeGraphB)
-#: tools/imagingplanner.ui:810
+#: tools/imagingplanner.ui:958
 #, fuzzy, kde-format
 #| msgid "Print the Altitude vs. time plot"
 msgid "Minimize the altitude vs time graph."
 msgstr "Ispiši grafik nadmorske visine po vremenu"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, showAltitudeGraphB)
-#: tools/imagingplanner.ui:905
+#: tools/imagingplanner.ui:1053
 #, fuzzy, kde-format
 #| msgid "Print the Altitude vs. time plot"
 msgid "Maximize the altitude vs time graph."
 msgstr "Ispiši grafik nadmorske visine po vremenu"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, HiddenAltitudeGraphLabel)
-#: tools/imagingplanner.ui:937
+#: tools/imagingplanner.ui:1085
 #, fuzzy, kde-format
 #| msgid "Altitude vs. Time"
 msgid "Altitude vs Time graph."
 msgstr "Visina vs. Vrijeme"
 
 #. i18n: ectx: property (text), widget (QLabel, HiddenAltitudeGraphLabel)
-#: tools/imagingplanner.ui:940
+#: tools/imagingplanner.ui:1088
 #, fuzzy, kde-format
 #| msgid "Altitude vs. Time"
 msgid "Altitude vs Time graph"
 msgstr "Visina vs. Vrijeme"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, useArtificialHorizon)
-#: tools/imagingplanner.ui:980
+#: tools/imagingplanner.ui:1128
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90638,7 +90675,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (text), widget (QCheckBox, useArtificialHorizon)
-#: tools/imagingplanner.ui:983
+#: tools/imagingplanner.ui:1131
 #, fuzzy, kde-format
 #| msgid "Color of horizon line"
 msgid "Artificial horizon"
@@ -90646,7 +90683,7 @@ msgstr "Boja linije horizonta"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, minAltitudeLabel)
 #. i18n: ectx: property (toolTip), widget (QDoubleSpinBox, minAltitude)
-#: tools/imagingplanner.ui:996 tools/imagingplanner.ui:1018
+#: tools/imagingplanner.ui:1144 tools/imagingplanner.ui:1166
 #, kde-format
 msgid ""
 "For imaging hours calculation, object must be at least at this altitude (and "
@@ -90654,7 +90691,7 @@ msgid ""
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, minAltitudeLabel)
-#: tools/imagingplanner.ui:999
+#: tools/imagingplanner.ui:1147
 #, fuzzy, kde-format
 #| msgctxt "string from libindi, used in the config dialog"
 #| msgid "Main Control"
@@ -90662,7 +90699,7 @@ msgid "Min alt"
 msgstr "Glavna kontrola"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, minMoonLabel)
-#: tools/imagingplanner.ui:1043
+#: tools/imagingplanner.ui:1191
 #, kde-format
 msgid ""
 "<html><head/><body><p>For imaging hours calculations, object must be at "
@@ -90671,14 +90708,14 @@ msgid ""
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, minMoonLabel)
-#: tools/imagingplanner.ui:1046
+#: tools/imagingplanner.ui:1194
 #, fuzzy, kde-format
 #| msgid "Moon"
 msgid "Moon:"
 msgstr "Mjesec"
 
 #. i18n: ectx: property (toolTip), widget (QDoubleSpinBox, minMoon)
-#: tools/imagingplanner.ui:1065
+#: tools/imagingplanner.ui:1213
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90688,13 +90725,13 @@ msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (suffix), widget (QDoubleSpinBox, minMoon)
 #. i18n: ectx: property (suffix), widget (QDoubleSpinBox, maxMoonAltitude)
-#: tools/imagingplanner.ui:1068 tools/imagingplanner.ui:1087
+#: tools/imagingplanner.ui:1216 tools/imagingplanner.ui:1235
 #, fuzzy, kde-format
 msgid "°"
 msgstr "%"
 
 #. i18n: ectx: property (toolTip), widget (QDoubleSpinBox, maxMoonAltitude)
-#: tools/imagingplanner.ui:1084
+#: tools/imagingplanner.ui:1232
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90703,21 +90740,21 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, hideAstrobinDetailsButton)
-#: tools/imagingplanner.ui:1159
+#: tools/imagingplanner.ui:1307
 #, kde-format
 msgid "Minimize the Astrobin search details section"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QLabel, SearchLabel)
 #. i18n: ectx: property (toolTip), widget (QLabel, SearchLabel2)
-#: tools/imagingplanner.ui:1191 tools/imagingplanner.ui:1516
+#: tools/imagingplanner.ui:1339 tools/imagingplanner.ui:1664
 #, kde-format
 msgid "Select a button to search for the selected object on the internet."
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, SearchLabel)
 #. i18n: ectx: property (text), widget (QLabel, SearchLabel2)
-#: tools/imagingplanner.ui:1194 tools/imagingplanner.ui:1519
+#: tools/imagingplanner.ui:1342 tools/imagingplanner.ui:1667
 #, fuzzy, kde-format
 #| msgid "Auto Stretch"
 msgid "Search"
@@ -90725,7 +90762,7 @@ msgstr "Automatsko razvlacenje"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, astrobinButton)
 #. i18n: ectx: property (toolTip), widget (QPushButton, astrobinButton2)
-#: tools/imagingplanner.ui:1218 tools/imagingplanner.ui:1543
+#: tools/imagingplanner.ui:1366 tools/imagingplanner.ui:1691
 #, kde-format
 msgid ""
 "Search Astrobin for the selected object using the search constraints in this "
@@ -90734,7 +90771,7 @@ msgstr ""
 
 #. i18n: ectx: property (text), widget (QPushButton, astrobinButton)
 #. i18n: ectx: property (text), widget (QPushButton, astrobinButton2)
-#: tools/imagingplanner.ui:1221 tools/imagingplanner.ui:1546
+#: tools/imagingplanner.ui:1369 tools/imagingplanner.ui:1694
 #, fuzzy, kde-format
 #| msgid "Astrometry.net"
 msgid "Astrobin"
@@ -90742,7 +90779,7 @@ msgstr "Astrometry.net"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, searchWikipedia)
 #. i18n: ectx: property (toolTip), widget (QPushButton, searchWikipedia2)
-#: tools/imagingplanner.ui:1245 tools/imagingplanner.ui:1570
+#: tools/imagingplanner.ui:1393 tools/imagingplanner.ui:1718
 #, fuzzy, kde-format
 #| msgid "No Description found for selected sky-object"
 msgid "Search Wikipedia for the selected object."
@@ -90750,7 +90787,7 @@ msgstr "Nema opisa za izabrani nebeski objekt"
 
 #. i18n: ectx: property (text), widget (QPushButton, searchWikipedia)
 #. i18n: ectx: property (text), widget (QPushButton, searchWikipedia2)
-#: tools/imagingplanner.ui:1248 tools/imagingplanner.ui:1573
+#: tools/imagingplanner.ui:1396 tools/imagingplanner.ui:1721
 #, fuzzy, kde-format
 #| msgctxt "Image/info menu item (should be translated)"
 #| msgid "Wikipedia Page"
@@ -90759,28 +90796,28 @@ msgstr "Wikipedia stranica"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, searchNGCICImages)
 #. i18n: ectx: property (toolTip), widget (QPushButton, searchNGCICImages2)
-#: tools/imagingplanner.ui:1272 tools/imagingplanner.ui:1597
+#: tools/imagingplanner.ui:1420 tools/imagingplanner.ui:1745
 #, kde-format
 msgid "Search the Professor Seligman online site for NGC/IC images."
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QPushButton, searchNGCICImages)
 #. i18n: ectx: property (text), widget (QPushButton, searchNGCICImages2)
-#: tools/imagingplanner.ui:1275 tools/imagingplanner.ui:1600
+#: tools/imagingplanner.ui:1423 tools/imagingplanner.ui:1748
 #, kde-format
 msgid "NGC/IC"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, searchSimbad)
 #. i18n: ectx: property (toolTip), widget (QPushButton, searchSimbad2)
-#: tools/imagingplanner.ui:1299 tools/imagingplanner.ui:1624
+#: tools/imagingplanner.ui:1447 tools/imagingplanner.ui:1772
 #, fuzzy, kde-format
 #| msgid "Search satellites"
 msgid "Search Simbad."
 msgstr "Pretraži satelite"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, AstrobinAward)
-#: tools/imagingplanner.ui:1309
+#: tools/imagingplanner.ui:1457
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90789,46 +90826,46 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (text), widget (QCheckBox, AstrobinAward)
-#: tools/imagingplanner.ui:1312
+#: tools/imagingplanner.ui:1460
 #, kde-format
 msgid "Awards Required"
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, radiusLabel)
-#: tools/imagingplanner.ui:1331
+#: tools/imagingplanner.ui:1479
 #, fuzzy, kde-format
 #| msgid "Radius:"
 msgid "Radius:"
 msgstr "Radjius:"
 
 #. i18n: ectx: property (text), widget (QLabel, minRadiusLabel)
-#: tools/imagingplanner.ui:1346
+#: tools/imagingplanner.ui:1494
 #, kde-format
 msgid "Min:"
 msgstr "Min.:"
 
 #. i18n: ectx: property (text), widget (QLabel, maxRadiusLabel)
-#: tools/imagingplanner.ui:1394
+#: tools/imagingplanner.ui:1542
 #, kde-format
 msgid "Max:"
 msgstr "Maks.:"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, showAstrobinDetailsButton)
 #. i18n: ectx: property (toolTip), widget (QPushButton, showFilterTypesButton)
-#: tools/imagingplanner.ui:1484 tools/imagingplanner.ui:2088
+#: tools/imagingplanner.ui:1632 tools/imagingplanner.ui:2236
 #, kde-format
 msgid "Maximize the Astrobin search details section"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, hideFilterTypesButton)
-#: tools/imagingplanner.ui:1690
+#: tools/imagingplanner.ui:1838
 #, kde-format
 msgid "Minimize the Filters section"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QLabel, FiltersLabel)
 #. i18n: ectx: property (toolTip), widget (QLabel, FiltersLabel2)
-#: tools/imagingplanner.ui:1716 tools/imagingplanner.ui:2120
+#: tools/imagingplanner.ui:1864 tools/imagingplanner.ui:2268
 #, kde-format
 msgid ""
 "Constrain the list of object on the left by the filters in this section."
@@ -90836,7 +90873,7 @@ msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, FiltersLabel)
 #. i18n: ectx: property (text), widget (QLabel, FiltersLabel2)
-#: tools/imagingplanner.ui:1719 tools/imagingplanner.ui:2123
+#: tools/imagingplanner.ui:1867 tools/imagingplanner.ui:2271
 #, fuzzy, kde-format
 #| msgid "Filters:"
 msgid "Filters"
@@ -90844,20 +90881,20 @@ msgstr "Filteri:"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, minHoursLabel)
 #. i18n: ectx: property (toolTip), widget (QDoubleSpinBox, minHours)
-#: tools/imagingplanner.ui:1732 tools/imagingplanner.ui:1751
+#: tools/imagingplanner.ui:1880 tools/imagingplanner.ui:1899
 #, kde-format
 msgid ""
 "Objects are only shown if they can be imaged for at least this many hours."
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, minHoursLabel)
-#: tools/imagingplanner.ui:1738
+#: tools/imagingplanner.ui:1886
 #, fuzzy, kde-format
 msgid "Min Hours:"
 msgstr "sat"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, OpenClusterCB)
-#: tools/imagingplanner.ui:1767
+#: tools/imagingplanner.ui:1915
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90865,21 +90902,21 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (text), widget (QCheckBox, OpenClusterCB)
-#: tools/imagingplanner.ui:1770
+#: tools/imagingplanner.ui:1918
 #, fuzzy, kde-format
 #| msgid "Open Cluster"
 msgid "Open Cl"
 msgstr "Otvoreni skup"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, NebulaCB)
-#: tools/imagingplanner.ui:1777
+#: tools/imagingplanner.ui:1925
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid "<html><head/><body><p>Hide nebulae if unchecked.</p></body></html>"
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, GlobularClusterCB)
-#: tools/imagingplanner.ui:1787
+#: tools/imagingplanner.ui:1935
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90887,7 +90924,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, PlanetaryCB)
-#: tools/imagingplanner.ui:1797
+#: tools/imagingplanner.ui:1945
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90895,7 +90932,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, SupernovaRemnantCB)
-#: tools/imagingplanner.ui:1807
+#: tools/imagingplanner.ui:1955
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90903,14 +90940,14 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, GalaxyCB)
-#: tools/imagingplanner.ui:1817
+#: tools/imagingplanner.ui:1965
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid "<html><head/><body><p>Hide galaxies if unchecked.</p></body></html>"
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, GalaxyClusterCB)
-#: tools/imagingplanner.ui:1827
+#: tools/imagingplanner.ui:1975
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90918,21 +90955,21 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (text), widget (QCheckBox, GalaxyClusterCB)
-#: tools/imagingplanner.ui:1830
+#: tools/imagingplanner.ui:1978
 #, fuzzy, kde-format
 #| msgid "Galaxy"
 msgid "Galaxy Cl"
 msgstr "Galaksija"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, DarkNebulaCB)
-#: tools/imagingplanner.ui:1837
+#: tools/imagingplanner.ui:1985
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid "<html><head/><body><p>Hide dark nebulae if unchecked.</p></body></html>"
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, OtherCB)
-#: tools/imagingplanner.ui:1847
+#: tools/imagingplanner.ui:1995
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90940,7 +90977,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, pickedCB)
-#: tools/imagingplanner.ui:1864
+#: tools/imagingplanner.ui:2012
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90949,7 +90986,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, notPickedCB)
-#: tools/imagingplanner.ui:1874
+#: tools/imagingplanner.ui:2022
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90958,14 +90995,14 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (text), widget (QCheckBox, notPickedCB)
-#: tools/imagingplanner.ui:1877
+#: tools/imagingplanner.ui:2025
 #, fuzzy, kde-format
 #| msgid "Does not rise"
 msgid "Not Picked"
 msgstr "Ne izlazi"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, dontCarePickedCB)
-#: tools/imagingplanner.ui:1884
+#: tools/imagingplanner.ui:2032
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90977,14 +91014,14 @@ msgstr "Dodatne opcije za rješavača"
 #. i18n: ectx: property (text), widget (QCheckBox, dontCareImagedCB)
 #. i18n: ectx: property (text), widget (QCheckBox, dontCareIgnoredCB)
 #. i18n: ectx: property (text), widget (QCheckBox, dontCareKeywordCB)
-#: tools/imagingplanner.ui:1887 tools/imagingplanner.ui:1917
-#: tools/imagingplanner.ui:1974 tools/imagingplanner.ui:2004
+#: tools/imagingplanner.ui:2035 tools/imagingplanner.ui:2065
+#: tools/imagingplanner.ui:2122 tools/imagingplanner.ui:2152
 #, kde-format
 msgid "Don't care"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, imagedCB)
-#: tools/imagingplanner.ui:1894
+#: tools/imagingplanner.ui:2042
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -90993,7 +91030,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, notImagedCB)
-#: tools/imagingplanner.ui:1904
+#: tools/imagingplanner.ui:2052
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -91002,13 +91039,13 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (text), widget (QCheckBox, notImagedCB)
-#: tools/imagingplanner.ui:1907
+#: tools/imagingplanner.ui:2055
 #, fuzzy, kde-format
 msgid "Not imaged"
 msgstr "Učitavam URL-ove slika"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, dontCareImagedCB)
-#: tools/imagingplanner.ui:1914
+#: tools/imagingplanner.ui:2062
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -91017,7 +91054,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, loadImagedB)
-#: tools/imagingplanner.ui:1941
+#: tools/imagingplanner.ui:2089
 #, kde-format
 msgid ""
 "Load a file listing the names of already imaged objects--one name per line. "
@@ -91025,13 +91062,13 @@ msgid ""
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QPushButton, loadImagedB)
-#: tools/imagingplanner.ui:1944
+#: tools/imagingplanner.ui:2092
 #, fuzzy, kde-format
 msgid "Load Imaged"
 msgstr "Učitavam URL-ove slika"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, ignoredCB)
-#: tools/imagingplanner.ui:1951
+#: tools/imagingplanner.ui:2099
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -91040,7 +91077,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, notIgnoredCB)
-#: tools/imagingplanner.ui:1961
+#: tools/imagingplanner.ui:2109
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -91049,14 +91086,14 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (text), widget (QCheckBox, notIgnoredCB)
-#: tools/imagingplanner.ui:1964
+#: tools/imagingplanner.ui:2112
 #, fuzzy, kde-format
 #| msgid "Does not rise"
 msgid "Not ignored"
 msgstr "Ne izlazi"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, dontCareIgnoredCB)
-#: tools/imagingplanner.ui:1971
+#: tools/imagingplanner.ui:2119
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -91065,7 +91102,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, keywordCB)
-#: tools/imagingplanner.ui:1981
+#: tools/imagingplanner.ui:2129
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -91074,7 +91111,7 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, notKeywordCB)
-#: tools/imagingplanner.ui:1991
+#: tools/imagingplanner.ui:2139
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -91083,14 +91120,14 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (text), widget (QCheckBox, notKeywordCB)
-#: tools/imagingplanner.ui:1994
+#: tools/imagingplanner.ui:2142
 #, fuzzy, kde-format
 #| msgid "Keyword"
 msgid "Not keyword"
 msgstr "Ključna riječ"
 
 #. i18n: ectx: property (toolTip), widget (QCheckBox, dontCareKeywordCB)
-#: tools/imagingplanner.ui:2001
+#: tools/imagingplanner.ui:2149
 #, fuzzy, kde-format
 #| msgid "Additional options to be the solver"
 msgid ""
@@ -91099,28 +91136,28 @@ msgid ""
 msgstr "Dodatne opcije za rješavača"
 
 #. i18n: ectx: property (toolTip), widget (QTextEdit, keywordEdit)
-#: tools/imagingplanner.ui:2022
+#: tools/imagingplanner.ui:2170
 #, kde-format
 msgid ""
 "Enter the (case-sensitive) keyword to be used for the checkboxes to the left."
 msgstr ""
 
 #. i18n: ectx: property (placeholderText), widget (QTextEdit, keywordEdit)
-#: tools/imagingplanner.ui:2025
+#: tools/imagingplanner.ui:2173
 #, fuzzy, kde-format
 #| msgid "Enter name for the script"
 msgid "Enter keyword here"
 msgstr "Unesite ime za ovu skriptu"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, hideImageButton)
-#: tools/imagingplanner.ui:2183
+#: tools/imagingplanner.ui:2331
 #, kde-format
 msgid "Minimize the image section"
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, ImageFrameLabel)
 #. i18n: ectx: property (text), widget (QLabel, ImageFrameLabel2)
-#: tools/imagingplanner.ui:2209 tools/imagingplanner.ui:2396
+#: tools/imagingplanner.ui:2357 tools/imagingplanner.ui:2544
 #, fuzzy, kde-format
 #| msgid "Catalog name:"
 msgid "Catalog Image"
@@ -91128,7 +91165,7 @@ msgstr "Ime kataloga:"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, LoadCatalogButton)
 #. i18n: ectx: property (toolTip), widget (QPushButton, LoadCatalogButton2)
-#: tools/imagingplanner.ui:2247 tools/imagingplanner.ui:2428
+#: tools/imagingplanner.ui:2395 tools/imagingplanner.ui:2576
 #, fuzzy, kde-format
 #| msgid "Load Catalog..."
 msgid "Load a new catalog"
@@ -91136,14 +91173,14 @@ msgstr "Učitaj katalog..."
 
 #. i18n: ectx: property (text), widget (QPushButton, LoadCatalogButton)
 #. i18n: ectx: property (text), widget (QPushButton, LoadCatalogButton2)
-#: tools/imagingplanner.ui:2250 tools/imagingplanner.ui:2431
+#: tools/imagingplanner.ui:2398 tools/imagingplanner.ui:2579
 #, fuzzy, kde-format
 #| msgid "Load Catalog..."
 msgid "Load Catalog"
 msgstr "Učitaj katalog..."
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, showImageButton)
-#: tools/imagingplanner.ui:2370
+#: tools/imagingplanner.ui:2518
 #, fuzzy, kde-format
 #| msgctxt "string from libindi, used in the config dialog"
 #| msgid "Maximum travel"
