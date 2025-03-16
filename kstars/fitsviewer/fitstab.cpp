@@ -48,6 +48,7 @@ FITSTab::FITSTab(FITSViewer *parent) : QWidget(parent)
 
     m_PlateSolveWidget = new QDialog(this);
     m_CatalogObjectWidget = new QDialog(this);
+    m_LiveStackingWidget = new QDialog(this);
     statWidget = new QDialog(this);
     fitsHeaderDialog = new QDialog(this);
     m_HistogramEditor = new FITSHistogramEditor(this);
@@ -178,6 +179,11 @@ bool FITSTab::setupView(FITSMode mode, FITSScale filter)
         m_CatalogObjectItem = fitsTools->addItem(m_CatalogObjectWidget, i18n("Catalog Objects"));
         initCatalogObject();
 
+        // Setup the Live Stacking page
+        m_LiveStackingUI.setupUi(m_LiveStackingWidget);
+        m_LiveStackingItem = fitsTools->addItem(m_LiveStackingWidget, i18n("Live Stacking"));
+        initLiveStacking();
+
         fitsTools->addItem(m_HistogramEditor, i18n("Histogram"));
 
         header.setupUi(fitsHeaderDialog);
@@ -291,6 +297,12 @@ void FITSTab::loadStack(const QString &dir, FITSMode mode, FITSScale filter)
 
     m_View->setFilter(filter);
 
+    // JEE get the solver details to use
+    //QList<SSolver::Parameters> parameters = getSSolverParametersList(static_cast<Ekos::ProfileGroup>(Options::fitsSolverModule())).at(
+    //    m_PlateSolveUI.kcfg_FitsSolverProfile->currentIndex());
+    //parameters.search_radius = m_PlateSolveUI.kcfg_FitsSolverRadius->value();
+
+    m_liveStackDir = dir;
     m_View->loadStack(dir);
 }
 
@@ -849,6 +861,8 @@ void FITSTab::initCatalogObject()
             &FITSTab::catRowChanged);
     connect(m_CatalogObjectUI.tableView, &QAbstractItemView::doubleClicked, this, &FITSTab::catCellDoubleClicked);
     connect(m_CatalogObjectUI.filterPB, &QPushButton::clicked, this, &FITSTab::launchCatTypeFilterDialog);
+    // JEE
+    connect(m_View.get(), &FITSView::plateSolveImage, this, &FITSTab::plateSolveImage);
 
     // Setup the Object Type filter popup
     setupCatObjTypeFilter();
@@ -904,6 +918,11 @@ void FITSTab::setupCatObjTypeFilter()
     }
 
     connect(m_CatObjTypeFilterUI.tree, &QTreeWidget::itemChanged, this, &FITSTab::typeFilterItemChanged);
+}
+
+void FITSTab::initLiveStacking()
+{
+    connect(m_LiveStackingUI.RestackB, &QPushButton::clicked, this, &FITSTab::liveStack);
 }
 
 void FITSTab::applyTypeFilter()
@@ -1246,6 +1265,28 @@ void FITSTab::solveImage()
     m_Solver->runSolver(m_View->imageData());
 }
 
+// JEE - reload the live stack
+void FITSTab::liveStack()
+{
+    m_View->loadStack(m_liveStackDir);
+}
+
+// JEE
+void FITSTab::plateSolveImage(const double ra, const double dec, const double pixScale)
+{
+    m_Stack = true;
+    auto parameters = getSSolverParametersList(static_cast<Ekos::ProfileGroup>(Options::fitsSolverModule())).at(
+        m_PlateSolveUI.kcfg_FitsSolverProfile->currentIndex());
+    parameters.search_radius = m_PlateSolveUI.kcfg_FitsSolverRadius->value();
+
+    m_Solver.reset(new SolverUtils(parameters, parameters.solverTimeLimit, SSolver::SOLVE),  &QObject::deleteLater);
+    connect(m_Solver.get(), &SolverUtils::done, this, &FITSTab::solverDone, Qt::UniqueConnection);
+
+    m_Solver->useScale(true, pixScale * 0.8, pixScale * 1.2);
+    m_Solver->usePosition(true, ra, dec);
+    m_Solver->runSolver(m_View->imageData());
+}
+
 void FITSTab::extractorDone(bool timedOut, bool success, const FITSImage::Solution &solution, double elapsedSeconds)
 {
     Q_UNUSED(solution);
@@ -1368,6 +1409,10 @@ void FITSTab::solverDone(bool timedOut, bool success, const FITSImage::Solution 
 
         m_PlateSolveUI.Solution2->setText(result);
     }
+
+    // JEE
+    if (m_Stack)
+        m_View->imageData()->solverDone(timedOut, success);
 }
 
 // Each module can default to its own profile index. These two methods retrieves and saves

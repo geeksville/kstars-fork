@@ -67,6 +67,7 @@ class FITSView : public QScrollArea
         /**
          * @brief Loads a stack of FITS files and displays in a FITSView frame
          * @param inDir directory of FITS files
+         * @param parameters for StellarSolver
          * @note If image is successfully, loaded() signal is emitted, otherwise failed() signal is emitted.
          * Obtain error by calling lastError()
          */
@@ -518,6 +519,8 @@ class FITSView : public QScrollArea
         void catReset();
         void catHighlightChanged(const int highlight);
         void headerChanged();
+        // JEE
+        void plateSolveImage(const double ra, const double dec, const double pixScale);
 
         friend class FITSLabel;
 };

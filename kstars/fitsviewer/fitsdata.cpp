@@ -205,69 +205,83 @@ QFuture<bool> FITSData::loadFromFile(const QString &inFilename)
 
 // JEE
 #ifdef HAVE_OPENCV
-bool FITSData::loadStackFiles(const QString &inDir)
+bool FITSData::loadStack(const QString &inDir)
 {
-    QList<QString> subs = findAllImagesInDir(inDir);
+    m_Stack.reset(new FITSStack(this), &QObject::deleteLater);
+    m_StackSubs = findAllImagesInDir(inDir);
 
-    bool first = true;
+    if (m_StackSubs.size() == 0)
+        // No subs in the selected directory so we're done
+        return true;
 
-    try
+    m_StackSubPos = 0;
+
+    return processNextSub(m_StackSubPos);
+}
+
+QFuture<bool> FITSData::loadStackBuffer()
+{
+    QByteArray buffer = m_Stack->getStackedImage();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return QtConcurrent::run(&FITSData::loadFromBuffer, this, buffer);
+#else
+    return QtConcurrent::run(this, &FITSData::loadFromBuffer, buffer);
+#endif
+}
+
+bool FITSData::processNextSub(int subPos)
+{
+    loadCommon(m_StackSubs[subPos]);
+    QFileInfo info(m_Filename);
+    m_Extension = info.completeSuffix().toLower();
+    qCDebug(KSTARS_FITS) << "Loading file " << m_Filename;
+    QByteArray buffer;
+    if (!privateLoad(buffer))
     {
-        cv::Mat refImage, stackedImage;
-
-        for(QString sub : subs)
-        {
-            loadCommon(sub);
-            QFileInfo info(m_Filename);
-            m_Extension = info.completeSuffix().toLower();
-            qCDebug(KSTARS_FITS) << "Loading file " << m_Filename;
-            QByteArray buffer;
-            if (!privateLoad(buffer))
-                continue;
-
-            // JEE CV datatypes conversion - hardcoded for now
-            size_t rowLen = m_Statistics.width * m_Statistics.bytesPerPixel;
-            cv::Mat image = cv::Mat(m_Statistics.height, m_Statistics.width, CV_16UC1, (void *) m_ImageBuffer, rowLen);
-            if (first)
-            {
-                first = false;
-                refImage = image;
-                stackedImage = image;
-                // Debug stuff
-                cv::imshow("Raw Image", image);
-                cv::Mat result;
-                double minX, maxX;
-                cv::minMaxIdx(image, &minX, &maxX);
-                cv::convertScaleAbs(image, result, 255.0 / maxX, 0);
-                cv::equalizeHist(result, result);
-                cv::imshow("equalized result", result);
-                cv::waitKey(0);
-            }
-            else
-            {
-                const int warp_mode = cv::MOTION_HOMOGRAPHY;
-                cv::TermCriteria criteria(cv::TermCriteria::Type::COUNT + cv::TermCriteria::Type::EPS, 5000, 1e-10);
-                cv::Mat warp = cv::Mat::eye(3, 3, CV_32FC1);
-                cv::findTransformECC(image, refImage, warp, warp_mode, criteria);
-                cv::Mat warpedImage;
-                cv::warpPerspective(image, warpedImage, warp, image.size(), cv::INTER_LINEAR + cv::WARP_INVERSE_MAP);
-                stackedImage += warpedImage;
-            }
-        }
-        stackedImage /= subs.size();
-        cv::imshow("Stacked Image", stackedImage);
-        cv::waitKey(0);
-        cv::destroyAllWindows();
-        cv::Size size = stackedImage.size();
-        QByteArray stack((char *) stackedImage.data, size.width * size.height);
-        return loadFromBuffer(stack);
+        qCDebug(KSTARS_FITS) << QString("%1 Unable to load image %2").arg(__FUNCTION__).arg(m_Filename);
+        return false;
     }
-    catch (const cv::Exception &ex)
+
+    double pixScale = (HasWCS && m_WCSHandle) ? std::abs(m_WCSHandle->cdelt[0]) * 3600 : 0.0;
+    double ra = m_WCSHandle->crval[0];
+    double dec = m_WCSHandle->crval[1];
+
+    if (m_Stack->addImage((void *) m_ImageBuffer, pixScale, m_Statistics.width, m_Statistics.height, m_Statistics.bytesPerPixel))
     {
-        QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        emit plateSolveImage(ra, dec, pixScale);
+        return true;
     }
     return false;
+}
+
+bool FITSData::processMasters()
+{
+    // Dark
+    loadCommon("/home/john/Downloads/MasterDark180sM20G75O15.fit");
+    QFileInfo info(m_Filename);
+    m_Extension = info.completeSuffix().toLower();
+    qCDebug(KSTARS_FITS) << "Loading master dark " << m_Filename;
+    QByteArray buffer;
+    if (!privateLoad(buffer))
+    {
+        qCDebug(KSTARS_FITS) << QString("%1 Unable to load master dark %2").arg(__FUNCTION__).arg(m_Filename);
+        return false;
+    }
+    m_Stack->addMaster(true, (void *) m_ImageBuffer, m_Statistics.width, m_Statistics.height, m_Statistics.bytesPerPixel);
+
+    // Flat
+    loadCommon("/home/john/Downloads/MasterFlatRed.fit");
+    QFileInfo info2(m_Filename);
+    m_Extension = info.completeSuffix().toLower();
+    qCDebug(KSTARS_FITS) << "Loading master flat " << m_Filename;
+    QByteArray buffer2;
+    if (!privateLoad(buffer2))
+    {
+        qCDebug(KSTARS_FITS) << QString("%1 Unable to load master flat %2").arg(__FUNCTION__).arg(m_Filename);
+        return false;
+    }
+    m_Stack->addMaster(false, (void *) m_ImageBuffer, m_Statistics.width, m_Statistics.height, m_Statistics.bytesPerPixel);
+    return true;
 }
 
 // JEE Need to fix searching subdirs
@@ -303,6 +317,27 @@ QList<QString> FITSData::findAllImagesInDir(const QDir &dir)
     return result;
 }
 
+// Update plate solving status
+bool FITSData::solverDone(const bool timedOut, const bool success)
+{
+    m_StackSubPos++;
+    m_Stack->solverDone(m_WCSHandle, timedOut, success);
+
+    if (m_StackSubs.size() > m_StackSubPos)
+        return processNextSub(m_StackSubPos);
+    else
+    {
+        // All subs have been processed so load calibration masters (if any)
+        processMasters();
+        if (!m_Stack->stack())
+            return false;
+        else
+        {
+            emit stackReady();
+            return true;
+        }
+    }
+}
 #endif
 
 namespace

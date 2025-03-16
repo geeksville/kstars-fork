@@ -48,6 +48,8 @@
 #endif
 
 #include "fitsskyobject.h"
+// JEE
+#include "fitsstack.h"
 
 class QProgressDialog;
 
@@ -120,7 +122,34 @@ class FITSData : public QObject
          * @param inDirectory Path to directory of FITS files
          * @return A QFuture that can be watched until the async operation is complete.
          */
-        bool loadStackFiles(const QString &inDirectory);
+        bool loadStack(const QString &inDirectory);
+
+        /**
+         * @brief JEE Load stack from buffer
+         * @return A QFuture that can be watched until the async operation is complete.
+         */
+        QFuture<bool> loadStackBuffer();
+
+        /**
+         * @brief JEE Process the next sub
+         * @param subPos the sub position in the list of subs to process
+         * @return success
+         */
+        bool processNextSub(int subPos);
+
+        /**
+         * @brief JEE Process master files for stacking
+         * @return success
+         */
+        bool processMasters();
+
+        /**
+         * @brief JEE Solver results are in so take the next action
+         * @param whether the solver timed out or not
+         * @param success status
+         * @return status of function
+         */
+        bool solverDone(const bool timedOut, const bool success);
 
         /**
          * @brief loadFITSFromMemory Loading FITS from memory buffer.
@@ -663,6 +692,12 @@ class FITSData : public QObject
 
         static bool readableFilename(const QString &filename);
 
+        // JEE
+        const QSharedPointer<FITSStack> stack() const
+        {
+            return m_Stack;
+        }
+
     signals:
         void converted(QImage);
 
@@ -694,6 +729,14 @@ class FITSData : public QObject
          * @param failure text
          */
         void catalogQueryFailed(const QString text);
+        /**
+         * @brief JEE Signal FITSView then FITSTab to plate solve the current image
+         */
+        void plateSolveImage(const double ra, const double dec, const double pixScale);
+        /**
+         * @brief JEE Signal FITSView the stack is ready to load
+         */
+        void stackReady();
 
     public slots:
         void makeRoiBuffer(QRect roi);
@@ -839,11 +882,15 @@ class FITSData : public QObject
         bool addCatObject(const int num, const QString name, const QString type, const QString coord, const double dist,
                           const double magnitude, const QString sizeStr);
 
-        // JEE Stacking functions
+        ////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////
+        /// Private Stacking Functions.
+        ////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////
         /**
-         * @brief add catalog object to the array of objects
-         * @param dir directory to look for images
-         * @return list of pathnames of image files in dir
+         * @brief Find all images in the passed in directory
+         * @param dir is the directory to search
+         * @return List of image paths
          */
         QList<QString> findAllImagesInDir(const QDir &dir);
 
@@ -967,4 +1014,10 @@ class FITSData : public QObject
         bool m_CatUpdateTable { false };
         QPoint m_CatROIPt { -1, -1 };
         int m_CatROIRadius { -1 };
+
+        // Live Stacking
+        /// Pointer to FITSStack object
+        QSharedPointer<FITSStack> m_Stack;
+        QList<QString> m_StackSubs;
+        int m_StackSubPos { -1 };
 };

@@ -17,6 +17,7 @@
 #include "ui_fitsheaderdialog.h"
 #include "ui_statform.h"
 #include "ui_platesolve.h"
+#include "ui_livestacking.h"
 #include "ui_catalogobject.h"
 #include "ui_catalogobjecttypefilter.h"
 #include <QFuture>
@@ -158,6 +159,7 @@ class FITSTab : public QWidget
         void displayStats(bool roi = false);
         void extractImage();
         void solveImage();
+        void liveStack();
     protected:
         virtual void closeEvent(QCloseEvent *ev) override;
 
@@ -181,6 +183,9 @@ class FITSTab : public QWidget
         /// The Plate Solving UI
         QPointer<QDialog> m_PlateSolveWidget;
         Ui::PlateSolveUI m_PlateSolveUI;
+        /// The Live Stacking UI
+        QPointer<QDialog> m_LiveStackingWidget;
+        Ui::LiveStackingUI m_LiveStackingUI;
         /// Catalog Object UI
         QPointer<QDialog> m_CatalogObjectWidget;
         Ui::CatalogObjectUI m_CatalogObjectUI;
@@ -247,6 +252,7 @@ class FITSTab : public QWidget
         void launchNED(QString name);
         void initCatalogObject();
         void setupCatObjTypeFilter();
+        void initLiveStacking();
         void applyTypeFilter();
         void checkAllTypeFilter();
         void uncheckAllTypeFilter();
@@ -255,6 +261,8 @@ class FITSTab : public QWidget
         QPushButton *m_UncheckAllButton;
         int m_CatalogObjectItem { 0 };
         QStandardItemModel m_CatObjModel;
+        // JEE
+        int m_LiveStackingItem { 0 };
 
         QSharedPointer<SolverUtils> m_Solver;
 
@@ -266,6 +274,11 @@ class FITSTab : public QWidget
         static QPointer<Ekos::StellarSolverProfileEditor> m_ProfileEditor;
         static QPointer<KConfigDialog> m_EditorDialog;
         static QPointer<KPageWidgetItem> m_ProfileEditorPage;
+
+        // JEE
+        void plateSolveImage(const double ra, const double dec, const double pixScale);
+        bool m_Stack { false };
+        QString m_liveStackDir;
 
     signals:
         void debayerToggled(bool);

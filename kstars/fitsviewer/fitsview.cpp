@@ -442,8 +442,19 @@ void FITSView::loadStack(const QString &inDir)
     if (setBayerParams)
         m_ImageData->setBayerParams(&param);
 
-    // JEE fitsWatcher.setFuture(m_ImageData->loadStackFiles(inDir));
-    m_ImageData->loadStackFiles(inDir);
+    // JEE
+    connect(m_ImageData.data(), &FITSData::plateSolveImage, this, [this](double ra, double dec, double pixScale)
+    {
+        emit plateSolveImage(ra, dec, pixScale);
+    });
+
+    connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
+    {
+        fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
+    });
+
+    // JEE fitsWatcher.setFuture(m_ImageData->loadStack(inDir, parameters));
+    m_ImageData->loadStack(inDir);
 }
 
 void FITSView::clearData()
