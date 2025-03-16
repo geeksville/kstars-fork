@@ -9,6 +9,7 @@
 #include "skypoint.h"
 #include "schedulertypes.h"
 #include "ekos/capture/sequencejob.h"
+#include "greedyscheduler.h"
 
 #include <QUrl>
 #include <QMap>
@@ -543,7 +544,7 @@ class SchedulerJob
              * @param reason pointer to the reason text in case that the check failed
              * @return true if target is separated enough from the Moon.
              */
-        bool moonConstraintsOK(QDateTime const &when = QDateTime(), QString *reason = new QString()) const;
+        bool moonConstraintsOK(QDateTime const &when = QDateTime(), QString *reason = new QString(), double *margin = nullptr) const;
 
         /**
              * @brief calculateNextTime calculate the next time constraints are met (or missed).
@@ -557,6 +558,8 @@ class SchedulerJob
                                            const QDateTime &until = QDateTime()) const;
         QDateTime getNextEndTime(const QDateTime &start, int increment = 1, QString *reason = nullptr,
                                  const QDateTime &until = QDateTime()) const;
+        bool checkAltitudeAndMoon(SkyObject o, const KStarsDateTime &ltOffset, QString *reason, double *margin) const;
+
 
         /**
              * @brief getNextAstronomicalTwilightDawn
@@ -599,7 +602,7 @@ class SchedulerJob
              * @param altitudeReason a human-readable string explaining why false was returned.
             * @return true if this altitude is permissible for this job
              */
-        bool satisfiesAltitudeConstraint(double azimuth, double altitude, QString *altitudeReason = nullptr) const;
+        bool satisfiesAltitudeConstraint(double azimuth, double altitude, QString *altitudeReason = nullptr, double *margin = nullptr) const;
 
         /**
          * @brief setInitialFilter Set initial filter used in the capture sequence. This is used to pass to focus module.
@@ -681,6 +684,23 @@ class SchedulerJob
         const QString &altitudeFormatted() const
         {
             return m_AltitudeFormatted;
+        }
+
+        void clearSimulatedSchedule()
+        {
+            m_SimulatedSchedule.clear();
+        }
+        void setSimulatedSchedule(const QList<GreedyScheduler::JobSchedule> &schedule)
+        {
+            m_SimulatedSchedule = schedule;
+        }
+        void appendSimulatedSchedule(const GreedyScheduler::JobSchedule &jobSchedule)
+        {
+            m_SimulatedSchedule.append(jobSchedule);
+        }
+        const QList<GreedyScheduler::JobSchedule> &getSimulatedSchedule() const
+        {
+            return m_SimulatedSchedule;
         }
 
 private:
@@ -797,6 +817,9 @@ private:
 
         // Used to display human-readable job progress.
         QList<JobProgress> m_Progress;
+
+        // An estimate as to when this job might run.
+        QList<GreedyScheduler::JobSchedule> m_SimulatedSchedule;
 
         // This class is used to cache the results computed in getNextPossibleStartTime()
         // which is called repeatedly by the Greedy scheduler.

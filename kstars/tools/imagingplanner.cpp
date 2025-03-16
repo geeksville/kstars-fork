@@ -40,6 +40,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QImage>
+#include <QNetworkReply>
 #include <QRegularExpression>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
@@ -85,18 +86,14 @@ enum ColumnNames
 
 /**********************************************************
 TODO/Ideas:
-
-Filter by size
-Organize the various methods that massage object names (see sh2 and Abell).
-Log at bottom
-Imaging time constraint in hours calc
-Think about moving some or all of the filtering to menus in the column headers
-Norder download link, sort of:
-  https://indilib.org/forum/general/11766-dss-offline-hips.html?start=0
-See if I can just use UserRole or UserRole+1 for the non-display roles.
-Altitude graph has some replicated code with the scheduler
-Weird timezone stuff when setting kstars to a timezone that's not the system's timezone.
-Add a catalog name, and display it
+- Filter by size
+- Log at bottom
+- Imaging time constraint in hours calc
+- Move some or all of the filtering to menus in the column headers
+- Just use UserRole or UserRole+1 for the non-display roles.
+- Altitude graph has some replicated code with the scheduler
+- Weird timezone stuff when setting kstars to a timezone that's not the system's timezone.
+- Add a catalog name, and display it
 ***********************************************************/
 
 namespace
@@ -765,8 +762,6 @@ double getMaxAltitude(const KSAlmanac &ksal, const QDate &date, GeoLocation *geo
     t.setTimeZone(tz);
     QDateTime maxTime = t;
 
-    // 1.8 here
-
     while (t.secsTo(end) > 0)
     {
         double alt = getAltitude(geo, coords, t);
@@ -978,7 +973,7 @@ QDate ImagingPlanner::getDate() const
     return ui->DateEdit->date();
 }
 
-ImagingPlanner::ImagingPlanner() : QDialog(nullptr), m_manager{ CatalogsDB::dso_db_path() }
+ImagingPlanner::ImagingPlanner() : QDialog(nullptr), m_networkManager(this), m_manager{ CatalogsDB::dso_db_path() }
 {
     ui = new ImagingPlannerUI(this);
 
@@ -1201,8 +1196,8 @@ void ImagingPlanner::initialize()
     connect(ui->astrobinButton2, &QPushButton::clicked, this, &ImagingPlanner::searchAstrobin);
     connect(ui->searchWikipedia, &QPushButton::clicked, this, &ImagingPlanner::searchWikipedia);
     connect(ui->searchWikipedia2, &QPushButton::clicked, this, &ImagingPlanner::searchWikipedia);
-    connect(ui->searchNGCICImages, &QPushButton::clicked, this, &ImagingPlanner::searchNGCICImages);
-    connect(ui->searchNGCICImages2, &QPushButton::clicked, this, &ImagingPlanner::searchNGCICImages);
+    connect(ui->searchSpecialWebPageImages, &QPushButton::clicked, this, &ImagingPlanner::searchSpecialWebPageImages);
+    connect(ui->searchSpecialWebPageImages2, &QPushButton::clicked, this, &ImagingPlanner::searchSpecialWebPageImages);
     connect(ui->searchSimbad, &QPushButton::clicked, this, &ImagingPlanner::searchSimbad);
     connect(ui->searchSimbad2, &QPushButton::clicked, this, &ImagingPlanner::searchSimbad);
 
@@ -1770,7 +1765,7 @@ bool ImagingPlanner::getKStarsCatalogObject(const QString &name, CatalogObject *
     if (objs.size() == 0)
         return false;
 
-    // If there is more than one match, see if there's an exact match in name, name2, or longname.
+    // If there's a match, see if there's an exact match in name, name2, or longname.
     *catObject = objs.front();
     if (objs.size() >= 1)
     {
@@ -1779,13 +1774,18 @@ bool ImagingPlanner::getKStarsCatalogObject(const QString &name, CatalogObject *
         addSpace.append(" ");
         QString addComma = filteredName;
         addComma.append(",");
+        QString sh2Fix = filteredName;
+        sh2Fix.replace(QRegularExpression("sh2 ", QRegularExpression::CaseInsensitiveOption), "sh2-");
         for (const auto &obj : objs)
         {
             if ((filteredName.compare(obj.name(), Qt::CaseInsensitive) == 0) ||
                     (filteredName.compare(obj.name2(), Qt::CaseInsensitive) == 0) ||
                     obj.longname().contains(addSpace, Qt::CaseInsensitive) ||
                     obj.longname().contains(addComma, Qt::CaseInsensitive) ||
-                    obj.longname().endsWith(filteredName, Qt::CaseInsensitive))
+                    obj.longname().endsWith(filteredName, Qt::CaseInsensitive) ||
+                    (sh2Fix.compare(obj.name(), Qt::CaseInsensitive) == 0) ||
+                    (sh2Fix.compare(obj.name2(), Qt::CaseInsensitive) == 0)
+               )
             {
                 *catObject = obj;
                 foundIt = true;
@@ -2478,35 +2478,168 @@ void ImagingPlanner::popupAstrobin(const QString &target)
         QDesktopServices::openUrl(url);
 }
 
-// Popup a browser on the Professor Segilman website https://cseligman.com
-void ImagingPlanner::searchNGCICImages()
+// Returns true if the url will result in a successful get.
+// Times out after 3 seconds.
+// Used for the special search button because some of the object
+// web pages for vdb don't exist.
+bool ImagingPlanner::checkIfPageExists(const QString &urlString)
 {
-    focusOnTable();
-    auto o = currentCatalogObject();
-    if (!o)
+    if (urlString.isEmpty())
+        return false;
+
+    QUrl url(urlString);
+    QNetworkRequest request(url);
+    QNetworkReply *reply = m_networkManager.get(request);
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+
+    QTimer timer;
+    timer.setSingleShot(true);
+    timer.setInterval(3000); // 3 seconds timeout
+
+    connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer.start();
+    loop.exec();
+    timer.stop();
+
+    if (reply->error() == QNetworkReply::NoError)
     {
-        DPRINTF(stderr, "NULL object sent to searchNGCICImages.\n");
-        return;
+        reply->deleteLater();
+        fprintf(stderr, "checkIfPageExists --> success\n");
+        return true;
     }
-    int num = -1;
-    if (o->name().startsWith("ngc", Qt::CaseInsensitive))
+    else if (timer.isActive() )
     {
-        num = o->name().mid(3).toInt();
-        QString urlString = QString("https://cseligman.com/text/atlas/ngc%1%2.htm#%3").arg(num / 100).arg(
-                                num % 100 < 50 ? "" : "a").arg(num);
-        QDesktopServices::openUrl(QUrl(urlString));
-        return;
+        reply->deleteLater();
+        fprintf(stderr, "checkIfPageExists --> it doesn't exist\n");
+        return false;
     }
-    else if (o->name().startsWith("ic", Qt::CaseInsensitive))
+    else
     {
-        num = o->name().mid(2).toInt();
-        QString urlString = QString("https://cseligman.com/text/atlas/ic%1%2.htm#ic%3").arg(num / 100).arg(
-                                num % 100 < 50 ? "" : "a").arg(num);
-        QDesktopServices::openUrl(QUrl(urlString));
-        return;
+        reply->deleteLater();
+        fprintf(stderr, "checkIfPageExists --> timed out\n");
+        return false;
     }
 }
 
+// Changes the label and tooltop on the searchSpecialWebPages buttons,
+// depending on the current object, whose name is passed in.
+void ImagingPlanner::adjustSpecialWebPageButton(const QString &name)
+{
+    QString catalog, toolTip, label;
+    if (name.startsWith("ngc", Qt::CaseInsensitive))
+    {
+        catalog = "ngc";
+        toolTip = i18n("Search the Professor Seligman online site for NGC images.");
+    }
+    else if (name.startsWith("ic", Qt::CaseInsensitive))
+    {
+        catalog = "ic";
+        toolTip = i18n("Search the Professor Seligman online site for information about IC objects..");
+    }
+    else if (name.startsWith("sh2", Qt::CaseInsensitive))
+    {
+        catalog = "sh2";
+        label = "Sharpless";
+        toolTip = i18n("Search the galaxymap.org online site for information about Sharpless2 objects.");
+    }
+    else if (name.startsWith("m", Qt::CaseInsensitive))
+    {
+        catalog = "m";
+        label = "Messier";
+        toolTip = i18n("Search Nasa's online site for information about Messier objects..");
+    }
+    else if (name.startsWith("vdb", Qt::CaseInsensitive))
+    {
+        catalog = "vdb";
+        toolTip = i18n("Search Emil Ivanov's online site for information about VDB objects.");
+    }
+    if (!catalog.isEmpty())
+    {
+        const QString numberPart = name.mid(catalog.size()).trimmed();
+        if (!label.isEmpty()) catalog = label;
+        bool ok;
+        const int num = numberPart.toInt(&ok);
+        Q_UNUSED(num);
+        if (ok)
+        {
+            ui->searchSpecialWebPageImages->setText(catalog);
+            ui->searchSpecialWebPageImages2->setText(catalog);
+            ui->searchSpecialWebPageImages->setEnabled(true);
+            ui->searchSpecialWebPageImages2->setEnabled(true);
+            ui->searchSpecialWebPageImages->setToolTip(toolTip);
+            ui->searchSpecialWebPageImages2->setToolTip(toolTip);
+            return;
+        }
+    }
+    ui->searchSpecialWebPageImages->setText("");
+    ui->searchSpecialWebPageImages2->setText("");
+    ui->searchSpecialWebPageImages->setEnabled(false);
+    ui->searchSpecialWebPageImages2->setEnabled(false);
+    ui->searchSpecialWebPageImages->setToolTip("");
+    ui->searchSpecialWebPageImages2->setToolTip("");
+
+}
+
+void ImagingPlanner::searchSpecialWebPageImages()
+{
+    focusOnTable();
+    const QString objectName = currentObjectName();
+    QString urlString;
+    bool ok;
+    if (objectName.startsWith("ngc", Qt::CaseInsensitive))
+    {
+        const QString numberPart = objectName.mid(3).trimmed();
+        const int num = numberPart.toInt(&ok);
+        if (ok)
+            urlString = QString("https://cseligman.com/text/atlas/ngc%1%2.htm#%3")
+                        .arg(num / 100).arg(num % 100 < 50 ? "" : "a").arg(num);
+    }
+    else if (objectName.startsWith("ic", Qt::CaseInsensitive))
+    {
+        const QString numberPart = objectName.mid(2).trimmed();
+        const int num = numberPart.toInt(&ok);
+        if (ok)
+            urlString = QString("https://cseligman.com/text/atlas/ic%1%2.htm#ic%3")
+                        .arg(num / 100).arg(num % 100 < 50 ? "" : "a").arg(num);
+    }
+    else if (objectName.startsWith("sh2", Qt::CaseInsensitive))
+    {
+        const QString numberPart = objectName.mid(3).trimmed();
+        const int num = numberPart.toInt(&ok);
+        if (ok)
+            urlString = QString("http://galaxymap.org/cat/view/sharpless/%1").arg(num);
+    }
+    else if (objectName.startsWith("m", Qt::CaseInsensitive))
+    {
+        const QString numberPart = objectName.mid(1).trimmed();
+        const int num = numberPart.toInt(&ok);
+        if (ok)
+            urlString = QString("https://science.nasa.gov/mission/hubble/science/"
+                                "explore-the-night-sky/hubble-messier-catalog/messier-%1").arg(num);
+    }
+    else if (objectName.startsWith("vdb", Qt::CaseInsensitive))
+    {
+        const QString numberPart = objectName.mid(3).trimmed();
+        const int num = numberPart.toInt(&ok);
+        if (ok)
+        {
+            urlString = QString("https://www.irida-observatory.org/CCD/VdB%1/VdB%1.html").arg(num);
+            if (checkIfPageExists(urlString))
+                fprintf(stderr, "It exists\n");
+            else
+            {
+                fprintf(stderr, "It doesn't exist\n");
+                urlString = "https://www.emilivanov.com/CCD%20Images/Catalog_VdB.htm";
+            }
+
+        }
+
+    }
+    if (!urlString.isEmpty())
+        QDesktopServices::openUrl(QUrl(urlString));
+}
 void ImagingPlanner::searchSimbad()
 {
     focusOnTable();
@@ -2828,6 +2961,7 @@ void ImagingPlanner::selectionChanged(const QItemSelection &selected, const QIte
         else
             ui->ImagePreview->setPixmap(QPixmap::fromImage(image.second));
     }
+    adjustSpecialWebPageButton(currentObjectName());
 }
 
 void ImagingPlanner::updateDisplays()
@@ -2997,7 +3131,7 @@ void ImagingPlanner::plotAltitudeGraph(const QDate &date, const dms &ra, const d
         t = t.addSecs(60 * 10);
     }
 
-    altitudeGraph->plot(getGeo(), &ksal, times, alts, false);
+    altitudeGraph->plot(getGeo(), &ksal, times, alts);
 
     for (int i = 0; i < jobStartTimes.size(); ++i)
     {
@@ -3023,7 +3157,7 @@ void ImagingPlanner::plotAltitudeGraph(const QDate &date, const dms &ra, const d
             runTimes.push_back(hour);
             t = t.addSecs(60 * 10);
         }
-        altitudeGraph->plot(getGeo(), &ksal, runTimes, runAlts, true);
+        altitudeGraph->plotOverlay(runTimes, runAlts);
     }
 }
 
@@ -3525,7 +3659,7 @@ void ImagingPlanner::loadCatalog(const QString &path)
 {
     removeEventFilters();
 
-    // This tool seems to occassionally crash when UI interactions happen during catalog loading
+    // This tool occassionally crashed when UI interactions happen during catalog loading.
     // Don't know why, but disabling that, and re-enabling after load below.
     setEnabled(false);
     setFixedSize(this->width(), this->height());
@@ -3587,8 +3721,10 @@ CatalogImageInfo::CatalogImageInfo(const QString &csv)
 //                    last one is Attribution Non-Commercial hare-Alike Creative Commons
 // Currently ID is mandatory, if there is an image filename, then Author,Link,and License
 //   are also required, though could be blank.
-// Comment lines start with #
-// Can include another catalog with "LoadCatalog FILENAME"
+// - Comment lines start with #
+// - Can include another catalog with "LoadCatalog FILENAME"
+// - Can request loading a provided KStars DSO catalog with "LoadDSOCatalog FILENAME"
+// - Can request removing a KStars DSO catalog given its ID (presumably an old version).
 void ImagingPlanner::loadCatalogFromFile(QString path, bool reset)
 {
     QFile inputFile(path);
@@ -3606,10 +3742,10 @@ void ImagingPlanner::loadCatalogFromFile(QString path, bool reset)
     QStringList objectNames;
     if (inputFile.open(QIODevice::ReadOnly))
     {
-        auto tz = QTimeZone(getGeo()->TZ() * 3600);
-        KStarsDateTime midnight = KStarsDateTime(getDate().addDays(1), QTime(0, 1));
-        KStarsDateTime ut  = getGeo()->LTtoUT(KStarsDateTime(midnight));
-        KSAlmanac ksal(ut, getGeo());
+        const auto tz = QTimeZone(getGeo()->TZ() * 3600);
+        const KStarsDateTime midnight = KStarsDateTime(getDate().addDays(1), QTime(0, 1));
+        const KStarsDateTime ut  = getGeo()->LTtoUT(KStarsDateTime(midnight));
+        const KSAlmanac ksal(ut, getGeo());
 
         if (reset)
         {
@@ -3623,24 +3759,25 @@ void ImagingPlanner::loadCatalogFromFile(QString path, bool reset)
         while (!in.atEnd())
         {
             CatalogImageInfo info(in.readLine().trimmed());
-            if (info.m_Name.isEmpty())
+            const QString name = info.m_Name;
+            if (name.isEmpty())
                 continue;
-            if (info.m_Name.startsWith("LoadCatalog"))
+            if (name.startsWith("LoadCatalog"))
             {
                 // This line isn't a normal entry, but rather points to another catalog.
                 // Load that catalog and then skip this line.
                 QRegularExpression re("^LoadCatalog\\s+(\\S+)", QRegularExpression::CaseInsensitiveOption);
-                auto match = re.match(info.m_Name);
+                const auto match = re.match(name);
                 if (match.hasMatch())
                 {
-                    QString catFilename = match.captured(1);
+                    const QString catFilename = match.captured(1);
                     if (catFilename.isEmpty()) continue;
-                    QFileInfo info(catFilename);
+                    const QFileInfo fInfo(catFilename);
 
                     QString catFullPath = catFilename;
-                    if (!info.isAbsolute())
+                    if (!fInfo.isAbsolute())
                     {
-                        QString catDir = QFileInfo(path).absolutePath();
+                        const QString catDir = QFileInfo(path).absolutePath();
                         catFullPath = QString("%1%2%3").arg(catDir)
                                       .arg(QDir::separator()).arg(match.captured(1));
                     }
@@ -3649,7 +3786,55 @@ void ImagingPlanner::loadCatalogFromFile(QString path, bool reset)
                 }
                 continue;
             }
-            objectNames.append(info.m_Name);
+            if (name.startsWith("LoadDSOCatalog"))
+            {
+                // This line isn't a normal entry, but rather points to a DSO catalog
+                // (that is, a standard KStars sky-object catalog)
+                // which may be helpful to avoid a lot fetching of coordinates from online sources.
+                QRegularExpression re("^LoadDSOCatalog\\s+(\\S+)", QRegularExpression::CaseInsensitiveOption);
+                const auto match = re.match(name);
+                if (match.hasMatch())
+                {
+                    const QString catFilename = match.captured(1);
+                    if (catFilename.isEmpty()) continue;
+                    const QFileInfo fInfo(catFilename);
+
+                    QString catFullPath = catFilename;
+                    if (!fInfo.isAbsolute())
+                    {
+                        const QString catDir = QFileInfo(path).absolutePath();
+                        catFullPath = QString("%1%2%3").arg(catDir)
+                                      .arg(QDir::separator()).arg(match.captured(1));
+                    }
+                    std::pair<bool, QString> out = m_manager.import_catalog(catFullPath, false);
+                    DPRINTF(stderr, "Load of KStars catalog %s %s%s\n", catFullPath.toLatin1().data(),
+                            out.first ? "succeeded." : "failed: ", out.second.toLatin1().data());
+                }
+                continue;
+            }
+            if (name.startsWith("RemoveDSOCatalog"))
+            {
+                // This line isn't a normal entry, but rather points to an ID of an old DSO catalog
+                // which presumably a current DSO Catalog replaces.
+                QRegularExpression re("^RemoveDSOCatalog\\s+(\\S+)", QRegularExpression::CaseInsensitiveOption);
+                const auto match = re.match(name);
+                if (match.hasMatch())
+                {
+                    const QString catIDstr = match.captured(1);
+                    if (catIDstr.isEmpty()) continue;
+
+                    bool ok;
+                    const int catID = catIDstr.toInt(&ok);
+                    if (ok && m_manager.catalog_exists(catID))
+                    {
+                        const std::pair<bool, QString> out = m_manager.remove_catalog(catID);
+                        DPRINTF(stderr, "Removal of out-of-date catalog %d %s%s\n", catID,
+                                out.first ? "succeeded." : "failed: ", out.second.toLatin1().data());    
+                    }                
+                }
+                continue;
+            }
+            objectNames.append(name);
             if (!info.m_Filename.isEmpty())
             {
                 numWithImage++;
@@ -3662,7 +3847,7 @@ void ImagingPlanner::loadCatalogFromFile(QString path, bool reset)
             else
             {
                 numMissingImage++;
-                DPRINTF(stderr, "No catalog image for %s\n", info.m_Name.toLatin1().data());
+                DPRINTF(stderr, "No catalog image for %s\n", name.toLatin1().data());
             }
             QCoreApplication::processEvents();
         }
@@ -3684,10 +3869,6 @@ void ImagingPlanner::loadCatalogFromFile(QString path, bool reset)
         m_numMissingImage += numMissingImage;
         DPRINTF(stderr, "Catalog %s: %d of %d have catalog images\n",
                 path.toLatin1().data(), numWithImage, numWithImage + numMissingImage);
-
-        // Clear the old maps? Probably earlier in this method:
-        // E.g. m_CatalogImageInfoMap?? n_CatalogHash???
-        // When m_CatalogHash is not cleared, then the add fails currently.
     }
     else
     {

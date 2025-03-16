@@ -417,20 +417,12 @@ void FilterManager::refreshFilterPosition()
 bool FilterManager::setFilterPosition(uint8_t position, FilterPolicy policy)
 {
     // Position 1 to Max
-    if (position > m_ActiveFilters.count())
+    if (position > m_ActiveFilters.count() || m_currentFilterPosition < 1 || position < 1)
         return false;
 
     m_Policy = policy;
     currentFilter = m_ActiveFilters[m_currentFilterPosition - 1];
     targetFilter = m_ActiveFilters[position - 1];
-
-    // Even though we may be on the correct filter we may still need
-    // to run an autofocus.
-    /*if (currentFilter == targetFilter)
-    {
-        emit ready();
-        return true;
-    }*/
 
     buildOperationQueue(FILTER_CHANGE);
 
@@ -497,6 +489,15 @@ void FilterManager::buildOperationQueue(FilterState operation)
     {
         case FILTER_CHANGE:
         {
+            // Setup whether we'll run an Autofocus after the Filter Change. The normal reason is that a Filter
+            // Change has been requested but there is also a condition whereby a previous filter change worked but
+            // the associated Autofocus failed. In the latter case, the currentFilter == targetFilter so no need to
+            // change the filter but we'll still need to retry Autofocus.
+            bool runAF = false;
+            if (m_FocusReady && (m_Policy & AUTOFOCUS_POLICY) && targetFilter->useAutoFocus())
+                if ((targetFilter != currentFilter) || (m_LastAFFailed.value(targetFilter->color(), FALSE)))
+                    runAF = true;
+
             if ( (m_Policy & CHANGE_POLICY) && targetFilter != currentFilter)
                 m_useTargetFilter = true;
 
@@ -514,7 +515,7 @@ void FilterManager::buildOperationQueue(FilterState operation)
 
             }
 
-            if (m_FocusReady && (m_Policy & AUTOFOCUS_POLICY) && targetFilter->useAutoFocus())
+            if (runAF)
                 operationQueue.enqueue(FILTER_AUTOFOCUS);
         }
         break;
@@ -845,6 +846,8 @@ void FilterManager::removeDevice(const QSharedPointer<ISD::GenericDevice> &devic
 
 void FilterManager::setFocusStatus(Ekos::FocusState focusState)
 {
+    setAutofocusStatus(focusState);
+
     if (state == FILTER_AUTOFOCUS)
     {
         switch (focusState)
@@ -866,8 +869,18 @@ void FilterManager::setFocusStatus(Ekos::FocusState focusState)
 
             default:
                 break;
-
         }
+    }
+}
+
+void FilterManager::setAutofocusStatus(Ekos::FocusState focusState)
+{
+    if (targetFilter)
+    {
+        if (focusState == FOCUS_COMPLETE)
+            m_LastAFFailed.insert(targetFilter->color(), FALSE);
+        else if (focusState == FOCUS_ABORTED || focusState == FOCUS_FAILED)
+            m_LastAFFailed.insert(targetFilter->color(), TRUE);
     }
 }
 
