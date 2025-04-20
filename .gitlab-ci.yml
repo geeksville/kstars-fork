@@ -36,27 +36,27 @@ craft_appimage_qt515_x86_64:
   needs:
     - suse_tumbleweed_qt515
   rules:
-    - !reference[.craft-recipes, rules]
+    - !reference [.craft-recipes, rules]
 
 craft_windows_qt515_x86_64:
   needs:
     - windows_qt515
   rules:
-    - !reference[.craft-recipes, rules]
+    - !reference [.craft-recipes, rules]
 
 craft_macos_x86_64:
   timeout: 2h # Signing procedure often exceeds the default 1h
   needs:
     - suse_tumbleweed_qt515 # we don't have a macos check build
   rules:
-    - !reference[.craft-recipes, rules]
+    - !reference [.craft-recipes, rules]
 
 # Publishing to Windows store is being discussed
 microsoftstore_qt515:
   needs:
     - craft_windows_qt515_x86_64
   rules:
-    - !reference[.publishing-recipes, rules]
+    - !reference [.publishing-recipes, rules]
 
 # This is the custom build we use until tests are operational in the KDE CI image
 .custom_build:
@@ -72,7 +72,7 @@ microsoftstore_qt515:
     paths: [ "${CCACHE_DIR}" ]
     when: always
   rules:
-    - !reference[.custom-build-recipes, rules]
+    - !reference [.custom-build-recipes, rules]
   before_script:
     - du -hs "${CCACHE_DIR}" || mkdir -p "${CCACHE_DIR}"
     - add-apt-repository --remove ppa:mutlaqja/ppa
