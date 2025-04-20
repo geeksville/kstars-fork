@@ -38,6 +38,7 @@
     - !reference [.always-on-master-branch, rules]
     - !reference [.always-on-merge-requests, rules]
     - when: manual
+      optional: true
 
 .craft-recipes:
   rules:
@@ -47,6 +48,7 @@
     - !reference [.always-on-master-branch, rules]
     - !reference [.always-on-stable-release, rules]
     - when: manual
+      optional: true
 
 .publishing-recipes:
   rules:
@@ -61,3 +63,4 @@
     - !reference [.manual-on-draft-merge-requests, rules]
     - !reference [.always-on-merge-requests, rules]
     - when: manual
+      optional: true
