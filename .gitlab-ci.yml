@@ -35,11 +35,11 @@ include:
 
 suse_tumbleweed_qt515:
   rules:
-    - !reference [.merge-request-recipes, rules]
+    - !reference [.standard-build-recipes, rules]
 
 windows_qt515:
   rules:
-    - !reference [.merge-request-recipes, rules]
+    - !reference [.standard-build-recipes, rules]
 
 # Craft recipes
 
