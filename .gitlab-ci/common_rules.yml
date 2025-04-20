@@ -19,12 +19,12 @@
 
 .always-on-merge-requests:
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: always
 
 .never-on-merge-requests:
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
 
 .always-on-master-branch:
