@@ -35,6 +35,15 @@
     - when: manual
       allow_failure: true
 
+.build-recipes:
+  rules:
+    - !reference [.never-on-forked-repository, rules]
+    - !reference [.never-on-draft-merge-requests, rules]
+    - !reference [.always-on-scheduled-pipeline, rules]
+    - !reference [.always-on-master-branch, rules]
+    - !reference [.always-on-merge-requests, rules]
+    - !reference [.default-manual-non-blocking, rules]
+
 .craft-recipes:
   rules:
     - !reference [.never-on-forked-repository, rules]

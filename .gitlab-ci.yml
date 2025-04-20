@@ -31,7 +31,18 @@ include:
 #     - when: manual
 #       allow_failure: true
 
-# Craft recipes run as nightly on master
+# Standard build recipes
+
+suse_tumbleweed_qt515:
+  rules:
+    - !reference [.merge-request-recipes, rules]
+
+windows_qt515:
+  rules:
+    - !reference [.merge-request-recipes, rules]
+
+# Craft recipes
+
 craft_appimage_qt515_x86_64:
   needs:
     - suse_tumbleweed_qt515
@@ -51,14 +62,16 @@ craft_macos_x86_64:
   rules:
     - !reference [.craft-recipes, rules]
 
-# Publishing to Windows store is being discussed
+# Publishing recipes
+
 microsoftstore_qt515:
   needs:
     - craft_windows_qt515_x86_64
   rules:
     - !reference [.publishing-recipes, rules]
 
-# This is the custom build we use until tests are operational in the KDE CI image
+# Custom build recipes - until tests are operational in the KDE CI image
+
 .custom_build:
   interruptible: true
   image: tallfurryman/kstars-ci:latest
