@@ -39,7 +39,7 @@
 
 .manual-required-recipe:
   rules:
-    - when: mllow-failurenual
+    - when: manual
       allow_failure: false
 
 .standard-build-recipes:
