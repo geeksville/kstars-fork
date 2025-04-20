@@ -4,13 +4,13 @@
   rules:
     - if: $CI_PROJECT_NAMESPACE !~ "education"
       when: manual
-      allow-failure: true
+      allow_failure: true
 
 .optional-on-draft-merge-requests:
   rules:
     - if: $CI_MERGE_REQUEST_DRAFT == "true" || $CI_MERGE_REQUEST_TITLE =~ "Draft"
       when: manual
-      allow-failure: true
+      allow_failure: true
 
 .always-on-scheduled-pipeline:
   rules:
@@ -35,12 +35,12 @@
 .manual-skipped-recipe:
   rules:
     - when: manual
-      allow-failure: true
+      allow_failure: true
 
 .manual-required-recipe:
   rules:
-    - when: manual
-      allow-failure: false
+    - when: mllow-failurenual
+      allow_failure: false
 
 .standard-build-recipes:
   rules:
