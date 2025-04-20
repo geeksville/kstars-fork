@@ -9,6 +9,12 @@ stages:
   - deploy
   - publish
 
+workflow:
+  rules:
+    - if: "$CI_PROJECT_NAMESPACE" != "education"
+      when: never
+    - when: always
+
 include:
   - project: sysadmin/ci-utilities
     file:
@@ -88,11 +94,11 @@ microsoftstore_qt515:
     paths: [ "${CCACHE_DIR}" ]
     when: always
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: always
-    - allow_failure: true
+    - if: $CI_MERGE_REQUEST_DRAFT || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: manual
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
+    - when: manual
   before_script:
     - du -hs "${CCACHE_DIR}" || mkdir -p "${CCACHE_DIR}"
     - add-apt-repository --remove ppa:mutlaqja/ppa
