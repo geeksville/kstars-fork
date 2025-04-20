@@ -1,0 +1,59 @@
+# Common rules
+
+.never-on-forked-repository:
+  rules:
+    - if: $CI_PROJECT_NAMESPACE !~ "education"
+      when: never
+
+.never-on-draft-merge-requests:
+  rules:
+    - if: $CI_MERGE_REQUEST_DRAFT
+      when: never
+
+.always-on-scheduled-pipeline:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
+
+.always-on-merge-requests:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request"
+      when: always
+
+.always-on-master-branch:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+
+.always-on-stable-release:
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^stable-.*/
+      when: always
+
+.default-manual-non-blocking:
+  rules:
+    - when: manual
+      allow_failure: true
+
+.craft-recipes:
+  rules:
+    - !reference[.never-on-forked-repository, rules]
+    - !reference[.never-on-draft-merge-requests, rules]
+    - !reference[.always-on-schedule-pipeline, rules]
+    - !reference[.always-on-master-branch, rules]
+    - !reference[.always-on-stable-release, rules]
+    - !reference[.default-manual-non-blocking, rules]
+
+.publishing-recipes:
+  rules:
+    - !reference[.never-on-forked-repository, rules]
+    - !reference[.never-on-draft-merge-requests, rules]
+    - !reference[.always-on-stable-release, rules]
+    - !reference[.default-manual-non-blocking, rules]
+
+.custom-build-recipes:
+  rules:
+    - !reference[.never-on-forked-repository, rules]
+    - !reference[.never-on-draft-merge-requests, rules]
+    - !reference[.always-on-merge-requests, rules]
+    - !reference[.default-manual-non-blocking, rules]

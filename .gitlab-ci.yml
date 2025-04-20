@@ -9,13 +9,8 @@ stages:
   - deploy
   - publish
 
-workflow:
-  rules:
-    - if: $CI_PROJECT_NAMESPACE == "education"
-      when: always
-    - when: never
-
 include:
+  - local: '.gitlab-ci/common_rules.yml'
   - project: sysadmin/ci-utilities
     file:
       - /gitlab-templates/linux.yml
@@ -28,6 +23,8 @@ include:
       # - /gitlab-templates/reuse-lint.yml
       # - /gitlab-templates/flatpak.yml
 
+# Jobs
+
 # Android CI is not ready yet
 # android_qt515:
 #   rules:
@@ -39,46 +36,27 @@ craft_appimage_qt515_x86_64:
   needs:
     - suse_tumbleweed_qt515
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: always
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^stable-.*/
-      when: always
-    - when: manual
-      allow_failure: true
+    - !reference[.craft-recipes, rules]
 
 craft_windows_qt515_x86_64:
   needs:
     - windows_qt515
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: always
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^stable-.*/
-      when: always
-    - when: manual
-      allow_failure: true
+    - !reference[.craft-recipes, rules]
 
 craft_macos_x86_64:
   timeout: 2h # Signing procedure often exceeds the default 1h
   needs:
     - suse_tumbleweed_qt515 # we don't have a macos check build
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      allow_failure: true # MacOS build is unstable
-      when: always
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^stable-.*/
-      when: always
-    - when: manual
-      allow_failure: true
+    - !reference[.craft-recipes, rules]
 
 # Publishing to Windows store is being discussed
 microsoftstore_qt515:
   needs:
     - craft_windows_qt515_x86_64
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^stable-.*/
-      when: always
-    - when: manual
-      allow_failure: true
+    - !reference[.publishing-recipes, rules]
 
 # This is the custom build we use until tests are operational in the KDE CI image
 .custom_build:
@@ -94,11 +72,7 @@ microsoftstore_qt515:
     paths: [ "${CCACHE_DIR}" ]
     when: always
   rules:
-    - if: $CI_MERGE_REQUEST_DRAFT || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
-    - when: manual
+    - !reference[.custom-build-recipes, rules]
   before_script:
     - du -hs "${CCACHE_DIR}" || mkdir -p "${CCACHE_DIR}"
     - add-apt-repository --remove ppa:mutlaqja/ppa
