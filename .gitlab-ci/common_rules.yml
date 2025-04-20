@@ -46,7 +46,6 @@
     - !reference [.always-on-scheduled-pipeline, rules]
     - !reference [.always-on-master-branch, rules]
     - !reference [.always-on-stable-release, rules]
-    - !reference [.default-manual-non-blocking, rules]
     - when: manual
 
 .publishing-recipes:
