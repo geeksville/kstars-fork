@@ -1,14 +1,16 @@
 # Common rules
 
-.manual-on-forked-repository:
+.optional-on-forked-repository:
   rules:
     - if: $CI_PROJECT_NAMESPACE !~ "education"
       when: manual
+      allow-failure: true
 
-.manual-on-draft-merge-requests:
+.optional-on-draft-merge-requests:
   rules:
     - if: $CI_MERGE_REQUEST_DRAFT == "true" || $CI_MERGE_REQUEST_TITLE =~ "Draft"
       when: manual
+      allow-failure: true
 
 .always-on-scheduled-pipeline:
   rules:
@@ -30,37 +32,44 @@
     - if: $CI_COMMIT_BRANCH =~ /^stable-.*/
       when: always
 
+.manual-skipped-recipe:
+  rules:
+    - when: manual
+      allow-failure: true
+
+.manual-required-recipe:
+  rules:
+    - when: manual
+      allow-failure: false
+
 .standard-build-recipes:
   rules:
-    - !reference [.manual-on-forked-repository, rules]
-    - !reference [.manual-on-draft-merge-requests, rules]
+    - !reference [.optional-on-forked-repository, rules]
+    - !reference [.optional-on-draft-merge-requests, rules]
     - !reference [.always-on-scheduled-pipeline, rules]
     - !reference [.always-on-master-branch, rules]
     - !reference [.always-on-merge-requests, rules]
-    - when: manual
-      optional: true
+    - !reference [.manual-skipped-recipe, rules]
 
 .craft-recipes:
   rules:
-    - !reference [.manual-on-forked-repository, rules]
-    - !reference [.manual-on-draft-merge-requests, rules]
+    - !reference [.optional-on-forked-repository, rules]
+    - !reference [.optional-on-draft-merge-requests, rules]
     - !reference [.always-on-scheduled-pipeline, rules]
     - !reference [.always-on-master-branch, rules]
     - !reference [.always-on-stable-release, rules]
-    - when: manual
-      optional: true
+    - !reference [.manual-skipped-recipe, rules]
 
 .publishing-recipes:
   rules:
-    - !reference [.manual-on-forked-repository, rules]
-    - !reference [.manual-on-draft-merge-requests, rules]
+    - !reference [.optional-on-forked-repository, rules]
+    - !reference [.optional-on-draft-merge-requests, rules]
     - !reference [.always-on-stable-release, rules]
-    - when: never
+    - !reference [.manual-required-recipe, rules]
 
 .custom-build-recipes:
   rules:
-    - !reference [.manual-on-forked-repository, rules]
-    - !reference [.manual-on-draft-merge-requests, rules]
+    - !reference [.optional-on-forked-repository, rules]
+    - !reference [.optional-on-draft-merge-requests, rules]
     - !reference [.always-on-merge-requests, rules]
-    - when: manual
-      optional: true
+    - !reference [.manual-skipped-recipe, rules]
