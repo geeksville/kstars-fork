@@ -11,9 +11,9 @@ stages:
 
 workflow:
   rules:
-    - if: "$CI_PROJECT_NAMESPACE" != "education"
-      when: never
-    - when: always
+    - if: $CI_PROJECT_NAMESPACE == "education"
+      when: always
+    - when: never
 
 include:
   - project: sysadmin/ci-utilities
