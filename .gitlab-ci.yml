@@ -14,6 +14,7 @@ include:
   - local: '.gitlab-ci/common_rules.yml'
   - project: sysadmin/ci-utilities
     file:
+      - /gitlab-templates/linux.yml
       - /gitlab-templates/linux-qt6.yml
       - /gitlab-templates/windows-qt6.yml
       - /gitlab-templates/flatpak.yml
@@ -48,17 +49,23 @@ craft_windows_qt6_x86_64:
   needs:
     - windows_qt68
   rules:
+    - !reference [.craft-recipes, rules]
+
+craft_windows_qt6_x86_64:
+  needs:
+    - windows_qt6
+  rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^stable-.*/
       when: always
     - when: manual
       allow_failure: true
-      
+
 craft_macos_qt6_x86_64:
   timeout: 2h # Signing procedure often exceeds the default 1h
   needs:
-    - suse_tumbleweed_qt69 # we don't have a macos check build
+    - suse_tumbleweed_qt6 # we don't have a macos check build
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       allow_failure: true # MacOS build is unstable
