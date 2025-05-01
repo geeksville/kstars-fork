@@ -205,22 +205,119 @@ QFuture<bool> FITSData::loadFromFile(const QString &inFilename)
 
 // JEE
 #ifdef HAVE_OPENCV
+bool FITSData::initStack(const QString &inDir)
+{
+    m_StackDir = inDir;
+    return true;
+}
+
 bool FITSData::loadStack(const QString &inDir)
 {
+    m_StackDir = inDir;
     m_Stack.reset(new FITSStack(this), &QObject::deleteLater);
-    m_StackSubs = findAllImagesInDir(inDir);
+    connect(m_Stack.get(), &FITSStack::stackChanged, this, [this]()
+    {
+        if (m_Stack)
+        {
+            QByteArray buffer = m_Stack->getStackedImage();
+            loadFromBuffer(buffer);
+            // JEE do we need this?
+            emit dataChanged();
+        }
+    });
+
+    // Clear the work queue
+    m_StackQ.clear();
+
+    // Setup directory watcher on the stack directory
+    m_StackDirWatcher.reset(new FITSDirWatcher(this), &QObject::deleteLater);
+    connect(m_StackDirWatcher.get(), &FITSDirWatcher::newFilesDetected, this, &FITSData::newStackSubs);
+
+    m_StackDirWatcher->watchDir(m_StackDir);
+    QStringList subs = m_StackDirWatcher->getCurrentFiles();
+
+    // JEE m_StackSubs = findAllImagesInDir(m_StackDir);
+    //QList<QString> subs = findAllImagesInDir(m_StackDir);
+    //QStringList subs = findAllImagesInDir(m_StackDir);
+
+    auto stackData = m_Stack->getStackData();
+    QString alignMaster = stackData.alignMaster;
+    if (alignMaster.isEmpty())
+    {
+        // No align master chosen so use the first sub to be processed
+        if (subs.size() > 0)
+            emit alignMasterChosen(subs[0]);
+    }
+    else
+    {
+        // An alignment master has been specified so make this the first sub to be processed
+        int pos = subs.indexOf(alignMaster);
+        if (pos >= 0 && pos < subs.size())
+            // Align Master is in the directory of subs to be processed so remove it from its current position
+            QString item = subs.takeAt(pos);
+        subs.insert(0, alignMaster);
+    }
+
+    int subsToProcess = m_Stack->getStackData().numInMem;
+    for (int i = 0; i < subs.size(); i++)
+    {
+        // Process the first subsToProcess and put the rest on a Q for processing later
+        if (i < subsToProcess)
+            m_StackSubs.push_back(subs[i]);
+        else
+            m_StackQ.enqueue(subs[i]);
+    }
 
     if (m_StackSubs.size() == 0)
         // No subs in the selected directory so we're done
         return true;
 
+    // Set the control variables
     m_StackSubPos = 0;
+    m_Stack->setStackInProgress(true);
+    m_Stack->setInitalStackDone(false);
+    m_MastersLoaded = false;
 
-    return processNextSub(m_StackSubPos);
+    return processNextSub(m_StackSubs[m_StackSubPos]);
+}
+
+// Called when 1 (or more) new files added to the watched stack directory
+void FITSData::newStackSubs(const QStringList &newFiles)
+{
+    qCDebug(KSTARS_FITS) << "JEE New files detected:";
+    for (const QString &file : newFiles)
+    {
+        qCDebug(KSTARS_FITS) << file;
+        m_StackQ.enqueue(file);
+    }
+    incrementalStack();
+}
+
+void FITSData::incrementalStack()
+{
+    if (m_StackQ.isEmpty())
+        // Nothing to do
+        return;
+
+    if (m_Stack->getStackInProgress())
+        return;
+
+    int subsToProcess = m_Stack->getStackData().numInMem;
+    m_StackSubs.clear();
+    m_StackSubPos = 0;
+    for (int i = 0; i < subsToProcess; i++)
+    {
+        m_StackSubs.push_front(m_StackQ.dequeue());
+        if (m_StackQ.isEmpty())
+            break;
+    }
+    processNextSub(m_StackSubs[m_StackSubPos]);
 }
 
 QFuture<bool> FITSData::loadStackBuffer()
 {
+    // JEE this is a hack to get privateLoad to load the buffer
+    m_Extension = "fits";
     QByteArray buffer = m_Stack->getStackedImage();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     return QtConcurrent::run(&FITSData::loadFromBuffer, this, buffer);
@@ -229,63 +326,73 @@ QFuture<bool> FITSData::loadStackBuffer()
 #endif
 }
 
-bool FITSData::processNextSub(int subPos)
+bool FITSData::processNextSub(QString sub)
 {
-    loadCommon(m_StackSubs[subPos]);
-    QFileInfo info(m_Filename);
-    m_Extension = info.completeSuffix().toLower();
-    qCDebug(KSTARS_FITS) << "Loading file " << m_Filename;
-    QByteArray buffer;
-    if (!privateLoad(buffer))
+    // JEE
+    //loadCommon(m_StackSubs[subPos]);
+    //QFileInfo info(m_Filename);
+    //m_Extension = info.completeSuffix().toLower();
+    //qCDebug(KSTARS_FITS) << "Loading sub " << sub;
+    //QByteArray buffer;
+    //if (!privateLoad(buffer))
+    //{
+    //    qCDebug(KSTARS_FITS) << QString("%1 Unable to load image %2").arg(__FUNCTION__).arg(m_Filename);
+    //    return false;
+    //}
+    if (stackLoadFITSImage(sub))
     {
-        qCDebug(KSTARS_FITS) << QString("%1 Unable to load image %2").arg(__FUNCTION__).arg(m_Filename);
-        return false;
-    }
+        double pixScale = (m_StackWCSHandle) ? std::abs(m_StackWCSHandle->cdelt[0]) * 3600 : 0.0;
+        double ra = m_StackWCSHandle->crval[0];
+        double dec = m_StackWCSHandle->crval[1];
+        int cvType = m_StackStatistics.cvType;
 
-    double pixScale = (HasWCS && m_WCSHandle) ? std::abs(m_WCSHandle->cdelt[0]) * 3600 : 0.0;
-    double ra = m_WCSHandle->crval[0];
-    double dec = m_WCSHandle->crval[1];
-
-    if (m_Stack->addImage((void *) m_ImageBuffer, pixScale, m_Statistics.width, m_Statistics.height, m_Statistics.bytesPerPixel))
-    {
-        emit plateSolveImage(ra, dec, pixScale);
-        return true;
+        if (m_Stack->addImage((void *) m_StackImageBuffer, cvType, pixScale, m_StackStatistics.stats.width,
+                              m_StackStatistics.stats.height, m_StackStatistics.stats.bytesPerPixel))
+        {
+            emit plateSolveImage(ra, dec, pixScale, m_Stack->getStackData().weighting);
+            return true;
+        }
     }
+    emit stackUpdateStats(false, m_StackSubPos, m_StackDirWatcher->getCurrentFiles().size());
     return false;
 }
 
-bool FITSData::processMasters()
+void FITSData::processMasters()
 {
     // Dark
-    loadCommon("/home/john/Downloads/MasterDark180sM20G75O15.fit");
-    QFileInfo info(m_Filename);
-    m_Extension = info.completeSuffix().toLower();
-    qCDebug(KSTARS_FITS) << "Loading master dark " << m_Filename;
-    QByteArray buffer;
-    if (!privateLoad(buffer))
+    QString dark = Options::fitsLSMasterDark();
+    if (!dark.isEmpty())
     {
-        qCDebug(KSTARS_FITS) << QString("%1 Unable to load master dark %2").arg(__FUNCTION__).arg(m_Filename);
-        return false;
+        loadCommon(dark);
+        QFileInfo info(m_Filename);
+        m_Extension = info.completeSuffix().toLower();
+        qCDebug(KSTARS_FITS) << "Loading master dark " << m_Filename;
+        QByteArray buffer;
+        if (privateLoad(buffer))
+            m_Stack->addMaster(true, (void *) m_ImageBuffer, m_Statistics.width, m_Statistics.height, m_Statistics.bytesPerPixel);
+        else
+            qCDebug(KSTARS_FITS) << QString("%1 Unable to load master dark %2").arg(__FUNCTION__).arg(m_Filename);
     }
-    m_Stack->addMaster(true, (void *) m_ImageBuffer, m_Statistics.width, m_Statistics.height, m_Statistics.bytesPerPixel);
 
     // Flat
-    loadCommon("/home/john/Downloads/MasterFlatRed.fit");
-    QFileInfo info2(m_Filename);
-    m_Extension = info.completeSuffix().toLower();
-    qCDebug(KSTARS_FITS) << "Loading master flat " << m_Filename;
-    QByteArray buffer2;
-    if (!privateLoad(buffer2))
+    QString flat = Options::fitsLSMasterFlat();
+    if (!flat.isEmpty())
     {
-        qCDebug(KSTARS_FITS) << QString("%1 Unable to load master flat %2").arg(__FUNCTION__).arg(m_Filename);
-        return false;
+        loadCommon(flat);
+        QFileInfo info(m_Filename);
+        m_Extension = info.completeSuffix().toLower();
+        qCDebug(KSTARS_FITS) << "Loading master flat " << m_Filename;
+        QByteArray buffer;
+        if (privateLoad(buffer))
+            m_Stack->addMaster(false, (void *) m_ImageBuffer, m_Statistics.width, m_Statistics.height, m_Statistics.bytesPerPixel);
+        else
+            qCDebug(KSTARS_FITS) << QString("%1 Unable to load master flat %2").arg(__FUNCTION__).arg(m_Filename);
     }
-    m_Stack->addMaster(false, (void *) m_ImageBuffer, m_Statistics.width, m_Statistics.height, m_Statistics.bytesPerPixel);
-    return true;
+    m_MastersLoaded = true;
 }
 
 // JEE Need to fix searching subdirs
-QList<QString> FITSData::findAllImagesInDir(const QDir &dir)
+/*QList<QString> FITSData::findAllImagesInDir(const QDir &dir)
 {
     QList<QString> result;
     QList<QString> nameFilter = { "*" };
@@ -300,7 +407,7 @@ QList<QString> FITSData::findAllImagesInDir(const QDir &dir)
     {
         auto dir = dirs.back();
         dirs.removeLast();
-        auto list = dir.entryInfoList(nameFilter, filterFlags, sortFlags );
+        auto list = dir.entryInfoList(nameFilter, filterFlags, sortFlags);
         foreach(const QFileInfo &entry, list)
         {
             if(entry.isDir() )
@@ -315,27 +422,30 @@ QList<QString> FITSData::findAllImagesInDir(const QDir &dir)
         }
     }
     return result;
-}
+}*/
 
 // Update plate solving status
-bool FITSData::solverDone(const bool timedOut, const bool success)
+bool FITSData::solverDone(const bool timedOut, const bool success, const double hfr, const int numStars)
 {
     m_StackSubPos++;
-    m_Stack->solverDone(m_WCSHandle, timedOut, success);
+    bool ok = m_Stack->solverDone(m_StackWCSHandle, timedOut, success, hfr, numStars);
+
+    emit stackUpdateStats(ok, m_StackSubPos, m_StackDirWatcher->getCurrentFiles().size());
 
     if (m_StackSubs.size() > m_StackSubPos)
-        return processNextSub(m_StackSubPos);
+        return processNextSub(m_StackSubs[m_StackSubPos]);
     else
     {
         // All subs have been processed so load calibration masters (if any)
-        processMasters();
-        if (!m_Stack->stack())
-            return false;
-        else
-        {
+        if (!m_MastersLoaded)
+            processMasters();
+
+        // Stack... either an initial stack or add 1 or more subs to an existing stack
+        bool ok = m_Stack->getInitialStackDone() ? m_Stack->stackn() : m_Stack->stack();
+        if (ok)
             emit stackReady();
-            return true;
-        }
+
+        return ok;
     }
 }
 #endif
@@ -565,7 +675,8 @@ bool FITSData::loadFITSImage(const QByteArray &buffer, const bool isCompressed)
 
     // Channels always set to #1 if we are not required to process 3D Cubes
     // Or if mode is not FITS_NORMAL (guide, focus..etc)
-    if ( (m_Mode != FITS_NORMAL && m_Mode != FITS_CALIBRATE) || !Options::auto3DCube())
+    // JEE
+    if ( (m_Mode != FITS_NORMAL && m_Mode != FITS_CALIBRATE && m_Mode != FITS_LIVESTACKING) || !Options::auto3DCube())
         m_Statistics.channels = 1;
 
     m_ImageBufferSize = m_Statistics.samples_per_channel * m_Statistics.channels * m_Statistics.bytesPerPixel;
@@ -619,11 +730,247 @@ bool FITSData::loadFITSImage(const QByteArray &buffer, const bool isCompressed)
     else
         calculateStats(false, false);
 
-    if (m_Mode == FITS_NORMAL || m_Mode == FITS_ALIGN)
+    // JEE
+    if (m_Mode == FITS_NORMAL || m_Mode == FITS_ALIGN || m_Mode == FITS_LIVESTACKING)
         loadWCS();
 
     starsSearched = false;
 
+    return true;
+}
+
+// JEE load a FITS image temporarily for stacking so no need to setup all the global
+// variables required for a "normal" load
+bool FITSData::stackLoadFITSImage(QString filename, const bool isCompressed)
+{
+    int status = 0, anynull = 0;
+
+    // We're done with the previous file now so we can close it, discarding changes
+    if (m_Stackfptr != nullptr)
+    {
+        fits_close_file(m_Stackfptr, &status);
+        if (status != 0)
+            qCDebug(KSTARS_FITS) << QString("Error %1 closing file %2").arg(fitsErrorToString(status)).arg(filename);
+        m_Stackfptr = nullptr;
+        status = 0;
+    }
+
+    QFileInfo info(filename);
+    QString extension = info.completeSuffix().toLower();
+    qCDebug(KSTARS_FITS) << "Loading sub " << filename;
+
+    if (extension.contains(".fz") || isCompressed)
+    {
+        fpstate fpvar;
+        fp_init (&fpvar);
+        bool rc = false;
+
+        QString uncompressedFile = QDir::tempPath() + QString("/%1").arg(QUuid::createUuid().toString().remove(
+                                                              QRegularExpression("[-{}]")));
+
+        rc = fp_unpack_file_to_fits(filename.toLocal8Bit().data(), &m_Stackfptr, fpvar) == 0;
+        if (rc)
+            filename = uncompressedFile;
+        else
+        {
+            qCDebug(KSTARS_FITS) << QString("Failed to unpack compressed fits file %1").arg(filename);
+            return false;
+        }
+    }
+    else
+    {
+        // Use open diskfile as it does not use extended file names which has problems opening
+        // files with [ ] or ( ) in their names.
+        if (fits_open_diskfile(&m_Stackfptr, filename.toLocal8Bit(), READONLY, &status))
+        {
+            qCDebug(KSTARS_FITS) << QString("Error %1 opening fits file %2").arg(fitsErrorToString(status)).arg(filename);
+            return false;
+        }
+    }
+
+    if (fits_movabs_hdu(m_Stackfptr, 1, IMAGE_HDU, &status))
+    {
+        qCDebug(KSTARS_FITS) << QString("Error %1 locating image HDU in %2").arg(fitsErrorToString(status)).arg(filename);
+        return false;
+    }
+
+    int FITSBITPIX;
+    long naxes[3];
+    if (fits_get_img_param(m_Stackfptr, 3, &FITSBITPIX, &m_StackStatistics.stats.ndim, naxes, &status))
+    {
+        qCDebug(KSTARS_FITS) << QString("Error %1 getting image params for %2").arg(fitsErrorToString(status)).arg(filename);
+        return false;
+    }
+
+    // Reload if it is transparently compressed.
+    if ((fits_is_compressed_image(m_Stackfptr, &status) || m_StackStatistics.stats.ndim <= 0) && !isCompressed)
+    {
+        qCDebug(KSTARS_FITS) << "Image is compressed. Reloading...";
+        return stackLoadFITSImage(filename, true);
+    }
+
+    if (m_StackStatistics.stats.ndim < 2)
+    {
+        qCDebug(KSTARS_FITS) << QString("1D FITS image %1 detected. These are not supported").arg(filename);
+        return false;
+    }
+
+    if (m_StackStatistics.stats.ndim < 3)
+        naxes[2] = 1;
+
+    if (naxes[0] == 0 || naxes[1] == 0)
+    {
+        qCDebug(KSTARS_FITS) << QString("Image %1 has invalid dimensions %2x%3")
+                                    .arg(filename).arg(naxes[0]).arg(naxes[1]);
+        return false;
+    }
+
+    m_StackStatistics.stats.width               = naxes[0];
+    m_StackStatistics.stats.height              = naxes[1];
+    m_StackStatistics.stats.channels            = naxes[2];
+    m_StackStatistics.stats.samples_per_channel = m_StackStatistics.stats.width * m_StackStatistics.stats.height;
+
+    switch (FITSBITPIX)
+    {
+        case BYTE_IMG:
+            m_StackStatistics.stats.dataType      = TBYTE;
+            m_StackStatistics.stats.bytesPerPixel = sizeof(uint8_t);
+            m_StackStatistics.cvType              = CV_MAKETYPE(CV_8U, m_StackStatistics.stats.channels);
+            break;
+        case SHORT_IMG:
+            m_StackStatistics.stats.dataType      = TUSHORT;
+            m_StackStatistics.stats.bytesPerPixel = sizeof(int16_t);
+            m_StackStatistics.cvType              = CV_MAKETYPE(CV_16S, m_StackStatistics.stats.channels);
+            break;
+        case USHORT_IMG:
+            m_StackStatistics.stats.dataType      = TUSHORT;
+            m_StackStatistics.stats.bytesPerPixel = sizeof(uint16_t);
+            m_StackStatistics.cvType              = CV_MAKETYPE(CV_16U, m_StackStatistics.stats.channels);
+            break;
+        case LONG_IMG:
+            m_StackStatistics.stats.dataType      = TULONG;
+            m_StackStatistics.stats.bytesPerPixel = sizeof(int32_t);
+            m_StackStatistics.cvType              = CV_MAKETYPE(CV_32S, m_StackStatistics.stats.channels);
+            break;
+        case ULONG_IMG:
+            m_StackStatistics.stats.dataType      = TULONG;
+            m_StackStatistics.stats.bytesPerPixel = sizeof(uint32_t);
+            m_StackStatistics.cvType              = -1;
+            qCDebug(KSTARS_FITS) << "OpenCV does not support unsigned long datatype";
+            return false;
+        case FLOAT_IMG:
+            m_StackStatistics.stats.dataType      = TFLOAT;
+            m_StackStatistics.stats.bytesPerPixel = sizeof(float);
+            m_StackStatistics.cvType              = CV_MAKETYPE(CV_32F, m_StackStatistics.stats.channels);
+            break;
+        case LONGLONG_IMG:
+            m_StackStatistics.stats.dataType      = TLONGLONG;
+            m_StackStatistics.stats.bytesPerPixel = sizeof(int64_t);
+            m_StackStatistics.cvType              = -1;
+            qCDebug(KSTARS_FITS) << "OpenCV does not support long long datatype";
+            return false;
+        case DOUBLE_IMG:
+            m_StackStatistics.stats.dataType      = TDOUBLE;
+            m_StackStatistics.stats.bytesPerPixel = sizeof(double);
+            m_StackStatistics.cvType              = CV_MAKETYPE(CV_64F, m_StackStatistics.stats.channels);
+            break;
+        default:
+            qCDebug(KSTARS_FITS) << QString("File %1 has bit depth %2 This is not supported")
+                                        .arg(filename).arg(FITSBITPIX);
+            return false;
+    }
+
+    // JEE is it OK to reuse m_ImageBuffer
+    uint32_t stackImageBufferSize = m_StackStatistics.stats.samples_per_channel * m_StackStatistics.stats.channels *
+                                    m_StackStatistics.stats.bytesPerPixel;
+    if (stackImageBufferSize != m_StackImageBufferSize)
+    {
+        if (m_StackImageBuffer != nullptr)
+            delete[] m_StackImageBuffer;
+        m_StackImageBuffer = new uint8_t[stackImageBufferSize];
+
+        if (m_StackImageBuffer != nullptr)
+            m_StackImageBufferSize = stackImageBufferSize;
+        else
+        {
+            qCDebug(KSTARS_FITS) << "FITSData: Not enough memory for stack_image_buffer channel. Requested: "
+                                 << stackImageBufferSize << " bytes.";
+            m_StackImageBufferSize = 0;
+            return false;
+        }
+    }
+
+    long nelements = m_StackStatistics.stats.samples_per_channel * m_StackStatistics.stats.channels;
+    if (fits_read_img(m_Stackfptr, m_StackStatistics.stats.dataType, 1, nelements, nullptr, m_StackImageBuffer, &anynull, &status))
+    {
+        qCDebug(KSTARS_FITS) << QString("Error %1 reading image: %2").arg(fitsErrorToString(status)).arg(filename);
+        return false;
+    }
+
+    if (!parseHeader(true))
+    {
+        qCDebug(KSTARS_FITS) << QString("Error parsing FITS header in %1").arg(filename);
+        return false;
+    }
+    return stackLoadWCS();
+}
+
+// JEE
+bool FITSData::stackLoadWCS()
+{
+    // Get the FITS header in a format to do WCS processing...
+    int status = 0, nreject = 0, nkeyrec = 1;
+    QByteArray header_str;
+
+    for(auto &fitsKeyword : m_StackHeaderRecords)
+    {
+        QByteArray rec;
+        rec.append(fitsKeyword.key.leftJustified(8, ' ').toLatin1());
+        rec.append("= ");
+        rec.append(fitsKeyword.value.toByteArray());
+        rec.append(" / ");
+        rec.append(fitsKeyword.comment.toLatin1());
+        header_str.append(rec.leftJustified(80, ' ', true));
+        nkeyrec++;
+    }
+    header_str.append(QByteArray("END").leftJustified(80));
+
+    // Do the WCS processing...
+    if ((status = wcspih(header_str.data(), nkeyrec, WCSHDR_all, 0, &nreject, &m_Stacknwcs, &m_StackWCSHandle)) != 0)
+    {
+        wcsvfree(&m_Stacknwcs, &m_StackWCSHandle);
+        m_StackWCSHandle = nullptr;
+        m_Stacknwcs = 0;
+        qCDebug(KSTARS_FITS) << QString("Error %1 getting WCS header")
+                                    .arg(fitsErrorToString(status));
+        return false;
+    }
+
+    if (m_StackWCSHandle == nullptr)
+    {
+        qCDebug(KSTARS_FITS) << QString("No world coordinate systems found");
+        return false;
+    }
+
+    // FIXME: Call above goes through EVEN if no WCS is present, so we're adding this to return for now.
+    if (m_StackWCSHandle->crpix[0] == 0)
+    {
+        wcsvfree(&m_Stacknwcs, &m_StackWCSHandle);
+        m_StackWCSHandle = nullptr;
+        m_Stacknwcs = 0;
+        qCDebug(KSTARS_FITS) << QString("No world coordinate systems found (check)");
+        return false;
+    }
+
+    cdfix(m_StackWCSHandle);
+    if ((status = wcsset(m_StackWCSHandle)) != 0)
+    {
+        wcsvfree(&m_Stacknwcs, &m_StackWCSHandle);
+        m_StackWCSHandle = nullptr;
+        m_Stacknwcs = 0;
+        qCDebug(KSTARS_FITS) << QString("wcsset error %1").arg(wcs_errmsg[status]);
+        return false;
+    }
     return true;
 }
 
@@ -2083,19 +2430,19 @@ void FITSData::setMinMax(double newMin, double newMax, uint8_t channel)
     m_Statistics.max[channel] = newMax;
 }
 
-bool FITSData::parseHeader()
+bool FITSData::parseHeader(const bool stack)
 {
     char * header = nullptr;
     int status = 0, nkeys = 0;
 
-    if (fits_hdr2str(fptr, 0, nullptr, 0, &header, &nkeys, &status))
+    if (fits_hdr2str(stack ? m_Stackfptr : fptr, 0, nullptr, 0, &header, &nkeys, &status))
     {
         fits_report_error(stderr, status);
         free(header);
         return false;
     }
 
-    m_HeaderRecords.clear();
+    stack ? m_StackHeaderRecords.clear() : m_HeaderRecords.clear();
     QString recordList = QString(header);
 
     for (int i = 0; i < nkeys; i++)
@@ -2134,7 +2481,7 @@ bool FITSData::parseHeader()
             }
         }
 
-        m_HeaderRecords.append(oneRecord);
+        stack ? m_StackHeaderRecords.append(oneRecord) : m_HeaderRecords.append(oneRecord);
     }
 
     free(header);
@@ -5047,9 +5394,15 @@ void FITSData::injectWCS(double orientation, double ra, double dec, double pixsc
     m_WCSState = Idle;
 }
 
+void FITSData::injectStackWCS(double orientation, double ra, double dec, double pixscale, bool eastToTheRight)
+{
+    int status = 0;
+    updateWCSHeaderData(orientation, ra, dec, pixscale, eastToTheRight, true);
+}
+
 // Update header records based on plate solver solution
 void FITSData::updateWCSHeaderData(const double orientation, const double ra, const double dec, const double pixscale,
-                                   const bool eastToTheRight)
+                                   const bool eastToTheRight, const bool stack)
 {
     updateRecordValue("OBJCTRA", ra, "Object RA");
     updateRecordValue("OBJCTDEC", dec, "Object DEC");
@@ -5061,8 +5414,10 @@ void FITSData::updateWCSHeaderData(const double orientation, const double ra, co
     updateRecordValue("CTYPE1", "'RA---TAN'", "CTYPE1");
     updateRecordValue("CTYPE2", "'DEC--TAN'", "CTYPE2");
 
-    updateRecordValue("CRPIX1", m_Statistics.width / 2.0, "CRPIX1");
-    updateRecordValue("CRPIX2", m_Statistics.height / 2.0, "CRPIX2");
+    auto width = stack ? getStackStatistics().width : m_Statistics.width;
+    auto height = stack ? getStackStatistics().height : m_Statistics.height;
+    updateRecordValue("CRPIX1", width / 2.0, "CRPIX1");
+    updateRecordValue("CRPIX2", height / 2.0, "CRPIX2");
 
     double secpix1 = eastToTheRight ? pixscale : -pixscale;
     double secpix2 = pixscale;

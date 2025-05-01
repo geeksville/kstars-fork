@@ -9,6 +9,7 @@
 #   opencv_core - core
 #   opencv_imageproc - image processing routines, e.g. Sobel, Laplassian, etc
 #   opencv_highgui - used for debug (when stable this could be removed)
+#   JEE tidy up
 #
 # OpenCV is installed in /opencv4/opencv2/.. and the include path needs to be at the /opencv4 level
 # to avoid compilation errors
@@ -75,13 +76,20 @@ else (OpenCV_INCLUDE_DIR AND OpenCV_LIBRARIES)
     ${_obLinkDir}
     ${GNUWIN32_DIR}/lib
   )
+  find_library(OpenCV_photo_LIBRARY NAMES opencv_photo
+    PATHS
+    ${PC_OPENCV_LIBRARY_DIRS}
+    ${_obLinkDir}
+    ${GNUWIN32_DIR}/lib
+  )
   set(OpenCV_LIBRARIES
     ${OpenCV_core_LIBRARY}
     ${OpenCV_imgproc_LIBRARY}
     ${OpenCV_highgui_LIBRARY}
     ${OpenCV_imgcodecs_LIBRARY}
     ${OpenCV_video_LIBRARY}
-    ${OpenCV_calib3d_LIBRARY})
+    ${OpenCV_calib3d_LIBRARY}
+    ${OpenCV_photo_LIBRARY})
 
   if(OpenCV_INCLUDE_DIR AND OpenCV_LIBRARIES)
     set(OpenCV_FOUND TRUE)

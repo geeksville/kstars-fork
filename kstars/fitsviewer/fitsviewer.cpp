@@ -473,6 +473,8 @@ bool FITSViewer::addFITSCommon(const QSharedPointer<FITSTab> &tab, const QUrl &i
     switch (mode)
     {
         case FITS_NORMAL:
+        // JEE
+        case FITS_LIVESTACKING:
         case FITS_CALIBRATE:
             fitsTabWidget->addTab(tab.get(), previewText.isEmpty() ? imageName.fileName() : previewText);
             break;
@@ -575,6 +577,7 @@ void FITSViewer::loadFiles()
 
     connect(tab.get(), &FITSTab::loaded, this, [ = ]()
     {
+        // JEE anything to do here
         if (addFITSCommon(m_Tabs.last(), imageName, FITS_NORMAL, ""))
             emit loaded(fitsID++);
         else
@@ -584,6 +587,7 @@ void FITSViewer::loadFiles()
             loadFiles();
     });
 
+    // JEE anything to do
     tab->loadFile(imageName, FITS_NORMAL, FITS_NONE);
 }
 
@@ -730,6 +734,7 @@ bool FITSViewer::updateFITSCommon(const QSharedPointer<FITSTab> &tab, const QUrl
 
     if (tabTitle != "")
         fitsTabWidget->setTabText(tabIndex, tabTitle);
+    // JEE anything to do?
     else if (tab->getView()->getMode() == FITS_NORMAL)
     {
         if ((imageName.fileName() == "Preview" ||
@@ -936,6 +941,7 @@ void FITSViewer::blink()
     connect(tab.get(), &FITSTab::loaded, this, [ = ]()
     {
         QObject::sender()->disconnect(this);
+        // JEE anything to do
         addFITSCommon(m_Tabs.last(), imageName, FITS_NORMAL, "");
         //fitsTabWidget->tabBar()->setTabTextColor(tabIndex, Qt::red);
         fitsTabWidget->setTabText(tabIndex, tabName);
@@ -1038,24 +1044,26 @@ void FITSViewer::stack()
     if (m_StackBusy)
         return;
     m_StackBusy = true;
-    QFileDialog dialog(KStars::Instance(), i18nc("@title:window", "Stack Top Directory"));
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setDirectoryUrl(lastURL);
 
-    if (!dialog.exec())
+    // JEE QFileDialog dialog(KStars::Instance(), i18nc("@title:window", "Stack Top Directory"));
+    // dialog.setFileMode(QFileDialog::Directory);
+    // dialog.setDirectoryUrl(lastURL);
+
+    /*if (!dialog.exec())
     {
         m_StackBusy = false;
         return;
-    }
-    QStringList selected = dialog.selectedFiles();
+    }*/
+    /*QStringList selected = dialog.selectedFiles();
     if (selected.size() < 1)
     {
         m_StackBusy = false;
         return;
-    }
-    QString topDir = selected[0];
+    }*/
+    QString topDir = lastURL.toString();
 
-    const QUrl imageName(QUrl::fromLocalFile(topDir));
+    // JEEconst QUrl imageName(QUrl::fromLocalFile(topDir));
+    const QUrl imageName;
 
     led.setColor(Qt::yellow);
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -1064,7 +1072,8 @@ void FITSViewer::stack()
 
     m_Tabs.push_back(tab);
     int tabIndex = m_Tabs.size();
-    QString tabName = QString("Stack of %1").arg(topDir);
+    // JEE QString tabName = QString("Stack of %1").arg(topDir);
+    QString tabName = QString("Stack");
     connect(tab.get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
         {
             Q_UNUSED(errorMessage);
@@ -1077,12 +1086,47 @@ void FITSViewer::stack()
     connect(tab.get(), &FITSTab::loaded, this, [ = ]()
         {
             QObject::sender()->disconnect(this);
-            addFITSCommon(m_Tabs.last(), imageName, FITS_NORMAL, "");
+            addFITSCommon(m_Tabs.last(), imageName, FITS_LIVESTACKING, tabName);
             fitsTabWidget->setTabText(tabIndex, tabName);
             m_StackBusy = false;
         }, Qt::UniqueConnection);
 
-    tab->loadStack(topDir, FITS_NORMAL, FITS_NONE);
+    tab->initStack(topDir, FITS_LIVESTACKING, FITS_NONE);
+}
+
+// JEE
+void FITSViewer::restack(const QString dir)
+{
+    if (m_StackBusy)
+        return;
+    m_StackBusy = true;
+
+    int tabIndex = fitsTabWidget->currentIndex();
+
+    const QUrl imageName;
+
+    led.setColor(Qt::yellow);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    QString tabName = i18n("Stack of %1", dir);
+    connect(m_Tabs[tabIndex].get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
+        {
+            Q_UNUSED(errorMessage);
+            QObject::sender()->disconnect(this);
+            QApplication::restoreOverrideCursor();
+            led.setColor(Qt::red);
+            m_StackBusy = false;
+        }, Qt::UniqueConnection);
+
+    connect(m_Tabs[tabIndex].get(), &FITSTab::loaded, this, [ = ]()
+        {
+            QObject::sender()->disconnect(this);
+            // addFITSCommon(m_Tabs[tabIndex], imageName, FITS_LIVESTACKING, tabName);
+            fitsTabWidget->setTabText(tabIndex, tabName);
+            QApplication::restoreOverrideCursor();
+            led.setColor(Qt::green);
+            m_StackBusy = false;
+        }, Qt::UniqueConnection);
 }
 
 // JEE

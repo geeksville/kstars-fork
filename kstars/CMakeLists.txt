@@ -432,6 +432,7 @@ if (CFITSIO_FOUND)
         fitsviewer/fitsdebayer.cpp
         fitsviewer/opsfits.cpp
         fitsviewer/fitsstack.cpp
+        fitsviewer/fitsdirwatcher.cpp
         )
 
     if (Qt5DataVisualization_FOUND OR Qt6DataVisualization_FOUND)

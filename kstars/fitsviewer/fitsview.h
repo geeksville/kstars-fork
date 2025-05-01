@@ -65,13 +65,20 @@ class FITSView : public QScrollArea
         void loadFile(const QString &inFilename);
 
         /**
+         * @brief Initialise a stack of FITS files
+         */
+        void initStack();
+
+        /**
          * @brief Loads a stack of FITS files and displays in a FITSView frame
          * @param inDir directory of FITS files
-         * @param parameters for StellarSolver
-         * @note If image is successfully, loaded() signal is emitted, otherwise failed() signal is emitted.
-         * Obtain error by calling lastError()
          */
         void loadStack(const QString &inDir);
+
+        /**
+         * @brief Redo post processing on an existing stack
+         */
+        void redoPostProcessStack();
 
         /**
          * @brief loadFITSFromData Takes ownership of the FITSData instance passed in and displays it in a FITSView frame
@@ -520,7 +527,10 @@ class FITSView : public QScrollArea
         void catHighlightChanged(const int highlight);
         void headerChanged();
         // JEE
-        void plateSolveImage(const double ra, const double dec, const double pixScale);
+        void plateSolveImage(const double ra, const double dec, const double pixScale,
+                             const LiveStackFrameWeighting weighting);
+        void alignMasterChosen(const QString alignMaster);
+        void stackUpdateStats(const bool ok, const int sub, const int total);
 
         friend class FITSLabel;
 };

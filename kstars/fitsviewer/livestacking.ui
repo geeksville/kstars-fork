@@ -6,17 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>435</width>
-    <height>442</height>
+    <width>583</width>
+    <height>828</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Plate Solving</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>3</number>
-   </property>
+  <layout class="QGridLayout" name="gridLayout_3">
    <property name="leftMargin">
     <number>3</number>
    </property>
@@ -29,27 +26,276 @@
    <property name="bottomMargin">
     <number>3</number>
    </property>
-   <item>
-    <widget class="QGroupBox" name="groupBox_1">
-     <property name="title">
-      <string/>
+   <item row="1" column="0" colspan="2">
+    <widget class="QGroupBox" name="CalibrationGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <layout class="QGridLayout" name="gridLayout_1">
-      <item row="6" column="2">
-       <spacer name="hSpacer4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+     <property name="title">
+      <string>Calibration</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <widget class="QLabel" name="masterFlatLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeHint" stdset="0">
+        <property name="minimumSize">
          <size>
-          <width>-1</width>
-          <height>-1</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
-       </spacer>
+        <property name="text">
+         <string>Master Flat:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSMasterFlat</cstring>
+        </property>
+       </widget>
       </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QPushButton" name="RestackB">
+      <item row="0" column="0">
+       <widget class="QLabel" name="masterDarkLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Master Dark:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSMasterDark</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="kcfg_FitsLSMasterFlat">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="readOnly">
+         <bool>false</bool>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="MasterDarkB">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset theme="document-open"/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="MasterFlatB">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset theme="document-open"/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="kcfg_FitsLSMasterDark">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="readOnly">
+         <bool>false</bool>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QGroupBox" name="StackingGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Stacking</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="7" column="0">
+       <widget class="QLabel" name="WinsorCutoffLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Winsorization Cutoff:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSWinsorCutoff</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" rowspan="3">
+       <widget class="QComboBox" name="kcfg_FitsLSRejection">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pixel rejection algorithm:&lt;/p&gt;&lt;p&gt;- None. No rejection is applied.&lt;/p&gt;&lt;p&gt;- Sigma Clipping. Outlying pixels are rejected.&lt;/p&gt;&lt;p&gt;- Winsorized Sigma Clipping. Winsorized version of sigma clipping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sigma Clipping</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Winsorized Sigma Clipping</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QDoubleSpinBox" name="kcfg_FitsLSHighSigma">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Value of High Sigma to be used in pixel rejection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>3.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="kcfg_FitsLSWeighting">
+        <item>
+         <property name="text">
+          <string>Equal</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>HFR</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Num Stars</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QDoubleSpinBox" name="kcfg_FitsLSLowSigma">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Value of Low Sigma to be used in pixel rejection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>3.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="kcfg_FitsLSNumInMem">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The maximum number of subs held in memory whilst processing. The larger the value, the better the quality of the stacking process, but at the cost of more processing time and memory used.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Processes such as sigma clipping will use this many subs to calculate statistics to use on all subs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="minimum">
+         <number>2</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="InMemoryLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>In Memory Subs:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSNumInMem</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QPushButton" name="StackB">
+        <property name="minimumSize">
+         <size>
+          <width>93</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>80</width>
@@ -57,145 +303,532 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Plate solve the image using the parameters below.</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rerun the stacking process using the selected parameters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Restack</string>
+         <string>Stack</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <spacer name="hSpacer1">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>-1</width>
-          <height>-1</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="4" column="2">
-       <spacer name="hSpacer2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>-1</width>
-          <height>-1</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="9" column="2">
-       <spacer name="hSpacer5">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>-1</width>
-          <height>-1</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="kcfg_FitsSolverUseScale">
+      <item row="7" column="1">
+       <widget class="QDoubleSpinBox" name="kcfg_FitsLSWinsorCutoff">
         <property name="toolTip">
-         <string>Set image scale to speed up solver as it does not have to search index files of different image scales.</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Winsorization cutoff in units of sigma to be used in pixel rejection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>5.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="WeightingLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="text">
-         <string>Use Scale</string>
+         <string>Frame Weighting:</string>
         </property>
-        <property name="checked">
+        <property name="buddy">
+         <cstring>kcfg_FitsLSWeighting</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="3">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="LowSigmaLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Low Sigma:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSLowSigma</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="HighSigmaLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>High Sigma:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSHighSigma</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="pixelRejLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Rejection Method:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSRejection</cstring>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QGroupBox" name="PostProcGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Post Processing</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="kcfg_FitsLSSharpenAmt">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Amount of sharpening to apply. Larger values apply more sharpening.&lt;/p&gt;&lt;p&gt;Set to 0 to skip sharpening.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QPushButton" name="ReprocessB">
+        <property name="toolTip">
+         <string>Rerun the post processing using the selected parameters</string>
+        </property>
+        <property name="text">
+         <string>Reprocess</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="kcfg_FitsLSDenoiseAmt">
+        <property name="minimumSize">
+         <size>
+          <width>247</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Amount of denoise to apply. Larger values apply more denoising.&lt;/p&gt;&lt;p&gt;Set to 0 to skip denoising&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="kcfg_FitsLSSharpenKernal">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sharpen kernal size.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="singleStep">
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="SharpenLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Sharpen Amount:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSSharpenAmt</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="kcfg_FitsLSSharpenSigma">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sharpen sigma.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>3.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="SharpenKernalLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Sharpen Kernal:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSSharpenKernal</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="SharpenSigmaLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Sharpen Sigma:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSSharpenSigma</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="DenoiseLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Denoise Amount:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSDenoiseAmt</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QGroupBox" name="InfoGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6" rowstretch="0,0,0">
+      <item row="2" column="1">
+       <widget class="QLabel" name="SubsFailed">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Failed</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="stackLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Stack Directory:</string>
+        </property>
+        <property name="buddy">
+         <cstring>Stack</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="Stack">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>314</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="clearButtonEnabled">
          <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="7" column="2">
-       <spacer name="hSpacer6">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item row="2" column="0">
+       <widget class="QLabel" name="SubsFailedLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>-1</width>
-          <height>-1</height>
-         </size>
+        <property name="text">
+         <string>Subs Failed:</string>
         </property>
-       </spacer>
+       </widget>
       </item>
-      <item row="5" column="2">
-       <spacer name="hSpacer3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item row="1" column="0">
+       <widget class="QLabel" name="NumberSubsLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeHint" stdset="0">
+        <property name="minimumSize">
          <size>
-          <width>-1</width>
-          <height>-1</height>
+          <width>188</width>
+          <height>0</height>
          </size>
         </property>
-       </spacer>
+        <property name="text">
+         <string>Subs Processed:</string>
+        </property>
+       </widget>
       </item>
-      <item row="8" column="2">
-       <spacer name="hSpacer7">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="StackDirB">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>-1</width>
-          <height>-1</height>
-         </size>
+        <property name="text">
+         <string/>
         </property>
-       </spacer>
+        <property name="icon">
+         <iconset theme="folder-open"/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="SubsProcessed">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Processed</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QGroupBox" name="SolutionGroupBox">
+   <item row="2" column="0" colspan="2">
+    <widget class="QGroupBox" name="AlignmentGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
-      <string>Solution</string>
+      <string>Alignment</string>
      </property>
-     <layout class="QVBoxLayout" name="solutionLayout">
-      <item>
-       <widget class="QLabel" name="Solution1">
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="1" column="1">
+       <widget class="QComboBox" name="kcfg_FitsLSAlignMethod">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>247</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>247</width>
+          <height>0</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>Plate Solve</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="AlignMasterSubLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
-         <string/>
+         <string>Master Sub:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSAlignMaster</cstring>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLabel" name="Solution2">
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="kcfg_FitsLSAlignMaster">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="alignLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Method:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSAlignMethod</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="AlignMasterB">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="icon">
+         <iconset theme="document-open"/>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>-1</width>
-       <height>-1</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>Stack</tabstop>
+  <tabstop>kcfg_FitsLSMasterDark</tabstop>
+  <tabstop>MasterDarkB</tabstop>
+  <tabstop>kcfg_FitsLSMasterFlat</tabstop>
+  <tabstop>MasterFlatB</tabstop>
+  <tabstop>kcfg_FitsLSAlignMaster</tabstop>
+  <tabstop>AlignMasterB</tabstop>
+  <tabstop>kcfg_FitsLSAlignMethod</tabstop>
+  <tabstop>kcfg_FitsLSNumInMem</tabstop>
+  <tabstop>kcfg_FitsLSWeighting</tabstop>
+  <tabstop>kcfg_FitsLSRejection</tabstop>
+  <tabstop>kcfg_FitsLSLowSigma</tabstop>
+  <tabstop>kcfg_FitsLSHighSigma</tabstop>
+  <tabstop>kcfg_FitsLSWinsorCutoff</tabstop>
+  <tabstop>StackB</tabstop>
+  <tabstop>kcfg_FitsLSDenoiseAmt</tabstop>
+  <tabstop>kcfg_FitsLSSharpenAmt</tabstop>
+  <tabstop>kcfg_FitsLSSharpenKernal</tabstop>
+  <tabstop>kcfg_FitsLSSharpenSigma</tabstop>
+  <tabstop>ReprocessB</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

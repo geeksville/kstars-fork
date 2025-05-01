@@ -179,10 +179,13 @@ bool FITSTab::setupView(FITSMode mode, FITSScale filter)
         m_CatalogObjectItem = fitsTools->addItem(m_CatalogObjectWidget, i18n("Catalog Objects"));
         initCatalogObject();
 
-        // Setup the Live Stacking page
-        m_LiveStackingUI.setupUi(m_LiveStackingWidget);
-        m_LiveStackingItem = fitsTools->addItem(m_LiveStackingWidget, i18n("Live Stacking"));
-        initLiveStacking();
+        // JEE Setup the Live Stacking page
+        if (mode == FITS_LIVESTACKING)
+        {
+            m_LiveStackingUI.setupUi(m_LiveStackingWidget);
+            m_LiveStackingItem = fitsTools->addItem(m_LiveStackingWidget, i18n("Live Stacking"));
+            initLiveStacking();
+        }
 
         fitsTools->addItem(m_HistogramEditor, i18n("Histogram"));
 
@@ -267,7 +270,7 @@ void FITSTab::loadFile(const QUrl &imageURL, FITSMode mode, FITSScale filter)
 }
 
 // JEE
-void FITSTab::loadStack(const QString &dir, FITSMode mode, FITSScale filter)
+void FITSTab::initStack(const QString &dir, FITSMode mode, FITSScale filter)
 {
     // check if the address points to an appropriate address
     if (dir.isEmpty() || !QFileInfo(dir).isDir())
@@ -303,7 +306,18 @@ void FITSTab::loadStack(const QString &dir, FITSMode mode, FITSScale filter)
     //parameters.search_radius = m_PlateSolveUI.kcfg_FitsSolverRadius->value();
 
     m_liveStackDir = dir;
-    m_View->loadStack(dir);
+    m_LiveStackingUI.Stack->setText(m_liveStackDir);
+
+    // Popup the Live Stacking pane
+    fitsTools->setCurrentIndex(m_LiveStackingItem);
+    // JEE
+    fitsTools->show();
+    if(m_View->width() > 200)
+        fitsSplitter->setSizes(QList<int>() << 200 << m_View->width() - 200);
+    else
+        fitsSplitter->setSizes(QList<int>() << 50 << 50);
+
+    m_View->initStack();
 }
 
 bool FITSTab::shouldComputeHFR() const
@@ -863,6 +877,8 @@ void FITSTab::initCatalogObject()
     connect(m_CatalogObjectUI.filterPB, &QPushButton::clicked, this, &FITSTab::launchCatTypeFilterDialog);
     // JEE
     connect(m_View.get(), &FITSView::plateSolveImage, this, &FITSTab::plateSolveImage);
+    connect(m_View.get(), &FITSView::alignMasterChosen, this, &FITSTab::alignMasterChosen);
+    connect(m_View.get(), &FITSView::stackUpdateStats, this, &FITSTab::stackUpdateStats);
 
     // Setup the Object Type filter popup
     setupCatObjTypeFilter();
@@ -920,9 +936,145 @@ void FITSTab::setupCatObjTypeFilter()
     connect(m_CatObjTypeFilterUI.tree, &QTreeWidget::itemChanged, this, &FITSTab::typeFilterItemChanged);
 }
 
+// JEE
 void FITSTab::initLiveStacking()
 {
-    connect(m_LiveStackingUI.RestackB, &QPushButton::clicked, this, &FITSTab::liveStack);
+    // Set the GUI to the saved options
+    m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2").arg(0).arg(0));
+    m_LiveStackingUI.SubsFailed->setText(QString("%1").arg(0));
+    m_LiveStackingUI.MasterDarkB->setText(Options::fitsLSMasterDark());
+    m_LiveStackingUI.MasterFlatB->setText(Options::fitsLSMasterFlat());
+    m_LiveStackingUI.kcfg_FitsLSAlignMethod->setCurrentIndex(Options::fitsLSAlignMethod());
+    m_LiveStackingUI.kcfg_FitsLSNumInMem->setValue(Options::fitsLSNumInMem());
+    m_LiveStackingUI.kcfg_FitsLSWeighting->setCurrentIndex(Options::fitsLSWeighting());
+    m_LiveStackingUI.kcfg_FitsLSRejection->setCurrentIndex(Options::fitsLSRejection());
+    m_LiveStackingUI.kcfg_FitsLSLowSigma->setValue(Options::fitsLSLowSigma());
+    m_LiveStackingUI.kcfg_FitsLSHighSigma->setValue(Options::fitsLSHighSigma());
+    m_LiveStackingUI.kcfg_FitsLSWinsorCutoff->setValue(Options::fitsLSWinsorCutoff());
+    m_LiveStackingUI.kcfg_FitsLSDenoiseAmt->setValue(Options::fitsLSDenoiseAmt());
+    m_LiveStackingUI.kcfg_FitsLSSharpenAmt->setValue(Options::fitsLSSharpenAmt());
+    m_LiveStackingUI.kcfg_FitsLSSharpenKernal->setValue(Options::fitsLSSharpenKernal());
+    m_LiveStackingUI.kcfg_FitsLSSharpenSigma->setValue(Options::fitsLSSharpenSigma());
+
+    // Manage connections
+    connect(m_LiveStackingUI.StackDirB, &QPushButton::clicked, this, &FITSTab::selectLiveStack);
+    connect(m_LiveStackingUI.StackB, &QPushButton::clicked, this, &FITSTab::liveStack);
+    connect(m_LiveStackingUI.ReprocessB, &QPushButton::clicked, this, [this]
+    {
+        if(m_View)
+            m_View->redoPostProcessStack();
+    });
+
+    connect(m_LiveStackingUI.MasterDarkB, &QPushButton::clicked, this, &FITSTab::selectLiveStackMasterDark);
+    connect(m_LiveStackingUI.MasterFlatB, &QPushButton::clicked, this, &FITSTab::selectLiveStackMasterFlat);
+    connect(m_LiveStackingUI.AlignMasterB, &QPushButton::clicked, this, &FITSTab::selectLiveStackAlignSub);
+
+    // Calibration options
+    connect(m_LiveStackingUI.kcfg_FitsLSMasterDark, &QLineEdit::textChanged, this, [this](QString value)
+    {
+        Options::setFitsLSMasterDark(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSMasterFlat, &QLineEdit::textChanged, this, [this](QString value)
+    {
+        Options::setFitsLSMasterFlat(value);
+    });
+
+    // Alignment
+    connect(m_LiveStackingUI.kcfg_FitsLSAlignMaster, &QLineEdit::textChanged, this, [this](QString value)
+    {
+        Options::setFitsLSAlignMaster(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSAlignMethod, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int value)
+    {
+        Options::setFitsLSAlignMethod(value);
+    });
+
+    // Stacking
+    connect(m_LiveStackingUI.kcfg_FitsLSNumInMem, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value)
+    {
+        Options::setFitsLSNumInMem(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSWeighting, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int value)
+    {
+        Options::setFitsLSWeighting(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSRejection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int value)
+    {
+        Options::setFitsLSRejection(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSLowSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value)
+    {
+        Options::setFitsLSLowSigma(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSHighSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value)
+    {
+        Options::setFitsLSHighSigma(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSWinsorCutoff, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value)
+    {
+        Options::setFitsLSWinsorCutoff(value);
+    });
+
+    // Post processing
+    connect(m_LiveStackingUI.kcfg_FitsLSDenoiseAmt, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value)
+    {
+        Options::setFitsLSDenoiseAmt(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSSharpenAmt, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value)
+    {
+        Options::setFitsLSSharpenAmt(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSSharpenKernal, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value)
+    {
+        Options::setFitsLSSharpenKernal(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSSharpenSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value)
+    {
+        Options::setFitsLSSharpenSigma(value);
+    });
+}
+
+void FITSTab::selectLiveStack()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::DirectoryOnly);
+    QStringList dirs;
+    if (dialog.exec())
+    {
+        dirs = dialog.selectedFiles();
+        //QString selectedFilter;
+        //QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Stack Directory"),
+        //                                                m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+        QUrl sequenceURL = QUrl::fromLocalFile(dirs[0]);
+        m_LiveStackingUI.Stack->setText(sequenceURL.toLocalFile());
+    }
+}
+
+void FITSTab::selectLiveStackAlignSub()
+{
+    QString selectedFilter;
+    QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Alignment Sub"),
+                                                    m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+    QUrl sequenceURL = QUrl::fromLocalFile(file);
+    m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText(sequenceURL.toLocalFile());
+}
+
+void FITSTab::selectLiveStackMasterDark()
+{
+    QString selectedFilter;
+    QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Dark"),
+                                                    m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+    QUrl sequenceURL = QUrl::fromLocalFile(file);
+    m_LiveStackingUI.kcfg_FitsLSMasterDark->setText(sequenceURL.toLocalFile());
+}
+
+void FITSTab::selectLiveStackMasterFlat()
+{
+    QString selectedFilter;
+    QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Flat"),
+                                    m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+    QUrl sequenceURL = QUrl::fromLocalFile(file);
+    m_LiveStackingUI.kcfg_FitsLSMasterFlat->setText(sequenceURL.toLocalFile());
 }
 
 void FITSTab::applyTypeFilter()
@@ -1238,6 +1390,8 @@ void FITSTab::extractImage()
     }
     m_PlateSolveUI.SolveButton->setText(i18n("Cancel"));
 
+    // JEE
+    m_Stack = false;
     setupSolver(true);
 
     m_PlateSolveUI.FitsSolverAngle->setText("");
@@ -1268,23 +1422,54 @@ void FITSTab::solveImage()
 // JEE - reload the live stack
 void FITSTab::liveStack()
 {
+    m_liveStackDir = m_LiveStackingUI.Stack->text();
+    m_StackSubsTotal = 0;
+    m_StackSubsProcessed = 0;
+    m_StackSubsFailed = 0;
+    viewer->restack(m_liveStackDir);
     m_View->loadStack(m_liveStackDir);
 }
 
 // JEE
-void FITSTab::plateSolveImage(const double ra, const double dec, const double pixScale)
+void FITSTab::plateSolveImage(const double ra, const double dec, const double pixScale,
+                              const LiveStackFrameWeighting weighting)
 {
     m_Stack = true;
     auto parameters = getSSolverParametersList(static_cast<Ekos::ProfileGroup>(Options::fitsSolverModule())).at(
         m_PlateSolveUI.kcfg_FitsSolverProfile->currentIndex());
     parameters.search_radius = m_PlateSolveUI.kcfg_FitsSolverRadius->value();
 
-    m_Solver.reset(new SolverUtils(parameters, parameters.solverTimeLimit, SSolver::SOLVE),  &QObject::deleteLater);
-    connect(m_Solver.get(), &SolverUtils::done, this, &FITSTab::solverDone, Qt::UniqueConnection);
-
+    if (!m_StackExtracted && (weighting == LS_STACKING_HFR || weighting == LS_STACKING_NUM_STARS))
+    {
+        // We need star details for later calculations so firstly extract stars
+        m_Solver.reset(new SolverUtils(parameters, parameters.solverTimeLimit, SSolver::EXTRACT_WITH_HFR),  &QObject::deleteLater);
+        connect(m_Solver.get(), &SolverUtils::done, this, &FITSTab::extractorDone, Qt::UniqueConnection);
+        m_StackExtracted = true;
+    }
+    else
+    {
+        // No star details required (or we just extracted them) so now plate solve
+        m_Solver.reset(new SolverUtils(parameters, parameters.solverTimeLimit, SSolver::SOLVE),  &QObject::deleteLater);
+        connect(m_Solver.get(), &SolverUtils::done, this, &FITSTab::solverDone, Qt::UniqueConnection);
+        m_StackExtracted = false;
+    }
     m_Solver->useScale(true, pixScale * 0.8, pixScale * 1.2);
     m_Solver->usePosition(true, ra, dec);
-    m_Solver->runSolver(m_View->imageData());
+    m_Solver->runSolver(m_View->imageData(), true);
+}
+
+void FITSTab::alignMasterChosen(const QString alignMaster)
+{
+    m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText(alignMaster);
+}
+
+void FITSTab::stackUpdateStats(const bool ok, const int sub, const int total)
+{
+    m_StackSubsTotal = total;
+    (ok) ? m_StackSubsProcessed++ : m_StackSubsFailed++;
+    qCDebug(KSTARS_FITS) << "JEE - Total: " << m_StackSubsTotal << " Processed: " << m_StackSubsProcessed << " Failed: " << m_StackSubsFailed;
+    m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2").arg(m_StackSubsProcessed).arg(m_StackSubsTotal));
+    m_LiveStackingUI.SubsFailed->setText(QString("%1").arg(m_StackSubsFailed));
 }
 
 void FITSTab::extractorDone(bool timedOut, bool success, const FITSImage::Solution &solution, double elapsedSeconds)
@@ -1292,6 +1477,8 @@ void FITSTab::extractorDone(bool timedOut, bool success, const FITSImage::Soluti
     Q_UNUSED(solution);
     disconnect(m_Solver.get(), &SolverUtils::done, this, &FITSTab::extractorDone);
     m_PlateSolveUI.Solution2->setText("");
+    double hfr = -1.0;
+    int numStars = 0;
 
     if (timedOut)
     {
@@ -1346,9 +1533,28 @@ void FITSTab::extractorDone(bool timedOut, bool success, const FITSImage::Soluti
         m_View->imageData()->setStarCenters(starCenters);
         m_View->updateFrame();
 
-        // Now run the solver.
-        solveImage();
+        // JEE
+        if (!m_Stack)
+            // Now run the solver.
+            solveImage();
+        else
+        {
+            numStars = starCenters.size();
+            if (numStars > 0)
+            {
+                std::vector<Edge*> stars(starCenters.constBegin(), starCenters.constEnd());
+                // Use nth_element to get the median HFR
+                std::nth_element(starCenters.begin(), starCenters.begin() + numStars / 2, starCenters.end(),
+                                 [](const Edge *a, const Edge *b) { return a->HFR < b->HFR; } );
+                hfr = starCenters[numStars / 2]->HFR;
+            }
+        }
     }
+
+    // JEE
+    if (m_Stack)
+        // Now we have star details let plate solve...
+        plateSolveImage(m_SavedRa, m_SavedDec, m_SavedPixScale, m_SavedWeighting);
 }
 
 void FITSTab::solverDone(bool timedOut, bool success, const FITSImage::Solution &solution, double elapsedSeconds)
@@ -1359,60 +1565,77 @@ void FITSTab::solverDone(bool timedOut, bool success, const FITSImage::Solution 
     if (m_Solver->isRunning())
         qCDebug(KSTARS_FITS) << "solverDone called, but it is still running.";
 
-    if (timedOut)
+    if (!m_Stack)
     {
-        const QString result = i18n("Solver timed out: %1s", QString("%L1").arg(elapsedSeconds, 0, 'f', 1));
-        m_PlateSolveUI.Solution2->setText(result);
-    }
-    else if (!success)
-    {
-        const QString result = i18n("Solver failed: %1s", QString("%L1").arg(elapsedSeconds, 0, 'f', 1));
-        m_PlateSolveUI.Solution2->setText(result);
+        if (timedOut)
+        {
+            const QString result = i18n("Solver timed out: %1s", QString("%L1").arg(elapsedSeconds, 0, 'f', 1));
+            m_PlateSolveUI.Solution2->setText(result);
+        }
+        else if (!success)
+        {
+            const QString result = i18n("Solver failed: %1s", QString("%L1").arg(elapsedSeconds, 0, 'f', 1));
+            m_PlateSolveUI.Solution2->setText(result);
+        }
+        else
+        {
+            const bool eastToTheRight = solution.parity == FITSImage::POSITIVE ? false : true;
+            m_View->imageData()->injectWCS(solution.orientation, solution.ra, solution.dec, solution.pixscale, eastToTheRight);
+            m_View->imageData()->loadWCS();
+            m_View->syncWCSState();
+            if (m_View->areObjectsShown())
+                // Requery Objects based on new plate solved solution
+                m_View->imageData()->searchObjects();
+
+            const QString result = QString("Solved in %1s").arg(elapsedSeconds, 0, 'f', 1);
+            const double solverPA = KSUtils::rotationToPositionAngle(solution.orientation);
+            m_PlateSolveUI.FitsSolverAngle->setText(QString("%1º").arg(solverPA, 0, 'f', 2));
+
+            int indexUsed = -1, healpixUsed = -1;
+            m_Solver->getSolutionHealpix(&indexUsed, &healpixUsed);
+            if (indexUsed < 0)
+                m_PlateSolveUI.FitsSolverIndexfile->setText("");
+            else
+                m_PlateSolveUI.FitsSolverIndexfile->setText(QString("%1%2").arg(indexUsed)
+                .arg(healpixUsed >= 0 ? QString("-%1").arg(healpixUsed) : QString("")));
+
+            // Set the scale widget to the current result
+            const int imageWidth = m_View->imageData()->width();
+            const int units = m_PlateSolveUI.kcfg_FitsSolverImageScaleUnits->currentIndex();
+            if (units == SSolver::DEG_WIDTH)
+                m_PlateSolveUI.kcfg_FitsSolverScale->setValue(solution.pixscale * imageWidth / 3600.0);
+            else if (units == SSolver::ARCMIN_WIDTH)
+                m_PlateSolveUI.kcfg_FitsSolverScale->setValue(solution.pixscale * imageWidth / 60.0);
+            else
+                m_PlateSolveUI.kcfg_FitsSolverScale->setValue(solution.pixscale);
+
+            // Set the ra and dec widgets to the current result
+            m_PlateSolveUI.FitsSolverEstRA->show(dms(solution.ra));
+            m_PlateSolveUI.FitsSolverEstDec->show(dms(solution.dec));
+
+            m_PlateSolveUI.Solution2->setText(result);
+        }
     }
     else
     {
+        // Update WCS based on plate solved solution
         const bool eastToTheRight = solution.parity == FITSImage::POSITIVE ? false : true;
-        m_View->imageData()->injectWCS(solution.orientation, solution.ra, solution.dec, solution.pixscale, eastToTheRight);
-        m_View->imageData()->loadWCS();
-        m_View->syncWCSState();
-        if (m_View->areObjectsShown())
-            // Requery Objects based on new plate solved solution
-            m_View->imageData()->searchObjects();
+        m_View->imageData()->injectStackWCS(solution.orientation, solution.ra, solution.dec, solution.pixscale, eastToTheRight);
+        m_View->imageData()->stackLoadWCS();
 
-        const QString result = QString("Solved in %1s").arg(elapsedSeconds, 0, 'f', 1);
-        const double solverPA = KSUtils::rotationToPositionAngle(solution.orientation);
-        m_PlateSolveUI.FitsSolverAngle->setText(QString("%1º").arg(solverPA, 0, 'f', 2));
-
-        int indexUsed = -1, healpixUsed = -1;
-        m_Solver->getSolutionHealpix(&indexUsed, &healpixUsed);
-        if (indexUsed < 0)
-            m_PlateSolveUI.FitsSolverIndexfile->setText("");
-        else
-            m_PlateSolveUI.FitsSolverIndexfile->setText(
-                QString("%1%2")
-                .arg(indexUsed)
-                .arg(healpixUsed >= 0 ? QString("-%1").arg(healpixUsed) : QString("")));;
-
-        // Set the scale widget to the current result
-        const int imageWidth = m_View->imageData()->width();
-        const int units = m_PlateSolveUI.kcfg_FitsSolverImageScaleUnits->currentIndex();
-        if (units == SSolver::DEG_WIDTH)
-            m_PlateSolveUI.kcfg_FitsSolverScale->setValue(solution.pixscale * imageWidth / 3600.0);
-        else if (units == SSolver::ARCMIN_WIDTH)
-            m_PlateSolveUI.kcfg_FitsSolverScale->setValue(solution.pixscale * imageWidth / 60.0);
-        else
-            m_PlateSolveUI.kcfg_FitsSolverScale->setValue(solution.pixscale);
-
-        // Set the ra and dec widgets to the current result
-        m_PlateSolveUI.FitsSolverEstRA->show(dms(solution.ra));
-        m_PlateSolveUI.FitsSolverEstDec->show(dms(solution.dec));
-
-        m_PlateSolveUI.Solution2->setText(result);
+        const QList<FITSImage::Star> &starList = m_Solver->getStarList();
+        double hfr = -1.0;
+        if (starList.size() > 0)
+        {
+            std::vector<FITSImage::Star> stars(starList.constBegin(), starList.constEnd());
+            // Use nth_element to get the median HFR
+            std::nth_element(stars.begin(), stars.begin() + stars.size() / 2, stars.end(),
+                         [](const FITSImage::Star &a, const FITSImage::Star &b) { return a.HFR < b.HFR; });
+            FITSImage::Star medianStar = stars[stars.size() / 2];
+            hfr = medianStar.HFR;
+        }
+        m_View->imageData()->solverDone(timedOut, success, hfr, starList.size());
     }
-
-    // JEE
-    if (m_Stack)
-        m_View->imageData()->solverDone(timedOut, success);
 }
 
 // Each module can default to its own profile index. These two methods retrieves and saves

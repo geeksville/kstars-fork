@@ -404,7 +404,61 @@ void FITSView::loadFile(const QString &inFilename)
     fitsWatcher.setFuture(m_ImageData->loadFromFile(inFilename));
 }
 
-// JEE
+void FITSView::initStack()
+{
+    if (floatingToolBar != nullptr)
+    {
+        floatingToolBar->setVisible(true);
+    }
+
+    bool setBayerParams = false;
+
+    // JEE - do we need this?
+    BayerParams param;
+    if ((m_ImageData != nullptr) && m_ImageData->hasDebayer())
+    {
+        setBayerParams = true;
+        m_ImageData->getBayerParams(&param);
+    }
+
+    filterStack.clear();
+    filterStack.push(FITS_NONE);
+    if (filter != FITS_NONE)
+        filterStack.push(filter);
+
+    m_ImageData.reset(new FITSData(mode), &QObject::deleteLater);
+
+    if (setBayerParams)
+        m_ImageData->setBayerParams(&param);
+
+    // JEE
+    /*connect(m_ImageData.data(), &FITSData::plateSolveImage, this, [this](const double ra, const double dec,
+                                                                         const double pixScale, const LiveStackFrameWeighting weighting)
+    {
+        emit plateSolveImage(ra, dec, pixScale, weighting);
+    });
+
+    connect(m_ImageData.data(), &FITSData::alignMasterChosen, this, [this](const QString alignMaster)
+    {
+        emit alignMasterChosen(alignMaster);
+    });
+
+    connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
+    {
+        fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
+    });
+
+    connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,
+                                                                          const int total)
+    {
+        emit stackUpdateStats(ok, sub, total);
+    });*/
+
+    // JEE fitsWatcher.setFuture(m_ImageData->loadStack(inDir, parameters));
+    QString noImage = ":/images/noimage.png";
+    fitsWatcher.setFuture(m_ImageData->loadFromFile(noImage));
+}
+
 void FITSView::loadStack(const QString &inDir)
 {
     if (floatingToolBar != nullptr)
@@ -443,18 +497,36 @@ void FITSView::loadStack(const QString &inDir)
         m_ImageData->setBayerParams(&param);
 
     // JEE
-    connect(m_ImageData.data(), &FITSData::plateSolveImage, this, [this](double ra, double dec, double pixScale)
-    {
-        emit plateSolveImage(ra, dec, pixScale);
-    });
+    connect(m_ImageData.data(), &FITSData::plateSolveImage, this, [this](const double ra, const double dec,
+                                                                         const double pixScale, const LiveStackFrameWeighting weighting)
+            {
+                emit plateSolveImage(ra, dec, pixScale, weighting);
+            });
+
+    connect(m_ImageData.data(), &FITSData::alignMasterChosen, this, [this](const QString alignMaster)
+            {
+                emit alignMasterChosen(alignMaster);
+            });
 
     connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
-    {
-        fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
-    });
+            {
+                fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
+            });
+
+    connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,
+                                                                          const int total)
+            {
+                emit stackUpdateStats(ok, sub, total);
+            });
 
     // JEE fitsWatcher.setFuture(m_ImageData->loadStack(inDir, parameters));
     m_ImageData->loadStack(inDir);
+}
+
+// JEE Called when post processing controls in Fitstab changed by the user
+void FITSView::redoPostProcessStack()
+{
+    m_ImageData->stack()->redoPostProcessStack();
 }
 
 void FITSView::clearData()
@@ -517,22 +589,22 @@ bool FITSView::processData()
     {
         rescale(ZOOM_KEEP_LEVEL);
         updateFrame();
-    });
+    }, Qt::UniqueConnection);
 
     connect(m_ImageData.data(), &FITSData::headerChanged, this, [this]()
     {
         emit headerChanged();
-    });
+    }, Qt::UniqueConnection);
 
     connect(m_ImageData.data(), &FITSData::loadingCatalogData, this, [this]()
     {
         emit catQueried();
-    });
+    }, Qt::UniqueConnection);
 
     connect(m_ImageData.data(), &FITSData::catalogQueryFailed, this, [this](QString text)
     {
         emit catQueryFailed(text);
-    });
+    }, Qt::UniqueConnection);
 
     connect(m_ImageData.data(), &FITSData::loadedCatalogData, this, [this]()
     {
@@ -541,7 +613,7 @@ bool FITSView::processData()
         // Reprocess FITSView
         rescale(ZOOM_KEEP_LEVEL);
         updateFrame();
-    });
+    }, Qt::UniqueConnection);
 
     currentWidth = m_ImageData->width();
     currentHeight = m_ImageData->height();
@@ -553,11 +625,11 @@ bool FITSView::processData()
     {
         m_ImageFrame = new FITSLabel(this);
         m_ImageFrame->setMouseTracking(true);
-        connect(m_ImageFrame, &FITSLabel::newStatus, this, &FITSView::newStatus);
-        connect(m_ImageFrame, &FITSLabel::pointSelected, this, &FITSView::processPointSelection);
-        connect(m_ImageFrame, &FITSLabel::markerSelected, this, &FITSView::processMarkerSelection);
-        connect(m_ImageFrame, &FITSLabel::highlightSelected, this, &FITSView::processHighlight);
-        connect(m_ImageFrame, &FITSLabel::circleSelected, this, &FITSView::processCircle);
+        connect(m_ImageFrame, &FITSLabel::newStatus, this, &FITSView::newStatus, Qt::UniqueConnection);
+        connect(m_ImageFrame, &FITSLabel::pointSelected, this, &FITSView::processPointSelection, Qt::UniqueConnection);
+        connect(m_ImageFrame, &FITSLabel::markerSelected, this, &FITSView::processMarkerSelection, Qt::UniqueConnection);
+        connect(m_ImageFrame, &FITSLabel::highlightSelected, this, &FITSView::processHighlight, Qt::UniqueConnection);
+        connect(m_ImageFrame, &FITSLabel::circleSelected, this, &FITSView::processCircle, Qt::UniqueConnection);
     }
     m_ImageFrame->setSize(image_width, image_height);
 
@@ -597,7 +669,10 @@ bool FITSView::processData()
             return false;
         }
 
-        firstLoad = false;
+        // JEE For livestacking the noimage is displayed first so only reset firstload
+        // after the 1st stack image is displayed
+        if (mode != FITS_LIVESTACKING || m_ImageData->filename() != ":/images/noimage.png")
+            firstLoad = false;
     }
     else
     {
@@ -611,7 +686,8 @@ bool FITSView::processData()
     setAlignment(Qt::AlignCenter);
 
     // Load WCS data now if selected and image contains valid WCS header
-    if ((mode == FITS_NORMAL || mode == FITS_ALIGN) &&
+    // JEE
+    if ((mode == FITS_NORMAL || mode == FITS_ALIGN || mode == FITS_LIVESTACKING) &&
             m_ImageData->hasWCS() && m_ImageData->getWCSState() == FITSData::Idle &&
             Options::autoWCS() &&
             !wcsWatcher.isRunning())
@@ -668,6 +744,13 @@ void FITSView::loadInFrame()
         emit loaded();
     else
         emit failed(m_LastError);
+
+    // JEE If stack has just been processed, check if there are more subs to do...
+    if (mode == FITS_LIVESTACKING && m_ImageData->stack())
+    {
+        m_ImageData->stack()->setStackInProgress(false);
+        m_ImageData->incrementalStack();
+    }
 }
 
 bool FITSView::saveImage(const QString &newFilename)
@@ -2256,7 +2339,7 @@ void FITSView::toggleStarProfile()
     {
         //The tracking box is already on for Guide and Focus Views, but off for Normal and Align views.
         //So for Normal and Align views, we need to set up the tracking box.
-        if(mode == FITS_NORMAL || mode == FITS_ALIGN)
+        if(mode == FITS_NORMAL || mode == FITS_ALIGN || mode == FITS_LIVESTACKING)
         {
             setCursorMode(selectCursor);
             connect(this, SIGNAL(trackingStarSelected(int, int)), this, SLOT(move3DTrackingBox(int, int)));
@@ -2272,7 +2355,7 @@ void FITSView::toggleStarProfile()
     {
         //This shuts down the tracking box for Normal and Align Views
         //It doesn't touch Guide and Focus Views because they still need a tracking box
-        if(mode == FITS_NORMAL || mode == FITS_ALIGN)
+        if(mode == FITS_NORMAL || mode == FITS_ALIGN || mode == FITS_LIVESTACKING)
         {
             if(getCursorMode() == selectCursor)
                 setCursorMode(dragCursor);
@@ -2322,7 +2405,7 @@ void FITSView::viewStarProfile()
         //This is the end of the band-aid
 
         connect(starProfileWidget, SIGNAL(rejected()), this, SLOT(toggleStarProfile()));
-        if(mode == FITS_ALIGN || mode == FITS_NORMAL)
+        if(mode == FITS_ALIGN || mode == FITS_NORMAL || mode == FITS_LIVESTACKING)
         {
             starProfileWidget->enableTrackingBox(true);
             m_ImageData->setStarAlgorithm(ALGORITHM_CENTROID);
@@ -2717,7 +2800,7 @@ void FITSView::createFloatingToolBar()
     toggleProfileAction->setCheckable(true);
 #endif
 
-    if (mode == FITS_NORMAL || mode == FITS_ALIGN)
+    if (mode == FITS_NORMAL || mode == FITS_ALIGN || mode == FITS_LIVESTACKING)
     {
         floatingToolBar->addSeparator();
 

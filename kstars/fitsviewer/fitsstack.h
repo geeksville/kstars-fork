@@ -16,7 +16,8 @@
 #include "opencv2/opencv.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/video/tracking.hpp"
-#include <opencv2/calib3d.hpp>
+#include "opencv2/calib3d.hpp"
+#include "opencv2/xphoto.hpp"
 
 // JEE Need to change as won't compile if no WCS
 #ifdef HAVE_WCSLIB
@@ -40,27 +41,61 @@ class FITSStack : public QObject
         explicit FITSStack(FITSData *parent);
         virtual ~FITSStack() override;
 
-        // JEE
-        bool addImage(void *imageBuffer, double pixscale, int width, int height, int bytesPerPixel);
+        bool addImage(void *imageBuffer, int cvType, double pixscale, int width, int height, int bytesPerPixel);
 
         // Plate solving done so update
-        bool solverDone(const wcsprm * wcsHandle, const bool timedOut, const bool success);
+        bool solverDone(const wcsprm * wcsHandle, const bool timedOut, const bool success, const double hfr, const int numStars);
 
         // Stack the images and return the stack
         bool stack();
+        bool stackn();
 
-        bool addMaster(bool dark, void *imageBuffer, int width, int height, int bytesPerPixel);
+        void addMaster(bool dark, void *imageBuffer, int width, int height, int bytesPerPixel);
 
-        QByteArray const &getStackedImage() const
+        void redoPostProcessStack();
+
+        const bool &getStackInProgress() const
         {
-            return m_StackedImage;
+            return m_StackInProgress;
+        }
+
+        void setInitalStackDone(bool done);
+
+        const bool &getInitialStackDone() const
+        {
+            return m_InitialStackDone;
+        }
+
+        void setStackInProgress(bool inProgress);
+
+        const LiveStackData &getStackData() const
+        {
+            return m_StackData;
+        }
+
+        const QByteArray &getStackedImage() const
+        {
+            return m_StackedBuffer;
         }
 
         //bool loadData(const QSharedPointer<FITSData> &data, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
 
+    signals:
+        void stackChanged();
+
     public slots:
-    protected:
-    private:
+    private:      
+        typedef enum
+        {
+            SOLVED_IN_PROGRESS,
+            SOLVED_FAILED,
+            SOLVED_OK
+        } PlateSolveStatus;
+
+        // Get the current user stack options
+        LiveStackData loadStackData();
+        LiveStackPPData loadStackPPData();
+
         // Used for solving an image.
         void solveImage(QList<SSolver::Parameters> parameters, double pixscale, int width, int height, int bytesPerPixel);
         void setupSolver(bool extractOnly = false);
@@ -68,34 +103,68 @@ class FITSStack : public QObject
         cv::Mat calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2);
         bool convertMatToFITS(const cv::Mat image, QByteArray &fitsBuffer);
         bool calibrateSub(cv::Mat & sub);
-        cv::Mat stackImagesSigmaClipping(const QVector<cv::Mat> &images, bool windsor);
-        double winsorizedSigmaClipping(std::vector<double> data, double sigmaLow, double sigmaHigh, double winsorizePercentile);
+        cv::Mat stackSubs(const QVector<cv::Mat> &subs, const bool initial, float &totalWeight);
+        cv::Mat stackImagesSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> weights);
+        cv::Mat stacknImagesSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> weights);
+        cv::Mat postProcessImage(const cv::Mat image);
+        QVector<float> getWeights();
+        void setupRunningStack(struct wcsprm * wcsprm, const int numSubs, const float totalWeight);
+        void updateRunningStack(const int numSubs, const float totalWeight);
+        void tidyUpInitalStack(struct wcsprm * refWCS);
+        void tidyUpRunningStack();
 
         //void extractorDone(bool timedOut, bool success, const FITSImage::Solution &solution, double elapsedSeconds);
         //void initSolverUI();
-        void setupProfiles(int profileIndex);
-        int getProfileIndex(int moduleIndex);
-        void setProfileIndex(int moduleIndex, int profileIndex);
+        //void setupProfiles(int profileIndex);
+        //int getProfileIndex(int moduleIndex);
+        //void setProfileIndex(int moduleIndex, int profileIndex);
 
         FITSData *m_Data;
         QSharedPointer<SolverUtils> m_Solver;
         bool m_ReadyToStack { false };
 
-        QByteArray m_StackedImage;
-        float m_Width { 0.0f };
-        float m_Height { 0.0f };
-
-        typedef enum
+        // QVector<QString> m_ImagePaths;
+        //QVector<cv::Mat> m_Images;
+        //QVector<PlateSolveStatus> m_PlateSolvedStatus;
+        //QVector<struct wcsprm *> m_Wcsprm;
+        //QVector<double> m_HFR;
+        //QVector<int> m_NumStars;
+        typedef struct
         {
-            SOLVED_IN_PROGRESS,
-            SOLVED_FAILED,
-            SOLVED_OK
-        } PlateSolveStatus;
-        QVector<QString> m_ImagePaths;
-        QVector<cv::Mat> m_Images;
-        QVector<PlateSolveStatus> m_PlateSolvedStatus;
-        QVector<struct wcsprm *> m_Wcsprm;
+            cv::Mat image;
+            PlateSolveStatus plateSolvedStatus;
+            struct wcsprm * wcsprm;
+            double hfr;
+            int numStars;
+        } StackImageData;
+        QVector<StackImageData> m_StackImageData;
+
+        typedef struct
+        {
+            int numSubs;
+            struct wcsprm * ref_wcsprm;
+            double ref_hfr;
+            int ref_numStars;
+            float totalWeight;
+        } RunningStackImageData;
+        RunningStackImageData m_RunningStackImageData { 0, nullptr, -1.0, 0, 0.0};
+
+        // Stack status
+        bool m_StackInProgress { false };
+        bool m_InitialStackDone { false };
+
+        // Stack data user options
+        LiveStackData m_StackData;
+
+        // Calibration
         cv::Mat m_MasterDark;
         cv::Mat m_MasterFlat;
-        float m_MedianMasterFlat { 0.0 };
+
+        // Aligning
+        // Stacking
+        cv::Mat m_StackedImage32F;
+        cv::Mat m_SigmaClip32FC4;
+        QByteArray m_StackedBuffer;
+        float m_Width { 0.0f };
+        float m_Height { 0.0f };
 };
