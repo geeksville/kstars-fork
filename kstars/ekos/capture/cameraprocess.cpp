@@ -697,9 +697,11 @@ void CameraProcess::executeJob()
     {
         checkCamera();
         checkCaptureOperationsTimeout(std::bind(&CameraProcess::executeJob, this));
+        qWarning(KSTARS_EKOS_CAPTURE) << "Job execution failed, no active" << (activeCamera() ? "chip" : "camera");
         return;
     }
 
+    qDebug(KSTARS_EKOS_CAPTURE) << "Executing the sequence job.";
     QList<FITSData::Record> FITSHeaders;
     if (Options::defaultObserver().isEmpty() == false)
         FITSHeaders.append(FITSData::Record("Observer", Options::defaultObserver(), "Observer"));
@@ -1540,7 +1542,17 @@ void CameraProcess::captureImage()
         auto remoteUpload = state()->placeholderPath().generateSequenceFilename(*activeJob(), false, true, 1, "", "",  false,
                             false);
 
+        // First try with the system's directory separator
         auto lastSeparator = remoteUpload.lastIndexOf(QDir::separator());
+
+#if defined(Q_OS_WIN)
+        // On Windows, also check for forward slash as INDI paths use forward slashes
+        // even on Windows systems
+        int lastForwardSlash = remoteUpload.lastIndexOf('/');
+        if (lastForwardSlash > lastSeparator)
+            lastSeparator = lastForwardSlash;
+#endif
+
         auto remoteDirectory = remoteUpload.mid(0, lastSeparator);
         auto remoteFilename = remoteUpload.mid(lastSeparator + 1);
         activeJob()->setCoreProperty(SequenceJob::SJ_RemoteFormatDirectory, remoteDirectory);

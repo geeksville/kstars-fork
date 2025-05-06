@@ -311,7 +311,7 @@ class FITSData : public QObject
         ////////////////////////////////////////////////////////////////////////////////////////
         // FITS Record
         bool getRecordValue(const QString &key, QVariant &value) const;
-        void updateRecordValue(const QString &key, QVariant value, const QString &comment);
+        void updateRecordValue(const QString &key, QVariant value, const QString &comment, const bool stack = false);
         const QList<Record> &getRecords() const
         {
             return m_HeaderRecords;

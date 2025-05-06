@@ -490,11 +490,15 @@ void PHD2::processPHD2Event(const QJsonObject &jsonEvent, const QByteArray &line
             snr = jsonEvent["SNR"].toDouble();
 
             if (RADirection == "East")
-                pulse_ra = -pulse_ra;  //West Direction is Positive, East is Negative
+                //If the pulse was to the east, it should have a negative sign.
+                //(Tracking pulse has to be decreased.)
+                pulse_ra = -pulse_ra;
             if (DECDirection == "South")
-                pulse_dec = -pulse_dec; //South Direction is Negative, North is Positive
+                //If the pulse was to the south, it should have a negative sign.
+                pulse_dec = -pulse_dec;
 
-            //If the pixelScale is properly set from PHD2, the second block of code is not needed, but if not, we will attempt to calculate the ra and dec error without it.
+            //If the pixelScale is properly set from PHD2, the second block of code is not needed,
+            //but if not, we will attempt to calculate the ra and dec error without it.
             if (pixelScale != 0)
             {
                 diff_ra_arcsecs = diff_ra_pixels * pixelScale;
@@ -511,28 +515,88 @@ void PHD2::processPHD2Event(const QJsonObject &jsonEvent, const QByteArray &line
 
             if (std::isfinite(diff_ra_arcsecs) && std::isfinite(diff_de_arcsecs))
             {
+                // Always add to error log
                 errorLog.append(QPointF(diff_ra_arcsecs, diff_de_arcsecs));
-                if(errorLog.size() > 50)
+                if(errorLog.size() > 100)
                     errorLog.remove(0);
 
+                qCDebug(KSTARS_EKOS_GUIDE) << "PHD2: Error log size:" << errorLog.size();
+
+                // diff_xx_arcsecs is saved as STAR drift in the camera sensor coordinate system.
+                // To get these values in the RADEC system they have to be negated.
+                // But PHD2 displays the MOUNT drift and hence the values have to be negated once more!
+                // Guide graph in EKOS handles the reversed direction of RA-coordinate.
                 emit newAxisDelta(diff_ra_arcsecs, diff_de_arcsecs);
                 emit newAxisPulse(pulse_ra, pulse_dec);
 
                 // Does PHD2 real a sky background or num-stars measure?
-                emit guideStats(diff_ra_arcsecs, diff_de_arcsecs, pulse_ra, pulse_dec,
+                // analyze.cpp uses only one RA/DEC-axis (up:+, down:-), hence RA is negated
+                // to handle the reversed direction of RA-coordinate.
+                emit guideStats(-diff_ra_arcsecs, diff_de_arcsecs, pulse_ra, pulse_dec,
                                 std::isfinite(snr) ? snr : 0, 0, 0);
 
-                double total_sqr_RA_error = 0.0;
-                double total_sqr_DE_error = 0.0;
+                // Calculate population standard deviation (sigma) like PHD2 does
+                // PHD2 uses the formula: sqrt((n * sum(y²) - sum(y)²) / (n * n))
 
-                for (auto &point : errorLog)
+                // Convert to pixels first if we have a valid pixel scale
+                QVector<QPointF> pixelErrorLog;
+                if (pixelScale > 0)
                 {
-                    total_sqr_RA_error += point.x() * point.x();
-                    total_sqr_DE_error += point.y() * point.y();
+                    for (auto &point : errorLog)
+                    {
+                        // Convert from arcseconds to pixels
+                        pixelErrorLog.append(QPointF(point.x() / pixelScale, point.y() / pixelScale));
+                    }
+                }
+                else
+                {
+                    // If no pixel scale, just use the original values
+                    pixelErrorLog = errorLog;
                 }
 
-                emit newAxisSigma(sqrt(total_sqr_RA_error / errorLog.size()), sqrt(total_sqr_DE_error / errorLog.size()));
+                // Calculate using the same formula as PHD2's GetPopulationSigma()
+                double n = pixelErrorLog.size();
 
+                // Calculate sums for RA
+                double sumY_RA = 0.0;
+                double sumYSq_RA = 0.0;
+                for (auto &point : pixelErrorLog)
+                {
+                    sumY_RA += point.x();
+                    sumYSq_RA += point.x() * point.x();
+                }
+
+                // Calculate sums for DEC
+                double sumY_DEC = 0.0;
+                double sumYSq_DEC = 0.0;
+                for (auto &point : pixelErrorLog)
+                {
+                    sumY_DEC += point.y();
+                    sumYSq_DEC += point.y() * point.y();
+                }
+
+                // Calculate population sigma using PHD2's formula
+                double ra_sigma_pixels = 0.0;
+                double de_sigma_pixels = 0.0;
+
+                if (n > 1)
+                {
+                    double variance_RA = (n * sumYSq_RA - sumY_RA * sumY_RA) / (n * n);
+                    double variance_DEC = (n * sumYSq_DEC - sumY_DEC * sumY_DEC) / (n * n);
+
+                    if (variance_RA >= 0.0)
+                        ra_sigma_pixels = sqrt(variance_RA);
+
+                    if (variance_DEC >= 0.0)
+                        de_sigma_pixels = sqrt(variance_DEC);
+                }
+
+                // Convert back to arcseconds for display
+                double ra_sigma_arcsec = (pixelScale > 0) ? ra_sigma_pixels * pixelScale : ra_sigma_pixels;
+                double de_sigma_arcsec = (pixelScale > 0) ? de_sigma_pixels * pixelScale : de_sigma_pixels;
+
+                // Emit the values in arcseconds
+                emit newAxisSigma(ra_sigma_arcsec, de_sigma_arcsec);
             }
             //Note that if it is receiving full size remote images, it should not get the guide star image.
             //But if it is not getting the full size images, or if the current camera is not in Ekos, it should get the guide star image
@@ -664,7 +728,7 @@ void PHD2::handlePHD2AppState(PHD2State newstate)
                     emit newStatus(Ekos::GUIDE_DITHERING_SUCCESS);
                     break;
                 default:
-                    emit newLog(i18n("PHD2: Guiding started."));
+                    emit newLog(i18n("PHD2: Guiding running."));
                     abortTimer->stop();
                     emit newStatus(Ekos::GUIDE_GUIDING);
                     break;
@@ -1145,9 +1209,9 @@ bool PHD2::clearCalibration()
         return false;
     }
 
-    QJsonArray args;
+    QJsonObject args;
     //This instructs PHD2 which calibration to clear.
-    args << "mount";
+    args["which"] = "mount";
     sendPHD2Request("clear_calibration", args);
 
     return true;
@@ -1177,8 +1241,7 @@ bool PHD2::dither(double pixels)
         return true;
     }
 
-    QJsonArray args;
-    QJsonObject settle;
+    QJsonObject args, settle;
 
     int ditherTimeout = static_cast<int>(Options::ditherTimeout());
 
@@ -1186,12 +1249,9 @@ bool PHD2::dither(double pixels)
     settle.insert("time", static_cast<int>(Options::ditherSettle()));
     settle.insert("timeout", ditherTimeout);
 
-    // Pixels
-    args << pixels;
-    // RA Only?
-    args << false;
-    // Settle
-    args << settle;
+    args["amount"] = pixels;
+    args["raOnly"] = false;
+    args["settle"] = settle;
 
     isSettling = true;
     isDitherActive = true;
@@ -1288,9 +1348,9 @@ void PHD2::requestStarImage(int size)
         return;
     }
 
-    QJsonArray args2;
-    args2 << size; // This is both the width and height.
-    sendPHD2Request("get_star_image", args2);
+    QJsonObject args;
+    args["size"] = size; // This is both the width and height.
+    sendPHD2Request("get_star_image", args);
 
     starImageRequested = true;
 }
@@ -1314,17 +1374,14 @@ bool PHD2::guide()
         return false;
     }
 
-    QJsonArray args;
-    QJsonObject settle;
+    QJsonObject args, settle;
 
     settle.insert("pixels", static_cast<double>(Options::ditherThreshold()));
     settle.insert("time", static_cast<int>(Options::ditherSettle()));
     settle.insert("timeout", static_cast<int>(Options::ditherTimeout()));
 
-    // Settle param
-    args << settle;
-    // Recalibrate param
-    args << false;
+    args["settle"] = settle;
+    args["recalibrate"] = false;
 
     errorLog.clear();
 
@@ -1362,10 +1419,10 @@ void PHD2::connectEquipment(bool enable)
 
     pixelScale = 0 ;
 
-    QJsonArray args;
+    QJsonObject args;
 
     // connected = enable
-    args << enable;
+    args["connected"] = enable;
 
     if (enable)
         emit newLog(i18n("PHD2: Connecting Equipment. . ."));
@@ -1379,32 +1436,34 @@ void PHD2::connectEquipment(bool enable)
 void PHD2::requestSetDEGuideMode(bool deEnabled, bool nEnabled,
                                  bool sEnabled) //Possible Settings Off, Auto, North, and South
 {
-    QJsonArray args;
+    QJsonObject args;
+    QString value;
 
     if(deEnabled)
     {
         if(nEnabled && sEnabled)
-            args << "Auto";
+            value = "Auto";
         else if(nEnabled)
-            args << "North";
+            value = "North";
         else if(sEnabled)
-            args << "South";
+            value = "South";
         else
-            args << "Off";
+            value = "Off";
     }
     else
     {
-        args << "Off";
+        value = "Off";
     }
 
+    args["mode"] = value;
     sendPHD2Request("set_dec_guide_mode", args);
 }
 
 //set_exposure
 void PHD2::requestSetExposureTime(int time) //Note: time is in milliseconds
 {
-    QJsonArray args;
-    args << time;
+    QJsonObject args;
+    args["exposure"] = time;
     sendPHD2Request("set_exposure", args);
 }
 
@@ -1412,8 +1471,10 @@ void PHD2::requestSetExposureTime(int time) //Note: time is in milliseconds
 void PHD2::setLockPosition(double x, double y)
 {
     // Note: false will mean if a guide star is near the coordinates, it will use that.
-    QJsonArray args;
-    args << x << y << false;
+    QJsonObject args;
+    args["x"] = x;
+    args["y"] = y;
+    args["exact"] = false;
     sendPHD2Request("set_lock_position", args);
 }
 //set_lock_shift_enabled
@@ -1429,12 +1490,10 @@ bool PHD2::suspend()
         return false;
     }
 
-    QJsonArray args;
+    QJsonObject args;
 
-    // Paused param
-    args << true;
-    // FULL param
-    args << "full";
+    args["paused"] = true;
+    args["type"] = "full";
 
     sendPHD2Request("set_paused", args);
 
@@ -1458,10 +1517,10 @@ bool PHD2::resume()
         return false;
     }
 
-    QJsonArray args;
+    QJsonObject args;
 
     // Paused param
-    args << false;
+    args["paused"] = false;
 
     sendPHD2Request("set_paused", args);
 
@@ -1547,7 +1606,7 @@ void PHD2::sendNextRpcCall()
     rpcRequestQueue.pop_front();
 }
 
-void PHD2::sendPHD2Request(const QString &method, const QJsonArray &args)
+void PHD2::sendPHD2Request(const QString &method, const QJsonObject &args)
 {
     assert(methodResults.contains(method));
 

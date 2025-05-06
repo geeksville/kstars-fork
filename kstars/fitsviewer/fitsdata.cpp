@@ -2504,14 +2504,15 @@ bool FITSData::getRecordValue(const QString &key, QVariant &value) const
     return false;
 }
 
-void FITSData::updateRecordValue(const QString &key, QVariant value, const QString &comment)
+void FITSData::updateRecordValue(const QString &key, QVariant value, const QString &comment, const bool stack)
 {
-    auto result = std::find_if(m_HeaderRecords.begin(), m_HeaderRecords.end(), [&key](const Record & oneRecord)
+    auto &headerRecords = (stack) ? m_StackHeaderRecords : m_HeaderRecords;
+    auto result = std::find_if(headerRecords.begin(), headerRecords.end(), [&key](const Record & oneRecord)
     {
         return (oneRecord.key == key && oneRecord.value.isValid());
     });
 
-    if (result != m_HeaderRecords.end())
+    if (result != headerRecords.end())
     {
         (*result).value = value;
     }
@@ -2520,9 +2521,9 @@ void FITSData::updateRecordValue(const QString &key, QVariant value, const QStri
         // Add item as penultimate entry (END is usually the last one).
         FITSData::Record record = {key, value.toString(), comment};
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        m_HeaderRecords.insert(std::max(0LL, m_HeaderRecords.size() - 1), record);
+        headerRecords.insert(std::max(0LL, headerRecords.size() - 1), record);
 #else
-        m_HeaderRecords.insert(std::max(0, m_HeaderRecords.size() - 1), record);
+        headerRecords.insert(std::max(0, headerRecords.size() - 1), record);
 #endif
     }
 }
@@ -5404,35 +5405,35 @@ void FITSData::injectStackWCS(double orientation, double ra, double dec, double 
 void FITSData::updateWCSHeaderData(const double orientation, const double ra, const double dec, const double pixscale,
                                    const bool eastToTheRight, const bool stack)
 {
-    updateRecordValue("OBJCTRA", ra, "Object RA");
-    updateRecordValue("OBJCTDEC", dec, "Object DEC");
-    updateRecordValue("EQUINOX", 2000, "Equinox");
-    updateRecordValue("CRVAL1", ra, "CRVAL1");
-    updateRecordValue("CRVAL2", dec, "CRVAL2");
+    updateRecordValue("OBJCTRA", ra, "Object RA", stack);
+    updateRecordValue("OBJCTDEC", dec, "Object DEC", stack);
+    updateRecordValue("EQUINOX", 2000, "Equinox", stack);
+    updateRecordValue("CRVAL1", ra, "CRVAL1", stack);
+    updateRecordValue("CRVAL2", dec, "CRVAL2", stack);
 
-    updateRecordValue("RADECSYS", "'FK5'", "RADECSYS");
-    updateRecordValue("CTYPE1", "'RA---TAN'", "CTYPE1");
-    updateRecordValue("CTYPE2", "'DEC--TAN'", "CTYPE2");
+    updateRecordValue("RADECSYS", "'FK5'", "RADECSYS", stack);
+    updateRecordValue("CTYPE1", "'RA---TAN'", "CTYPE1", stack);
+    updateRecordValue("CTYPE2", "'DEC--TAN'", "CTYPE2", stack);
 
     auto width = stack ? getStackStatistics().width : m_Statistics.width;
     auto height = stack ? getStackStatistics().height : m_Statistics.height;
-    updateRecordValue("CRPIX1", width / 2.0, "CRPIX1");
-    updateRecordValue("CRPIX2", height / 2.0, "CRPIX2");
+    updateRecordValue("CRPIX1", width / 2.0, "CRPIX1", stack);
+    updateRecordValue("CRPIX2", height / 2.0, "CRPIX2", stack);
 
     double secpix1 = eastToTheRight ? pixscale : -pixscale;
     double secpix2 = pixscale;
 
     double degpix1 = secpix1 / 3600.0;
     double degpix2 = secpix2 / 3600.0;
-    updateRecordValue("CDELT1", degpix1, "CDELT1");
-    updateRecordValue("CDELT2", degpix2, "CDELT2");
+    updateRecordValue("CDELT1", degpix1, "CDELT1", stack);
+    updateRecordValue("CDELT2", degpix2, "CDELT2", stack);
 
     // Rotation is CW, we need to convert it to CCW per CROTA1 definition
     double rotation = 360 - orientation;
     if (rotation > 360)
         rotation -= 360;
-    updateRecordValue("CROTA1", rotation, "CROTA1");
-    updateRecordValue("CROTA2", rotation, "CROTA2");
+    updateRecordValue("CROTA1", rotation, "CROTA1", stack);
+    updateRecordValue("CROTA2", rotation, "CROTA2", stack);
 }
 
 bool FITSData::contains(const QPointF &point) const

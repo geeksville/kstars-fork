@@ -90,7 +90,6 @@ void SchedulerAltitudeGraph::handleButtons(bool disable)
     if (disable)
     {
         m_AltGraphDay = 0;
-        altGraphLabel->setText("");
         altMoveLeftB->setEnabled(false);
         altMoveLeftB->setIcon(QIcon());
         altMoveRightB->setEnabled(false);
@@ -98,7 +97,6 @@ void SchedulerAltitudeGraph::handleButtons(bool disable)
     }
     else if (m_AltGraphDay == 1)
     {
-        altGraphLabel->setText("Tomorrow");
         altMoveLeftB->setEnabled(true);
         altMoveRightB->setEnabled(true);
         altMoveLeftB->setIcon(QIcon::fromTheme("arrow-left"));
@@ -106,7 +104,6 @@ void SchedulerAltitudeGraph::handleButtons(bool disable)
     }
     else if (m_AltGraphDay == 2)
     {
-        altGraphLabel->setText("Day After Tomorrow");
         altMoveLeftB->setEnabled(true);
         altMoveLeftB->setIcon(QIcon::fromTheme("arrow-left"));
         altMoveRightB->setEnabled(false);
@@ -115,13 +112,46 @@ void SchedulerAltitudeGraph::handleButtons(bool disable)
     else
     {
         m_AltGraphDay = 0;
-        altGraphLabel->setText("");
         altMoveLeftB->setEnabled(false);
         altMoveLeftB->setIcon(QIcon());
         altMoveRightB->setEnabled(true);
         altMoveRightB->setIcon(QIcon::fromTheme("arrow-right"));
     }
 }
+
+namespace
+{
+int additionalOffset(const QList<SchedulerJob *> &jobs,
+                     const QDateTime &now, const QDateTime &normalStart)
+{
+    QDateTime newStartTime;
+    for (int index = 0; index < jobs.size(); index++)
+    {
+        const auto job = jobs.at(index);
+        for (const auto &jobSchedule : job->getSimulatedSchedule())
+        {
+            const auto startTime = jobSchedule.startTime;
+            const auto stopTime = jobSchedule.stopTime;
+            if (!startTime.isValid())
+                continue;
+
+            if (startTime >= now && startTime < normalStart)
+            {
+                if (!newStartTime.isValid() || newStartTime > startTime)
+                    newStartTime = startTime.addSecs(-1800);
+            }
+            else if (startTime < now && (!stopTime.isValid() || (stopTime > now)))
+            {
+                if (!newStartTime.isValid() || newStartTime > now)
+                    newStartTime = now.addSecs(-1800);
+            }
+        }
+    }
+    if (newStartTime.isValid())
+        return static_cast<int>(0.99 + newStartTime.secsTo(normalStart) / 3600.0);
+    else return 0;
+}
+}  // namespace
 
 void SchedulerAltitudeGraph::plot()
 {
@@ -130,6 +160,7 @@ void SchedulerAltitudeGraph::plot()
         altGraph->removeAllPlotObjects();
         altGraph->update();
         m_AltGraphDay = 0;
+        altGraphLabel->setText("");
         handleButtons(true);
         return;
     }
@@ -139,19 +170,37 @@ void SchedulerAltitudeGraph::plot()
     SchedulerModuleState::calculateDawnDusk(now, nextDawn, nextDusk);
     QDateTime plotStart = (nextDusk < nextDawn) ? nextDusk : nextDusk.addDays(-1);
 
+    // Normally start the plot 1 hour before dusk and end it an hour after dawn.
+    int startOffset = 1;
+
     KStarsDateTime midnight = KStarsDateTime(now.date().addDays(1), QTime(0, 1), Qt::LocalTime);
     // Midnight not quite right if it's in the wee hours before dawn.
     // Then we use the midnight before now.
     if (now.secsTo(nextDawn) < now.secsTo(nextDusk) && now.date() == nextDawn.date())
         midnight = KStarsDateTime(now.date(), QTime(0, 1), Qt::LocalTime);
+    else if (now < nextDusk.addSecs(-startOffset * 3600))
+    {
+        // It's in the (day)time between dawn and dusk. If there is a job scheduled to run
+        // during this (day)time, then extend the startOffset to cover this run time.
+        startOffset += additionalOffset(m_State->jobs(), now,
+                                        plotStart.addSecs(-startOffset * 3600));
+    }
+
+    plotStart = plotStart.addSecs(-startOffset * 3600);
+    auto plotEnd = nextDawn.addSecs(startOffset * 3600);
+
+    const QString dayName = m_AltGraphDay == 1 ? i18n("Tomorrow") : (m_AltGraphDay == 2 ? i18n("Day After Tomorrow") :
+                            i18n("Tonight"));
+    const QString plotTitle = QString("%1 -- %2 -- %3")
+                              .arg(midnight.addSecs(-6 * 3600).date().toString("MMM d"))
+                              .arg(dayName)
+                              .arg(midnight.date().toString("MMM d"));
+    altGraphLabel->setText(plotTitle);
+
     const KStarsDateTime ut  = SchedulerModuleState::getGeo()->LTtoUT(KStarsDateTime(midnight));
     KSAlmanac ksal(ut, SchedulerModuleState::getGeo());
 
-    // Start the plot 1 hour before dusk and end it an hour after dawn.
-    plotStart = plotStart.addSecs(-1 * 3600);
-    auto plotEnd = nextDawn.addSecs(1 * 3600);
-
-    handleButtons();
+    handleButtons(false);
 
     const int currentPosition = m_State->currentPosition();
 

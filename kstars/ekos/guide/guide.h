@@ -417,7 +417,7 @@ class Guide : public QWidget, public Ui::Guide
 
         //void onXscaleChanged( int i );
         //void onYscaleChanged( int i );
-        void onThresholdChanged(int i);
+        void onSettingsUpdated(int starDetectionIndex);
         void onEnableDirRA();
         void onEnableDirDEC();
 
@@ -436,6 +436,8 @@ class Guide : public QWidget, public Ui::Guide
         void onControlDirectionChanged();
 
         void showFITSViewer();
+
+        void displayGuideView(bool enabled);
 
         void processCaptureTimeout();
 
@@ -482,10 +484,29 @@ class Guide : public QWidget, public Ui::Guide
         void syncTrackingBoxPosition();   
 
         /**
-             * @brief setBusy Indicate busy status within the module visually
-             * @param enable True if module is busy, false otherwise
+             * @brief setBusy Indicate whether guiding id running or not to disable buttons which should not be
+             *        accessible while guiding is running.
+             * @param enable True if guiding is running, false otherwise
              */
         void setBusy(bool enable);
+
+        /**
+         * @brief isGuiderActive Indicate if the guider is active (i.e. calibrating, guiding, dithering, ...)
+         */
+        static bool isGuiderActive(const GuideState state) {
+            return  state == GUIDE_CAPTURE ||
+                    state == GUIDE_LOOPING ||
+                    state == GUIDE_DARK ||
+                    state == GUIDE_SUBFRAME ||
+                    state == GUIDE_STAR_SELECT ||
+                    state == GUIDE_CALIBRATING ||
+                    state == GUIDE_GUIDING ||
+                    state == GUIDE_SUSPENDED ||
+                    state == GUIDE_REACQUIRE ||
+                    state == GUIDE_DITHERING ||
+                    state == GUIDE_MANUAL_DITHERING ||
+                    state == GUIDE_DITHERING_SETTLE;
+        }
 
         /**
          * @brief setBLOBEnabled Enable or disable BLOB reception from current CCD if using external guider
@@ -625,7 +646,7 @@ class Guide : public QWidget, public Ui::Guide
         bool useGuideHead { false };
 
         // Progress Activity Indicator
-        QProgressIndicator *pi { nullptr };
+        QProgressIndicator *m_ProgressIndicator { nullptr };
 
         // Options
         OpsCalibration *opsCalibration { nullptr };

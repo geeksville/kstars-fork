@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.16.0 FATAL_ERROR)
 
 PROJECT(kstars
-        VERSION 3.7.6
+        VERSION 3.7.7
         DESCRIPTION "A Desktop Planetarium for KDE"
         HOMEPAGE_URL "https://edu.kde.org/kstars"
         LANGUAGES CXX C)

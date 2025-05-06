@@ -19,6 +19,7 @@
 #include "indi/indimount.h"
 #include "indi/indirotator.h"
 #include "ekos/auxiliary/rotatorutils.h"
+#include "ksnotification.h"
 
 namespace Ekos
 {
@@ -417,7 +418,10 @@ void Ekos::CaptureDeviceAdaptor::updateFilterPosition()
 {
     if (m_FilterManager.isNull())
     {
-        qCritical(KSTARS_EKOS_CAPTURE) << "Filter manager is not initilized yet. Filter wheel missing from train?";
+        qCritical(KSTARS_EKOS_CAPTURE) << "Filter manager is not initialized yet. Filter wheel missing from train?";
+        KSNotification::event(QLatin1String("CaptureFailed"),
+                              i18n("Filter manager is not initilized yet. Filter wheel missing from train?"), KSNotification::Capture,
+                              KSNotification::Alert);
         emit filterIdChanged(-1);
     }
     else
@@ -755,7 +759,7 @@ void CaptureDeviceAdaptor::setDomeParked(bool parked)
 
 void CaptureDeviceAdaptor::flatSyncFocus(int targetFilterID)
 {
-    if (getFilterManager()->syncAbsoluteFocusPosition(targetFilterID - 1))
+    if (m_FilterManager.isNull() || m_FilterManager->syncAbsoluteFocusPosition(targetFilterID - 1))
         emit flatSyncFocusChanged(true);
     else
         emit flatSyncFocusChanged(false);

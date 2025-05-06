@@ -168,7 +168,7 @@ Focus::Focus(int id) : QWidget()
     });
 
     setupOpticalTrainManager();
-    refreshOpticalTrain();
+    initOpticalTrain();
 
     // Needs to be done once
     connectFilterManager();
@@ -757,6 +757,9 @@ void Focus::checkFocuser()
     {
         getAbsFocusPosition();
 
+        if (m_FilterManager)
+            m_FilterManager->setFocusAbsolutePosition(currentPosition);
+
         absTicksSpin->setEnabled(true);
         absTicksLabel->setEnabled(true);
         startGotoB->setEnabled(true);
@@ -1087,7 +1090,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     // focuser move to complete before completing the Autofocus.
     if ((m_FocusAlgorithm == FOCUS_LINEAR || m_FocusAlgorithm == FOCUS_LINEAR1PASS) && checkAFOptimisation(autofocusReason))
     {
-        appendLogText(i18n("Autofocus request [%1] optimized out.",filter()));
+        appendLogText(i18n("Autofocus request [%1] optimized out.", filter()));
         if (!inAFOptimise)
             completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_OPTIMISED_OUT);
         return;
@@ -1330,7 +1333,7 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
     if (!m_FilterManager->getAFDatetime(filterToUse, lastAFDatetime))
     {
         qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to get last Autofocus run timestamp on %2")
-                                      .arg(__FUNCTION__).arg(filterToUse);
+                                   .arg(__FUNCTION__).arg(filterToUse);
         return dontRunAF;
     }
 
@@ -1352,7 +1355,7 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
         {
             // Unable to get the last AF run information for the filter
             qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to get last Autofocus info on %2")
-                                              .arg(__FUNCTION__).arg(filterToUse);
+                                       .arg(__FUNCTION__).arg(filterToUse);
             return dontRunAF;
         }
         // Do some sanity checks on lastPos
@@ -1361,7 +1364,7 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
         if (position < minTravelLimit || position > maxTravelLimit)
         {
             qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 Bad last Autofocus solution found on %2")
-                                              .arg(__FUNCTION__).arg(position);
+                                       .arg(__FUNCTION__).arg(position);
             return dontRunAF;
         }
 
@@ -1387,7 +1390,7 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
         // Focuser at correct position so nothing more to do
         dontRunAF = true;
         qCDebug(KSTARS_EKOS_FOCUS) << QString("Autofocus (%1) on %2 optimised out by Autofocus at %3")
-                     .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse).arg(lastAFDatetime.toString());
+                                   .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse).arg(lastAFDatetime.toString());
     }
     else
     {
@@ -1396,9 +1399,9 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
         {
             inAFOptimise = dontRunAF = true;
             qCDebug(KSTARS_EKOS_FOCUS) << QString("Autofocus (%1) on %2 optimised out by Autofocus at %3."
-                                                          " Current Position %4, Target Position %5")
-                                                .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse)
-                                                .arg(lastAFDatetime.toString()).arg(currentPosition).arg(position);
+                                                  " Current Position %4, Target Position %5")
+                                       .arg(AutofocusReasonStr[autofocusReason]).arg(filterToUse)
+                                       .arg(lastAFDatetime.toString()).arg(currentPosition).arg(position);
         }
         else
             qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to move focuser... trying full Autofocus").arg(__FUNCTION__);
@@ -2014,7 +2017,7 @@ void Focus::reconnectFocuser(const QString &focuser)
     if (m_Focuser && m_Focuser->getDeviceName() == focuser)
     {
         appendLogText(i18n("Attempting to reconnect focuser: %1", focuser));
-        refreshOpticalTrain();
+        initOpticalTrain();
         completeFocusProcedure(Ekos::FOCUS_ABORTED, Ekos::FOCUS_FAIL_FOCUSER_ERROR);
         return;
     }
@@ -5542,6 +5545,9 @@ void Focus::setupFilterManager()
 
     // Update focuser absolute position.
     connect(this, &Focus::absolutePositionChanged, m_FilterManager.get(), &FilterManager::setFocusAbsolutePosition);
+    // Set initial focuser position if we have one
+    if (m_Focuser && m_Focuser->isConnected() && currentPosition >= 0)
+        m_FilterManager->setFocusAbsolutePosition(currentPosition);
 
     // Update Filter Manager state
     connect(this, &Focus::newStatus, this, [this](Ekos::FocusState state, const QString trainname, const bool update)
@@ -7636,23 +7642,34 @@ bool Focus::syncControl(const QVariantMap &settings, const QString &key, QWidget
 
 void Focus::setupOpticalTrainManager()
 {
-    connect(OpticalTrainManager::Instance(), &OpticalTrainManager::updated, this, &Focus::refreshOpticalTrain);
+    connect(OpticalTrainManager::Instance(), &OpticalTrainManager::updated, this, [this]()
+    {
+        // remember current train selection
+        const int current = opticalTrainCombo->currentIndex();
+        initOpticalTrain();
+        // restore current train selection if available
+        if (current >= 0 && current < opticalTrainCombo->count())
+            opticalTrainCombo->setCurrentIndex(current);
+    });
     connect(trainB, &QPushButton::clicked, this, [this]()
     {
         OpticalTrainManager::Instance()->openEditor(opticalTrainCombo->currentText());
     });
     connect(opticalTrainCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index)
     {
-        ProfileSettings::Instance()->setOneSetting(ProfileSettings::FocusOpticalTrain,
-                OpticalTrainManager::Instance()->id(opticalTrainCombo->itemText(index)));
-        refreshOpticalTrain();
+        const int id = OpticalTrainManager::Instance()->id(opticalTrainCombo->itemText(index));
+        // remember only the train ID from the first Focus tab
+        if (m_focuserId == 0)
+        {
+            ProfileSettings::Instance()->setOneSetting(ProfileSettings::FocusOpticalTrain, id);
+        }
+        refreshOpticalTrain(id);
         emit trainChanged();
     });
 }
 
-void Focus::refreshOpticalTrain()
+void Focus::initOpticalTrain()
 {
-    bool validSettings = false;
     opticalTrainCombo->blockSignals(true);
     opticalTrainCombo->clear();
     opticalTrainCombo->addItems(OpticalTrainManager::Instance()->getTrainNames());
@@ -7670,78 +7687,84 @@ void Focus::refreshOpticalTrain()
             qCWarning(KSTARS_EKOS_FOCUS) << "Optical train doesn't exist for id" << id;
             id = OpticalTrainManager::Instance()->id(opticalTrainCombo->itemText(0));
         }
-
-        auto name = OpticalTrainManager::Instance()->name(id);
-
-        opticalTrainCombo->setCurrentText(name);
-
-        // Load train settings
-        // This needs to be done near the start of this function as methods further down
-        // cause settings to be updated, which in turn interferes with the persistence and
-        // setup of settings in OpticalTrainSettings
-        OpticalTrainSettings::Instance()->setOpticalTrainID(id);
-
-        auto focuser = OpticalTrainManager::Instance()->getFocuser(name);
-        setFocuser(focuser);
-
-        auto scope = OpticalTrainManager::Instance()->getScope(name);
-        double reducer = OpticalTrainManager::Instance()->getReducer(name);
-        setScopeDetails(scope, reducer);
-
-        auto settings = OpticalTrainSettings::Instance()->getOneSetting(OpticalTrainSettings::Focus);
-        if (settings.isValid())
-        {
-            validSettings = true;
-            auto map = settings.toJsonObject().toVariantMap();
-            if (map != m_Settings)
-            {
-                m_Settings.clear();
-                setAllSettings(map);
-            }
-        }
-
-        auto camera = OpticalTrainManager::Instance()->getCamera(name);
-        if (camera)
-        {
-            opticalTrainCombo->setToolTip(QString("%1 @ %2").arg(camera->getDeviceName(), scope["name"].toString()));
-
-            // Get the pixel size of the active camera for later calculations
-            auto nvp = camera->getNumber("CCD_INFO");
-            if (!nvp)
-            {
-                m_CcdPixelSizeX = 0.0;
-                m_CcdWidth = m_CcdHeight = 0;
-            }
-            else
-            {
-                auto np = nvp->findWidgetByName("CCD_PIXEL_SIZE_X");
-                if (np)
-                    m_CcdPixelSizeX = np->getValue();
-                np = nvp->findWidgetByName("CCD_MAX_X");
-                if (np)
-                    m_CcdWidth = np->getValue();
-                np = nvp->findWidgetByName("CCD_MAX_Y");
-                if (np)
-                    m_CcdHeight = np->getValue();
-            }
-        }
-        setCamera(camera);
-
-        auto filterWheel = OpticalTrainManager::Instance()->getFilterWheel(name);
-        setFilterWheel(filterWheel);
-
-        // Update calcs for the CFZ based on the new OT
-        resetCFZToOT();
-
-        // JM 2024.03.16 Also use focus advisor on new profiles
-        if (!validSettings)
-        {
-            focusAdvisor->setupParams(name);
-            focusAdvisor->updateParams();
-        }
+        refreshOpticalTrain(id);
     }
 
     opticalTrainCombo->blockSignals(false);
+}
+
+void Focus::refreshOpticalTrain(const int id)
+{
+    bool validSettings = false;
+    auto name = OpticalTrainManager::Instance()->name(id);
+
+    opticalTrainCombo->setCurrentText(name);
+
+    // Load train settings
+    // This needs to be done near the start of this function as methods further down
+    // cause settings to be updated, which in turn interferes with the persistence and
+    // setup of settings in OpticalTrainSettings
+    OpticalTrainSettings::Instance()->setOpticalTrainID(id);
+
+    auto focuser = OpticalTrainManager::Instance()->getFocuser(name);
+    setFocuser(focuser);
+
+    auto scope = OpticalTrainManager::Instance()->getScope(name);
+    double reducer = OpticalTrainManager::Instance()->getReducer(name);
+    setScopeDetails(scope, reducer);
+
+    auto settings = OpticalTrainSettings::Instance()->getOneSetting(OpticalTrainSettings::Focus);
+    if (settings.isValid())
+    {
+        validSettings = true;
+        auto map = settings.toJsonObject().toVariantMap();
+        if (map != m_Settings)
+        {
+            m_Settings.clear();
+            setAllSettings(map);
+        }
+    }
+
+    auto camera = OpticalTrainManager::Instance()->getCamera(name);
+    if (camera)
+    {
+        opticalTrainCombo->setToolTip(QString("%1 @ %2").arg(camera->getDeviceName(), scope["name"].toString()));
+
+        // Get the pixel size of the active camera for later calculations
+        auto nvp = camera->getNumber("CCD_INFO");
+        if (!nvp)
+        {
+            m_CcdPixelSizeX = 0.0;
+            m_CcdWidth = m_CcdHeight = 0;
+        }
+        else
+        {
+            auto np = nvp->findWidgetByName("CCD_PIXEL_SIZE_X");
+            if (np)
+                m_CcdPixelSizeX = np->getValue();
+            np = nvp->findWidgetByName("CCD_MAX_X");
+            if (np)
+                m_CcdWidth = np->getValue();
+            np = nvp->findWidgetByName("CCD_MAX_Y");
+            if (np)
+                m_CcdHeight = np->getValue();
+        }
+    }
+    setCamera(camera);
+
+    auto filterWheel = OpticalTrainManager::Instance()->getFilterWheel(name);
+    setFilterWheel(filterWheel);
+
+    // Update calcs for the CFZ based on the new OT
+    resetCFZToOT();
+
+    // JM 2024.03.16 Also use focus advisor on new profiles
+    if (!validSettings)
+    {
+        focusAdvisor->setupParams(name);
+        focusAdvisor->updateParams();
+    }
+
     resetButtons();
 }
 

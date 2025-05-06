@@ -369,6 +369,8 @@ if (INDI_FOUND)
             ekos/guide/internalguide/gpg.cpp
             ekos/guide/internalguide/calibration.cpp
             ekos/guide/internalguide/guidestars.cpp
+            ekos/guide/internalguide/linearguider.cpp
+            ekos/guide/internalguide/hysteresisguider.cpp
             ekos/guide/guideview.cpp
             # External Guide
             ekos/guide/externalguide/phd2.cpp
@@ -429,6 +431,7 @@ if (CFITSIO_FOUND)
         fitsviewer/fitsviewer.cpp
         fitsviewer/stretch.cpp
         fitsviewer/fitstab.cpp
+        fitsviewer/platesolve.cpp
         fitsviewer/fitsdebayer.cpp
         fitsviewer/opsfits.cpp
         fitsviewer/fitsstack.cpp
@@ -950,6 +953,7 @@ set(kstars_extra_SRCS
     texturemanager.cpp
     #to minimize number of indef KSTARS_LITE
     skypainter.cpp    
+    auxiliary/screencapture.cpp    
     )
 
 SET(kstars_extra_kstars_SRCS

@@ -1050,6 +1050,19 @@
            </property>
           </spacer>
          </item>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QPushButton" name="helpB">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Manual</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QPushButton" name="ekosOptionsB">
            <property name="toolTip">

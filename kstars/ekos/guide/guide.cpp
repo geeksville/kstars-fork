@@ -60,7 +60,7 @@ Guide::Guide() : QWidget()
     page->setIcon(QIcon::fromTheme("kstars_guides"));
     connect(opsGuide, &OpsGuide::settingsUpdated, this, [this]()
     {
-        onThresholdChanged(Options::guideAlgorithm());
+        onSettingsUpdated(Options::guideAlgorithm());
         configurePHD2Camera();
         configSEPMultistarOptions(); // due to changes in 'Guide Setting: Algorithm'
         checkUseGuideHead();
@@ -98,8 +98,8 @@ Guide::Guide() : QWidget()
     initConnections();
 
     // Progress Indicator
-    pi = new QProgressIndicator(this);
-    controlLayout->addWidget(pi, 1, 2, 1, 1);
+    m_ProgressIndicator = new QProgressIndicator(this);
+    controlLayout->addWidget(m_ProgressIndicator, 1, 2, 1, 1);
 
     showFITSViewerB->setIcon(
         QIcon::fromTheme("kstars_fitsviewer"));
@@ -235,7 +235,8 @@ void Guide::guideAfterMeridianFlip()
         clearCalibration();
 
     // GPG guide algorithm should be reset on any slew.
-    if (Options::gPGEnabled())
+    if (guiderType == GUIDE_INTERNAL &&
+            (Options::rAGuidePulseAlgorithm() == OpsGuide::GPG_ALGORITHM))
         m_GuiderInstance->resetGPG();
 
     guide();
@@ -545,15 +546,15 @@ void Guide::syncCameraInfo()
 
     if (nvp)
     {
-        auto np = nvp->findWidgetByName("CCD_PIXEL_SIZE_X");
+        auto np = nvp.findWidgetByName("CCD_PIXEL_SIZE_X");
         if (np)
             ccdPixelSizeX = np->getValue();
 
-        np = nvp->findWidgetByName( "CCD_PIXEL_SIZE_Y");
+        np = nvp.findWidgetByName( "CCD_PIXEL_SIZE_Y");
         if (np)
             ccdPixelSizeY = np->getValue();
 
-        np = nvp->findWidgetByName("CCD_PIXEL_SIZE_Y");
+        np = nvp.findWidgetByName("CCD_PIXEL_SIZE_Y");
         if (np)
             ccdPixelSizeY = np->getValue();
     }
@@ -840,7 +841,6 @@ bool Guide::captureOneFrame()
         targetChip->setBinning(settings["binx"].toInt(), settings["biny"].toInt());
     }
 
-    connect(m_Camera, &ISD::Camera::newImage, this, &Ekos::Guide::processData, Qt::UniqueConnection);
     qCDebug(KSTARS_EKOS_GUIDE) << "Capturing frame...";
 
     double finalExposure = seqExpose;
@@ -932,13 +932,13 @@ bool Guide::abort()
 
 void Guide::setBusy(bool enable)
 {
-    if (enable && pi->isAnimated())
-        return;
-    else if (enable == false && pi->isAnimated() == false)
+    if (enable && m_ProgressIndicator->isAnimated())
         return;
 
     if (enable)
     {
+        connect(m_Camera, &ISD::Camera::newImage, this, &Ekos::Guide::processData, Qt::UniqueConnection);
+
         clearCalibrationB->setEnabled(false);
         guideB->setEnabled(false);
         captureB->setEnabled(false);
@@ -951,7 +951,7 @@ void Guide::setBusy(bool enable)
         opticalTrainCombo->setEnabled(false);
         trainB->setEnabled(false);
 
-        pi->startAnimation();
+        m_ProgressIndicator->startAnimation();
     }
     else
     {
@@ -959,12 +959,23 @@ void Guide::setBusy(bool enable)
         {
             captureB->setEnabled(true);
             loopB->setEnabled(true);
-            guideAutoStar->setEnabled(!internalGuider->SEPMultiStarEnabled()); // cf. configSEPMultistarOptions()
-            if(m_Camera)
-                guideSubframe->setEnabled(!internalGuider->SEPMultiStarEnabled()); // cf. configSEPMultistarOptions()
         }
-        if (guiderType == GUIDE_INTERNAL)
-            guideDarkFrame->setEnabled(true);
+
+        switch (guiderType)
+        {
+            case GUIDE_INTERNAL:
+                guideDarkFrame->setEnabled(true);
+                guideAutoStar->setEnabled(!internalGuider->SEPMultiStarEnabled()); // cf. configSEPMultistarOptions()
+                if(m_Camera)
+                    guideSubframe->setEnabled(!internalGuider->SEPMultiStarEnabled()); // cf. configSEPMultistarOptions()
+                break;
+            case GUIDE_PHD2:
+                guideSubframe->setEnabled(!phd2Guider->isCurrentCameraNotInEkos());
+                break;
+            default:
+                // do nothing
+                break;
+        }
 
         if (calibrationComplete ||
                 ((guiderType == GUIDE_INTERNAL) &&
@@ -973,12 +984,13 @@ void Guide::setBusy(bool enable)
             clearCalibrationB->setEnabled(true);
         guideB->setEnabled(true);
         stopB->setEnabled(false);
-        pi->stopAnimation();
+        m_ProgressIndicator->stopAnimation();
 
         // Optical Train
         opticalTrainCombo->setEnabled(true);
         trainB->setEnabled(true);
 
+        disconnect(m_Camera, &ISD::Camera::newImage, this, &Ekos::Guide::processData);
         connect(m_GuideView.get(), &FITSView::trackingStarSelected, this, &Ekos::Guide::setTrackingStar, Qt::UniqueConnection);
     }
 }
@@ -1098,7 +1110,7 @@ void Guide::processData(const QSharedPointer<FITSData> &data)
     captureTimeout.stop();
     m_CaptureTimeoutCounter = 0;
 
-    if (data)
+    if (data && (!guideShowFrame->isEnabled() || guideShowFrame->isChecked()))
     {
         m_GuideView->loadData(data);
         m_ImageData = data;
@@ -1108,8 +1120,6 @@ void Guide::processData(const QSharedPointer<FITSData> &data)
 
     if (guiderType == GUIDE_INTERNAL)
         internalGuider->setImageData(m_ImageData);
-
-    disconnect(m_Camera, &ISD::Camera::newImage, this, &Ekos::Guide::processData);
 
     // qCDebug(KSTARS_EKOS_GUIDE) << "Received guide frame.";
 
@@ -1186,7 +1196,11 @@ void Guide::setCaptureComplete()
             break;
 
         case GUIDE_GUIDING:
-            m_GuiderInstance->guide();
+            if (guiderType == GUIDE_INTERNAL)
+            {
+                // only the internal guider needs a guide command after each captured frame
+                m_GuiderInstance->guide();
+            }
             break;
 
         case GUIDE_DITHERING:
@@ -1209,7 +1223,8 @@ void Guide::setCaptureComplete()
             break;
 
         case GUIDE_SUSPENDED:
-            if (Options::gPGEnabled())
+            if (guiderType == GUIDE_INTERNAL &&
+                    (Options::rAGuidePulseAlgorithm() == OpsGuide::GPG_ALGORITHM))
                 m_GuiderInstance->guide();
             break;
 
@@ -1509,7 +1524,8 @@ void Guide::setMountStatus(ISD::Mount::Status newState)
             calibrationComplete = false;
         }
         // GPG guide algorithm should be reset on any slew.
-        if (Options::gPGEnabled())
+        if (guiderType == GUIDE_INTERNAL &&
+                (Options::rAGuidePulseAlgorithm() == OpsGuide::GPG_ALGORITHM))
             m_GuiderInstance->resetGPG();
 
         // If we're guiding, and the mount either slews or parks, then we abort.
@@ -1539,7 +1555,7 @@ void Guide::setMountStatus(ISD::Mount::Status newState)
             break;
 
         default:
-            if (pi->isAnimated() == false)
+            if (m_ProgressIndicator->isAnimated() == false)
             {
                 captureB->setEnabled(true);
                 loopB->setEnabled(true);
@@ -1599,26 +1615,30 @@ void Guide::setStatus(Ekos::GuideState newState)
 
     GuideState previousState = m_State;
 
-    m_State = newState;
-    emit newStatus(m_State);
+    // ignore connection states to avoid overwriting guiding activity states
+    if (newState != GUIDE_CONNECTED && newState != GUIDE_DISCONNECTED)
+    {
+        m_State = newState;
+        emit newStatus(m_State);
+    }
 
-    switch (m_State)
+    switch (newState)
     {
         case GUIDE_CONNECTED:
             appendLogText(i18n("External guider connected."));
             externalConnectB->setEnabled(false);
             externalDisconnectB->setEnabled(true);
             clearCalibrationB->setEnabled(true);
-            guideB->setEnabled(true);
 
             if(guiderType == GUIDE_PHD2)
             {
-                captureB->setEnabled(true);
-                loopB->setEnabled(true);
-                guideAutoStar->setEnabled(true);
                 configurePHD2Camera();
                 setExternalGuiderBLOBEnabled(!guideSubframe->isChecked());
-                guideSquareSize->setEnabled(true);
+                setBusy(isGuiderActive(previousState));
+            }
+            else
+            {
+                guideB->setEnabled(true);
             }
             break;
 
@@ -1668,7 +1688,7 @@ void Guide::setStatus(Ekos::GuideState newState)
                 appendLogText(i18n("Guiding resumed."));
             else
             {
-                appendLogText(i18n("Autoguiding started."));
+                appendLogText(i18n("Autoguiding running."));
                 setBusy(true);
 
                 clearGuideGraphs();
@@ -1727,6 +1747,9 @@ void Guide::setStatus(Ekos::GuideState newState)
                 if (guiderType == GUIDE_INTERNAL)
                     capture();
             }
+            break;
+        case GUIDE_LOOPING:
+            setBusy(true);
             break;
         default:
             break;
@@ -1939,7 +1962,7 @@ bool Guide::setGuiderType(int type)
 
             m_GuiderInstance = internalGuider;
 
-            internalGuider->setSquareAlgorithm(opsGuide->kcfg_GuideAlgorithm->currentIndex());
+            internalGuider->setStarDetectionAlgorithm(opsGuide->kcfg_GuideAlgorithm->currentIndex());
 
             clearCalibrationB->setEnabled(true);
             guideB->setEnabled(true);
@@ -1985,6 +2008,10 @@ bool Guide::setGuiderType(int type)
             guideAutoStar->setEnabled(false);
             guideB->setEnabled(false); //This will be enabled later when equipment connects (or not)
             externalConnectB->setEnabled(false);
+
+            guideShowFrame->setEnabled(true);
+            displayGuideView(guideShowFrame->isChecked());
+            connect(guideShowFrame, &QPushButton::toggled, this, &Guide::displayGuideView);
 
             rAGuideEnabled->setEnabled(false);
             eastRAGuideEnabled->setEnabled(false);
@@ -2099,12 +2126,12 @@ void Guide::updateTrackingBoxSize(int currentIndex)
     }
 }
 
-void Guide::onThresholdChanged(int index)
+void Guide::onSettingsUpdated(int starDetectionIndex)
 {
     switch (guiderType)
     {
         case GUIDE_INTERNAL:
-            dynamic_cast<InternalGuider *>(m_GuiderInstance)->setSquareAlgorithm(index);
+            dynamic_cast<InternalGuider *>(m_GuiderInstance)->setStarDetectionAlgorithm(starDetectionIndex);
             break;
 
         default:
@@ -2115,7 +2142,8 @@ void Guide::onThresholdChanged(int index)
 void Guide::onEnableDirRA()
 {
     // If RA guiding is enable or disabled, the GPG should be reset.
-    if (Options::gPGEnabled())
+    if (guiderType == GUIDE_INTERNAL &&
+            (Options::rAGuidePulseAlgorithm() == Ekos::OpsGuide::GPG_ALGORITHM))
         m_GuiderInstance->resetGPG();
 }
 
@@ -2233,7 +2261,7 @@ void Guide::calibrationUpdate(GuideInterface::CalibrationUpdateType type, const 
             calibrationPlot->graph(GuideGraph::G_DEC_HIGHLIGHT)->addData(dx, dy);
             break;
         case GuideInterface::DEC_OUT_OK:
-            drawRADECAxis(calDECLabel, calDECArrow, dx, dy);
+            drawRADECAxis(calDECLabel, calDECArrow, dx - calDecArrowStartX, dy - calDecArrowStartY);
             break;
         case GuideInterface::DEC_IN:
             calibrationPlot->graph(GuideGraph::G_RA_PULSE)->addData(dx, dy);
@@ -2247,8 +2275,8 @@ void Guide::calibrationUpdate(GuideInterface::CalibrationUpdateType type, const 
 
 void Guide::drawRADECAxis(QCPItemText *Label, QCPItemLine *Arrow, const double xEnd, const double yEnd)
 {
-
-    Arrow->start->setCoords(calDecArrowStartX, calDecArrowStartY);
+    // let start coordinate system always from origin (see DEC_OUT_OK vector translation above!)
+    Arrow->start->setCoords(0, 0);
     Arrow->end->setCoords(xEnd, yEnd);
     Arrow->setHead(QCPLineEnding::esSpikeArrow);
     Label->position->setCoords(xEnd, yEnd);
@@ -2617,6 +2645,18 @@ void Guide::showFITSViewer()
     }
 }
 
+void Guide::displayGuideView(bool enabled)
+{
+    if (!m_GuideView.isNull() && !enabled)
+        m_GuideView->clearData();
+
+    if (enabled)
+        connect(m_Camera, &ISD::Camera::newImage, this, &Ekos::Guide::processData, Qt::UniqueConnection);
+    else
+        disconnect(m_Camera, &ISD::Camera::newImage, this, &Ekos::Guide::processData);
+
+}
+
 void Guide::setExternalGuiderBLOBEnabled(bool enable)
 {
     // Nothing to do if guider is internal
@@ -2960,6 +3000,7 @@ void Guide::initConnections()
     {
         m_State = GUIDE_CAPTURE;
         emit newStatus(m_State);
+        setBusy(true);
 
         if(guiderType == GUIDE_PHD2)
         {
@@ -3086,6 +3127,8 @@ void Guide::loop()
 {
     m_State = GUIDE_LOOPING;
     emit newStatus(m_State);
+
+    setBusy(true);
 
     if(guiderType == GUIDE_PHD2)
     {
@@ -3405,6 +3448,20 @@ void Guide::loadGlobalSettings()
             settings[key] = value;
         }
     }
+    // All checkable Push Buttons
+    for (auto &oneWidget : findChildren<QPushButton*>())
+    {
+        if (!oneWidget->isCheckable())
+            continue;
+
+        key = oneWidget->objectName();
+        value = Options::self()->property(key.toLatin1());
+        if (value.isValid())
+        {
+            oneWidget->setChecked(value.toBool());
+            settings[key] = value;
+        }
+    }
 
     m_GlobalSettings = m_Settings = settings;
 }
@@ -3430,6 +3487,11 @@ void Guide::connectSettings()
     // All Radio buttons
     for (auto &oneWidget : findChildren<QRadioButton*>())
         connect(oneWidget, &QRadioButton::toggled, this, &Ekos::Guide::syncSettings);
+
+    // All checkable Push buttons
+    for (auto &oneWidget : findChildren<QPushButton*>())
+        if (oneWidget->isCheckable())
+            connect(oneWidget, &QRadioButton::toggled, this, &Ekos::Guide::syncSettings);
 
     // Train combo box should NOT be synced.
     disconnect(opticalTrainCombo, QOverload<int>::of(&QComboBox::activated), this, &Ekos::Guide::syncSettings);
@@ -3457,6 +3519,10 @@ void Guide::disconnectSettings()
     for (auto &oneWidget : findChildren<QRadioButton*>())
         disconnect(oneWidget, &QRadioButton::toggled, this, &Ekos::Guide::syncSettings);
 
+    // All checkable Push buttons
+    for (auto &oneWidget : findChildren<QPushButton*>())
+        if (oneWidget->isCheckable())
+            disconnect(oneWidget, &QRadioButton::toggled, this, &Ekos::Guide::syncSettings);
 }
 
 void Guide::updateSetting(const QString &key, const QVariant &value)
@@ -3488,6 +3554,7 @@ void Guide::syncSettings()
     QCheckBox *cb = nullptr;
     QComboBox *cbox = nullptr;
     QRadioButton *rb = nullptr;
+    QPushButton *pb = nullptr;
 
     QString key;
     QVariant value;
@@ -3522,6 +3589,11 @@ void Guide::syncSettings()
             return;
         }
         value = true;
+    }
+    else if (((pb = qobject_cast<QPushButton*>(sender())) && pb->isCheckable()))
+    {
+        key = pb->objectName();
+        value = pb->isChecked();
     }
 
     updateSetting(key, value);

@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 # Suitable for builds
 RUN apt update && apt -y install --no-install-recommends software-properties-common gpg-agent
-RUN apt update && add-apt-repository ppa:mutlaqja/indinightly
+RUN apt update && add-apt-repository ppa:mutlaqja/ppa
 RUN apt update && apt -y install --no-install-recommends \
       gcc-multilib \
       g++-multilib \
@@ -91,9 +91,9 @@ RUN apt install -y --no-install-recommends \
       openjdk-11-jre-headless
 
 # Astrometry
-ADD http://broiler.astrometry.net/~dstn/4200/index-4208.fits /root/.local/share/kstars/astrometry/
-ADD http://broiler.astrometry.net/~dstn/4200/index-4209.fits /root/.local/share/kstars/astrometry/
-ADD http://broiler.astrometry.net/~dstn/4200/index-4210.fits /root/.local/share/kstars/astrometry/
+ADD http://data.astrometry.net/4200/index-4208.fits /root/.local/share/kstars/astrometry/
+ADD http://data.astrometry.net/4200/index-4209.fits /root/.local/share/kstars/astrometry/
+ADD http://data.astrometry.net/4200/index-4210.fits /root/.local/share/kstars/astrometry/
 
 # From https://invent.kde.org/sysadmin/ci-tooling/-/blob/master/system-images/suse-qt515/Dockerfile
 RUN apt update && apt -y install dbus

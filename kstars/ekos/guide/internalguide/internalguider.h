@@ -74,7 +74,7 @@ class InternalGuider : public GuideInterface
         void setStarPosition(QVector3D &starCenter) override;
 
         // Select algorithm
-        void setSquareAlgorithm(int index);
+        void setStarDetectionAlgorithm(int index);
 
         // Reticle Parameters
         bool getReticleParameters(double *x, double *y);
@@ -125,7 +125,7 @@ class InternalGuider : public GuideInterface
 
     protected slots:
         void trackingStarSelected(int x, int y);
-        void setDitherSettled();
+      void setDitherSettled();
         void darkGuide();
 
     signals:
@@ -140,6 +140,9 @@ class InternalGuider : public GuideInterface
         void startDarkGuiding();
         bool abortDither();
         bool onePulseDither(double pixels);
+        void startDitherSettleTimer(int ms);
+        void disableDitherSettleTimer();
+
 
         void reset();
 
@@ -172,6 +175,7 @@ class InternalGuider : public GuideInterface
         // Dark guiding timer
         std::unique_ptr<QTimer> m_darkGuideTimer;
         std::unique_ptr<QTimer> m_captureTimer;
+        std::unique_ptr<QTimer> m_ditherSettleTimer;
         std::pair<Seconds, Seconds> calculateGPGTimeStep();
         bool isInferencePeriodFinished();
 

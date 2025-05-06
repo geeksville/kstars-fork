@@ -62,6 +62,24 @@ void SchedulerModuleState::updateProfiles(const QStringList &newProfiles)
     emit profilesChanged();
 }
 
+SchedulerJob *SchedulerModuleState::activeJob(const QString &trainname) const
+{
+    // default take the lead job
+    if (trainname == "" || m_activeJob == nullptr || (m_activeJob != nullptr && m_activeJob->getOpticalTrain() == trainname))
+        return m_activeJob;
+    else
+    {
+        foreach (auto follower, m_activeJob->followerJobs())
+        {
+            if (follower->getOpticalTrain() == trainname)
+                return follower;
+        }
+        // none found
+        return nullptr;
+    }
+
+}
+
 void SchedulerModuleState::setActiveJob(SchedulerJob *newActiveJob)
 {
     m_activeJob = newActiveJob;
@@ -536,6 +554,7 @@ void SchedulerModuleState::setupNextIteration(SchedulerTimerState nextState, int
         // setup called from inside the iteration timer thread
         setTimerInterval(milliseconds);
     }
+    tickleTimer().stop();
     setIterationSetup(true);
 }
 

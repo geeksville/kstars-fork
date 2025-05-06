@@ -161,10 +161,21 @@ void SchedulerProcess::findNextJob()
         // Always reset job stage
         moduleState()->updateJobStage(SCHEDSTAGE_IDLE);
 
-        // restart aborted jobs immediately, if error handling strategy is set to "restart immediately"
+        // Restart aborted jobs immediately, if error handling strategy is set to "restart immediately"
+        // but only if the job could resume.
+        bool canResume = false;
         if (Options::errorHandlingStrategy() == ERROR_RESTART_IMMEDIATELY &&
                 (activeJob()->getState() == SCHEDJOB_ABORTED ||
                  (activeJob()->getState() == SCHEDJOB_ERROR && Options::rescheduleErrors())))
+        {
+            const auto oldState = activeJob()->getState();
+            activeJob()->setState(SCHEDJOB_SCHEDULED);
+            // Need to add a few seconds, since greedy scheduler doesn't like bumping jobs that just changed state.
+            canResume = getGreedyScheduler()->checkJob(moduleState()->jobs(), SchedulerModuleState::getLocalTime().addSecs(30),
+                        activeJob());
+            activeJob()->setState(oldState);
+        }
+        if (canResume)
         {
             // reset the state so that it will be restarted
             activeJob()->setState(SCHEDJOB_SCHEDULED);
@@ -546,6 +557,7 @@ void SchedulerProcess::stop()
 
     moduleState()->setupNextIteration(RUN_NOTHING);
     moduleState()->cancelGuidingTimer();
+    moduleState()->tickleTimer().stop();
 
     moduleState()->setSchedulerState(SCHEDULER_IDLE);
     moduleState()->setParkWaitState(PARKWAIT_IDLE);
@@ -656,6 +668,40 @@ bool SchedulerProcess::shouldSchedulerSleep(SchedulerJob * job)
     // the user has edited the jobs, and now the active job is not the next thing scheduled.
     if (getGreedyScheduler()->getScheduledJob() != job)
         return false;
+
+    // Check weather status before starting the job, if we're not already in preemptive shutdown
+    if (Options::schedulerWeather())
+    {
+        ISD::Weather::Status weatherStatus = moduleState()->weatherStatus();
+        if (weatherStatus == ISD::Weather::WEATHER_WARNING || weatherStatus == ISD::Weather::WEATHER_ALERT)
+        {
+            // If we're already in preemptive shutdown, give up on this job
+            if (moduleState()->weatherGracePeriodActive())
+            {
+                appendLogText(i18n("Job '%1' cannot start because weather status is %2 and grace period is over.",
+                                   job->getName(), (weatherStatus == ISD::Weather::WEATHER_WARNING) ? i18n("Warning") : i18n("Alert")));
+                activeJob()->setState(SCHEDJOB_ERROR);
+                moduleState()->setWeatherGracePeriodActive(false);
+                findNextJob();
+                return true;
+            }
+
+            QDateTime wakeupTime = SchedulerModuleState::getLocalTime().addSecs(Options::schedulerWeatherGracePeriod() * 60);
+
+            appendLogText(i18n("Job '%1' cannot start because weather status is %2. Waiting until weather improves or until %3",
+                               job->getName(), (weatherStatus == ISD::Weather::WEATHER_WARNING) ? i18n("Warning") : i18n("Alert"),
+                               wakeupTime.toString()));
+
+
+            moduleState()->setWeatherGracePeriodActive(true);
+            moduleState()->enablePreemptiveShutdown(wakeupTime);
+            checkShutdownState();
+            emit schedulerSleeping(true, true);
+            return true;
+        }
+    }
+    else
+        moduleState()->setWeatherGracePeriodActive(false);
 
     // If start up procedure is complete and the user selected pre-emptive shutdown, let us check if the next observation time exceed
     // the pre-emptive shutdown time in hours (default 2). If it exceeds that, we perform complete shutdown until next job is ready
@@ -1545,22 +1591,26 @@ bool SchedulerProcess::completeShutdown()
             && checkINDIState() == false)
         return false;
 
-    // Disconnect INDI if required first
-    if (moduleState()->indiState() != INDI_IDLE && Options::stopEkosAfterShutdown())
+    // If we are in weather grace period, never shutdown completely
+    if (moduleState()->weatherGracePeriodActive() == false)
     {
-        disconnectINDI();
-        return false;
-    }
+        // Disconnect INDI if required first
+        if (moduleState()->indiState() != INDI_IDLE && Options::stopEkosAfterShutdown())
+        {
+            disconnectINDI();
+            return false;
+        }
 
-    // If Ekos is not done stopping, try again later
-    if (moduleState()->ekosState() == EKOS_STOPPING && checkEkosState() == false)
-        return false;
+        // If Ekos is not done stopping, try again later
+        if (moduleState()->ekosState() == EKOS_STOPPING && checkEkosState() == false)
+            return false;
 
-    // Stop Ekos if required.
-    if (moduleState()->ekosState() != EKOS_IDLE && Options::stopEkosAfterShutdown())
-    {
-        stopEkos();
-        return false;
+        // Stop Ekos if required.
+        if (moduleState()->ekosState() != EKOS_IDLE && Options::stopEkosAfterShutdown())
+        {
+            stopEkos();
+            return false;
+        }
     }
 
     if (moduleState()->shutdownState() == SHUTDOWN_COMPLETE)
@@ -2743,6 +2793,24 @@ void SchedulerProcess::iterate()
         return;
 
     connect(&moduleState()->iterationTimer(), &QTimer::timeout, this, &SchedulerProcess::iterate, Qt::UniqueConnection);
+
+    // Update the scheduler's altitude graph every hour, if the scheduler will be sleeping.
+    constexpr int oneHour = 1000 * 3600;
+    moduleState()->tickleTimer().stop();
+    disconnect(&moduleState()->tickleTimer());
+    if (msSleep > oneHour)
+    {
+        connect(&moduleState()->tickleTimer(), &QTimer::timeout, this, [this, oneHour]()
+        {
+            if (moduleState() && moduleState()->currentlySleeping())
+            {
+                moduleState()->tickleTimer().start(oneHour);
+                emit updateJobTable(nullptr);
+            }
+        }, Qt::UniqueConnection);
+        moduleState()->tickleTimer().setSingleShot(true);
+        moduleState()->tickleTimer().start(oneHour);
+    }
     moduleState()->iterationTimer().setSingleShot(true);
     moduleState()->iterationTimer().start(msSleep);
 
@@ -3196,8 +3264,6 @@ bool SchedulerProcess::saveScheduler(const QUrl &fileURL)
             if (job->getMaxMoonAltitude() < 90)
                 outstream << "<Constraint value='" << cLocale.toString(job->getMaxMoonAltitude()) << "'>MoonMaxAltitude</Constraint>"
                           << Qt::endl;
-            if (job->getEnforceWeather())
-                outstream << "<Constraint>EnforceWeather</Constraint>" << Qt::endl;
             if (job->getEnforceTwilight())
                 outstream << "<Constraint>EnforceTwilight</Constraint>" << Qt::endl;
             if (job->getEnforceArtificialHorizon())
@@ -3603,6 +3669,9 @@ bool SchedulerProcess::appendEkosScheduleList(const QString &fileURL)
 
 void SchedulerProcess::appendLogText(const QString &logentry)
 {
+    if (logentry.isEmpty())
+        return;
+
     /* FIXME: user settings for log length */
     int const max_log_count = 2000;
     if (moduleState()->logText().size() > max_log_count)
@@ -3650,7 +3719,7 @@ void SchedulerProcess::setAlignStatus(AlignState status)
             // If we solved a FITS file, let's use its center coords as our target.
             if (activeJob()->getFITSFile().isEmpty() == false)
             {
-                QDBusReply<QList<double>> solutionReply = alignInterface()->call("getTargetCoords");
+                QDBusReply<QList<double >> solutionReply = alignInterface()->call("getTargetCoords");
                 if (solutionReply.isValid())
                 {
                     QList<double> const values = solutionReply.value();
@@ -4057,21 +4126,46 @@ void SchedulerProcess::setWeatherStatus(ISD::Weather::Status status)
     if (newStatus == moduleState()->weatherStatus())
         return;
 
+    ISD::Weather::Status oldStatus = moduleState()->weatherStatus();
     moduleState()->setWeatherStatus(newStatus);
 
-    // Shutdown scheduler if it was started and not already in shutdown
-    // and if weather checkbox is checked.
-    if (activeJob() && activeJob()->getEnforceWeather() && moduleState()->weatherStatus() == ISD::Weather::WEATHER_ALERT
-            && moduleState()->schedulerState() != Ekos::SCHEDULER_IDLE && moduleState()->schedulerState() != Ekos::SCHEDULER_SHUTDOWN)
+    // If we're in a preemptive shutdown due to weather and weather improves, wake up
+    if (moduleState()->preemptiveShutdown() &&
+            oldStatus != ISD::Weather::WEATHER_OK &&
+            newStatus == ISD::Weather::WEATHER_OK)
     {
-        appendLogText(i18n("Starting shutdown procedure due to severe weather."));
+        appendLogText(i18n("Weather has improved. Resuming operations."));
+        moduleState()->setWeatherGracePeriodActive(false);
+        wakeUpScheduler();
+    }
+    // Check if the weather enforcement is on and weather is critical
+    else if (activeJob() && Options::schedulerWeather() && (newStatus == ISD::Weather::WEATHER_ALERT &&
+             moduleState()->schedulerState() != Ekos::SCHEDULER_IDLE &&
+             moduleState()->schedulerState() != Ekos::SCHEDULER_SHUTDOWN))
+    {
+        appendLogText(i18n("Weather alert detected. Starting soft shutdown procedure."));
+
+        // Abort current job but keep it in the queue
         if (activeJob())
         {
             activeJob()->setState(SCHEDJOB_ABORTED);
             stopCurrentJobAction();
         }
+
+        // Park mount, dome, etc. but don't exit completely
+        // Set up preemptive shutdown with the grace period window to wait for weather to improve
+        QDateTime wakeupTime = SchedulerModuleState::getLocalTime().addSecs(Options::schedulerWeatherGracePeriod() * 60);
+        moduleState()->setWeatherGracePeriodActive(true);
+        moduleState()->enablePreemptiveShutdown(wakeupTime);
+
+        appendLogText(i18n("Observatory scheduled for soft shutdown until weather improves or until %1.",
+                           wakeupTime.toString()));
+
+        // Initiate shutdown procedure
+        emit schedulerSleeping(true, true);
         checkShutdownState();
     }
+
     // forward weather state
     emit newWeatherStatus(status);
 }
@@ -4330,13 +4424,13 @@ SkyPoint SchedulerProcess::mountCoords()
     QVariant var = mountInterface()->property("equatorialCoords");
 
     // result must be two double values
-    if (var.isValid() == false || var.canConvert<QList<double>>() == false)
+    if (var.isValid() == false || var.canConvert<QList<double >> () == false)
     {
         qCCritical(KSTARS_EKOS_SCHEDULER) << "Warning: reading equatorial coordinates received an unexpected value:" << var;
         return SkyPoint();
     }
     // check if we received exactly two values
-    const QList<double> coords = var.value<QList<double>>();
+    const QList<double> coords = var.value<QList<double >> ();
     if (coords.size() != 2)
     {
         qCCritical(KSTARS_EKOS_SCHEDULER) << "Warning: reading equatorial coordinates received" << coords.size() <<
@@ -4554,6 +4648,7 @@ void SchedulerProcess::simClockScaleChanged(float newScale)
         moduleState()->iterationTimer().stop();
         moduleState()->iterationTimer().start(remainingTimeMs.msecsSinceStartOfDay());
     }
+    moduleState()->tickleTimer().stop();
 }
 
 void SchedulerProcess::simClockTimeChanged()
@@ -4856,7 +4951,7 @@ void SchedulerProcess::readProcessOutput()
 
 bool SchedulerProcess::canCountCaptures(const SchedulerJob &job)
 {
-    QList<QSharedPointer<SequenceJob>> seqjobs;
+    QList<QSharedPointer<SequenceJob >> seqjobs;
     bool hasAutoFocus = false;
     SchedulerJob tempJob = job;
     if (SchedulerUtils::loadSequenceQueue(tempJob.getSequenceFile().toLocalFile(), &tempJob, seqjobs, hasAutoFocus,
@@ -4896,7 +4991,7 @@ void SchedulerProcess::updateCompletedJobsCount(bool forced)
         // It is useful for properly calling addProgress().
         CapturedFramesMap newJobFramesCount;
 
-        QList<QSharedPointer<SequenceJob>> seqjobs;
+        QList<QSharedPointer<SequenceJob >> seqjobs;
         bool hasAutoFocus = false;
 
         //oneJob->setLightFramesRequired(false);

@@ -13,6 +13,7 @@
 #include "indidome.h"
 #include "kstars.h"
 #include "domeadaptor.h"
+#include "ksnotification.h"
 
 namespace ISD
 {
@@ -117,7 +118,8 @@ void Dome::processSwitch(INDI::Property prop)
             else if (svp->getState() == IPS_BUSY && sp->getState() == ISS_ON && m_ParkStatus != PARK_PARKING)
             {
                 m_ParkStatus = PARK_PARKING;
-                KNotification::event(QLatin1String("DomeParking"), i18n("Dome parking is in progress"));
+                KSNotification::event(QLatin1String("DomeParking"), i18n("Dome parking is in progress"), KSNotification::Observatory,
+                                      KSNotification::Info);
                 emit newParkStatus(m_ParkStatus);
 
                 if (m_Status != DOME_PARKING)
@@ -129,7 +131,8 @@ void Dome::processSwitch(INDI::Property prop)
             else if (svp->getState() == IPS_BUSY && sp->getState() == ISS_OFF && m_ParkStatus != PARK_UNPARKING)
             {
                 m_ParkStatus = PARK_UNPARKING;
-                KNotification::event(QLatin1String("DomeUnparking"), i18n("Dome unparking is in progress"));
+                KSNotification::event(QLatin1String("DomeUnparking"), i18n("Dome unparking is in progress"), KSNotification::Observatory,
+                                      KSNotification::Info);
                 emit newParkStatus(m_ParkStatus);
 
                 if (m_Status != DOME_UNPARKING)
@@ -141,7 +144,8 @@ void Dome::processSwitch(INDI::Property prop)
             else if (svp->getState() == IPS_OK && sp->getState() == ISS_ON && m_ParkStatus != PARK_PARKED)
             {
                 m_ParkStatus = PARK_PARKED;
-                KNotification::event(QLatin1String("DomeParked"), i18n("Dome parked"));
+                KSNotification::event(QLatin1String("DomeParked"), i18n("Dome parked"), KSNotification::Observatory,
+                                      KSNotification::Info);
                 emit newParkStatus(m_ParkStatus);
 
                 QAction *parkAction = KStars::Instance()->actionCollection()->action("dome_park");
@@ -161,7 +165,8 @@ void Dome::processSwitch(INDI::Property prop)
             else if ( (svp->getState() == IPS_OK || svp->getState() == IPS_IDLE) && sp->s == ISS_OFF && m_ParkStatus != PARK_UNPARKED)
             {
                 m_ParkStatus = PARK_UNPARKED;
-                KNotification::event(QLatin1String("DomeUnparked"), i18n("Dome unparked"));
+                KSNotification::event(QLatin1String("DomeUnparked"), i18n("Dome unparked"), KSNotification::Observatory,
+                                      KSNotification::Info);
 
                 QAction *parkAction = KStars::Instance()->actionCollection()->action("dome_park");
                 if (parkAction)
@@ -238,7 +243,8 @@ void Dome::processSwitch(INDI::Property prop)
                 if (m_ShutterStatus != SHUTTER_CLOSING)
                 {
                     m_ShutterStatus = SHUTTER_CLOSING;
-                    KNotification::event(QLatin1String("ShutterClosing"), i18n("Shutter closing is in progress"));
+                    KSNotification::event(QLatin1String("ShutterClosing"), i18n("Shutter closing is in progress"), KSNotification::Observatory,
+                                          KSNotification::Info);
                     emit newShutterStatus(m_ShutterStatus);
                 }
                 break;
@@ -246,7 +252,8 @@ void Dome::processSwitch(INDI::Property prop)
                 if (m_ShutterStatus != SHUTTER_OPENING)
                 {
                     m_ShutterStatus = SHUTTER_OPENING;
-                    KNotification::event(QLatin1String("ShutterOpening"), i18n("Shutter opening is in progress"));
+                    KSNotification::event(QLatin1String("ShutterOpening"), i18n("Shutter opening is in progress"), KSNotification::Observatory,
+                                          KSNotification::Info);
                     emit newShutterStatus(m_ShutterStatus);
                 }
                 break;
@@ -254,7 +261,8 @@ void Dome::processSwitch(INDI::Property prop)
                 if (m_ShutterStatus != SHUTTER_CLOSED)
                 {
                     m_ShutterStatus = SHUTTER_CLOSED;
-                    KNotification::event(QLatin1String("ShutterClosed"), i18n("Shutter closed"));
+                    KSNotification::event(QLatin1String("ShutterClosed"), i18n("Shutter closed"), KSNotification::Observatory,
+                                          KSNotification::Info);
                     emit newShutterStatus(m_ShutterStatus);
                 }
                 break;
@@ -262,7 +270,8 @@ void Dome::processSwitch(INDI::Property prop)
                 if (m_ShutterStatus != SHUTTER_OPEN)
                 {
                     m_ShutterStatus = SHUTTER_OPEN;
-                    KNotification::event(QLatin1String("ShutterOpened"), i18n("Shutter opened"));
+                    KSNotification::event(QLatin1String("ShutterOpened"), i18n("Shutter opened"), KSNotification::Observatory,
+                                          KSNotification::Info);
                     emit newShutterStatus(m_ShutterStatus);
                 }
                 break;

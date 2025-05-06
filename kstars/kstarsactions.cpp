@@ -1537,6 +1537,8 @@ void KStars::slotRealTimeToogled(bool checked)
         if (a)a->setDisabled(true);
         m_TimeStepBox->setDisabled(true);
         if (ta)ta->setChecked(true);
+        a = actionCollection()->action("clock_realtime");
+        if (a) a->setText(i18n("Stop running clock in realtime"));
     }
     else
     {
@@ -1553,6 +1555,8 @@ void KStars::slotRealTimeToogled(bool checked)
         if (a)a->setDisabled(false);
         m_TimeStepBox->setDisabled(false);
         if (ta)ta->setChecked(false);
+        a = actionCollection()->action("clock_realtime");
+        if (a) a->setText(i18n("Run clock in realtime"));
     }
 }
 

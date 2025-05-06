@@ -1079,7 +1079,7 @@ bool FITSView::initDisplayPixmap(QImage &image, float scale)
 
 void FITSView::updateFrameLargeImage()
 {
-    if (!initDisplayPixmap(rawImage, 1.0 / m_PreviewSampling))
+    if (m_ImageFrame.isNull() || !initDisplayPixmap(rawImage, 1.0 / m_PreviewSampling))
         return;
     QPainter painter(&displayPixmap);
     // Possibly scale the fonts as we're drawing on the full image, not just the visible part of the scroll window.
@@ -1095,6 +1095,8 @@ void FITSView::updateFrameLargeImage()
 
 void FITSView::updateFrameSmallImage()
 {
+    if (m_ImageFrame.isNull())
+        return;
     QImage scaledImage = rawImage.scaled(currentWidth, currentHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     if (!initDisplayPixmap(scaledImage, currentZoom / ZOOM_DEFAULT))
         return;
@@ -2086,7 +2088,7 @@ void FITSView::setFirstLoad(bool value)
 
 QPixmap &FITSView::getTrackingBoxPixmap(uint8_t margin)
 {
-    if (trackingBox.isNull())
+    if (trackingBox.isNull() || m_ImageFrame.isNull() || m_ImageFrame->pixmap(Qt::ReturnByValueConstant()).isNull())
         return trackingBoxPixmap;
 
     // We need to know which rendering strategy updateFrame used to determine the scaling.

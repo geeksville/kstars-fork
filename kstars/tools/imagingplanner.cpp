@@ -6,7 +6,10 @@
 
 #include "imagingplanner.h"
 
+#include <kio_version.h>
+
 #include "artificialhorizoncomponent.h"
+#include "auxiliary/screencapture.h"
 #include "auxiliary/thememanager.h"
 #include "catalogscomponent.h"
 #include "constellationboundarylines.h"
@@ -21,6 +24,7 @@
 #include "flagcomponent.h"
 
 #include "nameresolver.h"
+#include "imageoverlaycomponent.h"
 #include "imagingplanneroptions.h"
 #include "kplotwidget.h"
 #include "kplotobject.h"
@@ -32,6 +36,7 @@
 #include "kstars.h"
 #include "ksuserdb.h"
 #include "kstarsdata.h"
+#include "fitsviewer/platesolve.h"
 #include "skymap.h"
 #include "skymapcomposite.h"
 
@@ -41,6 +46,7 @@
 #include <QFileDialog>
 #include <QImage>
 #include <QNetworkReply>
+#include <QPixmap>
 #include <QRegularExpression>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
@@ -50,12 +56,12 @@
 
 #define DPRINTF if (false) fprintf
 
-// Data columns in the model.
-// Must agree with the header string near the start of initialize()
-// and the if/else-if test values in addCatalogItem().
 namespace
 {
-enum ColumnNames
+// Data columns in the model.
+// Must agree with the header QStringList COLUMN_HEADERS below
+// and the if/else-if test values in addCatalogItem().
+enum ColumnEnum
 {
     NAME_COLUMN = 0,
     HOURS_COLUMN,
@@ -68,6 +74,14 @@ enum ColumnNames
     FLAGS_COLUMN,
     NOTES_COLUMN,
     LAST_COLUMN
+};
+
+// The columns at the end of enum ColumnEnum above are not displayed
+// in the table, and thus have no header name.
+const QStringList COLUMN_HEADERS =
+{
+    i18n("Name"), i18n("Hours"), i18n("Type"), i18n("Size"),
+    i18n("Alt"), i18n("Moon"), i18n("Const"), i18n("Coord")
 };
 }
 
@@ -363,7 +377,7 @@ void SchedulerUtils_setupJob(Ekos::SchedulerJob &job, const QString &name, bool 
                              const QUrl &fitsUrl, Ekos::StartupCondition startup, const QDateTime &startupTime, Ekos::CompletionCondition completion,
                              const QDateTime &completionTime, int completionRepeats, double minimumAltitude, double minimumMoonSeparation,
                              double maxMoonAltitude,
-                             bool enforceWeather, bool enforceTwilight, bool enforceArtificialHorizon, bool track, bool focus, bool align, bool guide)
+                             bool enforceTwilight, bool enforceArtificialHorizon, bool track, bool focus, bool align, bool guide)
 {
     /* Configure or reconfigure the observation job */
 
@@ -396,7 +410,6 @@ void SchedulerUtils_setupJob(Ekos::SchedulerJob &job, const QString &name, bool 
         job.setMaxMoonAltitude(maxMoonAltitude);
 
         // Check enforce weather constraints
-        job.setEnforceWeather(enforceWeather);
         // twilight constraints
         job.setEnforceTwilight(enforceTwilight);
         job.setEnforceArtificialHorizon(enforceArtificialHorizon);
@@ -451,7 +464,7 @@ void setupJob(Ekos::SchedulerJob &job, const QString name, double minAltitude, d
                             Ekos::START_ASAP, QDateTime(),
                             Ekos::FINISH_LOOP, QDateTime(), 1,
                             minAltitude, minMoonSeparation, maxMoonAltitude,
-                            false, true, useArtificialHorizon,
+                            true, useArtificialHorizon,
                             true, true, true, true);
 }
 
@@ -849,9 +862,30 @@ void CatalogFilter::setKeywordConstraints(bool enabled, bool required, const QSt
 
 void CatalogFilter::setSortColumn(int column)
 {
+    // Restore the original column header
+    sourceModel()->setHeaderData(m_SortColumn, Qt::Horizontal, COLUMN_HEADERS[m_SortColumn]);
+
     if (column == m_SortColumn)
         m_ReverseSort = !m_ReverseSort;
     m_SortColumn = column;
+
+    // Adjust the new column's header with the appropriate up/down arrow.
+    QChar arrowChar;
+    switch (m_SortColumn)
+    {
+        case SIZE_COLUMN:
+        case ALTITUDE_COLUMN:
+        case MOON_COLUMN:
+        case HOURS_COLUMN:
+            // The float compare is opposite of the string compare.
+            arrowChar = m_ReverseSort ? QChar(0x25B2) : QChar(0x25BC);
+            break;
+        default:
+            arrowChar = m_ReverseSort ? QChar(0x25BC) : QChar(0x25B2);
+    }
+    sourceModel()->setHeaderData(
+        m_SortColumn, Qt::Horizontal,
+        QString("%1%2").arg(arrowChar).arg(COLUMN_HEADERS[m_SortColumn]));
 }
 
 // The main function used when sorting the table by a column (which is stored in m_SortColumn).
@@ -1127,9 +1161,7 @@ void ImagingPlanner::initialize()
     m_CatalogModel = new QStandardItemModel(0, LAST_COLUMN);
 
     // Setup the labels and tooltips for the header row of the table.
-    m_CatalogModel->setHorizontalHeaderLabels(
-        QStringList() << i18n("Name") << i18n("Hours") << i18n("Type") << i18n("Size") << i18n("Alt") << i18n("Moon") <<
-        i18n("Const") << i18n("Coord"));
+    m_CatalogModel->setHorizontalHeaderLabels(COLUMN_HEADERS);
     m_CatalogModel->horizontalHeaderItem(NAME_COLUMN)->setToolTip(
         i18n("Object Name--click header to sort ascending/descending."));
     m_CatalogModel->horizontalHeaderItem(
@@ -1158,6 +1190,10 @@ void ImagingPlanner::initialize()
     ui->CatalogView->resizeColumnsToContents();
     ui->CatalogView->verticalHeader()->setVisible(false); // Remove the row-number display.
     ui->CatalogView->setColumnHidden(FLAGS_COLUMN, true);
+    // Need to do this twice, because this is an up/down toggle when the user clicks the column header
+    // and we don't want to change the sort order here.
+    m_CatalogSortModel->setSortColumn(HOURS_COLUMN);
+    m_CatalogSortModel->setSortColumn(HOURS_COLUMN);
 
     connect(ui->CatalogView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &ImagingPlanner::selectionChanged);
@@ -1435,7 +1471,7 @@ void ImagingPlanner::initialize()
     connect(ui->optionsButton, &QPushButton::clicked, this, &ImagingPlanner::openOptionsMenu);
 
     // Since we thread the loading of catalogs, need to connect the thread back to UI.
-    qRegisterMetaType<QList<QStandardItem *>>("QList<QStandardItem *>");
+    qRegisterMetaType<QList<QStandardItem * >> ("QList<QStandardItem *>");
     connect(this, &ImagingPlanner::addRow, this, &ImagingPlanner::addRowSlot);
 
     // Needed to fix weird bug on Windows that started with Qt 5.9 that makes the title bar
@@ -1447,6 +1483,16 @@ void ImagingPlanner::initialize()
     // Install the event filters. Put them at the end of initialize so
     // the event filter isn't called until initialize is complete.
     installEventFilters();
+
+    m_PlateSolve.reset(new PlateSolve(this));
+    m_PlateSolve->enableAuxButton("Retake screenshot",
+                                  "Retake the screenshot of the object if you're having issues solving.");
+    connect(m_PlateSolve.get(), &PlateSolve::clicked, this, &ImagingPlanner::extractImage, Qt::UniqueConnection);
+    connect(m_PlateSolve.get(), &PlateSolve::auxClicked, this, [this]()
+    {
+        m_PlateSolve->abort();
+        takeScreenshot();
+    });
 }
 
 void ImagingPlanner::installEventFilters()
@@ -1487,7 +1533,7 @@ void ImagingPlanner::openOptionsMenu()
 void ImagingPlanner::getHelp()
 {
     focusOnTable();
-    const QUrl url("https://docs.kde.org/trunk5/en/kstars/kstars/kstars.pdf#tool-imaging-planner");
+    const QUrl url("https://kstars-docs.kde.org/en/user_manual/tool-imaging-planner.html");
     if (!url.isEmpty())
         QDesktopServices::openUrl(url);
 }
@@ -2309,16 +2355,40 @@ QString ImagingPlanner::defaultDirectory() const
            + QDir::separator() + "ImagingPlanner";
 }
 
+namespace
+{
+
+bool sortOldest(const QFileInfo &file1, const QFileInfo &file2)
+{
+    return file1.birthTime() < file2.birthTime();
+}
+
+QFileInfoList findDefaultDirectories()
+{
+    QString kstarsDir = KSPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QDir kDir(kstarsDir);
+    kDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+    QStringList nameFilters;
+    nameFilters << "ImagingPlanner*";
+    QFileInfoList dirs1 = kDir.entryInfoList(nameFilters);
+
+    QString ipDir = kstarsDir + QDir::separator() + "ImagingPlanner";
+    QFileInfoList dirs2 = QDir(ipDir).entryInfoList(QStringList(), QDir::NoDotAndDotDot | QDir::AllDirs);
+
+    dirs1.append(dirs2);
+    std::sort(dirs1.begin(), dirs1.end(), sortOldest);
+    return dirs1;
+}
+}  // namespace
+
 // The default catalog is one loaded by the "Data -> Download New Data..." menu.
 // Search the default directory for a ImagingPlanner subdirectory
 QString ImagingPlanner::findDefaultCatalog() const
 {
-    const QFileInfoList subDirs = QDir(defaultDirectory()).entryInfoList(
-                                      QStringList(), QDir::NoDotAndDotDot | QDir::AllDirs);
-    for (int i = 0; i < subDirs.size(); i++)
+    QFileInfoList subDirs = findDefaultDirectories();
+    for( const auto &dd : subDirs)
     {
-        // Found a possible catalog directory. Will pick the first one we find with .csv files.
-        const QDir subDir(subDirs[i].absoluteFilePath());
+        QDir subDir(dd.absoluteFilePath());
         const QStringList csvFilter({"*.csv"});
         const QFileInfoList files = subDir.entryInfoList(csvFilter, QDir::NoDotAndDotDot | QDir::Files);
         if (files.size() > 0)
@@ -2347,7 +2417,10 @@ void ImagingPlanner::loadInitialCatalog()
         catalog = findDefaultCatalog();
     if (catalog.isEmpty())
     {
-        KSNotification::sorry(i18n("You need to load a catalog to start using this tool.\nSee Data -> Download New Data..."));
+        KSNotification::sorry(
+            i18n("You need to load a catalog to start using this tool.\n"
+                 "Use the Load Catalog button if you have one.\n"
+                 "See Data -> Download New Data if not..."));
         setStatus(i18n("No Catalog!"));
     }
     else
@@ -2405,7 +2478,7 @@ void ImagingPlanner::updateStatus()
 }
 
 // This runs when the window gets a show event.
-void ImagingPlanner::showEvent(QShowEvent *e)
+void ImagingPlanner::showEvent(QShowEvent * e)
 {
     // ONLY run for first ever show
     if (m_initialShow == false)
@@ -2506,19 +2579,16 @@ bool ImagingPlanner::checkIfPageExists(const QString &urlString)
     if (reply->error() == QNetworkReply::NoError)
     {
         reply->deleteLater();
-        fprintf(stderr, "checkIfPageExists --> success\n");
         return true;
     }
     else if (timer.isActive() )
     {
         reply->deleteLater();
-        fprintf(stderr, "checkIfPageExists --> it doesn't exist\n");
         return false;
     }
     else
     {
         reply->deleteLater();
-        fprintf(stderr, "checkIfPageExists --> timed out\n");
         return false;
     }
 }
@@ -2626,14 +2696,8 @@ void ImagingPlanner::searchSpecialWebPageImages()
         if (ok)
         {
             urlString = QString("https://www.irida-observatory.org/CCD/VdB%1/VdB%1.html").arg(num);
-            if (checkIfPageExists(urlString))
-                fprintf(stderr, "It exists\n");
-            else
-            {
-                fprintf(stderr, "It doesn't exist\n");
+            if (!checkIfPageExists(urlString))
                 urlString = "https://www.emilivanov.com/CCD%20Images/Catalog_VdB.htm";
-            }
-
         }
 
     }
@@ -3460,6 +3524,9 @@ void ImagingPlannerPopup::init(ImagingPlanner * planner, const QStringList &name
 
     addSeparator();
     addAction(i18n("Center %1 on SkyMap", names[0]), planner, &ImagingPlanner::reallyCenterOnSkymap);
+    addSeparator();
+    addAction(i18n("Screenshot some image of %1, plate-solve it, and temporarily place it on the SkyMap", names[0]), planner,
+              &ImagingPlanner::takeScreenshot);
 
 }
 
@@ -3631,7 +3698,7 @@ void ImagingPlanner::addCatalogImageInfo(const CatalogImageInfo &info)
     m_CatalogImageInfoMap[info.m_Name.toLower()] = info;
 }
 
-bool ImagingPlanner::findCatalogImageInfo(const QString &name, CatalogImageInfo *info)
+bool ImagingPlanner::findCatalogImageInfo(const QString &name, CatalogImageInfo * info)
 {
     auto result = m_CatalogImageInfoMap.find(name.toLower());
     if (result == m_CatalogImageInfoMap.end())
@@ -3829,8 +3896,8 @@ void ImagingPlanner::loadCatalogFromFile(QString path, bool reset)
                     {
                         const std::pair<bool, QString> out = m_manager.remove_catalog(catID);
                         DPRINTF(stderr, "Removal of out-of-date catalog %d %s%s\n", catID,
-                                out.first ? "succeeded." : "failed: ", out.second.toLatin1().data());    
-                    }                
+                                out.first ? "succeeded." : "failed: ", out.second.toLatin1().data());
+                    }
                 }
                 continue;
             }
@@ -3881,3 +3948,136 @@ void ImagingPlanner::sorry(const QString &message)
     KSNotification::sorry(message);
 }
 
+void ImagingPlanner::captureRegion(const QImage &screenshot)
+{
+    if (m_PlateSolve.get()) disconnect(m_PlateSolve.get());
+
+    // This code to convert the screenshot to a FITSData is, of course, convoluted.
+    // TODO: improve it.
+    m_ScreenShotImage = screenshot;
+    QString temporaryPath = QDir(KSPaths::writableLocation(QStandardPaths::TempLocation) + QDir::separator() +
+                                 qAppName()).path();
+    QString tempQImage = QDir(temporaryPath).filePath("screenshot.png");
+    m_ScreenShotImage.save(tempQImage);
+    FITSData::ImageToFITS(tempQImage, "png", m_ScreenShotFilename);
+    this->raise();
+    this->activateWindow();
+
+    if (!m_PlateSolve.get())
+        m_PlateSolve.reset(new PlateSolve(this));
+
+    m_PlateSolve->setImageDisplay(m_ScreenShotImage);
+    if (currentCatalogObject())
+    {
+        m_PlateSolve->setPosition(*currentCatalogObject());
+        m_PlateSolve->setUsePosition(true);
+        m_PlateSolve->setUseScale(false);
+        m_PlateSolve->setLinear(false);
+        reallyCenterOnSkymap();
+    }
+
+    m_PlateSolve->setWindowTitle(QString("Plate Solve for %1").arg(currentObjectName()));
+    m_PlateSolve->show();
+    if (Options::imagingPlannerStartSolvingImmediately())
+        extractImage();
+}
+
+void ImagingPlanner::takeScreenshot()
+{
+    if (!currentCatalogObject())
+        return;
+
+    const QString messageID = "ImagingPlannerScreenShotInfo";
+    const QString screenshotInfo =
+        QString("<p><b>Taking a screenshot of %1 for the SkyMap</b></p>"
+                "<p>This allows you to screenshot/copy a good example image of %1 from another application, "
+                "such as a browser viewing %1 on Astrobin. It then plate-solves that screenshot and overlays "
+                "it temporarily on the SkyMap.</p>"
+                "<p>You can use this to help you frame your future %1 capture. "
+                "The SkyMap overlay will only be visible in the current KStars session.</p>"
+                "<p>In order to do this, you should make the image you wish to copy visible "
+                "on your screen now, before clicking OK. After you click OK you will see the mouse pointer change "
+                "to the screenshot pointer. You then drag your mouse over the part of the %1 image "
+                "you wish to copy. If you check do-not-ask-again, then you must make sure that your desired image "
+                "is already visible before you run this.</p>"
+                "<p>After you take your screenshot, the system will bring up a menu to help plate-solve the image. "
+                "Click SOLVE on that menu to start the process, unless it is automatically started. "
+                "Once successfully plate-solved, your image will be overlayed onto the SkyMap.").arg(currentObjectName());
+#if KIO_VERSION >= QT_VERSION_CHECK(5, 100, 0)
+    if (KMessageBox::questionTwoActions(KStars::Instance(),
+                                        screenshotInfo,
+                                        "ScreenShot",
+                                        KGuiItem(i18nc("@action:button", "OK")),
+                                        KGuiItem(i18nc("@action:button", "Cancel")),
+                                        messageID
+                                       )
+            == KMessageBox::SecondaryAction)
+#else
+    const int result = KMessageBox::questionYesNo(this, screenshotInfo, "ScreenShot",
+                       KGuiItem("OK"), KGuiItem("Cancel"), messageID);
+    if (result != KMessageBox::Yes)
+#endif
+    {
+        // Don't remember the cancel response.
+        KMessageBox::enableMessage(messageID);
+        disconnect(m_CaptureWidget.get());
+        m_CaptureWidget.reset();
+        this->raise();
+        this->activateWindow();
+        return;
+    }
+
+    if (m_CaptureWidget.get()) disconnect(m_CaptureWidget.get());
+    m_CaptureWidget.reset(new ScreenCapture());
+    QObject::connect(m_CaptureWidget.get(), &ScreenCapture::areaSelected,
+                     this, &ImagingPlanner::captureRegion, Qt::UniqueConnection);
+    disconnect(m_CaptureWidget.get(), &ScreenCapture::aborted, nullptr, nullptr);
+    QObject::connect(m_CaptureWidget.get(), &ScreenCapture::aborted, this, [this]()
+    {
+        disconnect(m_CaptureWidget.get());
+        m_CaptureWidget.reset();
+        this->raise();
+        this->activateWindow();
+    });
+    m_CaptureWidget->show();
+}
+
+void ImagingPlanner::extractImage()
+{
+    disconnect(m_PlateSolve.get(), &PlateSolve::solverFailed, nullptr, nullptr);
+    connect(m_PlateSolve.get(), &PlateSolve::solverFailed, this, [this]()
+    {
+        disconnect(m_PlateSolve.get());
+    });
+    disconnect(m_PlateSolve.get(), &PlateSolve::solverSuccess, nullptr, nullptr);
+    connect(m_PlateSolve.get(), &PlateSolve::solverSuccess, this, [this]()
+    {
+        disconnect(m_PlateSolve.get());
+        const FITSImage::Solution &solution = m_PlateSolve->solution();
+        ImageOverlay overlay;
+        overlay.m_Orientation = solution.orientation;
+        overlay.m_RA = solution.ra;
+        overlay.m_DEC = solution.dec;
+        overlay.m_ArcsecPerPixel = solution.pixscale;
+        overlay.m_EastToTheRight = solution.parity;
+        overlay.m_Status = ImageOverlay::AVAILABLE;
+
+        const bool mirror = !solution.parity;
+        const int scaleWidth = std::min(m_ScreenShotImage.width(), Options::imageOverlayMaxDimension());
+        QImage *processedImg = new QImage;
+        if (mirror)
+            *processedImg = m_ScreenShotImage.mirrored(true, false).scaledToWidth(scaleWidth); // It's reflected horizontally.
+        else
+            *processedImg = m_ScreenShotImage.scaledToWidth(scaleWidth);
+        overlay.m_Img.reset(processedImg);
+        overlay.m_Width = processedImg->width();
+        overlay.m_Height = processedImg->height();
+        KStarsData::Instance()->skyComposite()->imageOverlay()->show();
+        KStarsData::Instance()->skyComposite()->imageOverlay()->addTemporaryImageOverlay(overlay);
+        centerOnSkymap();
+        KStars::Instance()->activateWindow();
+        KStars::Instance()->raise();
+        m_PlateSolve->close();
+    });
+    m_PlateSolve->solveImage(m_ScreenShotFilename);
+}

@@ -14,27 +14,19 @@
 #include "fitsviewer/fitsview.h"
 #include "auxiliary/kspaths.h"
 #include "ekos_guide_debug.h"
-#include "ekos/auxiliary/stellarsolverprofileeditor.h"
 #include "guidealgorithms.h"
 #include "guidelog.h"
 #include "../guideview.h"
+#include "linearguider.h"
+#include "hysteresisguider.h"
+#include "ekos/guide/opsguide.h"
 
 #include <QVector3D>
 #include <cmath>
-#include <set>
 
 // Qt version calming
 #include <qtendl.h>
 
-#include <QRandomGenerator>
-namespace
-{
-QRandomGenerator generator;
-double getNoise(double maxAbsVal)
-{
-    return (maxAbsVal - generator.bounded(maxAbsVal * 2));
-}
-}
 GuiderUtils::Vector cgmath::findLocalStarPosition(QSharedPointer<FITSData> &imageData,
         QSharedPointer<GuideView> &guideView, bool firstFrame)
 {
@@ -47,7 +39,7 @@ GuiderUtils::Vector cgmath::findLocalStarPosition(QSharedPointer<FITSData> &imag
     }
     else
         position = GuideAlgorithms::findLocalStarPosition(
-                       imageData, algorithm, video_width, video_height,
+                       imageData, m_StarDetectionAlgorithm, video_width, video_height,
                        guideView->getTrackingBox());
 
     if (position.x == -1 || position.y == -1)
@@ -74,6 +66,10 @@ cgmath::cgmath() : QObject()
 
     logFile.setFileName(QDir(KSPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("guide_log.txt"));
     gpg.reset(new GPG());
+    m_RALinearGuider.reset( new LinearGuider("RA"));
+    m_DECLinearGuider.reset(new LinearGuider("DEC"));
+    m_RAHysteresisGuider.reset( new HysteresisGuider("RA"));
+    m_DECHysteresisGuider.reset(new HysteresisGuider("DEC"));
 }
 
 cgmath::~cgmath()
@@ -96,15 +92,8 @@ bool cgmath::setVideoParameters(int vid_wd, int vid_ht, int binX, int binY)
     return true;
 }
 
-bool cgmath::setGuiderParameters(double ccd_pix_wd, double ccd_pix_ht, double guider_aperture, double guider_focal)
+bool cgmath::setGuiderParameters(double guider_aperture)
 {
-    if (ccd_pix_wd < 0)
-        ccd_pix_wd = 0;
-    if (ccd_pix_ht < 0)
-        ccd_pix_ht = 0;
-    if (guider_focal <= 0)
-        guider_focal = 1;
-
     aperture = guider_aperture;
     guideStars.setCalibration(calibration);
 
@@ -155,11 +144,6 @@ bool cgmath::getTargetPosition(double *x, double *y) const
     return true;
 }
 
-int cgmath::getAlgorithmIndex(void) const
-{
-    return algorithm;
-}
-
 void cgmath::getStarScreenPosition(double *dx, double *dy) const
 {
     *dx = starPosition.x;
@@ -179,17 +163,17 @@ bool cgmath::reset()
     return true;
 }
 
-void cgmath::setAlgorithmIndex(int algorithmIndex)
+void cgmath::setStarDetectionAlgorithmIndex(int algorithmIndex)
 {
     if (algorithmIndex < 0 || algorithmIndex > SEP_MULTISTAR)
         return;
 
-    algorithm = algorithmIndex;
+    m_StarDetectionAlgorithm = algorithmIndex;
 }
 
 bool cgmath::usingSEPMultiStar() const
 {
-    return algorithm == SEP_MULTISTAR;
+    return m_StarDetectionAlgorithm == SEP_MULTISTAR;
 }
 
 void cgmath::updateCircularBuffers(void)
@@ -219,16 +203,28 @@ void cgmath::start()
         createGuideLog();
 
     gpg->reset();
+    m_RALinearGuider->reset();
+    m_DECLinearGuider->reset();
+    m_RAHysteresisGuider->reset();
+    m_DECHysteresisGuider->reset();
 }
 
 void cgmath::abort()
 {
     guideStars.reset();
+    m_RALinearGuider->reset();
+    m_DECLinearGuider->reset();
+    m_RAHysteresisGuider->reset();
+    m_DECHysteresisGuider->reset();
 }
 
 void cgmath::suspend(bool mode)
 {
     suspended = mode;
+    m_RALinearGuider->reset();
+    m_DECLinearGuider->reset();
+    m_RAHysteresisGuider->reset();
+    m_DECHysteresisGuider->reset();
 }
 
 bool cgmath::isSuspended() const
@@ -368,8 +364,31 @@ void cgmath::processAxis(const int k, const bool dithering, const bool darkGuide
                                   calibration.decPulseMillisecondsPerArcsecond();
     const double maxPulseMilliseconds = in_params.max_pulse_arcsec[k] * pulseConverter;
 
-    // GPG pulse computation
-    bool useGPG = !dithering && Options::gPGEnabled() && (k == GUIDE_RA) && in_params.enabled[k];
+    if (dithering)
+    {
+        m_RALinearGuider->reset();
+        m_DECLinearGuider->reset();
+        m_RAHysteresisGuider->reset();
+        m_DECHysteresisGuider->reset();
+    }
+    LinearGuider *lGuider = nullptr;
+    HysteresisGuider *hGuider = nullptr;
+    bool useGPG = false;
+    if (!dithering)
+    {
+        if ((Options::rAGuidePulseAlgorithm() == Ekos::OpsGuide::HYSTERESIS_ALGORITHM) && k == GUIDE_RA)
+            hGuider = m_RAHysteresisGuider.get();
+        else if ((Options::dECGuidePulseAlgorithm() == Ekos::OpsGuide::HYSTERESIS_ALGORITHM) && k == GUIDE_DEC)
+            hGuider = m_DECHysteresisGuider.get();
+        else if ((Options::rAGuidePulseAlgorithm() == Ekos::OpsGuide::LINEAR_ALGORITHM) && k == GUIDE_RA)
+            lGuider = m_RALinearGuider.get();
+        else if ((Options::dECGuidePulseAlgorithm() == Ekos::OpsGuide::LINEAR_ALGORITHM) && k == GUIDE_DEC)
+            lGuider = m_DECLinearGuider.get();
+        else if ((Options::rAGuidePulseAlgorithm() == Ekos::OpsGuide::GPG_ALGORITHM) && (k == GUIDE_RA)
+                 && in_params.enabled[k])
+            useGPG = true;
+    }
+
     if (useGPG && darkGuide)
     {
         gpg->darkGuiding(&pulseLength, &dir, calibration, timeStep);
@@ -386,6 +405,53 @@ void cgmath::processAxis(const int k, const bool dithering, const bool darkGuide
     {
         pulseDirection = dir;
         pulseLength = std::min(pulseLength, static_cast<int>(maxPulseMilliseconds + 0.5));
+    }
+    else if (lGuider != nullptr)
+    {
+        // If we haven't been here in 2 exposures, should probably reset the linear guider.
+        // Similarly if we've dithered.
+        // Search for all gpg resets
+        // Also when it gets started or restarted...
+        //
+        // Also when I enable/disable the checkboxes, I should reset things appropriately
+
+        double pulse = 0;
+        if (k == GUIDE_RA)
+        {
+            lGuider->setGain(Options::rAProportionalGain());
+            lGuider->setMinMove(Options::rAMinimumPulseArcSec());
+            pulse = lGuider->guide(arcsecDrift) * calibration.raPulseMillisecondsPerArcsecond();
+            pulseDirection = pulse > 0 ? RA_DEC_DIR : RA_INC_DIR;
+        }
+        else
+        {
+            lGuider->setGain(Options::dECProportionalGain());
+            lGuider->setMinMove(Options::dECMinimumPulseArcSec());
+            pulse = lGuider->guide(arcsecDrift) * calibration.decPulseMillisecondsPerArcsecond();
+            pulseDirection = pulse > 0 ? DEC_DEC_DIR : DEC_INC_DIR;
+        }
+        pulseLength = std::min(fabs(pulse), maxPulseMilliseconds);
+    }
+    else if (hGuider != nullptr)
+    {
+        double pulse = 0;
+        if (k == GUIDE_RA)
+        {
+            hGuider->setGain(Options::rAProportionalGain());
+            hGuider->setMinMove(Options::rAMinimumPulseArcSec());
+            hGuider->setHysteresis(Options::rAHysteresis());
+            pulse = hGuider->guide(arcsecDrift) * calibration.raPulseMillisecondsPerArcsecond();
+            pulseDirection = pulse > 0 ? RA_DEC_DIR : RA_INC_DIR;
+        }
+        else
+        {
+            hGuider->setGain(Options::dECProportionalGain());
+            hGuider->setMinMove(Options::dECMinimumPulseArcSec());
+            hGuider->setHysteresis(Options::dECHysteresis());
+            pulse = hGuider->guide(arcsecDrift) * calibration.decPulseMillisecondsPerArcsecond();
+            pulseDirection = pulse > 0 ? DEC_DEC_DIR : DEC_INC_DIR;
+        }
+        pulseLength = std::min(fabs(pulse), maxPulseMilliseconds);
     }
     else
     {
@@ -409,7 +475,7 @@ void cgmath::processAxis(const int k, const bool dithering, const bool darkGuide
         const double integralResponse = drift_integral[k] * in_params.integral_gain[k] * arcsecPerMsPulse;
         pulseLength = std::min(fabs(proportionalResponse + integralResponse), maxPulseMilliseconds);
 
-        // calc direction
+        // calculation of correcting mount pulse
         // We do not send pulse if direction is disabled completely, or if direction in a specific axis (e.g. N or S) is disabled
         if (!in_params.enabled[k] || // This axis not enabled
                 // Positive direction of this axis not enabled.
@@ -426,6 +492,8 @@ void cgmath::processAxis(const int k, const bool dithering, const bool darkGuide
             const double pulseArcSec = pulseConverter > 0 ? pulseLength / pulseConverter : 0;
             if (pulseArcSec >= in_params.min_pulse_arcsec[k])
             {
+                // Star drifts are based on pixel differences of the star position in the camera sensor coordinate
+                // system: To correct a star drift > 0 the mount has to move in decreasing RA- & DEC-direction
                 if (k == GUIDE_RA)
                     pulseDirection = arcsecDrift > 0 ? RA_DEC_DIR : RA_INC_DIR;
                 else
@@ -435,6 +503,13 @@ void cgmath::processAxis(const int k, const bool dithering, const bool darkGuide
                 pulseDirection = NO_DIR;
         }
 
+    }
+    // Limit the pulse length in case of rediculous values.
+    constexpr int MAX_PULSE_MILLISECONDS = 5000;
+    if (pulseLength > MAX_PULSE_MILLISECONDS)
+    {
+        qCDebug(KSTARS_EKOS_GUIDE) << i18n("Limited long pulse of %1ms to %2ms", pulseLength, MAX_PULSE_MILLISECONDS);
+        pulseLength = MAX_PULSE_MILLISECONDS;
     }
     updateOutParams(k, arcsecDrift, pulseLength, pulseDirection);
 }
@@ -460,7 +535,11 @@ void cgmath::performProcessing(Ekos::GuideState state, QSharedPointer<FITSData> 
 {
     if (suspended)
     {
-        if (Options::gPGEnabled())
+        m_RALinearGuider->reset();
+        m_DECLinearGuider->reset();
+        m_RAHysteresisGuider->reset();
+        m_DECHysteresisGuider->reset();
+        if (Options::rAGuidePulseAlgorithm() == Ekos::OpsGuide::GPG_ALGORITHM)
         {
             GuiderUtils::Vector guideStarPosition = findLocalStarPosition(imageData, guideView, false);
             if (guideStarPosition.x != -1 && !std::isnan(guideStarPosition.x))
@@ -548,15 +627,6 @@ void cgmath::performProcessing(Ekos::GuideState state, QSharedPointer<FITSData> 
                                 targetPosition.x, targetPosition.y,
                                 &multiStarRADrift, &multiStarDECDrift))
         {
-#ifdef DEBUG_ADD_NOISE
-            const double raNoise = getNoise(.75);
-            const double decNoise = getNoise(.75);
-            multiStarRADrift += raNoise;
-            multiStarDECDrift += decNoise;
-            qCDebug(KSTARS_EKOS_GUIDE)
-                    << "Added guide noise arcsecs" << "RA" << raNoise << "DEC" << decNoise;
-            fprintf(stderr, "Add guide noise arcsecs %.1f %.1f\n", raNoise, decNoise);
-#endif
             qCDebug(KSTARS_EKOS_GUIDE) << QString("MultiStar drift: RA %1 DEC %2")
                                        .arg(multiStarRADrift, 0, 'f', 2)
                                        .arg(multiStarDECDrift, 0, 'f', 2);
@@ -593,11 +663,11 @@ void cgmath::performProcessing(Ekos::GuideState state, QSharedPointer<FITSData> 
         // Note--these don't include the multistar algorithm, but the below ra/dec ones do.
         data.dx = starPosition.x - targetPosition.x;
         data.dy = starPosition.y - targetPosition.y;
-        // Above computes position - reticle. Should the reticle-position, so negate.
+        // Above computes position - reticle (star drift), but we want the mount drift, so negate.
         calibration.convertToPixels(-raDrift, -decDrift, &data.raDistance, &data.decDistance);
 
         const double raGuideFactor = out_params.pulse_dir[GUIDE_RA] == NO_DIR ?
-                                     0 : (out_params.pulse_dir[GUIDE_RA] == RA_INC_DIR ? 1.0 : -1.0);
+                                     0 : (out_params.pulse_dir[GUIDE_RA] == RA_INC_DIR ? -1.0 : 1.0);
         const double decGuideFactor = out_params.pulse_dir[GUIDE_DEC] == NO_DIR ?
                                       0 : (out_params.pulse_dir[GUIDE_DEC] == DEC_INC_DIR ? 1.0 : -1.0);
 
@@ -656,7 +726,8 @@ void cgmath::emitStats()
     const double skyBG = hasGuidestars ? guideStars.skybackground().mean : 0;
     const int numStars = hasGuidestars ? guideStars.skybackground().starsDetected : 0;  // wait for rob's release
 
-    emit guideStats(-out_params.delta[GUIDE_RA], -out_params.delta[GUIDE_DEC],
+    // analyze.cpp uses only one RA/DEC-axis (up:+, down:-), hence RA is negated.
+    emit guideStats(-out_params.delta[GUIDE_RA], out_params.delta[GUIDE_DEC],
                     pulseRA, pulseDEC, snr, skyBG, numStars);
 }
 
@@ -671,11 +742,22 @@ void cgmath::calculateRmsError(void)
     int count = std::min(iterationCounter, static_cast<unsigned int>(CIRCULAR_BUFFER_SIZE));
     for (int k = GUIDE_RA; k <= GUIDE_DEC; k++)
     {
-        double sqr_avg = 0;
-        for (int i = 0; i < count; ++i)
-            sqr_avg += drift[k][i] * drift[k][i];
+        // Calculate RMS using PHD2's formula: sqrt((n * sumYSq - sumY * sumY) / (n * n))
+        double sumY = 0;
+        double sumYSq = 0;
 
-        out_params.sigma[k] = sqrt(sqr_avg / (double)count);
+        for (int i = 0; i < count; ++i)
+        {
+            sumY += drift[k][i];
+            sumYSq += drift[k][i] * drift[k][i];
+        }
+
+        // Use PHD2's formula for population standard deviation
+        double variance = count < 2 ? 0 : (count * sumYSq - sumY * sumY) / (count * count);
+        if (variance >= 0.0)
+            out_params.sigma[k] = sqrt(variance);
+        else
+            out_params.sigma[k] = 0.0;
     }
 }
 
@@ -724,4 +806,3 @@ void cproc_out_params::reset(void)
         sigma[k]        = 0;
     }
 }
-

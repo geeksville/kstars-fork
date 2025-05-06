@@ -15,8 +15,7 @@
 #include "schedulermodulestate.h"
 #include "schedulerutils.h"
 #include "ksmoon.h"
-
-#include <knotification.h>
+#include "ksnotification.h"
 
 #include <ekos_scheduler_debug.h>
 
@@ -239,11 +238,6 @@ void SchedulerJob::setMaxMoonAltitude(const double &value)
     maxMoonAltitude = value;
 }
 
-void SchedulerJob::setEnforceWeather(bool value)
-{
-    enforceWeather = value;
-}
-
 void SchedulerJob::setStopTime(const QDateTime &value)
 {
     stopTime = value;
@@ -342,7 +336,9 @@ void SchedulerJob::setState(const SchedulerJobStatus &value, bool force)
         case SCHEDJOB_ERROR:
             /* FIXME: move this to Scheduler, SchedulerJob is mostly a model */
             lastErrorTime = getLocalTime();
-            KNotification::event(QLatin1String("EkosSchedulerJobFail"), i18n("Ekos job failed (%1)", getName()));
+            KSNotification::event(QLatin1String("EkosSchedulerJobFail"), i18n("Ekos job failed (%1)", getName()),
+                                  KSNotification::Scheduler,
+                                  KSNotification::Alert);
             break;
         case SCHEDJOB_INVALID:
         case SCHEDJOB_IDLE:

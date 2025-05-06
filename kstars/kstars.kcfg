@@ -1102,6 +1102,11 @@
          <label>Make the Imaging Planner tool an independent window.</label>
          <default>true</default>
       </entry>
+      <entry name="ImagingPlannerStartSolvingImmediately" type="Bool">
+         <label>Start solving immediately after taking a screenshot.</label>
+         <whatsthis>Start solving immediately after taking a screenshot, instead of waiting for the Solve button to be pressed.</whatsthis>
+         <default>false</default>
+      </entry>
    </group>
    <group name="ObservingList">
       <entry name="ObsListSymbol" type="Bool">
@@ -1633,6 +1638,10 @@
       </entry>
       <entry name="SaveFailedAlignImages" type="Bool">
          <label>Save Failed Align images on disk?</label>
+         <default>false</default>
+      </entry>
+      <entry name="DontSyncToRealTime" type="Bool">
+         <label>Don't sync to Real Time on Ekos startup.</label>
          <default>false</default>
       </entry>
       <entry name="GuideLogging" type="Bool">
@@ -2898,6 +2907,14 @@
          <label>Which Algorithm to use track guide square (0 smart, 1 SEP, 2 fast, 3 threshold, 4 no threshold, 5 SEP multistar).</label>
          <default>5</default>
       </entry>
+      <entry name="RAGuidePulseAlgorithm" type="UInt">
+         <label>Which Algorithm to use to compute guiding pulses for RA (0 standard, 1 Hysteresis, 2 Linear, 3 GPG).</label>
+         <default>0</default>
+      </entry>
+      <entry name="DECGuidePulseAlgorithm" type="UInt">
+         <label>Which Algorithm to use to compute guiding pulses for DEC (0 standard, 1 Hysteresis, 2 Linear).</label>
+         <default>0</default>
+      </entry>
       <entry name="PHD2Host" type="String">
          <label>Host name of external PHD2 service</label>
          <default>localhost</default>
@@ -2933,6 +2950,10 @@
       <entry name="GuideAutoStar" type="Bool">
          <label>Automatically select calibration star and perform calibration.</label>
          <default>false</default>
+      </entry>
+      <entry name="guideShowFrame" type="Bool">
+         <label>Display guiding frames.</label>
+         <default>true</default>
       </entry>
       <entry name="GuideAutoSquareSizeEnabled" type="Bool">
          <label>Automatically select the square size based on the selected star width.</label>
@@ -3161,6 +3182,14 @@
          <label>Display the RMS Error Plot on the Guide Drift Graphics.</label>
          <default>true</default>
       </entry>
+      <entry name="RAHysteresis" type="Double">
+         <label>If > 0, use the hysteresis guider for RA internal guiding with that value.</label>
+         <default>0</default>
+      </entry>      
+      <entry name="DECHysteresis" type="Double">
+         <label>If > 0, use the hysteresis guider for DEC internal guiding with that value.</label>
+         <default>0</default>
+      </entry>      
    </group>
    <group name="Scheduler">
     <entry name="SchedulerAlgorithm" type="UInt">
@@ -3377,8 +3406,12 @@
          <default>90</default>
       </entry>
       <entry name="SchedulerWeather" type="Bool">
-         <label>Default scheduler checkbox for job weather constraints.</label>
+         <label>Default scheduler checkbox for weather constraints.</label>
          <default>false</default>
+      </entry>
+      <entry name="SchedulerWeatherGracePeriod" type="UInt">
+         <label>Wait this many minutes for the weather to improve before giving up.</label>
+         <default>10</default>
       </entry>
       <entry name="SchedulerTwilight" type="Bool">
          <label>Default scheduler checkbox for job twilight constraints.</label>

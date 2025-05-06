@@ -200,13 +200,18 @@ void FITSStack::addMaster(bool dark, void * imageBuffer, int width, int height, 
 // Update plate solving status
 bool FITSStack::solverDone(const wcsprm * wcsHandle, const bool timedOut, const bool success, const double hfr, const int numStars)
 {
+    if (m_StackImageData.size() <= 0)
+    {
+        // JEE This shouldn't happen so sort out
+        qCDebug(KSTARS_FITS) << "JEE wcsHandle " << wcsHandle;
+        return false;
+    }
+
     if (timedOut || !success)
     {
         m_StackImageData.last().plateSolvedStatus = SOLVED_FAILED;
         return false;
     }
-
-    // JEE error handling on plate solve fails needs to improve. Make structure of QVectors
 
     m_StackImageData.last().plateSolvedStatus = SOLVED_OK;
 

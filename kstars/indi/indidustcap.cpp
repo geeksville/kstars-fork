@@ -9,6 +9,7 @@
 
 #include "indidustcap.h"
 #include "dustcapadaptor.h"
+#include "ksnotification.h"
 
 namespace ISD
 {
@@ -55,11 +56,17 @@ void DustCap::processSwitch(INDI::Property prop)
                 {
                     currentStatus = CAP_PARKED;
                     currentParkStatus = PARK_PARKED;
+                    KSNotification::event(QLatin1String("IndiServerMessage"), i18n("Dust Cap is parked"), KSNotification::Observatory,
+                                          KSNotification::Info);
+
                 }
                 else
                 {
                     currentStatus = CAP_IDLE;
                     currentParkStatus = PARK_UNPARKED;
+                    KSNotification::event(QLatin1String("IndiServerMessage"), i18n("Dust Cap is unparked"), KSNotification::Observatory,
+                                          KSNotification::Info);
+
                 }
                 break;
 
@@ -68,11 +75,17 @@ void DustCap::processSwitch(INDI::Property prop)
                 {
                     currentStatus = CAP_PARKING;
                     currentParkStatus = PARK_PARKING;
+                    KSNotification::event(QLatin1String("IndiServerMessage"), i18n("Dust Cap is parking"), KSNotification::Observatory,
+                                          KSNotification::Info);
+
                 }
                 else
                 {
                     currentStatus = CAP_UNPARKING;
                     currentParkStatus = PARK_UNPARKING;
+                    KSNotification::event(QLatin1String("IndiServerMessage"), i18n("Dust Cap is unparking"), KSNotification::Observatory,
+                                          KSNotification::Info);
+
                 }
                 break;
 
@@ -154,6 +167,9 @@ bool DustCap::unpark()
     parkSP->reset();
     parkSW->setState(ISS_ON);
     sendNewProperty(parkSP);
+
+    KSNotification::event(QLatin1String("IndiServerMessage"), i18n("Dust Cap is unparking"), KSNotification::Observatory,
+                          KSNotification::Info);
 
     return true;
 }
