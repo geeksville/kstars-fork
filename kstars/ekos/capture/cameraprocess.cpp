@@ -14,6 +14,7 @@
 #include "ekos/auxiliary/darkprocessor.h"
 #include "ekos/auxiliary/opticaltrainmanager.h"
 #include "ekos/auxiliary/profilesettings.h"
+#include "ekos/auxiliary/rotatorutils.h"
 #include "ekos/guide/guide.h"
 #include "indi/indilistener.h"
 #include "indi/indirotator.h"
@@ -703,7 +704,8 @@ void CameraProcess::executeJob()
         qWarning(KSTARS_EKOS_CAPTURE) << "Job execution failed, no active" << (activeCamera() ? "chip" : "camera");
         return;
     }
-
+    // Start derotation for AltAz mount
+    RotatorUtils::Instance()->setBaseParallacticAngle();
     qDebug(KSTARS_EKOS_CAPTURE) << "Executing the sequence job.";
     QList<FITSData::Record> FITSHeaders;
     if (Options::defaultObserver().isEmpty() == false)

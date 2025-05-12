@@ -67,6 +67,8 @@
 
 #include <ekos_debug.h>
 
+#include "skymap.h"
+
 #define MAX_REMOTE_INDI_TIMEOUT 15000
 #define MAX_LOCAL_INDI_TIMEOUT  10000
 
@@ -1489,6 +1491,11 @@ void Manager::disconnectDevices()
     {
         qCDebug(KSTARS_EKOS) << "Disconnecting " << device->getDeviceName();
         device->Disconnect();
+        // Reset mount & dome (was handed over in syncGenericDevice())
+        if (device->getDriverInterface() & INDI::BaseDevice::TELESCOPE_INTERFACE)
+            KStars::Instance()->map()->getSkyMapDrawAbstract()->setMount(nullptr);
+        if (device->getDriverInterface() & INDI::BaseDevice::DOME_INTERFACE)
+            KStars::Instance()->map()->getSkyMapDrawAbstract()->setDome(nullptr);
     }
 
     appendLogText(i18n("Disconnecting INDI devices..."));
@@ -1719,8 +1726,6 @@ void Manager::addRotator(ISD::Rotator *device)
 {
     appendLogText(i18n("Rotator %1 is online.", device->getDeviceName()));
 
-    // createRotatorControl(device);
-
     emit newDevice(device->getDeviceName(), device->getDriverInterface());
 }
 
@@ -1800,6 +1805,7 @@ void Manager::syncGenericDevice(const QSharedPointer<ISD::GenericDevice> &device
                 mountModule()->addTimeSource(generic);
                 mountModule()->addLocationSource(generic);
             }
+            KStars::Instance()->map()->getSkyMapDrawAbstract()->setMount(mount);
         }
 
     }
@@ -1833,12 +1839,16 @@ void Manager::syncGenericDevice(const QSharedPointer<ISD::GenericDevice> &device
     auto dome = device->getDome();
     if (dome)
     {
+
         if (captureProcess)
             captureProcess->setDome(dome);
         if (alignProcess)
             alignProcess->setDome(dome);
         if (observatoryProcess)
+        {
             observatoryProcess->setDome(dome);
+            KStars::Instance()->map()->getSkyMapDrawAbstract()->setDome(dome);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -256,7 +256,10 @@ void FOV::draw(QPainter &p, float zoomFactor)
         p.translate(p.viewport().center());
 
     p.translate(offsetXPixelSize, offsetYPixelSize);
-    p.rotate( (m_PA - m_northPA) * -1);
+    //if (Options::useAltAz())
+    //    p.rotate(m_PA * -1);
+    //else
+        p.rotate((m_PA - m_northPA) * -1);
 
     QPointF center(0, 0);
 
@@ -359,6 +362,8 @@ void FOV::draw(QPainter &p, float zoomFactor)
                 while (angleEoN < -180) angleEoN += 360.0;
                 while (angleEoN >  180) angleEoN -= 360.0;
                 QString rotationString = QString("%1º EoN").arg(angleEoN, 0, 'f', 2);
+                // QString ref = Options::useAltAz() ? "%1 EoZ" : "%1 EoN";
+                // QString rotationString = ref.arg(angleEoN, 0, 'f', 2);
                 QFont rFont = p.font();
                 auto pSize = rFont.pixelSize() / 2;
                 if (pSize > 1)

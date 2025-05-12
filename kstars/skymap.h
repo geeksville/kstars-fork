@@ -597,6 +597,9 @@ class SkyMap : public QGraphicsView
 
         void updateQueued();
 
+        void setSimCamRotation(double Angle);
+        void adjustRotatorPA(double Angle, bool adjustFOV);
+
     protected:
         bool event(QEvent *event) override;
 

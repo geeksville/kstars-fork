@@ -1558,7 +1558,7 @@ bool Align::captureAndSolve(bool initialCall)
             case 0:// Set start time & start angle and estimate rotator time frame during first timeout
             {
                 auto absAngle = 0;
-                if ((absAngle = m_Rotator->getNumber("ABS_ROTATOR_ANGLE")->at(0)->getValue()))
+                if ((absAngle = m_Rotator->getNumber("ABS_ROTATOR_ANGLE").at(0)->getValue()))
                 {
                     RotatorUtils::Instance()->startTimeFrame(absAngle);
                     m_estimateRotatorTimeFrame = true;
@@ -2159,9 +2159,7 @@ void Align::solverFinished(double orientation, double ra, double dec, double pix
         calculateAlignTargetDiff();
     }
 
-    // TODO 2019-11-06 JM: KStars needs to support "upside-down" displays since this is a hack.
     // Because astrometry reads image upside-down (bottom to top), the orientation is rotated 180 degrees when compared to PA
-    // PA = Orientation + 180
     double solverPA = KSUtils::rotationToPositionAngle(orientation);
     solverFOV->setCenter(m_AlignCoord);
     solverFOV->setPA(solverPA);
@@ -2182,7 +2180,7 @@ void Align::solverFinished(double orientation, double ra, double dec, double pix
         auto ccdRotation = m_Camera->getNumber("CCD_ROTATION");
         if (ccdRotation)
         {
-            auto rotation = ccdRotation->findWidgetByName("CCD_ROTATION_VALUE");
+            auto rotation = ccdRotation.findWidgetByName("CCD_ROTATION_VALUE");
             if (rotation)
             {
                 auto clientManager = m_Camera->getDriverInfo()->getClientManager();
@@ -2248,7 +2246,7 @@ void Align::solverFinished(double orientation, double ra, double dec, double pix
             if (auto absAngle = m_Rotator->getNumber("ABS_ROTATOR_ANGLE"))
                 // if (absAngle && std::isnan(m_TargetPositionAngle) == true)
             {
-                sRawAngle = absAngle->at(0)->getValue();
+                sRawAngle = absAngle.at(0)->getValue();
                 double OffsetAngle = RotatorUtils::Instance()->calcOffsetAngle(sRawAngle, solverPA);
                 RotatorUtils::Instance()->updateOffset(OffsetAngle);
                 // Debug info
@@ -2256,7 +2254,7 @@ void Align::solverFinished(double orientation, double ra, double dec, double pix
                 auto reverseProperty = m_Rotator->getSwitch("ROTATOR_REVERSE");
                 if (reverseProperty)
                 {
-                    if (reverseProperty->at(0)->getState() == ISS_ON)
+                    if (reverseProperty.at(0)->getState() == ISS_ON)
                         reverseStatus = "Reversed Direction";
                     else
                         reverseStatus = "Normal Direction";
@@ -3492,7 +3490,12 @@ void Align::refreshAlignOptions()
     solverFOV->setImageDisplay(Options::astrometrySolverWCS());
     m_AlignTimer.setInterval(Options::astrometryTimeout() * 1000);
     if (m_Rotator)
+    {
         m_RotatorControlPanel->updateFlipPolicy(Options::astrometryFlipRotationAllowed());
+        m_RotatorControlPanel->updateDerotation(Options::astrometryUseDerotation());
+        m_RotatorControlPanel->updateAltAzMode(Options::useAltAz());
+    }
+    opsAlign->setAltAzMode(Options::useAltAz());
 }
 
 void Align::setupOptions()
@@ -3504,10 +3507,10 @@ void Align::setupOptions()
 #endif
 
     opsAlign = new OpsAlign(this);
+    refreshAlignOptions();
     connect(opsAlign, &OpsAlign::settingsUpdated, this, &Ekos::Align::refreshAlignOptions);
     KPageWidgetItem *page = dialog->addPage(opsAlign, i18n("StellarSolver Options"));
     page->setIcon(QIcon(":/icons/StellarSolverIcon.png"));
-    // connect(rotatorB, &QPushButton::clicked, dialog, &KConfigDialog::show);
 
     opsPrograms = new OpsPrograms(this);
     page = dialog->addPage(opsPrograms, i18n("External & Online Programs"));
