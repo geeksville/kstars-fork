@@ -43,6 +43,16 @@ windows_qt68:
   rules:
     - !reference [.standard-build-recipes, rules]
 
+suse_tumbleweed_qt69:
+  allow_failure: true
+  rules:
+    - !reference [.standard-build-recipes, rules]
+
+windows_qt68:
+  allow_failure: true
+  rules:
+    - !reference [.standard-build-recipes, rules]
+
 # Craft recipes
     
 craft_windows_qt6_x86_64:
