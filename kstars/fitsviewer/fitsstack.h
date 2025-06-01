@@ -30,7 +30,7 @@ class StellarSolverProfileEditor;
 }
 
 /**
- * @brief The FITSStack holds routines for Live Stacking within the Fitsviewer
+ * @brief The FITSStack class for Live Stacking within the Fitsviewer
  * @author John Evans
  */
 class FITSStack : public QObject
@@ -41,16 +41,58 @@ class FITSStack : public QObject
         explicit FITSStack(FITSData *parent);
         virtual ~FITSStack() override;
 
-        bool addImage(void *imageBuffer, int cvType, double pixscale, int width, int height, int bytesPerPixel);
+        /**
+         * @brief Prepare FITSStack for the next image sub. Call before addSub.
+         */
+        void setupNextSub();
 
-        // Plate solving done so update
+        /**
+         * @brief add an image sub to the stack.
+         * @param imageBuffer is the in-memory buffer
+         * @param cvType is the openCV Mat type
+         * @param width is image width
+         * @param height is image height
+         * @param bytesPerPixel
+         * @return success
+         */
+        bool addSub(void *imageBuffer, const int cvType, const int width, const int height, const int bytesPerPixel);
+
+        /**
+         * @brief add a master dark or flat.
+         * @param dark (or flat)
+         * @param image buffer
+         * @param width is master width
+         * @param height is master height
+         * @param bytesPerPixel
+         * @param cvType
+         */
+        void addMaster(const bool dark, void *imageBuffer, const int width, const int height, const int bytesPerPixel, const int cvType);
+
+        /**
+         * @brief solverDone called when plate solving completes, so start next action.
+         * @param wcsHandle of the solved image
+         * @param timedOut (or not)
+         * @param success (or not)
+         * @param median HFR of stars
+         * @param number of stars
+         * @return success
+         */
         bool solverDone(const wcsprm * wcsHandle, const bool timedOut, const bool success, const double hfr, const int numStars);
 
-        // Stack the images and return the stack
-        bool stack();
-        bool stackn();
+        /**
+         * @brief Perform admin within FITSStack for case where we couldn't add an image.
+         */
+        void addSubFailed();
 
-        void addMaster(bool dark, void *imageBuffer, int width, int height, int bytesPerPixel);
+        /**
+         * @brief Perform an initial stack
+         */
+        bool stack();
+
+        /**
+         * @brief Perform an incremental stack (add new subs to an existing stack)
+         */
+        bool stackn();
 
         void redoPostProcessStack();
 
@@ -73,12 +115,30 @@ class FITSStack : public QObject
             return m_StackData;
         }
 
-        const QByteArray &getStackedImage() const
+        QByteArray getStackedImage() const
         {
-            return m_StackedBuffer;
+            return (m_StackedBuffer) ? *m_StackedBuffer : QByteArray();
         }
 
-        //bool loadData(const QSharedPointer<FITSData> &data, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
+        const double &getMeanSubSNR() const
+        {
+            return m_MeanSubSNR;
+        }
+
+        const double &getMinSubSNR() const
+        {
+            return m_MinSubSNR;
+        }
+
+        const double &getMaxSubSNR() const
+        {
+            return m_MaxSubSNR;
+        }
+
+        const double &getStackSNR() const
+        {
+            return m_StackSNR;
+        }
 
     signals:
         void stackChanged();
@@ -97,17 +157,44 @@ class FITSStack : public QObject
         LiveStackPPData loadStackPPData();
 
         // Used for solving an image.
+        bool checkSub(const int width, const int height, const int bytesPerPixel, const int channels);
         void solveImage(QList<SSolver::Parameters> parameters, double pixscale, int width, int height, int bytesPerPixel);
         void setupSolver(bool extractOnly = false);
-        bool readyToStack();
-        cv::Mat calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2);
-        bool convertMatToFITS(const cv::Mat image, QByteArray &fitsBuffer);
-        bool calibrateSub(cv::Mat & sub);
-        cv::Mat stackSubs(const QVector<cv::Mat> &subs, const bool initial, float &totalWeight);
+
+        /**
+         * @brief Calculate the warp matrix to warp image 2 to image 1 (reference)
+         * @param wcs1 WCS structure for image 1 (reference)
+         * @param wcs2 WCS structure for image 2
+         * @param warp matrix
+         * @return success (or not)
+         */
+        bool calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::Mat &warp);
+        bool convertMatToFITS(const cv::Mat image);
+
+        /**
+         * @brief Calibrate the passed in sub
+         * @param sub to be calibrated
+         * @return success (or not)
+         */
+        bool calibrateSub(cv::Mat &sub);
+
+        /**
+         * @brief Stack the passed in vector of subs
+         * @param subs to be stacked
+         * @param initial stack (or incremental)
+         * @param totalWeight is the weight of the current stack if this is an incremental stack
+         * @param stack is returned to the caller
+         * @return success (or not)
+         */
+        bool stackSubs(const QVector<cv::Mat> &subs, const bool initial, float &totalWeight, cv::Mat &stack);
+
         cv::Mat stackImagesSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> weights);
         cv::Mat stacknImagesSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> weights);
         cv::Mat postProcessImage(const cv::Mat image);
         QVector<float> getWeights();
+        double getSNR(const cv::Mat image);
+        cv::Mat calculatePSF(const cv::Mat &image, int patchSize = 21);
+        cv::Mat wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf);
         void setupRunningStack(struct wcsprm * wcsprm, const int numSubs, const float totalWeight);
         void updateRunningStack(const int numSubs, const float totalWeight);
         void tidyUpInitalStack(struct wcsprm * refWCS);
@@ -147,7 +234,12 @@ class FITSStack : public QObject
             int ref_numStars;
             float totalWeight;
         } RunningStackImageData;
-        RunningStackImageData m_RunningStackImageData { 0, nullptr, -1.0, 0, 0.0};
+        RunningStackImageData m_RunningStackImageData { 0, nullptr, -1.0, 0, 0.0 };
+
+        // SNR of subs
+        double m_MeanSubSNR { 0 };
+        double m_MinSubSNR { 0 };
+        double m_MaxSubSNR { 0 };
 
         // Stack status
         bool m_StackInProgress { false };
@@ -164,7 +256,13 @@ class FITSStack : public QObject
         // Stacking
         cv::Mat m_StackedImage32F;
         cv::Mat m_SigmaClip32FC4;
-        QByteArray m_StackedBuffer;
+        // JEE QByteArray m_StackedBuffer;
+        std::unique_ptr<QByteArray> m_StackedBuffer { nullptr };
+
+        double m_StackSNR { 0.0 };
         float m_Width { 0.0f };
         float m_Height { 0.0f };
+        int m_Channels { 0 };
+        int m_BytesPerPixel { 0 };
+        int m_CVType { 0 };
 };

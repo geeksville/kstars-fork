@@ -141,13 +141,6 @@ class FITSData : public QObject
         QFuture<bool> loadStackBuffer();
 
         /**
-         * @brief JEE Process the next sub
-         * @param sub to process
-         * @return success
-         */
-        bool processNextSub(QString sub);
-
-        /**
          * @brief JEE Process master files for stacking
          */
         void processMasters();
@@ -158,9 +151,8 @@ class FITSData : public QObject
          * @param success status
          * @param median hfr
          * @param number of stars
-         * @return status of function
          */
-        bool solverDone(const bool timedOut, const bool success, const double hfr, const int numStars);
+        void solverDone(const bool timedOut, const bool success, const double hfr, const int numStars);
 
         /**
          * @brief loadFITSFromMemory Loading FITS from memory buffer.
@@ -804,7 +796,8 @@ class FITSData : public QObject
          * @param sub just processed
          * @param total number of subs
          */
-        void stackUpdateStats(const bool ok, const int sub, const int total);
+        void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
+                              const double maxSNR);
 
     public slots:
         void makeRoiBuffer(QRect roi);
@@ -965,6 +958,34 @@ class FITSData : public QObject
          * @return success
          */
         bool stackLoadFITSImage(QString filename, const bool isCompressed = false);
+
+        /**
+         * @brief stackCheckDebayer checks whether a stack sub needs to be debayered
+         *        this routine doesn't affect the object variables used by checkDebayer()
+         * @param if debayering is successful, bayerParams contains the appropriate params
+         * @return success
+         */
+        bool stackCheckDebayer(BayerParams bayerParams);
+        // JEE
+        /**
+         * @brief stackDebayer debayers a stack sub
+         * @param if debayering is successful, debayerParams contains the appropriate params
+         * @return success
+         */
+        template <typename T>
+        bool stackDebayer(BayerParams &bayerParams);
+
+        /**
+         * @brief Work out the next stacking action and start it off
+         */
+        void nextStackAction();
+
+        /**
+         * @brief JEE Process the next sub
+         * @param sub to process
+         * @return success
+         */
+        bool processNextSub(QString sub);
 
         /// Pointer to CFITSIO FITS file struct
         fitsfile *fptr { nullptr };

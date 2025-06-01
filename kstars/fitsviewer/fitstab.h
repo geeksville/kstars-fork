@@ -265,7 +265,9 @@ class FITSTab : public QWidget
         void plateSolveImage(const double ra, const double dec, const double pixScale,
                              const LiveStackFrameWeighting weighting);
         void alignMasterChosen(const QString alignMaster);
-        void stackUpdateStats(const bool ok, const int sub, const int total);
+        void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
+                              const double maxSNR);
+        void updateStackSNR(const double SNR);
         bool m_Stack { false };
         bool m_StackExtracted { false };
         double m_SavedRa { 0.0 };
@@ -286,4 +288,5 @@ class FITSTab : public QWidget
         void loaded();
         void updated();
         void failed(const QString &errorMessage);
+        void autoPlateSolve();
 };

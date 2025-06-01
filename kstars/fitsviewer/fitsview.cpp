@@ -498,26 +498,27 @@ void FITSView::loadStack(const QString &inDir)
 
     // JEE
     connect(m_ImageData.data(), &FITSData::plateSolveImage, this, [this](const double ra, const double dec,
-                                                                         const double pixScale, const LiveStackFrameWeighting weighting)
-            {
-                emit plateSolveImage(ra, dec, pixScale, weighting);
-            });
+                                                    const double pixScale, const LiveStackFrameWeighting weighting)
+    {
+        emit plateSolveImage(ra, dec, pixScale, weighting);
+    }, Qt::UniqueConnection);
 
     connect(m_ImageData.data(), &FITSData::alignMasterChosen, this, [this](const QString alignMaster)
-            {
-                emit alignMasterChosen(alignMaster);
-            });
+    {
+        emit alignMasterChosen(alignMaster);
+    }, Qt::UniqueConnection);
 
     connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
-            {
-                fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
-            });
+    {
+        emit updateStackSNR(m_ImageData->stack()->getStackSNR());
+        fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
+    }, Qt::UniqueConnection);
 
     connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,
-                                                                          const int total)
-            {
-                emit stackUpdateStats(ok, sub, total);
-            });
+                                const int total, const double meanSNR, const double minSNR, const double maxSNR)
+    {
+        emit stackUpdateStats(ok, sub, total, meanSNR, minSNR, maxSNR);
+    }, Qt::UniqueConnection);
 
     // JEE fitsWatcher.setFuture(m_ImageData->loadStack(inDir, parameters));
     m_ImageData->loadStack(inDir);
@@ -749,6 +750,7 @@ void FITSView::loadInFrame()
     if (mode == FITS_LIVESTACKING && m_ImageData->stack())
     {
         m_ImageData->stack()->setStackInProgress(false);
+        emit autoPlateSolve();
         m_ImageData->incrementalStack();
     }
 }

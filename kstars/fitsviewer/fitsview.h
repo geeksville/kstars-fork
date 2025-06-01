@@ -530,7 +530,10 @@ class FITSView : public QScrollArea
         void plateSolveImage(const double ra, const double dec, const double pixScale,
                              const LiveStackFrameWeighting weighting);
         void alignMasterChosen(const QString alignMaster);
-        void stackUpdateStats(const bool ok, const int sub, const int total);
+        void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
+                              const double maxSNR);
+        void updateStackSNR(const double SNR);
+        void autoPlateSolve();
 
         friend class FITSLabel;
 };

@@ -274,18 +274,15 @@ void PlateSolve::plateSolveSub(const QSharedPointer<FITSData> &imageData, const 
         kcfg_FitsSolverProfile->currentIndex());
     parameters.search_radius = kcfg_FitsSolverRadius->value();
 
-    if (solveType == SSolver::EXTRACT_WITH_HFR)
-    {
+    m_Solver.reset(new SolverUtils(parameters, parameters.solverTimeLimit, solveType), &QObject::deleteLater);
+
+    if (solveType == SSolver::EXTRACT || solveType == SSolver::EXTRACT_WITH_HFR)
         // We need star details for later calculations so firstly extract stars
-        m_Solver.reset(new SolverUtils(parameters, parameters.solverTimeLimit, solveType), &QObject::deleteLater);
         connect(m_Solver.get(), &SolverUtils::done, this, &PlateSolve::subExtractorDone, Qt::UniqueConnection);
-    }
     else
-    {
         // No star details required (or we just extracted them) so now plate solve
-        m_Solver.reset(new SolverUtils(parameters, parameters.solverTimeLimit, solveType), &QObject::deleteLater);
         connect(m_Solver.get(), &SolverUtils::done, this, &PlateSolve::subSolverDone, Qt::UniqueConnection);
-    }
+
     m_Solver->useScale(true, pixScale * 0.8, pixScale * 1.2);
     m_Solver->usePosition(true, ra, dec);
     m_Solver->runSolver(imageData, true);

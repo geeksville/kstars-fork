@@ -5,8 +5,10 @@
 */
 
 #include "fitsstack.h"
+#include "fitsdata.h"
 #include <fits_debug.h>
 #include "fitscommon.h"
+#include "fitsstardetector.h"
 #include "ekos/auxiliary/stellarsolverprofile.h"
 #include "ekos/auxiliary/stellarsolverprofileeditor.h"
 #include "ekos/auxiliary/solverutils.h"
@@ -22,7 +24,7 @@
 
 #include <fitsio.h>
 
-class FITSData;
+// JEE class FITSData;
 
 FITSStack::FITSStack(FITSData *parent) : QObject()
 {
@@ -66,6 +68,7 @@ LiveStackData FITSStack::loadStackData()
 LiveStackPPData FITSStack::loadStackPPData()
 {
     LiveStackPPData data;
+    data.deconvolution = Options::fitsLSDeconvolution();
     data.denoiseAmt = Options::fitsLSDenoiseAmt();
     data.sharpenAmt = Options::fitsLSSharpenAmt();
     data.sharpenKernal = Options::fitsLSSharpenKernal();
@@ -75,19 +78,138 @@ LiveStackPPData FITSStack::loadStackPPData()
 
 // JEE
 // #ifdef HAVE_OPENCV
-bool FITSStack::addImage(void * imageBuffer, int cvType, double pixScale, int width, int height, int bytesPerPixel)
+
+// Setup the image data structure for later processing
+void FITSStack::setupNextSub()
+{
+    StackImageData imageData;
+    imageData.image = cv::Mat();
+    imageData.plateSolvedStatus = SOLVED_IN_PROGRESS;
+    imageData.wcsprm = nullptr;
+    imageData.hfr = -1;
+    imageData.numStars = 0;
+    m_StackImageData.push_back(imageData);
+}
+
+bool FITSStack::addSub(void * imageBuffer, const int cvType, const int width, const int height, const int bytesPerPixel)
 {
     try
     {
-        // JEE CV datatypes conversion - hardcoded for now
-        size_t rowLen = width * bytesPerPixel;
+        int channels = CV_MAT_CN(cvType);
+        // Check the image is the correct shape
+        if (!checkSub(width, height, bytesPerPixel, channels))
+            return false;
+
+        size_t rowLen = width * bytesPerPixel * channels;
         cv::Mat image = cv::Mat(height, width, cvType, imageBuffer, rowLen);
         if (image.empty())
         {
             qCDebug(KSTARS_FITS) << QString("%1 Unable to process image in openCV").arg(__FUNCTION__);
-            return false; // JEE Think about just skipping here
+            return false;
         }
 
+        // Convert the Mat to float type for upcoming calcs
+        image.convertTo(image, m_CVType);
+
+        double snr = getSNR(image);
+        if (snr > 0.0)
+        {
+            m_MaxSubSNR = std::max(m_MaxSubSNR, snr);
+            m_MinSubSNR = (m_MinSubSNR > 0.0) ? std::min(m_MinSubSNR, snr) : snr;
+            int subs = m_StackImageData.size();
+            if (getInitialStackDone())
+                subs += m_RunningStackImageData.numSubs;
+            m_MeanSubSNR = (m_MeanSubSNR * subs + snr) / (subs + 1);
+        }
+
+        // Setup the image data structure for later processing
+        // JEE StackImageData imageData;
+        //imageData.image = image.clone();
+        //imageData.plateSolvedStatus = SOLVED_IN_PROGRESS;
+        //imageData.wcsprm = nullptr;
+        //imageData.hfr = -1;
+        //imageData.numStars = 0;
+        //m_StackImageData.push_back(imageData);
+
+        // Save the image for later processing
+        // JEE m_StackImageData.last().image = image.clone();
+        m_StackImageData.last().image = image;
+        return true;
+    }
+    catch (const cv::Exception &ex)
+    {
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+    }
+    return false;
+}
+
+void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, const int height,
+                          const int bytesPerPixel, const int cvType)
+{
+    try
+    {
+        if (dark)
+            m_MasterDark.release();
+        else
+            m_MasterFlat.release();
+
+        int channels = CV_MAT_CN(cvType);
+
+        // Check the image is the correct shape
+        if (!checkSub(width, height, bytesPerPixel, channels))
+            return;
+
+        size_t rowLen = width * bytesPerPixel * channels;
+        cv::Mat image = cv::Mat(height, width, cvType, imageBuffer, rowLen);
+
+        // Take a deep copy of the passed in image. Note this ensures the Mat is contiguous
+        image.convertTo(image, m_CVType);
+        cv::Mat imageClone = image.clone();
+
+        if (dark)
+            m_MasterDark = imageClone;
+        else
+        {
+            m_MasterFlat = imageClone;
+
+            // Scale the flat down using the median value
+            std::vector<cv::Mat> channels;
+            cv::split(m_MasterFlat, channels);
+
+            for (int c = 0; c < channels.size(); c++)
+            {
+                std::vector<float> values;
+                values.assign((float*)channels[c].data, (float*)channels[c].data + channels[c].total());
+
+                float median = Mathematics::RobustStatistics::ComputeLocation(
+                                                Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
+
+                if (median <= 0.0f)
+                    qCDebug(KSTARS_FITS) << QString("%1 Unable to calculate median of Master flat channel %2")
+                                                .arg(__FUNCTION__).arg(c);
+                else
+                {
+                    channels[c] /= median;
+                    // Make sure no zero or very small values that will later give problems when dividing by the flat
+                    cv::max(channels[c], 0.1f, channels[c]);
+                }
+            }
+            cv::merge(channels, m_MasterFlat);
+        }
+    }
+    catch (const cv::Exception &ex)
+    {
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+    }
+}
+
+// Check that the passed in sub or master is the same shape as the others
+bool FITSStack::checkSub(const int width, const int height, const int bytesPerPixel, const int channels)
+{
+    try
+    {
         if (m_Width == 0)
             m_Width = width;
         else if (m_Width != width)
@@ -104,97 +226,38 @@ bool FITSStack::addImage(void * imageBuffer, int cvType, double pixScale, int wi
             return false;
         }
 
-        // Setup the image data structure for later processing
-        StackImageData imageData;
-        imageData.image = image.clone();
-        imageData.plateSolvedStatus = SOLVED_IN_PROGRESS;
-        imageData.wcsprm = nullptr;
-        imageData.hfr = -1;
-        imageData.numStars = 0;
-        m_StackImageData.push_back(imageData);
+        if (m_Channels == 0)
+            m_Channels = channels;
+        else if (m_Channels != channels)
+        {
+            qCDebug(KSTARS_FITS) << QString("%1 Images have inconsistent channels").arg(__FUNCTION__);
+            return false;
+        }
+
+        if (m_BytesPerPixel == 0)
+            m_BytesPerPixel = bytesPerPixel;
+        else if (m_BytesPerPixel != bytesPerPixel)
+        {
+            qCDebug(KSTARS_FITS) << QString("%1 Images have inconsistent bytes per pixel").arg(__FUNCTION__);
+            return false;
+        }
+
+        // Now setup the target CVTYPE for use in stacking calculations - use 32bit floating
+        if (m_CVType == 0)
+            m_CVType = CV_MAKETYPE(CV_32F, channels);
+        else if (m_CVType != CV_MAKETYPE(CV_32F, channels))
+        {
+            qCDebug(KSTARS_FITS) << QString("%1 Images have inconsistent CVTypes").arg(__FUNCTION__);
+            return false;
+        }
         return true;
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
     }
     return false;
-}
-
-void FITSStack::addMaster(bool dark, void * imageBuffer, int width, int height, int bytesPerPixel)
-{
-    try
-    {
-        if (dark)
-            m_MasterDark.release();
-        else
-            m_MasterFlat.release();
-
-        // JEE CV datatypes conversion - hardcoded for now
-        size_t rowLen = width * bytesPerPixel;
-        cv::Mat image = cv::Mat(height, width, CV_MAKETYPE(CV_32F, 1), imageBuffer, rowLen);
-        /* JEE if (image.empty())
-        {
-            qCDebug(KSTARS_FITS) << QString("%1 Unable to process master in openCV").arg(__FUNCTION__);
-            return false; // JEE Think about just skipping here
-        }*/
-
-        if (m_Width == 0)
-            m_Width = width;
-        else if (m_Width != width)
-        {
-            qCDebug(KSTARS_FITS) << QString("%1 Master has inconsistent widths").arg(__FUNCTION__);
-            return;
-        }
-
-        if (m_Height == 0)
-            m_Height = height;
-        else if (m_Height != height)
-        {
-            qCDebug(KSTARS_FITS) << QString("%1 Master has inconsistent heights").arg(__FUNCTION__);
-            return;
-        }
-
-        // Take a deep copy of the passed in image
-        if (dark)
-            m_MasterDark = image.clone();
-        else
-        {
-            m_MasterFlat = image.clone();
-
-            // Scale the flat down using the median value
-            // JEE Hard coding float for now
-            std::vector<float> values;
-            values.reserve(image.rows * image.cols); // Reserve space for efficiency
-
-            // Copy pixel data to the vector
-            if (image.isContinuous())
-                // Continuous matrix, so copy all data at once
-                std::memcpy(values.data(), image.data, values.size() * sizeof(float));
-            else
-            {
-                // Copy row by row
-                size_t rowSize = image.cols * image.channels();
-                for (int i = 0; i < image.rows; i++)
-                    std::memcpy(values.data() + (i * rowSize), image.ptr(i), rowSize * sizeof(float));
-            }
-
-            // Calculate the median value
-            float median = Mathematics::RobustStatistics::ComputeLocation(Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
-
-            // Scale the flat to the median
-            if (median > 0.0)
-                m_MasterFlat /= median;
-            else
-                qCDebug(KSTARS_FITS) << QString("%1 Unable to calculate median of Master flat").arg(__FUNCTION__);
-        }
-    }
-    catch (const cv::Exception &ex)
-    {
-        QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
-    }
 }
 
 // Update plate solving status
@@ -202,8 +265,8 @@ bool FITSStack::solverDone(const wcsprm * wcsHandle, const bool timedOut, const 
 {
     if (m_StackImageData.size() <= 0)
     {
-        // JEE This shouldn't happen so sort out
-        qCDebug(KSTARS_FITS) << "JEE wcsHandle " << wcsHandle;
+        // This shouldn't happen
+        qCDebug(KSTARS_FITS) << "Solver done called but no m_StackImageData";
         return false;
     }
 
@@ -238,22 +301,22 @@ bool FITSStack::solverDone(const wcsprm * wcsHandle, const bool timedOut, const 
     return true;
 }
 
-// JEE do we need this function
-bool FITSStack::readyToStack()
+// Couldn't add an image to be stacked for some reason so complete the admin needed
+void FITSStack::addSubFailed()
 {
-    for (int i = 0; i < m_StackImageData.size(); i++)
+    if (m_StackImageData.size() <= 0)
     {
-        if (m_StackImageData[i].plateSolvedStatus == SOLVED_IN_PROGRESS)
-            return false;
+        // This shouldn't happen
+        qCDebug(KSTARS_FITS) << "addSubFailed called but no m_StackImageData";
+        return;
     }
-    return true;
+
+    m_StackImageData.last().plateSolvedStatus = SOLVED_FAILED;
 }
 
+// Perform the initial stack
 bool FITSStack::stack()
 {
-    // JEE if (!readyToStack())
-    //    return false;
-
     try
     {
         int ref = -1;
@@ -264,50 +327,56 @@ bool FITSStack::stack()
             if (m_StackImageData[i].plateSolvedStatus != SOLVED_OK)
                 continue;
 
+            // JEE
+            //cv::Mat image32F;
+            //m_StackImageData[i].image.convertTo(image32F, m_CVType);
+
             // Calibrate sub
             if (!calibrateSub(m_StackImageData[i].image))
                 continue;
 
             if (ref < 0)
-            {                
-                // JEE for now we'll make the first sub the reference image
-                cv::Mat image32F;
+            {
+                // First image is the reference to which others are aligned
                 ref = i;
-                m_StackImageData[i].image.convertTo(image32F, CV_MAKETYPE(CV_32F, 1));
-                m_Aligned.push_back(image32F.clone());
+                // JEE m_Aligned.push_back(m_StackImageData[i].image.clone());
+                m_Aligned.push_back(m_StackImageData[i].image);
             }
             else
             {
                 // Align this image to the reference image
-                cv::Mat warpedImage, warpedImage32F;
-                cv::Mat warp = calcWarpMatrix(m_StackImageData[ref].wcsprm, m_StackImageData[i].wcsprm);
-                cv::warpPerspective(m_StackImageData[i].image, warpedImage, warp, m_StackImageData[i].image.size(), cv::INTER_LANCZOS4);
-                warpedImage.convertTo(warpedImage32F, CV_MAKETYPE(CV_32F, 1));
-                m_Aligned.push_back(warpedImage32F.clone());
+                cv::Mat warp, warpedImage;
+                if (calcWarpMatrix(m_StackImageData[ref].wcsprm, m_StackImageData[i].wcsprm, warp))
+                {
+                    cv::warpPerspective(m_StackImageData[i].image, warpedImage, warp, m_StackImageData[i].image.size(), cv::INTER_LANCZOS4);
+                    m_Aligned.push_back(warpedImage);
+                }
             }
         }
         // Stack the aligned subs
         float totalWeight = 0.0;
-        m_StackedImage32F = stackSubs(m_Aligned, true, totalWeight);
-
-        // Perform any post stacking processing such as sharpening / denoising
-        finalImage = postProcessImage(m_StackedImage32F);
-        convertMatToFITS(finalImage, m_StackedBuffer);
+        if (stackSubs(m_Aligned, true, totalWeight, m_StackedImage32F))
+        {
+            // Perform any post stacking processing such as sharpening / denoising
+            finalImage = postProcessImage(m_StackedImage32F);
+            m_StackSNR = getSNR(finalImage);
+            convertMatToFITS(finalImage);
+        }
 
         if (m_StackData.numInMem <= m_StackImageData.size())
             // We've completed the initial stack so move to incremental stacking as new subs arrive
             setupRunningStack(m_StackImageData[ref].wcsprm, m_Aligned.size(), totalWeight);
 
         setStackInProgress(false);
+        return true;
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
         setStackInProgress(false);
         return false;
     }
-    return true;
 }
 
 // Add 'n' new images to pre-existing stack
@@ -327,26 +396,31 @@ bool FITSStack::stackn()
                 continue;
 
             // Align this image to the reference image
-            cv::Mat warpedImage, warpedImage32F;
-            cv::Mat warp = calcWarpMatrix(m_RunningStackImageData.ref_wcsprm, m_StackImageData[i].wcsprm);
-            cv::warpPerspective(m_StackImageData[i].image, warpedImage, warp, m_StackImageData[i].image.size(), cv::INTER_LANCZOS4);
-            warpedImage.convertTo(warpedImage32F, CV_MAKETYPE(CV_32F, 1));
-            m_Aligned.push_back(warpedImage32F.clone());
+            cv::Mat warp, warpedImage, warpedImage32F;
+            if (calcWarpMatrix(m_RunningStackImageData.ref_wcsprm, m_StackImageData[i].wcsprm, warp))
+            {
+                cv::warpPerspective(m_StackImageData[i].image, warpedImage, warp, m_StackImageData[i].image.size(), cv::INTER_LANCZOS4);
+                warpedImage.convertTo(warpedImage32F, CV_MAKETYPE(CV_32F, m_Channels));
+                m_Aligned.push_back(warpedImage32F.clone());
+                qCDebug(KSTARS_FITS) << QString("JEE m_Aligned %1 %2").arg(m_Aligned.last().depth()).arg(__FUNCTION__);
+            }
         }
         // Stack the aligned subs
         float totalWeight = m_RunningStackImageData.totalWeight;
-        m_StackedImage32F = stackSubs(m_Aligned, false, totalWeight);
-
-        // Perform any post stacking processing such as sharpening / denoising
-        finalImage = postProcessImage(m_StackedImage32F);
-        convertMatToFITS(finalImage, m_StackedBuffer);
+        if (stackSubs(m_Aligned, false, totalWeight, m_StackedImage32F))
+        {
+            // Perform any post stacking processing such as sharpening / denoising
+            finalImage = postProcessImage(m_StackedImage32F);
+            m_StackSNR = getSNR(finalImage);
+            convertMatToFITS(finalImage);
+        }
         updateRunningStack(m_Aligned.size(), totalWeight);
         setStackInProgress(false);
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
         setStackInProgress(false);
         return false;
     }
@@ -354,9 +428,8 @@ bool FITSStack::stackn()
 }
 
 // Calculate the warp matrix to align image2 to image1
-cv::Mat FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2)
+bool FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::Mat &warp)
 {
-    cv::Mat warpMatrix;
     try
     {
         double X = m_Width - 1.0;
@@ -395,59 +468,60 @@ cv::Mat FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2)
         }
 
         // Compute the homography matrix using OpenCV to go from image 2 to image 1 (reference)
-        warpMatrix = cv::findHomography(corners2, corners1, 0);
-        if (warpMatrix.empty())
+        warp = cv::findHomography(corners2, corners1, 0);
+        // JEE warpMatrix = cv::findHomography(corners2, corners1, cv::RANSAC, 1.0);
+        if (warp.empty())
+        {
             qCDebug(KSTARS_FITS) << QString("openCV findHomography warp matrix empty");
-        cv::Ptr<cv::Formatter> fmt = cv::Formatter::get(cv::Formatter::FMT_DEFAULT);
-        std::cout << fmt->format(warpMatrix) << std::endl;
-    }
-    catch (const cv::Exception &ex)
-    {
-        QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
-    }
-
-    return warpMatrix;
-}
-
-// Calibrate the passed in sub with an associated Dark (if available) and / or flat (if available)
-bool FITSStack::calibrateSub(cv::Mat & sub)
-{
-    try
-    {
-        // Dark subtraction
-        if (!m_MasterDark.empty())
-            sub - m_MasterDark;
-
-        // Flat calibration
-        if (!m_MasterFlat.empty())
-            sub / m_MasterFlat;
+            return false;
+        }
+        // JEE cv::Ptr<cv::Formatter> fmt = cv::Formatter::get(cv::Formatter::FMT_DEFAULT);
+        // std::cout << fmt->format(warp) << std::endl;
         return true;
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+        return false;
+    }
+}
+
+// Calibrate the passed in sub with an associated Dark (if available) and / or Flat (if available)
+bool FITSStack::calibrateSub(cv::Mat &sub)
+{
+    try
+    {
+        if (sub.empty())
+            return false;
+
+        // Dark subtraction (make sure no negative pixels)
+        if (!m_MasterDark.empty())
+        {
+            sub -= m_MasterDark;
+            cv::max(sub, 0.0f, sub);
+        }
+
+        // Flat calibration
+        if (!m_MasterFlat.empty())
+            sub /= m_MasterFlat;
+        return true;
+    }
+    catch (const cv::Exception &ex)
+    {
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
     }
     return false;
 }
 
-// Stack sub
-cv::Mat FITSStack::stackSubs(const QVector<cv::Mat> &subs, const bool initial, float &totalWeight)
+// Stack the vector of subs
+bool FITSStack::stackSubs(const QVector<cv::Mat> &subs, const bool initial, float &totalWeight, cv::Mat &stack)
 {
-    if (subs.size() <= 0)
-    {
-        cv::Mat stack;
-        return stack;
-    }
-    int rows = subs[0].rows;
-    int cols = subs[0].cols;
-
-    cv::Mat stack = cv::Mat::zeros(rows, cols, CV_MAKETYPE(CV_32F, 1));
     try
     {
         if (subs.size() <= 0)
-            return stack;
+            return false;
 
         QVector<float> weights = getWeights();
 
@@ -462,26 +536,32 @@ cv::Mat FITSStack::stackSubs(const QVector<cv::Mat> &subs, const bool initial, f
         {
             // Add the pixels weighted per sub based on user setting. Then divide by the total weight
             // If its an initial stack then just use subs, if not then include the existing partial stack
-            totalWeight = (initial) ? 0.0 : m_RunningStackImageData.totalWeight;
-            if (!initial)
-                stack = m_StackedImage32F * m_RunningStackImageData.totalWeight;
+            if (initial)
+            {
+                totalWeight = 0.0;
+                stack = cv::Mat::zeros(subs[0].rows, subs[0].cols, m_CVType);
+            }
+            else
+            {
+                totalWeight = m_RunningStackImageData.totalWeight;
+                stack = m_StackedImage32F * totalWeight;
+            }
 
             for (int sub = 0; sub < subs.size(); sub++)
             {
-                qCDebug(KSTARS_FITS) << QString("JEE sub %1=%2 weight %3 stack %4").arg(sub).arg(subs[sub].at<float>(1000,1000)).arg(weights[sub]).arg(stack.at<float>(1000,1000));
                 stack += subs[sub] * weights[sub];
                 totalWeight += weights[sub];
             }
             stack /= totalWeight;
-            qCDebug(KSTARS_FITS) << QString("JEE stack %1").arg(stack.at<float>(1000,1000));
         }
+        return true;
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+        return false;
     }
-    return stack;
 }
 
 QVector<float> FITSStack::getWeights()
@@ -658,7 +738,7 @@ cv::Mat FITSStack::stackImagesSigmaClipping(const QVector<cv::Mat> &images, cons
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
         // JEE is there a better way to do this?
         cv::Mat dummy;
         return dummy;
@@ -741,7 +821,7 @@ cv::Mat FITSStack::stacknImagesSigmaClipping(const QVector<cv::Mat> &images, con
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
         // JEE is there a better way to do this?
         cv::Mat dummy;
         return dummy;
@@ -753,9 +833,38 @@ cv::Mat FITSStack::postProcessImage(cv::Mat image32F)
     cv::Mat finalImage;
     try
     {
-        // Convert from 32F to 16U as functions require 16U.
+        // Firstly perform deconvolution (if requested). Calculate psf from stars in the image then use this for deconvolution
         cv::Mat image;
-        image32F.convertTo(image, CV_MAKETYPE(CV_16U, 1));
+        if (m_StackData.postProcessing.deconvolution)
+        {
+            cv::Mat greyImage32F, deconvolved;
+            if (image32F.channels() == 1)
+                greyImage32F = image32F;
+            else
+                cv::cvtColor(image32F, greyImage32F, cv::COLOR_BGR2GRAY);
+
+            cv::Mat psf = calculatePSF(greyImage32F);
+            if (!psf.empty())
+            {
+                deconvolved = wienerDeconvolution(greyImage32F, psf);
+                if (!deconvolved.empty())
+                    deconvolved.convertTo(image, CV_MAKETYPE(CV_16U, 1));
+            }
+        }
+
+        if (image.empty())
+            // Convert from 32F to 16U as following functions require 16U.
+        {
+            // First, find the range of the float data
+            double minVal, maxVal;
+            cv::minMaxLoc(image32F, &minVal, &maxVal);
+
+            // Then scale to use full 16-bit range
+            double scale = 65535.0 / maxVal;
+            image32F.convertTo(image, CV_16U, scale);
+
+            //image32F.convertTo(image, CV_MAKETYPE(CV_16U, 1));
+        }
 
         cv::Mat sharpenedImage;
 
@@ -786,9 +895,255 @@ cv::Mat FITSStack::postProcessImage(cv::Mat image32F)
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
     }
     return finalImage;
+}
+
+// Calculate psf for the passed in image from stars in the image
+cv::Mat FITSStack::calculatePSF(const cv::Mat &image, int patchSize)
+{
+    cv::Mat psf;
+    try
+    {
+        // JEE CV_Assert(patchSize % 2 == 1); // Must be odd
+        //cv::Mat gray;
+        //if (image.channels() == 3)
+        //    cvtColor(image, gray, COLOR_BGR2GRAY);
+        //else
+        //    gray = image.clone();
+
+        QList<Edge *> starCenters = m_Data->getStarCenters();
+
+        QVector<cv::Mat> starPatches;
+        int halfPatch = patchSize / 2;
+
+        for (int i = 0; i < starCenters.size(); i++)
+        {
+            bool keepStar = true;
+
+            // Ignore stars near the edge of the image
+            float minx = starCenters[i]->x - halfPatch;
+            float maxx = starCenters[i]->x + halfPatch;
+            float miny = starCenters[i]->y - halfPatch;
+            float maxy = starCenters[i]->y + halfPatch;
+
+            if (minx < 0 || miny < 0 || maxx >= image.cols || maxy >= image.rows)
+                continue;
+
+            // Ignore stars near each other as they'll create a complicated PSF
+            for (int j = 0; j < starCenters.size(); j++)
+            {
+                if (i == j)
+                    continue;
+                if (starCenters[j]->x >= minx && starCenters[j]->x <= maxx &&
+                    starCenters[j]->y >= miny && starCenters[j]->y <= maxy)
+                {
+                    // Star j lies in star i's patch so ignore star i
+                    keepStar = false;
+                    break;
+                }
+            }
+
+            if (keepStar)
+            {
+                cv::Rect roi(minx, miny, patchSize, patchSize);
+                cv::Mat patch = image(roi).clone();
+                // Normalise the patch so we're adding together stars of similar brightness
+                patch /= cv::sum(patch);
+                starPatches.push_back(patch);
+            }
+
+            // Limit the number of star patches
+            if (starPatches.size() >= 20)
+                break;
+        }
+
+        if (starPatches.empty())
+            qCDebug(KSTARS_FITS) << QString("No valid stars for PSF estimation in %1").arg(__FUNCTION__);
+        else
+        {
+            psf = cv::Mat::zeros(patchSize, patchSize, CV_32F);
+            for (const auto &patch : starPatches)
+                psf += patch;
+
+            // Normalise PSF to unit energy
+            psf /= cv::sum(psf);
+        }
+    }
+    catch (const cv::Exception &ex)
+    {
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+    }
+    return psf;
+}
+
+// Wiener deconvolution assumes Gaussian noise and can be calculated using a single pass
+// Lucy-Richardson deconvolution assumes Poisson noise and needs to be done iteratively.
+// For now we'll try Wiener
+cv::Mat FITSStack::wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf)
+{
+    cv::Mat result;
+    try
+    {
+        // Check inputs
+        if (image.type() != CV_MAKETYPE(CV_32F, 1) || psf.type() != CV_MAKETYPE(CV_32F, 1))
+            return result;
+
+        //cv::Mat normImage;
+        //cv::normalize(image, normImage, 0, 1, cv::NORM_MINMAX);
+
+        // Pad the image to the optimum size for FFT
+        cv::Mat imagePadded;
+        int m = cv::getOptimalDFTSize(image.rows);
+        int n = cv::getOptimalDFTSize(image.cols);
+        cv::copyMakeBorder(image, imagePadded, 0, m - image.rows, 0, n - image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+        std::cout << "ImagePadded: " << m << " x " << n << std::endl;
+
+        // Centre the PSF in an image of the same size as imagePadded
+        // Pad PSF to match input size (centered)
+        //cv::Mat psfPadded;
+        //int top = (imagePadded.rows - psf.rows) / 2;
+        //int bottom = imagePadded.rows - psf.rows - top;
+        //int left = (imagePadded.cols - psf.cols) / 2;
+        //int right = imagePadded.cols - psf.cols - left;
+        //cv::copyMakeBorder(psf, psfPadded, top, bottom, left, right, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+
+        // Centre the PSF in an image of the same size as imagePadded
+        cv::Mat psfPadded = cv::Mat::zeros(imagePadded.size(), CV_32F);
+        cv::Rect psfROI((psfPadded.cols - psf.cols) / 2, (psfPadded.rows - psf.rows) / 2, psf.cols, psf.rows);
+        psf.copyTo(psfPadded(psfROI));
+
+        // Move the PSF from the centre to the corners
+        int cx = psfPadded.cols / 2;
+        int cy = psfPadded.rows / 2;
+
+        // Create quadrants
+        cv::Mat q0(psfPadded, cv::Rect(0, 0, cx, cy)); // Top-Left
+        cv::Mat q1(psfPadded, cv::Rect(cx, 0, cx, cy)); // Top-Right
+        cv::Mat q2(psfPadded, cv::Rect(0, cy, cx, cy)); // Bottom-Left
+        cv::Mat q3(psfPadded, cv::Rect(cx, cy, cx, cy)); // Bottom-Right
+
+        // Swap diagonally opposite quadrants
+        cv::Mat tmp;
+        q0.copyTo(tmp);
+        q3.copyTo(q0);
+        tmp.copyTo(q3);
+
+        q1.copyTo(tmp);
+        q2.copyTo(q1);
+        tmp.copyTo(q2);
+
+        // Take FFTs
+        cv::Mat imgFFT, psfFFT;
+        cv::dft(imagePadded, imgFFT, cv::DFT_COMPLEX_OUTPUT);
+        double minVal, maxVal;
+        cv::minMaxLoc(imgFFT, &minVal, &maxVal);
+        std::cout << "Image FFT range: " << minVal << " to " << maxVal << std::endl;
+
+        cv::dft(psfPadded, psfFFT, cv::DFT_COMPLEX_OUTPUT);
+        cv::minMaxLoc(psfFFT, &minVal, &maxVal);
+        std::cout << "psfPadded FFT range: " << minVal << " to " << maxVal << std::endl;
+
+        // Conjugate multiplication (|psf|² = psf* · psf)
+        cv::Mat psfPower;
+        cv::mulSpectrums(psfFFT, psfFFT, psfPower, 0, true);
+        cv::minMaxLoc(psfPower, &minVal, &maxVal);
+        std::cout << "psfPower image range: " << minVal << " to " << maxVal << std::endl;
+
+        // We only need the real channel of psfPower
+        //cv::Mat psfPowerArray[2];
+        //cv::split(psfPowerComp, psfPowerArray);
+
+        // Get the noise
+        // Flatten image into a single row for easy sorting
+        cv::Mat sorted;
+        image.reshape(0, 1).copyTo(sorted);
+        cv::sort(sorted, sorted, cv::SORT_ASCENDING);
+
+        // Median
+        float median = sorted.at<float>(sorted.cols / 2);
+
+        // Absolute deviation (MAD) from median
+        cv::Mat absDiff;
+        cv::absdiff(image, median, absDiff);
+        absDiff = absDiff.reshape(0, 1);
+        cv::sort(absDiff, absDiff, cv::SORT_ASCENDING);
+        float mad = absDiff.at<float>(absDiff.cols / 2);
+
+        // Variance of Gaussian noise
+        float varNoise = std::pow((1.4826f * mad), 2.0);
+
+        // Now get the Total Variance of the image
+        cv::Scalar imageMean, imageStddev;
+        cv::meanStdDev(image, imageMean, imageStddev);
+        float varTotal = imageStddev[0] * imageStddev[0];
+
+        // Calculate the signal variance (set a minimum amount)
+        float varSignal = std::max((varTotal - varNoise), 1e-6f);
+
+        // Noise to signal
+        float NSR = varNoise / varSignal;
+
+        // Wiener Filter
+        cv::Mat numer;
+        cv::mulSpectrums(imgFFT, psfFFT, numer, 0, true);
+        cv::minMaxLoc(numer, &minVal, &maxVal);
+        std::cout << "Numer image range: " << minVal << " to " << maxVal << std::endl;
+
+        cv::Mat denom, denomComp[2];
+        cv::split(psfPower, denomComp);
+        denomComp[0] += NSR; // JEE + 1e-6f
+        std::vector<cv::Mat> denomArray = { denomComp[0], denomComp[1] };
+        cv::merge(denomArray, denom);
+
+        cv::minMaxLoc(denomComp[0], &minVal, &maxVal);
+        std::cout << "denomComp[0] image range: " << minVal << " to " << maxVal << std::endl;
+        cv::minMaxLoc(denomComp[1], &minVal, &maxVal);
+        std::cout << "denomComp[1] image range: " << minVal << " to " << maxVal << std::endl;
+        cv::minMaxLoc(denom, &minVal, &maxVal);
+        std::cout << "denom image range: " << minVal << " to " << maxVal << std::endl;
+
+        // Safe division
+        cv::Mat mask = denom < 1e-6;
+        denom.setTo(1e-6, mask);
+
+        cv::Mat wienerFFT;
+        cv::divide(numer, denom, wienerFFT);
+        cv::minMaxLoc(wienerFFT, &minVal, &maxVal);
+        std::cout << "wienerFFT range: " << minVal << " to " << maxVal << std::endl;
+
+        // Apply the Wiener filter
+
+
+        cv::Mat resultFFT;
+        cv::mulSpectrums(imagePadded, wienerFFT, resultFFT, 0);
+        cv::minMaxLoc(resultFFT, &minVal, &maxVal);
+        std::cout << "resultFFT range: " << minVal << " to " << maxVal << std::endl;
+
+        // Take the inverse FFT
+        cv::dft(resultFFT, result, cv::DFT_INVERSE | cv::DFT_REAL_OUTPUT | cv::DFT_SCALE);
+        // JEE cv::normalize(result, result, 0, 255, cv::NORM_MINMAX);
+        // result.convertTo(result, CV_8U);
+        cv::minMaxLoc(result, &minVal, &maxVal);
+        std::cout << "Deconvolved image range: " << minVal << " to " << maxVal << std::endl;
+
+        cv::minMaxLoc(result, &minVal, &maxVal);
+        std::cout << "result range: " << minVal << " to " << maxVal << std::endl;
+
+        // Normalize to original image range
+        cv::minMaxLoc(image, &minVal, &maxVal);
+        result = result * (maxVal - minVal) + minVal;
+        cv::minMaxLoc(result, &minVal, &maxVal);
+        std::cout << "result range: " << minVal << " to " << maxVal << std::endl;
+    }
+    catch (const cv::Exception &ex)
+    {
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+    }
+    return result;
 }
 
 void FITSStack::redoPostProcessStack()
@@ -798,90 +1153,233 @@ void FITSStack::redoPostProcessStack()
 
     cv::Mat finalImage;
     finalImage = postProcessImage(m_StackedImage32F);
-    convertMatToFITS(finalImage, m_StackedBuffer);
+    m_StackSNR = getSNR(finalImage);
+    convertMatToFITS(finalImage);
     emit stackChanged();
 }
 
-bool FITSStack::convertMatToFITS(const cv::Mat image, QByteArray &fitsBuffer)
+bool FITSStack::convertMatToFITS(const cv::Mat image)
 {
-    // Check if the image is valid
-    if (image.empty())
+    try
     {
-        // JEE do something
-        return false;
-    }
+        // Check if the image is valid
+        if (image.empty() || image.depth() != CV_16U)
+            return false;
 
-    int width = image.size().width;
-    int height = image.size().height;
+        int width = image.size().width;
+        int height = image.size().height;
+        int channels = image.channels();
 
-    //This section sets up the FITS File
-    fitsfile *fptr = nullptr;
-    int status = 0;
-    long fpixel = 1, naxis = 2, nelements, exposure;
-    long naxes[2] = { width, height };
-    char error_status[512] = {0};
+        //This section sets up the FITS File
+        fitsfile *fptr = nullptr;
+        int status = 0;
+        long fpixel = 1, nelements;
+        long naxis = (channels == 1) ? 2 : 3;
+        long naxes[3] = { width, height, channels };
+        //long naxis = 2;
+        //long naxes[2] = { width, height };
+        char error_status[512] = { 0 };
+        void* fits_buffer = nullptr;
+        size_t fits_buffer_size = 0;
 
-    void* fits_buffer = nullptr;
-    size_t fits_buffer_size = 0;
-    if (fits_create_memfile(&fptr, &fits_buffer, &fits_buffer_size, 4096, realloc, &status))
-    {
-        fits_get_errstatus(status, error_status);
-        qCDebug(KSTARS_FITS()) << "fits_create_memfile failed " << error_status;
-        return false;
-    }
+        if (fits_create_memfile(&fptr, &fits_buffer, &fits_buffer_size, 4096, realloc, &status))
+        {
+            fits_get_errstatus(status, error_status);
+            qCDebug(KSTARS_FITS()) << "fits_create_memfile failed " << error_status;
+            return false;
+        }
 
-    if (fits_create_img(fptr, USHORT_IMG, naxis, naxes, &status))
-    {
-        fits_get_errstatus(status, error_status);
-        qCDebug(KSTARS_FITS) << "fits_create_img failed " << error_status;
-        status = 0;
-        fits_close_file(fptr, &status);
+        if (fits_create_img(fptr, USHORT_IMG, naxis, naxes, &status))
+        {
+            fits_get_errstatus(status, error_status);
+            qCDebug(KSTARS_FITS) << "fits_create_img failed " << error_status;
+            status = 0;
+            fits_close_file(fptr, &status);
+            free(fits_buffer);
+            return false;
+        }
+
+        if (channels == 3)
+        {
+            // Add BAYERPAT keyword here
+            const char* bayerPattern = "RGGB";
+            const char* comment = "Bayer color filter array pattern";
+
+            if (fits_write_key(fptr, TSTRING, "BAYERPAT", (void*)bayerPattern, (char*)comment, &status))
+            {
+                fits_get_errstatus(status, error_status);
+                qCDebug(KSTARS_FITS) << "fits_write_key BAYERPAT failed:" << error_status;
+                // This is typically non-critical, so you might choose to continue rather than return false
+                status = 0;  // Reset status to continue
+            }
+        }
+
+        nelements = width * height * channels;
+
+        //if (channels == 1)
+        //{
+            // Gray image
+            cv::Mat contImage;
+            if (image.isContinuous())
+                contImage = image;
+            else
+                contImage = image.clone();
+
+            if (fits_write_img(fptr, TUSHORT, fpixel, nelements, contImage.data, &status))
+            {
+                fits_get_errstatus(status, error_status);
+                qCDebug(KSTARS_FITS) << "fits_write_img failed " << status;
+                status = 0;
+                fits_close_file(fptr, &status);
+                free(fits_buffer);
+                return false;
+            }
+        //}
+        /*else
+        {
+            // Multi-channel - need to handle channel interleaving
+            // OpenCV uses BGRBGR..., FITS uses planes: BBB...GGG...RRR...
+            std::vector<cv::Mat> planes;
+            cv::split(image, planes);
+
+            uint16_t *bgrBuffer = new uint16_t[nelements];
+            if (bgrBuffer == nullptr)
+            {
+                qCDebug(KSTARS_FITS) << "Not enough memory for RGB buffer";
+                status = 0;
+                fits_close_file(fptr, &status);
+                free(fits_buffer);
+                return false;
+            }
+
+            // Copy each channel to its plane in the buffer
+            for (int c = 0; c < channels; c++)
+            {
+                cv::Mat contPlane;
+                if (planes[c].isContinuous())
+                    contPlane = planes[c];
+                else
+                    contPlane = planes[c].clone();
+
+                const long planeElements = width * height; // Number of elements, not bytes
+                std::memcpy(bgrBuffer + c * planeElements, contPlane.data, planeElements * sizeof(uint16_t));
+            }
+
+            if (fits_write_img(fptr, TUSHORT, fpixel, nelements, bgrBuffer, &status))
+            {
+                fits_get_errstatus(status, error_status);
+                qCWarning(KSTARS_FITS) << "fits_write_img RGB failed:" << error_status;
+                status = 0;
+                fits_flush_file(fptr, &status);
+                fits_close_file(fptr, &status);
+                free(fits_buffer);
+                delete [] bgrBuffer;
+                return false;
+            }
+
+            delete [] bgrBuffer;
+        }*/
+
+        if (fits_flush_file(fptr, &status))
+        {
+            fits_get_errstatus(status, error_status);
+            qCDebug(KSTARS_FITS) << "fits_flush_file failed:" << error_status;
+            status = 0;
+            fits_close_file(fptr, &status);
+            free(fits_buffer);
+            return false;
+        }
+
+        if (fits_close_file(fptr, &status))
+        {
+            fits_get_errstatus(status, error_status);
+            qCDebug(KSTARS_FITS) << "fits_close_file failed:" << error_status;
+            free(fits_buffer);
+            return false;
+        }
+
+        // JEE fitsBuffer = QByteArray(reinterpret_cast<char *>(fits_buffer), fits_buffer_size);
+        m_StackedBuffer.reset(new QByteArray(reinterpret_cast<char *>(fits_buffer), fits_buffer_size));
         free(fits_buffer);
-        return false;
+        return true;
     }
-
-    //Note, this is made up.  If you want the actual exposure time, you have to request it from PHD2
-    //exposure = 1;
-    //fits_update_key(fptr, TLONG, "EXPOSURE", &exposure, "Total Exposure Time", &status);
-
-    //Then it converts from base64 to a QByteArray
-    //Then it creates a datastream from the QByteArray to the pixel array for the FITS File
-    nelements = width * height;
-    //QByteArray converted = QByteArray((char *) image.data, nelements);
-
-    //This finishes up and closes the FITS file
-    if (fits_write_img(fptr, TUSHORT, fpixel, nelements, image.data, &status))
+    catch (const cv::Exception &ex)
     {
-        fits_get_errstatus(status, error_status);
-        qCDebug(KSTARS_FITS) << "fits_write_img failed " << status;
-        status = 0;
-        fits_close_file(fptr, &status);
-        free(fits_buffer);
-        return false;
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
     }
+    return false;
+}
 
-    if (fits_flush_file(fptr, &status))
+// Calculate the SNR of the passed in image
+double FITSStack::getSNR(const cv::Mat image)
+{
+    double snr = 0.0;
+    try
     {
-        fits_get_errstatus(status, error_status);
-        qCDebug(KSTARS_FITS) << "fits_flush_file failed:" << error_status;
-        status = 0;
-        fits_close_file(fptr, &status);
-        free(fits_buffer);
-        return false;
-    }
+        if (image.empty())
+            return snr;
 
-    if (fits_close_file(fptr, &status))
+        if (image.channels() == 1)
+        {
+            // Grayscale image
+            //cv::Scalar mean, stddev;
+            //cv::meanStdDev(image, mean, stddev);
+            //if (stddev.val[0] > 0.0)
+            //    snr = mean.val[0] / stddev.val[0];
+
+            double minVal, maxVal;
+            cv::Point minLoc, maxLoc;
+            cv::minMaxLoc(image, &minVal, &maxVal, &minLoc, &maxLoc);
+
+            // Get a 100x100 box around the max pixel
+            int X = std::min(std::max(0, maxLoc.x - 50), image.size().width - 100);
+            int Y = std::min(std::max(0, maxLoc.y - 50), image.size().height - 100);
+
+            // Measure noise in area around brightest star
+            cv::Rect noiseRegion(X, Y, 100, 100);
+            cv::Scalar noiseMean, noiseStd;
+            cv::meanStdDev(image(noiseRegion), noiseMean, noiseStd);
+            snr = (maxVal - noiseMean.val[0]) / noiseStd.val[0];
+        }
+        else if (image.channels() == 3)
+        {
+            // Color image: split into channels
+            std::vector<cv::Mat> channels;
+            cv::split(image, channels);
+
+            for (const auto& channel : channels)
+            {
+                //cv::Scalar mean, stddev;
+                //cv::meanStdDev(channel, mean, stddev);
+                //if (stddev.val[0] > 0.0)
+                //    snr += mean.val[0] / stddev.val[0];
+
+                // JEE
+                double minVal, maxVal;
+                cv::Point minLoc, maxLoc;
+                cv::minMaxLoc(channel, &minVal, &maxVal, &minLoc, &maxLoc);
+
+                // Get a 100x100 box around the max pixel
+                int X = std::min(std::max(0, maxLoc.x - 50), image.size().width - 100);
+                int Y = std::min(std::max(0, maxLoc.y - 50), image.size().height - 100);
+
+                // Measure noise in area around brightest star
+                cv::Rect noiseRegion(X, Y, 100, 100);
+                cv::Scalar noiseMean, noiseStd;
+                cv::meanStdDev(channel(noiseRegion), noiseMean, noiseStd);
+                snr += (maxVal - noiseMean.val[0]) / noiseStd.val[0];
+            }
+            snr /= 3;
+        }
+    }
+    catch (const cv::Exception &ex)
     {
-        fits_get_errstatus(status, error_status);
-        qCDebug(KSTARS_FITS) << "fits_close_file failed:" << error_status;
-        free(fits_buffer);
-        return false;
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
     }
 
-    fitsBuffer = QByteArray(reinterpret_cast<char *>(fits_buffer), fits_buffer_size);
-    //m_Data->setExtension(QString("fits"));
-    free(fits_buffer);
-    return true;
+    return snr;
 }
 
 // We're done with the original stack so tidy up and keep data necessary to add individual
@@ -916,8 +1414,10 @@ void FITSStack::tidyUpInitalStack(struct wcsprm * refWCS)
             free(m_StackImageData[i].wcsprm);
             m_StackImageData[i].wcsprm = nullptr;
         }
-        if (!m_StackImageData[i].image.empty())
-            m_StackImageData[i].image.release();
+        // JEE if (!m_StackImageData[i].image.empty())
+        int refcount = m_StackImageData[i].image.u->refcount;
+        qCDebug(KSTARS_FITS) << QString("JEE m_StackImageData[%1].image refcount %2").arg(i).arg(refcount);
+        m_StackImageData[i].image.release();
     }
     m_StackImageData.clear();
 }
