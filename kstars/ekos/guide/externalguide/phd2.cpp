@@ -174,16 +174,33 @@ PHD2::PHD2()
                 break;
         }
     });
+
+    // Periodic app state polling
+    appStateTimer = new QTimer(this);
+    connect(appStateTimer, &QTimer::timeout, this, [=]()
+    {
+        requestAppState();
+    });
+    appStateTimer->setInterval(2000);
 }
 
 PHD2::~PHD2()
 {
     delete abortTimer;
     delete ditherTimer;
+    delete appStateTimer;
+    delete stateTimer;
 }
 
 bool PHD2::Connect()
 {
+    // If the socket is not connected, force state to DISCONNECTED
+    if (tcpSocket->state() == QAbstractSocket::UnconnectedState && connection != DISCONNECTED)
+    {
+        qCDebug(KSTARS_EKOS_GUIDE) << "PHD2: Forcing state to DISCONNECTED due to socket state.";
+        ResetConnectionState();
+    }
+
     switch (connection)
     {
         case DISCONNECTED:
@@ -221,6 +238,8 @@ bool PHD2::Connect()
 
 void PHD2::ResetConnectionState()
 {
+    appStateTimer->stop();
+
     connection = DISCONNECTED;
 
     // clear the outstanding and queued RPC requests
@@ -1180,6 +1199,9 @@ void PHD2::setEquipmentConnected()
         updateGuideParameters();
         requestExposureDurations();
         requestCurrentEquipmentUpdate();
+
+        // Start periodic polling when equipment is connected
+        appStateTimer->start();
     }
 }
 
@@ -1367,6 +1389,12 @@ bool PHD2::guide()
         return true;
     }
 
+    if (state == PAUSED)
+    {
+        emit newLog(i18n("PHD2: Guiding is paused, resuming..."));
+        return resume();
+    }
+
     if (connection != EQUIPMENT_CONNECTED)
     {
         emit newLog(i18n("PHD2 Error: Equipment not connected."));
@@ -1548,7 +1576,16 @@ bool PHD2::abort()
 
     abortTimer->stop();
 
+    // If PHD2 is paused, unpause it first so stop_capture will work
+    if (state == PAUSED)
+    {
+        QJsonObject args;
+        args["paused"] = false;
+        sendPHD2Request("set_paused", args);
+    }
+
     sendPHD2Request("stop_capture");
+
     return true;
 }
 

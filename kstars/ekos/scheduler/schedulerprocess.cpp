@@ -69,6 +69,9 @@ SchedulerProcess::SchedulerProcess(QSharedPointer<SchedulerModuleState> state, c
                                           SLOT(registerNewModule(QString)));
     QDBusConnection::sessionBus().connect(kstarsInterfaceString, ekosPathStr, ekosInterfaceStr, "newDevice", this,
                                           SLOT(registerNewDevice(QString, int)));
+
+    m_WeatherShutdownTimer.setSingleShot(true);
+    connect(&m_WeatherShutdownTimer, &QTimer::timeout, this, &SchedulerProcess::startShutdownDueToWeather);
 }
 
 SchedulerState SchedulerProcess::status()
@@ -673,14 +676,16 @@ bool SchedulerProcess::shouldSchedulerSleep(SchedulerJob * job)
     if (Options::schedulerWeather())
     {
         ISD::Weather::Status weatherStatus = moduleState()->weatherStatus();
-        if (weatherStatus == ISD::Weather::WEATHER_WARNING || weatherStatus == ISD::Weather::WEATHER_ALERT)
+        // Do not evaluate job that are in the process of getting aborted or aborted or complete already
+        if (m_WeatherShutdownTimer.isActive() == false && job->getState() < SCHEDJOB_ERROR &&
+                (weatherStatus == ISD::Weather::WEATHER_WARNING || weatherStatus == ISD::Weather::WEATHER_ALERT))
         {
             // If we're already in preemptive shutdown, give up on this job
             if (moduleState()->weatherGracePeriodActive())
             {
                 appendLogText(i18n("Job '%1' cannot start because weather status is %2 and grace period is over.",
                                    job->getName(), (weatherStatus == ISD::Weather::WEATHER_WARNING) ? i18n("Warning") : i18n("Alert")));
-                activeJob()->setState(SCHEDJOB_ERROR);
+                job->setState(SCHEDJOB_ERROR);
                 moduleState()->setWeatherGracePeriodActive(false);
                 findNextJob();
                 return true;
@@ -2792,27 +2797,30 @@ void SchedulerProcess::iterate()
     if (msSleep < 0)
         return;
 
-    connect(&moduleState()->iterationTimer(), &QTimer::timeout, this, &SchedulerProcess::iterate, Qt::UniqueConnection);
+    auto &iterationTimer = moduleState()->iterationTimer();
+    auto &tickleTimer = moduleState()->tickleTimer();
+
+    connect(&iterationTimer, &QTimer::timeout, this, &SchedulerProcess::iterate, Qt::UniqueConnection);
 
     // Update the scheduler's altitude graph every hour, if the scheduler will be sleeping.
     constexpr int oneHour = 1000 * 3600;
-    moduleState()->tickleTimer().stop();
-    disconnect(&moduleState()->tickleTimer());
+    tickleTimer.stop();
+    tickleTimer.disconnect();
     if (msSleep > oneHour)
     {
-        connect(&moduleState()->tickleTimer(), &QTimer::timeout, this, [this, oneHour]()
+        connect(&tickleTimer, &QTimer::timeout, this, [this, oneHour]()
         {
             if (moduleState() && moduleState()->currentlySleeping())
             {
                 moduleState()->tickleTimer().start(oneHour);
                 emit updateJobTable(nullptr);
             }
-        }, Qt::UniqueConnection);
-        moduleState()->tickleTimer().setSingleShot(true);
-        moduleState()->tickleTimer().start(oneHour);
+        });
+        tickleTimer.setSingleShot(true);
+        tickleTimer.start(oneHour);
     }
-    moduleState()->iterationTimer().setSingleShot(true);
-    moduleState()->iterationTimer().start(msSleep);
+    iterationTimer.setSingleShot(true);
+    iterationTimer.start(msSleep);
 
 }
 
@@ -4129,6 +4137,10 @@ void SchedulerProcess::setWeatherStatus(ISD::Weather::Status status)
     ISD::Weather::Status oldStatus = moduleState()->weatherStatus();
     moduleState()->setWeatherStatus(newStatus);
 
+    // Stop shutdown timer in case weather improves.
+    if (m_WeatherShutdownTimer.isActive() && newStatus != ISD::Weather::WEATHER_ALERT)
+        m_WeatherShutdownTimer.stop();
+
     // If we're in a preemptive shutdown due to weather and weather improves, wake up
     if (moduleState()->preemptiveShutdown() &&
             oldStatus != ISD::Weather::WEATHER_OK &&
@@ -4143,8 +4155,20 @@ void SchedulerProcess::setWeatherStatus(ISD::Weather::Status status)
              moduleState()->schedulerState() != Ekos::SCHEDULER_IDLE &&
              moduleState()->schedulerState() != Ekos::SCHEDULER_SHUTDOWN))
     {
-        appendLogText(i18n("Weather alert detected. Starting soft shutdown procedure."));
+        m_WeatherShutdownTimer.start(Options::schedulerWeatherShutdownDelay() * 1000);
+        appendLogText(i18n("Weather alert detected. Starting soft shutdown procedure in %1 seconds.", Options::schedulerWeatherShutdownDelay()));
+    }
 
+    // forward weather state
+    emit newWeatherStatus(status);
+}
+
+void SchedulerProcess::startShutdownDueToWeather()
+{
+    if (activeJob() && Options::schedulerWeather() && (moduleState()->weatherStatus() == ISD::Weather::WEATHER_ALERT &&
+            moduleState()->schedulerState() != Ekos::SCHEDULER_IDLE &&
+            moduleState()->schedulerState() != Ekos::SCHEDULER_SHUTDOWN))
+    {
         // Abort current job but keep it in the queue
         if (activeJob())
         {
@@ -4165,9 +4189,6 @@ void SchedulerProcess::setWeatherStatus(ISD::Weather::Status status)
         emit schedulerSleeping(true, true);
         checkShutdownState();
     }
-
-    // forward weather state
-    emit newWeatherStatus(status);
 }
 
 void SchedulerProcess::checkStartupProcedure()

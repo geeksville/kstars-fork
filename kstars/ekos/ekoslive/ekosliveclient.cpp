@@ -58,6 +58,8 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
     connect(onlineManager.get(), &NodeManager::authenticationError, this, [this](const QString & message)
     {
         onlineLabel->setToolTip(message);
+        if (pi && pi->isAnimated()) pi->stopAnimation();
+        onDisconnected(); // Refresh overall UI state potentially
     });
 
     QSharedPointer<NodeManager> offlineManager(new NodeManager(NodeManager::Message | NodeManager::Media));
@@ -65,6 +67,8 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
     connect(offlineManager.get(), &NodeManager::authenticationError, this, [this](const QString & message)
     {
         offlineLabel->setToolTip(message);
+        if (pi && pi->isAnimated()) pi->stopAnimation();
+        onDisconnected(); // Refresh overall UI state potentially
     });
 
     m_NodeManagers.append(std::move(onlineManager));
@@ -74,18 +78,17 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
     connect(selectServersB, &QPushButton::clicked, this, &Client::showSelectServersDialog);
     connect(connectB, &QPushButton::clicked, this, [this]()
     {
-        if (m_isConnected)
+        if (m_isConnected) // If fully connected, then this button is "Disconnect"
         {
+            m_userRequestedDisconnect = true; // User is clicking "Disconnect"
             for (auto &oneManager : m_NodeManagers)
                 oneManager->disconnectNodes();
         }
-        else
+        else // Button is "Connect"
         {
-            for (auto &oneManager : m_NodeManagers)
-            {
-                oneManager->setCredentials(username->text(), password->text());
-                oneManager->authenticate();
-            }
+            m_userRequestedDisconnect = false; // User is clicking "Connect"
+            // pi->startAnimation() will be handled by checkAndTriggerAuth if auth is attempted
+            checkAndTriggerAuth();
         }
     });
 
@@ -93,11 +96,8 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
     {
         if (!m_isConnected)
         {
-            for (auto &oneManager : m_NodeManagers)
-            {
-                oneManager->setCredentials(username->text(), password->text());
-                oneManager->authenticate();
-            }
+            // pi->startAnimation() will be handled by checkAndTriggerAuth if auth is attempted
+            checkAndTriggerAuth();
         }
     });
 
@@ -128,11 +128,9 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
                 password->setText(passwordText);
                 if (autoStartCheck->isChecked())
                 {
-                    for (auto &oneManager : m_NodeManagers)
-                    {
-                        oneManager->setCredentials(username->text(), password->text());
-                        oneManager->authenticate();
-                    }
+                    qCInfo(KSTARS_EKOS) << "Attempting auto-start EkosLive connection.";
+                    // pi->startAnimation() will be handled by checkAndTriggerAuth if auth is attempted
+                    checkAndTriggerAuth();
                 }
             }
         }
@@ -149,24 +147,93 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
     m_Message = new Message(m_Manager, m_NodeManagers);
     connect(m_Message, &Message::connected, this, &Client::onConnected);
     connect(m_Message, &Message::disconnected, this, &Client::onDisconnected);
-    connect(m_Message, &Message::expired, this, [&](const QUrl & url)
-    {
-        // If token expired, disconnect and reconnect again.
-        for (auto &oneManager : m_NodeManagers)
-        {
-            if (oneManager->property("websocketURL").toUrl() == url)
-            {
-                oneManager->disconnectNodes();
-                oneManager->setCredentials(username->text(), password->text());
-                oneManager->authenticate();
-            }
-        }
-    });
+
+    // Connect the new global logout trigger signal
+    connect(m_Message, &Message::globalLogoutTriggered, this, &Client::processGlobalLogoutTrigger);
 
     m_Media = new Media(m_Manager, m_NodeManagers);
     connect(m_Media, &Media::connected, this, &Client::onConnected);
+    connect(m_Media, &Media::disconnected, this, &Client::onDisconnected); // Assuming Media also needs disconnect handling
+    connect(m_Media, &Media::globalLogoutTriggered, this, &Client::processGlobalLogoutTrigger); // Connect Media's signal
+
     m_Cloud = new Cloud(m_Manager, m_NodeManagers);
     connect(m_Cloud, &Cloud::connected, this, &Client::onConnected);
+    connect(m_Cloud, &Cloud::disconnected, this, &Client::onDisconnected); // Assuming Cloud also needs disconnect handling
+    connect(m_Cloud, &Cloud::globalLogoutTriggered, this, &Client::processGlobalLogoutTrigger); // Connect Cloud's signal
+}
+
+void Client::checkAndTriggerAuth()
+{
+    bool needsReAuthForAllManagers = false;
+    int managersAttemptingAuth = 0;
+
+    for (auto &oneManager : m_NodeManagers)
+    {
+        // Using a buffer of 5 minutes (300 seconds) for "nearly expired"
+        if (oneManager->isTokenNearlyExpired(300))
+        {
+            qCInfo(KSTARS_EKOS) << "Token for NodeManager" << oneManager->property("serviceURL").toUrl().toDisplayString()
+                                << "is nearly expired or missing. Triggering re-authentication.";
+            needsReAuthForAllManagers = true; // If one needs it, assume we want to refresh all for simplicity here
+            break;
+        }
+    }
+
+    if (needsReAuthForAllManagers)
+    {
+        qCInfo(KSTARS_EKOS) << "One or more tokens are nearly expired/missing. Re-authenticating all managers.";
+        for (auto &oneManager : m_NodeManagers)
+        {
+            if (oneManager->isReauthenticating())
+            {
+                qCInfo(KSTARS_EKOS) << "NodeManager" << oneManager->property("serviceURL").toUrl().toDisplayString() <<
+                                       "is already re-authenticating. Skipping.";
+                managersAttemptingAuth++; // Count it as an attempt in progress
+                continue;
+            }
+            oneManager->clearAuthentication();
+            oneManager->setCredentials(username->text(), password->text());
+            oneManager->authenticate();
+            managersAttemptingAuth++;
+        }
+    }
+    else
+    {
+        // Tokens are likely fine, but user might be clicking "Connect" because not all nodes are up.
+        // Trigger authenticate on any manager that isn't fully connected and isn't already trying.
+        qCInfo(KSTARS_EKOS) << "Tokens seem valid. Checking for disconnected managers to trigger authentication.";
+        for (auto &oneManager : m_NodeManagers)
+        {
+            if (!oneManager->isConnected() && !oneManager->isReauthenticating())
+            {
+                qCInfo(KSTARS_EKOS) << "NodeManager" << oneManager->property("serviceURL").toUrl().toDisplayString()
+                                    << "is not connected and not re-authenticating. Triggering authenticate.";
+                oneManager->setCredentials(username->text(), password->text());
+                oneManager->authenticate();
+                managersAttemptingAuth++;
+            }
+            else if (oneManager->isReauthenticating())
+            {
+                managersAttemptingAuth++; // Already in progress
+            }
+        }
+    }
+
+    if (managersAttemptingAuth == 0 && !m_isConnected)
+    {
+        // No auth was triggered (e.g. all tokens fine, all managers connected, but m_isConnected is false somehow)
+        // or all managers were already connected and tokens fine.
+        // This case might mean we don't need to animate, or UI state is inconsistent.
+        // For safety, if nothing is happening and we are not connected, stop animation.
+        if (pi && pi->isAnimated()) pi->stopAnimation();
+        qCInfo(KSTARS_EKOS) <<
+        "checkAndTriggerAuth: No authentication attempts started and client not marked as connected. PI stopped if running.";
+    }
+    else if (managersAttemptingAuth > 0 && pi && !pi->isAnimated())
+    {
+        // If any auth attempt started, ensure PI is running.
+        pi->startAnimation();
+    }
 }
 
 Client::~Client()
@@ -175,57 +242,195 @@ Client::~Client()
         oneManager->disconnectNodes();
 }
 
+void Client::processGlobalLogoutTrigger(const QUrl &url)
+{
+    qCInfo(KSTARS_EKOS) << "Processing global logout trigger for URL:" << url.toDisplayString();
+
+    bool urlIsEmpty = url.isEmpty();
+    bool processedAny = false;
+
+    for (auto &oneManager : m_NodeManagers)
+    {
+        QUrl managerUrl = oneManager->property("websocketURL").toUrl(); // Assuming this property exists
+
+        bool shouldProcessThisManager = false;
+        if (urlIsEmpty) // Should not happen with current emitters, but handle defensively
+        {
+            shouldProcessThisManager = true;
+        }
+        else
+        {
+            // Check if the received URL matches any of the node URLs within this manager
+            if (oneManager->message() && oneManager->message()->url() == url) shouldProcessThisManager = true;
+            if (!shouldProcessThisManager && oneManager->media() && oneManager->media()->url() == url) shouldProcessThisManager = true;
+            if (!shouldProcessThisManager && oneManager->cloud() && oneManager->cloud()->url() == url) shouldProcessThisManager = true;
+        }
+
+        if (shouldProcessThisManager)
+        {
+            if (oneManager->isReauthenticating())
+            {
+                qCInfo(KSTARS_EKOS) << "NodeManager for URL" << (managerUrl.isValid() ? managerUrl.toDisplayString() : "Unknown") <<
+                                       "is already re-authenticating. Skipping trigger.";
+                continue; // Skip this manager if already processing
+            }
+
+            qCInfo(KSTARS_EKOS) << "EkosLiveClient: Disconnecting and re-authenticating NodeManager triggered by global logout for URL:"
+                                <<
+                                (oneManager->property("websocketURL").toUrl().isValid() ? oneManager->property("websocketURL").toUrl().toDisplayString() :
+            "related to " + url.toDisplayString());
+            oneManager->clearAuthentication(); // Clear old token before re-auth
+            oneManager->setIsReauthenticating(true);
+            oneManager->disconnectNodes(); // Disconnect first
+            // Consider a small delay if disconnect is not immediate, though authenticate should be fine
+            oneManager->setCredentials(username->text(), password->text());
+            oneManager->authenticate();
+            processedAny = true;
+        }
+    } // End of for loop
+
+    if (!processedAny && !urlIsEmpty)
+    {
+        qCWarning(KSTARS_EKOS) << "Global logout trigger for URL" << url.toDisplayString() <<
+                                  "did not match any active NodeManager.";
+    }
+}
+
 void Client::onConnected()
 {
-    pi->stopAnimation();
+    // This slot might be called multiple times as each node connects.
+    // We only consider the client fully connected when ALL nodes of ALL managers are connected.
+    // However, the NodeManager::isConnected checks if all *its* nodes are connected.
+    // We need a check across all managers.
 
-    m_isConnected = true;
-
-    connectB->setText(i18n("Disconnect"));
-    connectionState->setPixmap(QIcon::fromTheme("state-ok").pixmap(QSize(64, 64)));
-
-    auto disconnected = QIcon(":/icons/AlignFailure.svg").pixmap(QSize(32, 32));
-    auto connected = QIcon(":/icons/AlignSuccess.svg").pixmap(QSize(32, 32));
-
-    onlineLabel->setStyleSheet(m_NodeManagers[0]->isConnected() ? "color:white" : "color:gray");
-    onlineIcon->setPixmap(m_NodeManagers[0]->isConnected() ? connected : disconnected);
-    if (m_NodeManagers[0]->isConnected())
-        onlineLabel->setToolTip(QString());
-
-    selectServersB->setEnabled(false);
-    offlineLabel->setStyleSheet(m_NodeManagers[1]->isConnected() ? "color:white" : "color:gray");
-    offlineIcon->setPixmap(m_NodeManagers[1]->isConnected() ? connected : disconnected);
-    if (m_NodeManagers[1]->isConnected())
-        offlineLabel->setToolTip(QString());
-
-    if (rememberCredentialsCheck->isChecked())
+    bool allManagersConnected = true;
+    for (const auto &manager : m_NodeManagers)
     {
+        if (!manager->isConnected())
+        {
+            allManagersConnected = false;
+            break;
+        }
+    }
+
+    // Only update UI to fully connected state if all managers report connected
+    // and if we weren't already in the fully connected state.
+    if (allManagersConnected && !m_isConnected)
+    {
+        if (pi && pi->isAnimated()) pi->stopAnimation();
+        m_isConnected = true;
+        connectB->setText(i18n("Disconnect"));
+        connectionState->setPixmap(QIcon::fromTheme("state-ok").pixmap(QSize(64, 64)));
+        selectServersB->setEnabled(false);
+
+        if (rememberCredentialsCheck->isChecked())
+        {
 #ifdef HAVE_KEYCHAIN
-        QKeychain::WritePasswordJob *job = new QKeychain::WritePasswordJob(QLatin1String("kstars"));
-        job->setAutoDelete(true);
-        job->setKey(QLatin1String("ekoslive"));
-        job->setTextData(password->text());
-        job->start();
+            QKeychain::WritePasswordJob *job = new QKeychain::WritePasswordJob(QLatin1String("kstars"));
+            job->setAutoDelete(true);
+            job->setKey(QLatin1String("ekoslive"));
+            job->setTextData(password->text());
+            job->start();
 #endif
+        }
+        emit connected(); // Emit client connected signal
+    }
+
+    // Update individual manager status icons regardless
+    auto disconnectedIcon = QIcon(":/icons/AlignFailure.svg").pixmap(QSize(32, 32));
+    auto connectedIcon = QIcon(":/icons/AlignSuccess.svg").pixmap(QSize(32, 32));
+
+    // Assuming m_NodeManagers[0] is Online and m_NodeManagers[1] is Offline
+    if (m_NodeManagers.size() > 0)
+    {
+        onlineLabel->setStyleSheet(m_NodeManagers[Online]->isConnected() ? "color:white" : "color:gray");
+        onlineIcon->setPixmap(m_NodeManagers[Online]->isConnected() ? connectedIcon : disconnectedIcon);
+        if (m_NodeManagers[Online]->isConnected())
+            onlineLabel->setToolTip(QString());
+    }
+    if (m_NodeManagers.size() > 1)
+    {
+        offlineLabel->setStyleSheet(m_NodeManagers[Offline]->isConnected() ? "color:white" : "color:gray");
+        offlineIcon->setPixmap(m_NodeManagers[Offline]->isConnected() ? connectedIcon : disconnectedIcon);
+        if (m_NodeManagers[Offline]->isConnected())
+            offlineLabel->setToolTip(QString());
     }
 }
 
 void Client::onDisconnected()
 {
-    connectionState->setPixmap(QIcon::fromTheme("state-offline").pixmap(QSize(64, 64)));
-    m_isConnected = false;
-    connectB->setText(i18n("Connect"));
+    // This slot might be called multiple times.
+    // We only consider the client fully disconnected if ANY manager is not fully connected.
 
-    auto disconnected = QIcon(":/icons/AlignFailure.svg").pixmap(QSize(32, 32));
-    auto connected = QIcon(":/icons/AlignSuccess.svg").pixmap(QSize(32, 32));
+    bool anyManagerDisconnected = false;
+    for (const auto &manager : m_NodeManagers)
+    {
+        if (!manager->isConnected())
+        {
+            anyManagerDisconnected = true;
+            break;
+        }
+    }
 
-    onlineLabel->setStyleSheet(m_NodeManagers[0]->isConnected() ? "color:white" : "color:gray");
-    onlineIcon->setPixmap(m_NodeManagers[0]->isConnected() ? connected : disconnected);
+    // If any manager is disconnected and we previously thought we were connected, update state.
+    if (anyManagerDisconnected && m_isConnected)
+    {
+        m_isConnected = false; // Now considered disconnected overall
+        connectB->setText(i18n("Connect"));
+        connectionState->setPixmap(QIcon::fromTheme("state-offline").pixmap(QSize(64, 64)));
+        selectServersB->setEnabled(true);
+        emit disconnected(); // Emit client disconnected signal
 
-    offlineLabel->setStyleSheet(m_NodeManagers[1]->isConnected() ? "color:white" : "color:gray");
-    offlineIcon->setPixmap(m_NodeManagers[1]->isConnected() ? connected : disconnected);
+        bool wasUserDisconnect = m_userRequestedDisconnect;
 
-    selectServersB->setEnabled(true);
+        if (!wasUserDisconnect)
+        {
+            qCInfo(KSTARS_EKOS) <<
+            "Client::onDisconnected: Overall connection lost (unexpected). Attempting to re-authenticate all managers.";
+            checkAndTriggerAuth(); // Proactively attempt to re-establish the session
+        }
+        else
+        {
+            qCInfo(KSTARS_EKOS) << "Client::onDisconnected: User-initiated disconnect processed. Auto-reconnect skipped.";
+            m_userRequestedDisconnect = false; // Reset flag after processing user disconnect
+            // Ensure progress indicator is stopped if it was running due to a previous attempt
+            if (pi && pi->isAnimated())
+                pi->stopAnimation();
+        }
+
+        // If we are transitioning to a fully disconnected state (no manager is connected or trying to connect), ensure PI is stopped.
+        // Note: checkAndTriggerAuth() will start PI if it initiates authentication.
+        // This check remains useful if checkAndTriggerAuth decides no auth is needed but we are still disconnected.
+        bool anyManagerStillActive = false;
+        for (const auto &manager : m_NodeManagers)
+        {
+            if (manager->isConnected() || manager->isReauthenticating())
+            {
+                anyManagerStillActive = true;
+                break;
+            }
+        }
+        if (!anyManagerStillActive && pi && pi->isAnimated())
+        {
+            pi->stopAnimation();
+        }
+    }
+
+    // Update individual manager status icons regardless
+    auto disconnectedIcon = QIcon(":/icons/AlignFailure.svg").pixmap(QSize(32, 32));
+    auto connectedIcon = QIcon(":/icons/AlignSuccess.svg").pixmap(QSize(32, 32));
+
+    // Assuming m_NodeManagers[0] is Online and m_NodeManagers[1] is Offline
+    if (m_NodeManagers.size() > 0)
+    {
+        onlineLabel->setStyleSheet(m_NodeManagers[Online]->isConnected() ? "color:white" : "color:gray");
+        onlineIcon->setPixmap(m_NodeManagers[Online]->isConnected() ? connectedIcon : disconnectedIcon);
+    }
+    if (m_NodeManagers.size() > 1)
+    {
+        offlineLabel->setStyleSheet(m_NodeManagers[Offline]->isConnected() ? "color:white" : "color:gray");
+        offlineIcon->setPixmap(m_NodeManagers[Offline]->isConnected() ? connectedIcon : disconnectedIcon);
+    }
 }
 
 void Client::setConnected(bool enabled)
@@ -267,7 +472,7 @@ void Client::showSelectServersDialog()
     QLineEdit onlineEdit(&dialog);
     QLineEdit machineID(&dialog);
     machineID.setReadOnly(true);
-    machineID.setText(QString::fromUtf8(QSysInfo::machineUniqueId()));
+    machineID.setText(KSUtils::getMachineID());
 
     observatoryEdit.setText(Options::ekosLiveObservatory());
     offlineEdit.setText(Options::ekosLiveOfflineServer());

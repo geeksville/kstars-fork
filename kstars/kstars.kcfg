@@ -109,6 +109,10 @@
          <label>Height of main window, in pixels</label>
          <default>768</default>
       </entry>
+      <entry name="KStarsGeometry" type="String">
+         <label>Geometry of main window, encoded byte array</label>
+         <default></default>
+      </entry>
       <entry name="RunStartupWizard" type="Bool">
          <label>Run Startup Wizard when KStars launches?</label>
          <default>true</default>
@@ -171,6 +175,10 @@
           <label>INDI window height</label>
           <default>600</default>
     </entry>
+      <entry name="INDIWindowGeometry" type="String">
+         <label>Geometry of INDI window, encoded byte array</label>
+         <default></default>
+      </entry>
       <entry name="useGeographicUpdate" type="Bool">
          <label>Automatically updates geographic location?</label>
          <default>true</default>
@@ -243,11 +251,6 @@
          <label>PATH to indiserver binary</label>
          <whatsthis>PATH to indiserver binary</whatsthis>
          <default code="true">KSUtils::getDefaultPath("indiServer")</default>
-      </entry>
-      <entry name="INDIHubAgent" type="String">
-         <label>PATH to indihub-agent binary</label>
-         <whatsthis>PATH to indihub-agent binary</whatsthis>
-         <default code="true">KSUtils::getDefaultPath("INDIHubAgent")</default>
       </entry>
       <entry name="indiServerIsInternal" type="Bool">
          <label>Internal or External INDI Server?</label>
@@ -1662,6 +1665,10 @@
       </entry>
    </group>
    <group name="FITSViewer">
+   <entry name="FITSWindowGeometry" type="String">
+      <label>Geometry of FITS window, encoded byte array</label>
+      <default></default>
+   </entry>     
    <entry name="useFITSViewer" type="Bool">
       <label>Display every image captured in a FITS Viewer window.</label>
       <default>true</default>
@@ -1865,6 +1872,10 @@
     <entry name="EkosWindowHeight" type="UInt">
              <label>Ekos window height</label>
              <default>600</default>
+    </entry>
+    <entry name="EkosGeometry" type="String">
+       <label>Geometry of Ekos window, encoded byte array</label>
+       <default></default>
     </entry>
     <entry name="EkosTopIcons" type="Bool">
        <label>Ekos modules icons are placed on the top of pages</label>
@@ -3415,6 +3426,10 @@
       </entry>
       <entry name="SchedulerWeatherGracePeriod" type="UInt">
          <label>Wait this many minutes for the weather to improve before giving up.</label>
+         <default>10</default>
+      </entry>
+      <entry name="SchedulerWeatherShutdownDelay" type="UInt">
+         <label>Wait this many seconds when detecting weather alert before starting observatory shutdown.</label>
          <default>10</default>
       </entry>
       <entry name="SchedulerTwilight" type="Bool">

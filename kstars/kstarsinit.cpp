@@ -32,6 +32,7 @@
 #include <KActionMenu>
 #include <KToggleAction>
 #include <KToolBar>
+#include <QActionGroup>
 
 #include <QMenu>
 #include <QStatusBar>
@@ -1095,7 +1096,17 @@ void KStars::buildGUI()
 
     //get focus of keyboard and mouse actions (for example zoom in with +)
     map()->QWidget::setFocus();
-    resize(Options::windowWidth(), Options::windowHeight());
+
+    if (qgetenv("KDE_FULL_SESSION") != "true")
+    {
+        if (!Options::kStarsGeometry().isEmpty())
+            restoreGeometry(QByteArray::fromBase64(Options::kStarsGeometry().toLatin1()));
+        else
+            resize(1024, 768);
+    }
+    else
+        resize(Options::windowWidth(), Options::windowHeight());
+
 
     // check zoom in/out buttons
     if (Options::zoomFactor() >= MAXZOOM)

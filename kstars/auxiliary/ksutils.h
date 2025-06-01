@@ -164,7 +164,7 @@ QList<SkyObject *> *castStarObjListToSkyObjList(QList<StarObject *> *starObjList
  *@note Avoid using this method for the same reasons as QSharedPointer::data()
  */
 template <typename T>
-QList<T *> makeVanillaPointerList(const QList<QSharedPointer<T>> &spList)
+QList<T *> makeVanillaPointerList(const QList<QSharedPointer<T >> &spList)
 {
     QList<T *> vpList;
     foreach (QSharedPointer<T> sp, spList)
@@ -241,16 +241,16 @@ class Logging
     private:
         static QString _filename;
 
-        static void Disabled(QtMsgType type, const QMessageLogContext &context,
-                             const QString &msg);
-        static void File(QtMsgType type, const QMessageLogContext &context,
-                         const QString &msg);
-        static void Stdout(QtMsgType type, const QMessageLogContext &context,
-                           const QString &msg);
-        static void Stderr(QtMsgType type, const QMessageLogContext &context,
-                           const QString &msg);
-        static void Write(QTextStream &stream, QtMsgType type,
-                          const QMessageLogContext &context, const QString &msg);
+        static void Disabled(QtMsgType type, const QMessageLogContext & context,
+                             const QString & msg);
+        static void File(QtMsgType type, const QMessageLogContext & context,
+                         const QString & msg);
+        static void Stdout(QtMsgType type, const QMessageLogContext & context,
+                           const QString & msg);
+        static void Stderr(QtMsgType type, const QMessageLogContext & context,
+                           const QString & msg);
+        static void Write(QTextStream & stream, QtMsgType type,
+                          const QMessageLogContext & context, const QString & msg);
 };
 
 QString getDefaultPath(const QString &option);
@@ -280,9 +280,9 @@ struct JPLFilter
 class JPLParser
 {
     public:
-        JPLParser(const QString &path);
+        JPLParser(const QString & path);
 
-        const QJsonArray &data() const
+        const QJsonArray & data() const
         {
             return m_data;
         }
@@ -292,7 +292,7 @@ class JPLParser
         }
 
         template <typename Lambda>
-        void for_each(const Lambda &fct)
+        void for_each(const Lambda & fct)
         {
             for (const auto &item : m_data)
             {
@@ -313,10 +313,10 @@ class JPLParser
 class MPCParser
 {
     public:
-        MPCParser(const QString &path);
+        MPCParser(const QString & path);
 
         template <typename Lambda>
-        void for_each(const Lambda &fct)
+        void for_each(const Lambda & fct)
         {
             for (const auto &item : m_data)
             {
@@ -391,5 +391,17 @@ double rotationToPositionAngle(double value);
          * @return rotation in degrees (-180 to +180)
          */
 double positionAngleToRotation(double value);
+
+/**
+ * Return unique machine ID
+ */
+QString getMachineID();
+
+/**
+ *@short Parse a JWT string and return its expiration timestamp.
+ *@param jwtToken The JWT string.
+ *@return qlonglong Returns the 'exp' claim value (seconds since epoch) or 0 if parsing fails or exp is not found.
+ */
+qlonglong getJwtExpiryTimestamp(const QString &jwtToken);
 
 } // namespace KSUtils

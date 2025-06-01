@@ -21,9 +21,9 @@ namespace EkosLive
 {
 class NodeManager : public QObject
 {
-    Q_PROPERTY(QUrl serviceURL MEMBER m_ServiceURL)
-    Q_PROPERTY(QUrl websocketURL MEMBER m_WebsocketURL)
-    Q_OBJECT
+        Q_PROPERTY(QUrl serviceURL MEMBER m_ServiceURL)
+        Q_PROPERTY(QUrl websocketURL MEMBER m_WebsocketURL)
+        Q_OBJECT
 
     public:
         explicit NodeManager(uint32_t mask);
@@ -45,9 +45,32 @@ class NodeManager : public QObject
             m_AuthResponse = response;
         }
 
-        Node *message() {return m_Nodes[Message];}
-        Node *media() {return m_Nodes[Media];}
-        Node *cloud() {return m_Nodes.contains(Cloud) ? m_Nodes[Cloud] : nullptr;}
+        Node *message()
+        {
+            return m_Nodes[Message];
+        }
+        Node *media()
+        {
+            return m_Nodes[Media];
+        }
+        Node *cloud()
+        {
+            return m_Nodes.contains(Cloud) ? m_Nodes[Cloud] : nullptr;
+        }
+
+        // Methods to manage re-authentication state
+        bool isReauthenticating() const
+        {
+            return m_isReauthenticating;
+        }
+        void setIsReauthenticating(bool state)
+        {
+            m_isReauthenticating = state;
+        }
+
+        // New methods for token expiry
+        bool isTokenNearlyExpired(int bufferSeconds = 300) const;
+        void clearAuthentication();
 
     signals:
         void connected();
@@ -61,11 +84,13 @@ class NodeManager : public QObject
         void setConnected();
         void setDisconnected();
 
-      protected slots:
-       void onResult(QNetworkReply *reply);
+    protected slots:
+        void onResult(QNetworkReply *reply);
 
-      private:
+    private:
         QJsonObject m_AuthResponse;
+        qlonglong m_tokenExpiryTimestamp {0}; // Store token expiry in seconds since epoch
+        bool m_isReauthenticating {false};
         uint16_t m_ReconnectTries {0};
         QUrl m_ServiceURL, m_WebsocketURL;
         QString m_Username, m_Password;

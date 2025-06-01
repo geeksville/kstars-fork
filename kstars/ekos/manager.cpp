@@ -26,7 +26,6 @@
 #include "ekos/capture/rotatorsettings.h"
 #include "profileeditor.h"
 #include "profilewizard.h"
-#include "indihub.h"
 #include "auxiliary/darklibrary.h"
 #include "auxiliary/ksmessagebox.h"
 #include "auxiliary/profilesettings.h"
@@ -498,7 +497,16 @@ Manager::Manager(QWidget * parent) : QDialog(parent), m_networkManager(this)
         button->setAutoDefault(false);
 
 
-    resize(Options::ekosWindowWidth(), Options::ekosWindowHeight());
+    if (qgetenv("KDE_FULL_SESSION") != "true")
+    {
+        if (!Options::ekosGeometry().isEmpty())
+            restoreGeometry(QByteArray::fromBase64(Options::ekosGeometry().toLatin1()));
+        else
+            resize(600, 600);
+    }
+    else
+        resize(Options::ekosWindowWidth(), Options::ekosWindowHeight());
+
 }
 
 void Manager::changeAlwaysOnTop(Qt::ApplicationState state)
@@ -523,6 +531,9 @@ void Manager::closeEvent(QCloseEvent * event)
     //    QAction * a = KStars::Instance()->actionCollection()->action("show_ekos");
     //    a->setChecked(false);
 
+    if (qgetenv("KDE_FULL_SESSION") != "true")
+        Options::setEkosGeometry(QString::fromLatin1(saveGeometry().toBase64()));
+
     // 2019-02-14 JM: Close event, for some reason, make all the children disappear
     // when the widget is shown again. Applying a workaround here
 
@@ -532,8 +543,13 @@ void Manager::closeEvent(QCloseEvent * event)
 
 void Manager::hideEvent(QHideEvent * /*event*/)
 {
-    Options::setEkosWindowWidth(width());
-    Options::setEkosWindowHeight(height());
+    if (qgetenv("KDE_FULL_SESSION") != "true")
+        Options::setEkosGeometry(QString::fromLatin1(saveGeometry().toBase64()));
+    else
+    {
+        Options::setEkosWindowWidth(width());
+        Options::setEkosWindowHeight(height());
+    }
 
     QAction * a = KStars::Instance()->actionCollection()->action("show_ekos");
     a->setChecked(false);
@@ -631,6 +647,9 @@ void Manager::showEvent(QShowEvent * /*event*/)
 
 void Manager::resizeEvent(QResizeEvent *)
 {
+    if (qgetenv("KDE_FULL_SESSION") != "true")
+        Options::setEkosGeometry(QString::fromLatin1(saveGeometry().toBase64()));
+
     focusProgressWidget->updateFocusDetailView();
     guideManager->updateGuideDetailView();
 }
@@ -792,9 +811,6 @@ void Manager::stop()
     m_PortSelectorTimer.stop();
     m_CountdownTimer.stop();
     portSelectorB->setEnabled(false);
-
-    if (indiHubAgent)
-        indiHubAgent->terminate();
 
     profileGroup->setEnabled(true);
 
@@ -1146,7 +1162,7 @@ void Manager::start()
             });
 
             KSMessageBox::Instance()->questionYesNo(i18n("Ekos detected an instance of INDI server running. Do you wish to "
-                                                    "shut down the existing instance before starting a new one?"),
+                                                         "shut down the existing instance before starting a new one?"),
                                                     i18n("INDI Server"), 5);
         }
         else
@@ -1324,22 +1340,8 @@ void Manager::setClientTerminated(const QString &host, int port, const QString &
 
 void Manager::setServerStarted(const QString &host, int port)
 {
-    if (m_LocalMode && m_CurrentProfile->indihub != INDIHub::None)
-    {
-        if (QFile(Options::iNDIHubAgent()).exists())
-        {
-            indiHubAgent = new QProcess();
-            QStringList args;
-
-            args << "--indi-server" << QString("%1:%2").arg(host).arg(port);
-            if (m_CurrentProfile->guidertype == Ekos::Guide::GUIDE_PHD2)
-                args << "--phd2-server" << QString("%1:%2").arg(m_CurrentProfile->guiderhost).arg(m_CurrentProfile->guiderport);
-            args << "--mode" << INDIHub::toString(m_CurrentProfile->indihub);
-            indiHubAgent->start(Options::iNDIHubAgent(), args);
-
-            qCDebug(KSTARS_EKOS) << "Started INDIHub agent.";
-        }
-    }
+    Q_UNUSED(host)
+    Q_UNUSED(port)
 }
 
 void Manager::setServerFailed(const QString &host, int port, const QString &message)
@@ -1674,7 +1676,7 @@ void Manager::deviceConnected()
                             << "is connected.";
     }
 
-    if (Options::neverLoadConfig() == false)
+    if (Options::neverLoadConfig() == false && device && device->wasConfigLoaded() == false)
     {
         INDIConfig tConfig = Options::loadConfigOnConnection() ? LOAD_LAST_CONFIG : LOAD_DEFAULT_CONFIG;
 
@@ -1821,6 +1823,8 @@ void Manager::addLightBox(ISD::LightBox * device)
 
 void Manager::syncGenericDevice(const QSharedPointer<ISD::GenericDevice> &device)
 {
+    qCDebug(KSTARS_EKOS) << "Syncing Generic Device" << device->getDeviceName();
+
     createModules(device);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3738,11 +3742,12 @@ void Manager::createModules(const QSharedPointer<ISD::GenericDevice> &device)
 
 void Manager::setDeviceReady()
 {
+    auto device = static_cast<ISD::GenericDevice*>(sender());
+
     // Check if ALL our devices are ready.
     // Ready indicates that all properties have been defined.
     if (isINDIReady() == false)
     {
-        auto device = static_cast<ISD::GenericDevice*>(sender());
         if (device)
         {
 
@@ -3771,12 +3776,40 @@ void Manager::setDeviceReady()
         if (m_ekosStatus != Ekos::Success)
             return;
     }
+    // Some device (e.g. Toupcam) can take some time after conncting to full define
+    // all their properties, so we need to wait until all properties are defined before
+    // we issue a load config
+    else if (device && Options::neverLoadConfig() == false)
+    {
+        // If device is ready, and is connected, and config was not loaded, then load it now.
+        if (device && device->isConnected() && device->wasConfigLoaded() == false)
+        {
+            INDIConfig tConfig = Options::loadConfigOnConnection() ? LOAD_LAST_CONFIG : LOAD_DEFAULT_CONFIG;
+
+            for (auto &oneDevice : INDIListener::devices())
+            {
+                if (oneDevice == device)
+                {
+                    connect(device, &ISD::GenericDevice::propertyUpdated, this, &Ekos::Manager::watchDebugProperty, Qt::UniqueConnection);
+
+                    auto configProp = device->getBaseDevice().getSwitch("CONFIG_PROCESS");
+                    if (configProp && configProp.getState() == IPS_IDLE)
+                        device->setConfig(tConfig);
+                    break;
+                }
+            }
+        }
+    }
 
     // If port selector is active, then do not show optical train dialog unless it is dismissed first.
     if (m_DriverDevicesCount <= 0 && (m_CurrentProfile->portSelector == false || !m_PortSelector))
     {
-        for (auto &device : INDIListener::devices())
-            syncGenericDevice(device);
+        for (auto &oneDevice : INDIListener::devices())
+        {
+            // Fix issue reported by Ed Lee (#238) as we only need to sync once per device
+            if (oneDevice->getDeviceName() == device->getDeviceName())
+                syncGenericDevice(oneDevice);
+        }
         OpticalTrainManager::Instance()->setProfile(m_CurrentProfile);
     }
 }

@@ -1099,7 +1099,7 @@ QString getDefaultPath(const QString &option)
     // The path should accomodate the differences between the different
     // packaging solutions
     QString snap   = QProcessEnvironment::systemEnvironment().value("SNAP");
-    QString flat   = QProcessEnvironment::systemEnvironment().value("FLATPAK_DEST");
+    QString flat   = QProcessEnvironment::systemEnvironment().value("FLATPAK_ID");
     QString appimg = QProcessEnvironment::systemEnvironment().value("APPDIR");
 
     // User prefix is the primary mounting point
@@ -1112,7 +1112,7 @@ QString getDefaultPath(const QString &option)
         prefix = appimg + userPrefix;
     else if (flat.isEmpty() == false)
         // Detect if we are within a Flatpak
-        prefix = flat;
+        prefix = "/app";
     // Detect if we are within a snap
     else if (snap.isEmpty() == false)
         prefix = snap + userPrefix;
@@ -1137,15 +1137,6 @@ QString getDefaultPath(const QString &option)
 #else
         return "/%t/%T/%F/%t_%T_%F";
 #endif
-    }
-    else if (option == "INDIHubAgent")
-    {
-#if defined(INDI_PREFIX)
-        return QString(INDI_PREFIX "/bin/indihub-agent");
-#elif defined(Q_OS_MACOS)
-        return "/usr/local/bin/indihub-agent";
-#endif
-        return prefix + "/bin/indihub-agent";
     }
     else if (option == "indiDriversDir")
     {
@@ -1347,7 +1338,7 @@ bool configureAstrometry()
         if (KMessageBox::warningContinueCancel(
                     nullptr,
                     i18n("The selected Astrometry Index File Location:\n %1 \n does not "
-                         "exist.  Do you want to make the directory?",
+             "exist.  Do you want to make the directory?",
                          defaultAstrometryDataDir),
                     i18n("Make Astrometry Index File Directory?")) == KMessageBox::Continue)
         {
@@ -1360,7 +1351,7 @@ bool configureAstrometry()
             {
                 KSNotification::sorry(
                     i18n("The Default Astrometry Index File Directory does not exist and "
-                         "was not able to be created."));
+                     "was not able to be created."));
             }
         }
         else
@@ -1872,5 +1863,63 @@ double positionAngleToRotation(double value)
     return rotation;
 }
 
+QString getMachineID()
+{
+    // Get Machine ID from Qt first
+    auto id = QSysInfo::machineUniqueId();
+    // If empty, read it directly
+    if (id.isEmpty())
+    {
+        QFile machineID("/etc/machine-id");
+        if (machineID.open(QIODevice::ReadOnly))
+        {
+            id = machineID.readAll();
+        }
+    }
+
+    return QString::fromUtf8(id).trimmed();
+}
+
+qlonglong getJwtExpiryTimestamp(const QString &jwtToken)
+{
+    QStringList parts = jwtToken.split('.');
+    if (parts.length() < 2)
+    {
+        qCWarning(KSTARS) << "Invalid JWT format: not enough parts.";
+        return 0; // Invalid token format
+    }
+
+    // The middle part is the payload, Base64URL encoded.
+    // QByteArray::fromBase64 expects standard Base64, so URL-specific characters might need handling
+    // if they were present, but usually for JWTs they are chosen to be URL-safe.
+    // Qt 5.15+ QByteArray::fromBase64 has Base64UrlEncoding option.
+    QByteArray payloadData = QByteArray::fromBase64(parts[1].toUtf8(),
+                             QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(payloadData, &parseError);
+
+    if (parseError.error != QJsonParseError::NoError)
+    {
+        qCWarning(KSTARS) << "Failed to parse JWT payload:" << parseError.errorString();
+        return 0;
+    }
+
+    if (!doc.isObject())
+    {
+        qCWarning(KSTARS) << "JWT payload is not a JSON object.";
+        return 0;
+    }
+
+    QJsonObject payloadObj = doc.object();
+    if (payloadObj.contains("exp") && payloadObj["exp"].isDouble())
+    {
+        return static_cast<qlonglong>(payloadObj["exp"].toDouble());
+    }
+    else
+    {
+        qCWarning(KSTARS) << "JWT payload does not contain a valid 'exp' (expiration) claim or it's not a number.";
+    }
+    return 0; // No 'exp' claim found or not a number
+}
 
 } // namespace KSUtils
