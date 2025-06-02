@@ -188,11 +188,36 @@ class FITSStack : public QObject
          */
         bool stackSubs(const QVector<cv::Mat> &subs, const bool initial, float &totalWeight, cv::Mat &stack);
 
-        cv::Mat stackImagesSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> weights);
-        cv::Mat stacknImagesSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> weights);
+        /**
+         * @brief Stack the passed in vector of subs using Sigma Clipping
+         * @param subs to be stacked
+         * @param weights of each sub for the stack
+         * @return stack is returned to the caller
+         */
+        cv::Mat stackSubsSigmaClipping(const QVector<cv::Mat> &subs, const QVector<float> &weights);
+
+        /**
+         * @brief Stack the passed in vector of subs to an existing stack using Sigma Clipping
+         * @param subs to be stacked
+         * @param weights of each sub for the stack
+         * @return stack
+         */
+        cv::Mat stacknSubsSigmaClipping(const QVector<cv::Mat> &subs, const QVector<float> &weights);
         cv::Mat postProcessImage(const cv::Mat image);
+
+        /**
+         * @brief Return the weights for each sub for the stacking process
+         * @return weights
+         */
         QVector<float> getWeights();
-        double getSNR(const cv::Mat image);
+
+        /**
+         * @brief Return the Signal-To-Noise ratio of the passed in image
+         * @param image
+         * @return SNR
+         */
+        double getSNR(const cv::Mat &image);
+
         cv::Mat calculatePSF(const cv::Mat &image, int patchSize = 21);
         cv::Mat wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf);
         void setupRunningStack(struct wcsprm * wcsprm, const int numSubs, const float totalWeight);
@@ -255,7 +280,7 @@ class FITSStack : public QObject
         // Aligning
         // Stacking
         cv::Mat m_StackedImage32F;
-        cv::Mat m_SigmaClip32FC4;
+        QVector<cv::Mat> m_SigmaClip32FC4;
         // JEE QByteArray m_StackedBuffer;
         std::unique_ptr<QByteArray> m_StackedBuffer { nullptr };
 

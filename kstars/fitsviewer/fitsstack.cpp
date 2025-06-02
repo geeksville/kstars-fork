@@ -119,20 +119,9 @@ bool FITSStack::addSub(void * imageBuffer, const int cvType, const int width, co
             int subs = m_StackImageData.size();
             if (getInitialStackDone())
                 subs += m_RunningStackImageData.numSubs;
-            m_MeanSubSNR = (m_MeanSubSNR * subs + snr) / (subs + 1);
+            m_MeanSubSNR = ((m_MeanSubSNR * (subs - 1)) + snr) / subs;
         }
 
-        // Setup the image data structure for later processing
-        // JEE StackImageData imageData;
-        //imageData.image = image.clone();
-        //imageData.plateSolvedStatus = SOLVED_IN_PROGRESS;
-        //imageData.wcsprm = nullptr;
-        //imageData.hfr = -1;
-        //imageData.numStars = 0;
-        //m_StackImageData.push_back(imageData);
-
-        // Save the image for later processing
-        // JEE m_StackImageData.last().image = image.clone();
         m_StackImageData.last().image = image;
         return true;
     }
@@ -177,7 +166,7 @@ void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, 
             std::vector<cv::Mat> channels;
             cv::split(m_MasterFlat, channels);
 
-            for (int c = 0; c < channels.size(); c++)
+            for (unsigned int c = 0; c < channels.size(); c++)
             {
                 std::vector<float> values;
                 values.assign((float*)channels[c].data, (float*)channels[c].data + channels[c].total());
@@ -327,10 +316,6 @@ bool FITSStack::stack()
             if (m_StackImageData[i].plateSolvedStatus != SOLVED_OK)
                 continue;
 
-            // JEE
-            //cv::Mat image32F;
-            //m_StackImageData[i].image.convertTo(image32F, m_CVType);
-
             // Calibrate sub
             if (!calibrateSub(m_StackImageData[i].image))
                 continue;
@@ -447,7 +432,7 @@ bool FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::M
         double imgcrd[2], phi, theta, world[2], pixcrd[2];
         int status, stat[2];
         std::vector<cv::Point2d> worldCoords1;
-        for (int i = 0; i < corners1.size(); i++)
+        for (unsigned int i = 0; i < corners1.size(); i++)
         {
             pixcrd[0] = corners1[i].x;
             pixcrd[1] = corners1[i].y;
@@ -458,7 +443,7 @@ bool FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::M
 
         // Convert world coordinates to pixel coordinates in image 2
         std::vector<cv::Point2d> corners2;
-        for (int i = 0; i < worldCoords1.size(); i++)
+        for (unsigned int i = 0; i < worldCoords1.size(); i++)
         {
             world[0] = worldCoords1[i].x;
             world[1] = worldCoords1[i].y;
@@ -528,9 +513,9 @@ bool FITSStack::stackSubs(const QVector<cv::Mat> &subs, const bool initial, floa
         if (m_StackData.rejection == LS_STACKING_REJ_SIGMA || m_StackData.rejection == LS_STACKING_REJ_WINDZOR)
         {
             if (initial)
-                stack = stackImagesSigmaClipping(subs, weights);
+                stack = stackSubsSigmaClipping(subs, weights);
             else
-                stack = stacknImagesSigmaClipping(subs, weights);
+                stack = stacknSubsSigmaClipping(subs, weights);
         }
         else
         {
@@ -564,6 +549,7 @@ bool FITSStack::stackSubs(const QVector<cv::Mat> &subs, const bool initial, floa
     }
 }
 
+// Get the weightd for each sub for the stacking process
 QVector<float> FITSStack::getWeights()
 {
     QVector<float> weights(m_StackImageData.size());
@@ -595,21 +581,38 @@ QVector<float> FITSStack::getWeights()
     return weights;
 }
 
-// Function to stack images using standard or Windsorized Sigma Clipping
-cv::Mat FITSStack::stackImagesSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> weights)
+// Function to stack subs using standard or Windsorized Sigma Clipping
+cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> &weights)
 {
     try
     {
+        if (images.size() != weights.size())
+        {
+            qCDebug(KSTARS_FITS) << QString("Inconsistent subs and weights in %1").arg(__FUNCTION__);
+            return cv::Mat();
+        }
+
         int rows = images[0].rows;
         int cols = images[0].cols;
         int numImages = images.size();
-        cv::Mat finalImage = cv::Mat::zeros(rows, cols, CV_32F);
+        cv::Mat finalImage = cv::Mat::zeros(rows, cols, m_CVType);
         float *finalImagePtr;
-        // Setup structure for future sigma clipping
-        m_SigmaClip32FC4 = cv::Mat::zeros(rows, cols, CV_32FC4);
-        cv::Vec4f *sigmaClipPtr;
 
-        bool continuous = finalImage.isContinuous() && m_SigmaClip32FC4.isContinuous();
+        // Setup structure for each channel for future sigma clipping
+        m_SigmaClip32FC4.clear();
+        m_SigmaClip32FC4.resize(m_Channels);
+        for (int ch = 0; ch < m_Channels; ch++)
+            m_SigmaClip32FC4[ch] = cv::Mat::zeros(rows, cols, CV_32FC4);
+        QVector<cv::Vec4f *> sigmaClipPtr(m_Channels);
+
+        bool continuous = finalImage.isContinuous();
+        for (int ch = 0; ch < m_Channels; ch++)
+        {
+            if (continuous)
+                continuous = m_SigmaClip32FC4[ch].isContinuous();
+            if (!continuous)
+                break;
+        }
         for (int i = 0; i < numImages; i++)
         {
             if (continuous)
@@ -625,112 +628,91 @@ cv::Mat FITSStack::stackImagesSigmaClipping(const QVector<cv::Mat> &images, cons
             rows = 1;
         }
 
-        // Pre-allocate vector for pixel values
-        typedef struct
-        {
-            float value;
-            float weight;
-        } PixelValue;
-        std::vector<PixelValue> pixelValues(numImages);
         std::vector<float> values(numImages);
 
         // Process each pixel position
         std::vector<const float *> imagesPtrs(numImages);
         for (int y = 0; y < rows; y++)
         {
-            // Update imagePtrs and finalImagePtr for current y
+            // Update ptrs for current y
             for (int i = 0; i < numImages; i++)
                 imagesPtrs[i] = images[i].ptr<float>(y);
 
             finalImagePtr = finalImage.ptr<float>(y);
-            sigmaClipPtr = m_SigmaClip32FC4.ptr<cv::Vec4f>(y);
+            for (int ch = 0; ch < m_Channels; ch++)
+                sigmaClipPtr[ch] = m_SigmaClip32FC4[ch].ptr<cv::Vec4f>(y);
 
             for (int x = 0; x < cols; x++)
             {
-                // Collect values for this pixel from all images
-                for (int image = 0; image < numImages; image++)
+                // Collect values for this pixel/channel from all images
+                for (int ch = 0; ch < m_Channels; ch++)
                 {
-                    pixelValues[image].value = imagesPtrs[image][x];
-                    pixelValues[image].weight = weights[image];
-                    values[image] = imagesPtrs[image][x];
-                }
+                    for (int image = 0; image < numImages; image++)
+                        values[image] = imagesPtrs[image][x * m_Channels + ch];
 
-                std::sort(pixelValues.begin(), pixelValues.end(), [](const PixelValue &a, const PixelValue &b)
-                {
-                    return (a.value < b.value);
-                });
+                    float pixelValue = 0.0;
 
-                // Process this pixel stack
-                float pixelValue = 0.0;
+                    if (m_StackData.rejection == LS_STACKING_REJ_WINDZOR)
+                    {
+                        // Winsorize the data
+                        float median = Mathematics::RobustStatistics::ComputeLocation(
+                                                Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
+                        auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
+                                                Mathematics::RobustStatistics::SCALE_VARIANCE, values));
 
-                if (m_StackData.rejection == LS_STACKING_REJ_WINDZOR)
-                {
-                    // Winsorize the data
+                        float lower = std::max(0.0, median - (stddev * m_StackData.windzorCutoff));
+                        float upper = median + (stddev * m_StackData.windzorCutoff);
+
+                        for (unsigned int i = 0; i < values.size(); i++)
+                        {
+                            if (values[i] < lower)
+                                values[i] = lower;
+                            else if (values[i] > upper)
+                                values[i] = upper;
+                        }
+                    }
+
+                    // Now process the data
                     float median = Mathematics::RobustStatistics::ComputeLocation(
                                                 Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
-                    auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
+
+                    float sum = 0.0, weightSum = 0.0, lower = -1.0, upper = -1.0;
+                    if (values.size() <= 3)
+                        // For small samples just use median
+                        pixelValue = median;
+                    else
+                    {
+                        // Sigma clipping
+                        auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
                                                 Mathematics::RobustStatistics::SCALE_VARIANCE, values));
 
-                    float lower = std::max(0.0, median - (stddev * m_StackData.windzorCutoff));
-                    float upper = median + (stddev * m_StackData.windzorCutoff);
+                        // Get the lower and upper bounds
+                        lower = std::max(0.0, median - (stddev * m_StackData.lowSigma));
+                        upper = median + (stddev * m_StackData.highSigma);
 
-                    for (int i = 0; i < pixelValues.size(); i++)
-                    {
-                        if (pixelValues[i].value < lower)
+                        for (unsigned int i = 0; i < values.size(); i++)
                         {
-                            pixelValues[i].value = lower;
-                            values[i] = lower;
+                            if (values[i] < lower || values[i] > upper)
+                                continue;
+
+                            sum += values[i] * weights[i];
+                            weightSum += weights[i];
                         }
-                        else if (pixelValues[i].value > upper)
-                        {
-                            pixelValues[i].value = upper;
-                            values[i] = upper;
-                        }
+
+                        if (weightSum > 0.0)
+                            pixelValue = sum / weightSum;
                     }
-                }
-
-                // Now process the winsorized data
-                float median = Mathematics::RobustStatistics::ComputeLocation(
-                                                Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
-                if (pixelValues.size() <= 3)
-                    // For small samples just use median
-                    pixelValue = median;
-                else
-                {
-                    // Sigma clipping
-                    auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
-                                                Mathematics::RobustStatistics::SCALE_VARIANCE, values));
-
-                    // Get the lower and upper bounds
-                    float lower = std::max(0.0, median - (stddev * m_StackData.lowSigma));
-                    float upper = median + (stddev * m_StackData.highSigma);
-
-                    float sum = 0.0, weightSum = 0.0;
-                    for (int i = 0; i < pixelValues.size(); i++)
-                    {
-                        if (pixelValues[i].value < lower)
-                            continue;
-                        if (pixelValues[i].value > upper)
-                            break;
-                        if (pixelValues[i].value > 0.0)
-                        {
-                            sum += pixelValues[i].value * pixelValues[i].weight;
-                            weightSum += pixelValues[i].weight;
-                        }
-                    }
-
-                    if (weightSum > 0.0)
-                        pixelValue = sum / weightSum;
-
-                    // Now store intermediate calcs from this process, necessary for processing new subs
+                    // Store intermediate calcs from this process, necessary for processing new subs
                     cv::Vec4f sigmaClip;
                     sigmaClip[0] = lower;
                     sigmaClip[1] = upper;
                     sigmaClip[2] = sum;
                     sigmaClip[3] = weightSum;
-                    sigmaClipPtr[x] = sigmaClip;
+                    sigmaClipPtr[ch][x] = sigmaClip;
+
+                    // Update the pixel/channel with the calculated value
+                    finalImagePtr[x * m_Channels + ch] = pixelValue;
                 }
-                finalImagePtr[x] = pixelValue;
             }
         }
         return finalImage;
@@ -739,14 +721,12 @@ cv::Mat FITSStack::stackImagesSigmaClipping(const QVector<cv::Mat> &images, cons
     {
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
-        // JEE is there a better way to do this?
-        cv::Mat dummy;
-        return dummy;
+        return cv::Mat();
     }
 }
 
-// Function to stack n images to an existing stack using Sigma Clipping
-cv::Mat FITSStack::stacknImagesSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> weights)
+// Function to stack n subs to an existing stack using Sigma Clipping
+cv::Mat FITSStack::stacknSubsSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> &weights)
 {
     try
     {
@@ -755,12 +735,22 @@ cv::Mat FITSStack::stacknImagesSigmaClipping(const QVector<cv::Mat> &images, con
         int numImages = images.size();
         cv::Mat finalImage = m_StackedImage32F;
         float *finalImagePtr;
-        cv::Vec4f *sigmaClipPtr;
+        QVector<cv::Vec4f *> sigmaClipPtr(m_Channels);
 
         if (images.size() != weights.size())
+        {
+            qCDebug(KSTARS_FITS) << QString("Inconsistent subs and weights in %1").arg(__FUNCTION__);
             return finalImage;
+        }
 
-        bool continuous = finalImage.isContinuous() && m_SigmaClip32FC4.isContinuous();
+        bool continuous = finalImage.isContinuous();
+        for (int ch = 0; ch < m_Channels; ch++)
+        {
+            if (continuous)
+                continuous = m_SigmaClip32FC4[ch].isContinuous();
+            if (!continuous)
+                break;
+        }
         for (int i = 0; i < numImages; i++)
         {
             if (continuous)
@@ -785,35 +775,39 @@ cv::Mat FITSStack::stacknImagesSigmaClipping(const QVector<cv::Mat> &images, con
                 imagesPtrs[i] = images[i].ptr<float>(y);
 
             finalImagePtr = finalImage.ptr<float>(y);
-            sigmaClipPtr = m_SigmaClip32FC4.ptr<cv::Vec4f>(y);
+            for (int ch = 0; ch < m_Channels; ch++)
+                sigmaClipPtr[ch] = m_SigmaClip32FC4[ch].ptr<cv::Vec4f>(y);
 
             for (int x = 0; x < cols; x++)
             {
-                // Get the sigma clip data from the current stack
-                cv::Vec4f sigmaClip = sigmaClipPtr[x];
-                float lower = sigmaClip[0];
-                float upper = sigmaClip[1];
-                float sum = sigmaClip[2];
-                float weightSum = sigmaClip[3];
-
-                // Process each image
-                for (int image = 0; image < numImages; image++)
+                for (int ch = 0; ch < m_Channels; ch++)
                 {
-                    float pixel = imagesPtrs[image][x];
-                    if (pixel >= lower && pixel <= upper)
+                    // Get the sigma clip data from the current pixel/channel
+                    cv::Vec4f sigmaClip = sigmaClipPtr[ch][x];
+                    float lower = sigmaClip[0];
+                    float upper = sigmaClip[1];
+                    float sum = sigmaClip[2];
+                    float weightSum = sigmaClip[3];
+
+                    // Process each image
+                    for (int image = 0; image < numImages; image++)
                     {
-                        sum += pixel * weights[image];
-                        weightSum += weights[image];
+                        float pixel = imagesPtrs[image][x];
+                        if (lower < 0.0 || (pixel >= lower && pixel <= upper))
+                        {
+                            sum += pixel * weights[image];
+                            weightSum += weights[image];
+                        }
                     }
+
+                    // Update image pixel with new value
+                    finalImagePtr[x * m_Channels + ch] = sum / weightSum;
+
+                    // Save the new intermediate results for next time
+                    sigmaClip[2] = sum;
+                    sigmaClip[3] = weightSum;
+                    sigmaClipPtr[ch][x] = sigmaClip;
                 }
-
-                // Update image pixel with new value
-                finalImagePtr[x] = sum / weightSum;
-
-                // Save the new intermediate results for next time
-                sigmaClip[2] = sum;
-                sigmaClip[3] = weightSum;
-                sigmaClipPtr[x] = sigmaClip;
             }
         }
         return finalImage;
@@ -822,9 +816,7 @@ cv::Mat FITSStack::stacknImagesSigmaClipping(const QVector<cv::Mat> &images, con
     {
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
-        // JEE is there a better way to do this?
-        cv::Mat dummy;
-        return dummy;
+        return m_StackedImage32F;
     }
 }
 
@@ -1312,7 +1304,7 @@ bool FITSStack::convertMatToFITS(const cv::Mat image)
 }
 
 // Calculate the SNR of the passed in image
-double FITSStack::getSNR(const cv::Mat image)
+double FITSStack::getSNR(const cv::Mat &image)
 {
     double snr = 0.0;
     try
@@ -1320,65 +1312,30 @@ double FITSStack::getSNR(const cv::Mat image)
         if (image.empty())
             return snr;
 
-        if (image.channels() == 1)
+        // Split into channels: 1 for mono, 3 for colour
+        std::vector<cv::Mat> channels;
+        cv::split(image, channels);
+
+        int count = 0;
+        for (const auto& channel : channels)
         {
-            // Grayscale image
-            //cv::Scalar mean, stddev;
-            //cv::meanStdDev(image, mean, stddev);
-            //if (stddev.val[0] > 0.0)
-            //    snr = mean.val[0] / stddev.val[0];
-
-            double minVal, maxVal;
-            cv::Point minLoc, maxLoc;
-            cv::minMaxLoc(image, &minVal, &maxVal, &minLoc, &maxLoc);
-
-            // Get a 100x100 box around the max pixel
-            int X = std::min(std::max(0, maxLoc.x - 50), image.size().width - 100);
-            int Y = std::min(std::max(0, maxLoc.y - 50), image.size().height - 100);
-
-            // Measure noise in area around brightest star
-            cv::Rect noiseRegion(X, Y, 100, 100);
-            cv::Scalar noiseMean, noiseStd;
-            cv::meanStdDev(image(noiseRegion), noiseMean, noiseStd);
-            snr = (maxVal - noiseMean.val[0]) / noiseStd.val[0];
-        }
-        else if (image.channels() == 3)
-        {
-            // Color image: split into channels
-            std::vector<cv::Mat> channels;
-            cv::split(image, channels);
-
-            for (const auto& channel : channels)
+            cv::Scalar mean, stddev;
+            cv::meanStdDev(channel, mean, stddev);
+            if (stddev.val[0] > 0.0)
             {
-                //cv::Scalar mean, stddev;
-                //cv::meanStdDev(channel, mean, stddev);
-                //if (stddev.val[0] > 0.0)
-                //    snr += mean.val[0] / stddev.val[0];
-
-                // JEE
-                double minVal, maxVal;
-                cv::Point minLoc, maxLoc;
-                cv::minMaxLoc(channel, &minVal, &maxVal, &minLoc, &maxLoc);
-
-                // Get a 100x100 box around the max pixel
-                int X = std::min(std::max(0, maxLoc.x - 50), image.size().width - 100);
-                int Y = std::min(std::max(0, maxLoc.y - 50), image.size().height - 100);
-
-                // Measure noise in area around brightest star
-                cv::Rect noiseRegion(X, Y, 100, 100);
-                cv::Scalar noiseMean, noiseStd;
-                cv::meanStdDev(channel(noiseRegion), noiseMean, noiseStd);
-                snr += (maxVal - noiseMean.val[0]) / noiseStd.val[0];
+                snr += mean.val[0] / stddev.val[0];
+                count++;
             }
-            snr /= 3;
         }
+        if (count > 0)
+            snr /= count;
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+        snr = 0.0;
     }
-
     return snr;
 }
 

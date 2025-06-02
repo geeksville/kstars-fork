@@ -6,10 +6,12 @@
 #  OpenCV_LIBRARIES - Link these to use OpenCV
 #
 # Currently the following OpenCV libraries are used
-#   opencv_core - core
+#   opencv_core      - core
 #   opencv_imageproc - image processing routines, e.g. Sobel, Laplassian, etc
-#   opencv_highgui - used for debug (when stable this could be removed)
-#   JEE tidy up
+#   opencv_highgui   - routines for debug (when stable this could be removed)
+#   opencv_imgcodecs - routines for image input / output
+#   OpenCV_calib3d   - routines for 3D transformation
+#   opencv_photo     - routines for image processing, e.g. denoising
 #
 # OpenCV is installed in /opencv4/opencv2/.. and the include path needs to be at the /opencv4 level
 # to avoid compilation errors
@@ -64,12 +66,6 @@ else (OpenCV_INCLUDE_DIR AND OpenCV_LIBRARIES)
     ${_obLinkDir}
     ${GNUWIN32_DIR}/lib
   )
-  find_library(OpenCV_video_LIBRARY NAMES opencv_video
-    PATHS
-    ${PC_OPENCV_LIBRARY_DIRS}
-    ${_obLinkDir}
-    ${GNUWIN32_DIR}/lib
-  )
   find_library(OpenCV_calib3d_LIBRARY NAMES opencv_calib3d
     PATHS
     ${PC_OPENCV_LIBRARY_DIRS}
@@ -87,7 +83,6 @@ else (OpenCV_INCLUDE_DIR AND OpenCV_LIBRARIES)
     ${OpenCV_imgproc_LIBRARY}
     ${OpenCV_highgui_LIBRARY}
     ${OpenCV_imgcodecs_LIBRARY}
-    ${OpenCV_video_LIBRARY}
     ${OpenCV_calib3d_LIBRARY}
     ${OpenCV_photo_LIBRARY})
 
