@@ -370,17 +370,20 @@ void PlateSolve::subExtractorDone(bool timedOut, bool success, const FITSImage::
         return;
     }
 
-    double medianHFR = 0.0;
     const QList<FITSImage::Star> &starList = m_Solver->getStarList();
+
+    // Get the median HFR
+    double medianHFR = 0.0;
     if (starList.size() > 0)
     {
         std::vector<FITSImage::Star> stars(starList.constBegin(), starList.constEnd());
         // Use nth_element to get the median HFR
         std::nth_element(stars.begin(), stars.begin() + stars.size() / 2, stars.end(),
-                             [](const FITSImage::Star &a, const FITSImage::Star &b) { return a.HFR < b.HFR; });
+                         [](const FITSImage::Star &a, const FITSImage::Star &b) { return a.HFR < b.HFR; });
         FITSImage::Star medianStar = stars[stars.size() / 2];
         medianHFR = medianStar.HFR;
     }
+    // Set the stars in the FITSData object so the user can view them.
     emit subExtractorSuccess(medianHFR, starList.size());
 }
 

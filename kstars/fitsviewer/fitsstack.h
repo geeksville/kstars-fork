@@ -120,6 +120,8 @@ class FITSStack : public QObject
             return (m_StackedBuffer) ? *m_StackedBuffer : QByteArray();
         }
 
+        void setBayerPattern(QString bayerPattern);
+
         const double &getMeanSubSNR() const
         {
             return m_MeanSubSNR;
@@ -169,7 +171,13 @@ class FITSStack : public QObject
          * @return success (or not)
          */
         bool calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::Mat &warp);
-        bool convertMatToFITS(const cv::Mat image);
+
+        /**
+         * @brief Convert passed in Mat to FITS format
+         * @param image
+         * @return success (or not)
+         */
+        bool convertMatToFITS(const cv::Mat &image);
 
         /**
          * @brief Calibrate the passed in sub
@@ -203,7 +211,13 @@ class FITSStack : public QObject
          * @return stack
          */
         cv::Mat stacknSubsSigmaClipping(const QVector<cv::Mat> &subs, const QVector<float> &weights);
-        cv::Mat postProcessImage(const cv::Mat image);
+
+        /**
+         * @brief Post process the passed in stack
+         * @param Image to process
+         * @return Processed image
+         */
+        cv::Mat postProcessImage(const cv::Mat &image);
 
         /**
          * @brief Return the weights for each sub for the stacking process
@@ -214,12 +228,26 @@ class FITSStack : public QObject
         /**
          * @brief Return the Signal-To-Noise ratio of the passed in image
          * @param image
-         * @return SNR
+         * @return SNR (0.0 on failure)
          */
         double getSNR(const cv::Mat &image);
 
+        /**
+         * @brief Return a PSF for stars (upto 20) in the passed in image
+         * @param image
+         * @param patchSize is the patch region around a star - multiple stars are ignored. Must be odd
+         * @return PSF (empty Mat on failure)
+         */
         cv::Mat calculatePSF(const cv::Mat &image, int patchSize = 21);
+
+        /**
+         * @brief Apply Wiener deconvolution to the passed in image, using psf
+         * @param image
+         * @param psf (previously calculated by calculatePSF)
+         * @return deconvolved image (empty Mat on failure)
+         */
         cv::Mat wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf);
+
         void setupRunningStack(struct wcsprm * wcsprm, const int numSubs, const float totalWeight);
         void updateRunningStack(const int numSubs, const float totalWeight);
         void tidyUpInitalStack(struct wcsprm * refWCS);
@@ -234,6 +262,7 @@ class FITSStack : public QObject
         FITSData *m_Data;
         QSharedPointer<SolverUtils> m_Solver;
         bool m_ReadyToStack { false };
+        QString m_BayerPattern;
 
         // QVector<QString> m_ImagePaths;
         //QVector<cv::Mat> m_Images;

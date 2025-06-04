@@ -18,7 +18,6 @@
 #define kde_translate ki18n
 #endif
 
-// JEE
 typedef enum { FITS_NORMAL, FITS_FOCUS, FITS_GUIDE, FITS_CALIBRATE, FITS_ALIGN, FITS_LIVESTACKING, FITS_UNKNOWN } FITSMode;
 
 // Focus States
@@ -306,10 +305,10 @@ static CatObjType catObjTypes[MAX_CAT_OBJ_TYPES] =
     {0, "reg", "", "Region", "Region defined in the Sky", ""}
 };
 
-// JEE Live Stacking
+// Live Stacking
 typedef enum { LS_ALIGNMENT_PLATE_SOLVE } LiveStackAlignMethod;
 typedef enum { LS_STACKING_EQUAL, LS_STACKING_HFR, LS_STACKING_NUM_STARS } LiveStackFrameWeighting;
-typedef enum { LS_STACKING_REJ_NONE, LS_STACKING_REJ_SIGMA, LS_STACKING_REJ_WINDZOR } LiveStackRejection;
+typedef enum { LS_STACKING_REJ_NONE, LS_STACKING_REJ_SIGMA, LS_STACKING_REJ_WINDSOR } LiveStackRejection;
 
 typedef struct
 {
@@ -331,6 +330,6 @@ typedef struct
     LiveStackRejection rejection;
     double lowSigma;
     double highSigma;
-    double windzorCutoff;
+    double windsorCutoff;
     LiveStackPPData postProcessing;
 } LiveStackData;

@@ -527,7 +527,9 @@ void FITSView::loadStack(const QString &inDir)
 // JEE Called when post processing controls in Fitstab changed by the user
 void FITSView::redoPostProcessStack()
 {
-    m_ImageData->stack()->redoPostProcessStack();
+    auto stack = m_ImageData->stack();
+    if (stack)
+        stack->redoPostProcessStack();
 }
 
 void FITSView::clearData()
@@ -749,7 +751,6 @@ void FITSView::loadInFrame()
     // JEE If stack has just been processed, check if there are more subs to do...
     if (mode == FITS_LIVESTACKING && m_ImageData->stack())
     {
-        m_ImageData->stack()->setStackInProgress(false);
         emit autoPlateSolve();
         m_ImageData->incrementalStack();
     }

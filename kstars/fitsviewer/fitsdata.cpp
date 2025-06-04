@@ -286,7 +286,7 @@ bool FITSData::loadStack(const QString &inDir)
 // Called when 1 (or more) new files added to the watched stack directory
 void FITSData::newStackSubs(const QStringList &newFiles)
 {
-    qCDebug(KSTARS_FITS) << "JEE New files detected:";
+    qCDebug(KSTARS_FITS) << QString("JEE %1 New files detected").arg(newFiles.size());
     for (const QString &file : newFiles)
     {
         qCDebug(KSTARS_FITS) << file;
@@ -304,16 +304,18 @@ void FITSData::incrementalStack()
     if (m_Stack->getStackInProgress())
         return;
 
+    m_Stack->setStackInProgress(true);
     int subsToProcess = m_Stack->getStackData().numInMem;
     m_StackSubs.clear();
     m_StackSubPos = -1;
     for (int i = 0; i < subsToProcess; i++)
     {
-        m_StackSubs.push_front(m_StackQ.dequeue());
+        m_StackSubs.push_back(m_StackQ.dequeue());
         if (m_StackQ.isEmpty())
             break;
     }
-    processNextSub(m_StackSubs[m_StackSubPos]);
+    nextStackAction();
+    // JEE processNextSub(m_StackSubs[m_StackSubPos]);
 }
 
 QFuture<bool> FITSData::loadStackBuffer()
@@ -416,9 +418,10 @@ void FITSData::nextStackAction()
                 processMasters();
 
             // Stack... either an initial stack or add 1 or more subs to an existing stack
-            bool stackOK = m_Stack->getInitialStackDone() ? m_Stack->stackn() : m_Stack->stack();
-            if (stackOK)
-                emit stackReady();
+            m_Stack->getInitialStackDone() ? m_Stack->stackn() : m_Stack->stack();
+            // JEE if (stackOK)
+            emit stackReady();
+            m_Stack->setStackInProgress(false);
         }
     }
 }
@@ -858,7 +861,6 @@ bool FITSData::stackLoadFITSImage(QString filename, const bool isCompressed)
             return false;
     }
 
-    // JEE is it OK to reuse m_ImageBuffer
     uint32_t stackImageBufferSize = m_StackStatistics.stats.samples_per_channel * m_StackStatistics.stats.channels *
                                     m_StackStatistics.stats.bytesPerPixel;
     if (stackImageBufferSize != m_StackImageBufferSize)
@@ -4913,7 +4915,8 @@ bool FITSData::stackCheckDebayer(BayerParams bayerParams)
         qCDebug(KSTARS_FITS) << QString("Unsupported bayer offsets %1 %2.").arg(bayerParams.offsetX).arg(bayerParams.offsetY);
         return false;
     }
-
+    if (m_Stack)
+        m_Stack->setBayerPattern(bayerPattern);
     return true;
 }
 

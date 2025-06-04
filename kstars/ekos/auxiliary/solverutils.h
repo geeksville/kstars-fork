@@ -34,7 +34,6 @@ class SolverUtils : public QObject
                     SSolver::ProcessType type = SSolver::SOLVE);
         ~SolverUtils();
 
-        // JEE
         void runSolver(const QSharedPointer<FITSData> &data, const bool stack = false);
         void runSolver(const QString &filename);
         SolverUtils &useScale(bool useIt, double scaleLowArcsecPerPixel, double scaleHighArcsecPerPixel);
@@ -75,8 +74,7 @@ class SolverUtils : public QObject
         void solverDone();
         void solverTimeout();
         void executeSolver();
-        // JEE
-        void prepareSolver(const bool stack);
+        void prepareSolver(const bool stack = false);
 
         std::unique_ptr<StellarSolver> m_StellarSolver;
 

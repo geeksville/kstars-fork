@@ -700,6 +700,7 @@ class FITSData : public QObject
         /// JEE Live Stacking Functions
         ////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////
+
         /**
          * @brief Get the live stack object pointer
          * @return Live Stack pointer
@@ -781,7 +782,7 @@ class FITSData : public QObject
          * @brief JEE Signal FITSView then FITSTab to plate solve the current image
          */
         void plateSolveImage(const double ra, const double dec, const double pixScale,
-                             const LiveStackFrameWeighting weighting);
+                             const LiveStackFrameWeighting &weighting);
         /**
          * @brief JEE Signal FITSView then FITSTab that an align master sub has been chosen
          */
@@ -1116,6 +1117,7 @@ class FITSData : public QObject
         QString m_StackDir;
         QSharedPointer<FITSDirWatcher> m_StackDirWatcher;
         QQueue<QString> m_StackQ;
+        QList<Edge *> subStarCenters;
         bool m_MastersLoaded { false };
         uint8_t *m_StackImageBuffer { nullptr };
         uint32_t m_StackImageBufferSize { 0 };

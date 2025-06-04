@@ -159,7 +159,6 @@ void KStars::initActions()
             << i18n("Open/Blink Directory") << QIcon::fromTheme("folder-open")
             << QKeySequence(Qt::CTRL | Qt::Key_O | Qt::AltModifier);
 
-    // JEE
 #ifdef HAVE_OPENCV
     actionCollection()->addAction("stack_directory", this, SLOT(slotStack()))
         << i18n("Open/Stack Directory") << QIcon::fromTheme("folder-open")

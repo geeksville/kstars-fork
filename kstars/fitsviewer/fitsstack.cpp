@@ -48,6 +48,11 @@ void FITSStack::setInitalStackDone(bool done)
     m_InitialStackDone = done;
 }
 
+void FITSStack::setBayerPattern(const QString bayerPattern)
+{
+    m_BayerPattern = bayerPattern;
+}
+
 LiveStackData FITSStack::loadStackData()
 {
     LiveStackData data;
@@ -60,7 +65,7 @@ LiveStackData FITSStack::loadStackData()
     data.rejection = static_cast<LiveStackRejection>(Options::fitsLSRejection());
     data.lowSigma = Options::fitsLSLowSigma();
     data.highSigma = Options::fitsLSHighSigma();
-    data.windzorCutoff = Options::fitsLSWinsorCutoff();
+    data.windsorCutoff = Options::fitsLSWinsorCutoff();
     data.postProcessing = loadStackPPData();
     return data;
 }
@@ -309,7 +314,6 @@ bool FITSStack::stack()
     try
     {
         int ref = -1;
-        cv::Mat finalImage;
         QVector<cv::Mat> m_Aligned;
         for(int i = 0; i < m_StackImageData.size(); i++)
         {
@@ -343,7 +347,7 @@ bool FITSStack::stack()
         if (stackSubs(m_Aligned, true, totalWeight, m_StackedImage32F))
         {
             // Perform any post stacking processing such as sharpening / denoising
-            finalImage = postProcessImage(m_StackedImage32F);
+            cv::Mat finalImage = postProcessImage(m_StackedImage32F);
             m_StackSNR = getSNR(finalImage);
             convertMatToFITS(finalImage);
         }
@@ -352,14 +356,12 @@ bool FITSStack::stack()
             // We've completed the initial stack so move to incremental stacking as new subs arrive
             setupRunningStack(m_StackImageData[ref].wcsprm, m_Aligned.size(), totalWeight);
 
-        setStackInProgress(false);
         return true;
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
-        setStackInProgress(false);
         return false;
     }
 }
@@ -369,7 +371,6 @@ bool FITSStack::stackn()
 {
     try
     {
-        cv::Mat finalImage, finalImage32F;
         QVector<cv::Mat> m_Aligned;
         for(int i = 0; i < m_StackImageData.size(); i++)
         {
@@ -395,18 +396,16 @@ bool FITSStack::stackn()
         if (stackSubs(m_Aligned, false, totalWeight, m_StackedImage32F))
         {
             // Perform any post stacking processing such as sharpening / denoising
-            finalImage = postProcessImage(m_StackedImage32F);
+            cv::Mat finalImage = postProcessImage(m_StackedImage32F);
             m_StackSNR = getSNR(finalImage);
             convertMatToFITS(finalImage);
         }
         updateRunningStack(m_Aligned.size(), totalWeight);
-        setStackInProgress(false);
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
-        setStackInProgress(false);
         return false;
     }
     return true;
@@ -510,7 +509,7 @@ bool FITSStack::stackSubs(const QVector<cv::Mat> &subs, const bool initial, floa
 
         QVector<float> weights = getWeights();
 
-        if (m_StackData.rejection == LS_STACKING_REJ_SIGMA || m_StackData.rejection == LS_STACKING_REJ_WINDZOR)
+        if (m_StackData.rejection == LS_STACKING_REJ_SIGMA || m_StackData.rejection == LS_STACKING_REJ_WINDSOR)
         {
             if (initial)
                 stack = stackSubsSigmaClipping(subs, weights);
@@ -549,7 +548,7 @@ bool FITSStack::stackSubs(const QVector<cv::Mat> &subs, const bool initial, floa
     }
 }
 
-// Get the weightd for each sub for the stacking process
+// Get the weight for each sub for the stacking process
 QVector<float> FITSStack::getWeights()
 {
     QVector<float> weights(m_StackImageData.size());
@@ -605,25 +604,14 @@ cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<cv::Mat> &images, const 
             m_SigmaClip32FC4[ch] = cv::Mat::zeros(rows, cols, CV_32FC4);
         QVector<cv::Vec4f *> sigmaClipPtr(m_Channels);
 
-        bool continuous = finalImage.isContinuous();
-        for (int ch = 0; ch < m_Channels; ch++)
-        {
-            if (continuous)
-                continuous = m_SigmaClip32FC4[ch].isContinuous();
-            if (!continuous)
-                break;
-        }
-        for (int i = 0; i < numImages; i++)
-        {
-            if (continuous)
-                continuous = images[i].isContinuous();
-            if (!continuous)
-                break;
-        }
-
+        // If all images are continuous so we can treat as 1D arrays to speed things up
+        bool continuous = finalImage.isContinuous() &&
+                          std::all_of(m_SigmaClip32FC4.begin(), m_SigmaClip32FC4.end(),
+                                      [](const cv::Mat& mat) { return mat.isContinuous(); }) &&
+                          std::all_of(images.begin(), images.end(),
+                                      [](const cv::Mat& mat) { return mat.isContinuous(); });
         if (continuous)
         {
-            // All images are continuous so we can treat as 1D arrays to speed things up
             cols *= rows;
             rows = 1;
         }
@@ -652,7 +640,7 @@ cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<cv::Mat> &images, const 
 
                     float pixelValue = 0.0;
 
-                    if (m_StackData.rejection == LS_STACKING_REJ_WINDZOR)
+                    if (m_StackData.rejection == LS_STACKING_REJ_WINDSOR)
                     {
                         // Winsorize the data
                         float median = Mathematics::RobustStatistics::ComputeLocation(
@@ -660,8 +648,8 @@ cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<cv::Mat> &images, const 
                         auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
                                                 Mathematics::RobustStatistics::SCALE_VARIANCE, values));
 
-                        float lower = std::max(0.0, median - (stddev * m_StackData.windzorCutoff));
-                        float upper = median + (stddev * m_StackData.windzorCutoff);
+                        float lower = std::max(0.0, median - (stddev * m_StackData.windsorCutoff));
+                        float upper = median + (stddev * m_StackData.windsorCutoff);
 
                         for (unsigned int i = 0; i < values.size(); i++)
                         {
@@ -743,23 +731,12 @@ cv::Mat FITSStack::stacknSubsSigmaClipping(const QVector<cv::Mat> &images, const
             return finalImage;
         }
 
-        bool continuous = finalImage.isContinuous();
-        for (int ch = 0; ch < m_Channels; ch++)
-        {
-            if (continuous)
-                continuous = m_SigmaClip32FC4[ch].isContinuous();
-            if (!continuous)
-                break;
-        }
-        for (int i = 0; i < numImages; i++)
-        {
-            if (continuous)
-                continuous = images[i].isContinuous();
-            if (!continuous)
-                break;
-        }
-
         // If all images are continuous so we can treat as 1D arrays to speed things up
+        bool continuous = finalImage.isContinuous() &&
+                          std::all_of(m_SigmaClip32FC4.begin(), m_SigmaClip32FC4.end(),
+                                      [](const cv::Mat& mat) { return mat.isContinuous(); }) &&
+                          std::all_of(images.begin(), images.end(),
+                                      [](const cv::Mat& mat) { return mat.isContinuous(); });
         if (continuous)
         {
             cols *= rows;
@@ -792,7 +769,7 @@ cv::Mat FITSStack::stacknSubsSigmaClipping(const QVector<cv::Mat> &images, const
                     // Process each image
                     for (int image = 0; image < numImages; image++)
                     {
-                        float pixel = imagesPtrs[image][x];
+                        float pixel = imagesPtrs[image][x * m_Channels + ch];
                         if (lower < 0.0 || (pixel >= lower && pixel <= upper))
                         {
                             sum += pixel * weights[image];
@@ -820,7 +797,7 @@ cv::Mat FITSStack::stacknSubsSigmaClipping(const QVector<cv::Mat> &images, const
     }
 }
 
-cv::Mat FITSStack::postProcessImage(cv::Mat image32F)
+cv::Mat FITSStack::postProcessImage(const cv::Mat &image32F)
 {
     cv::Mat finalImage;
     try
@@ -860,7 +837,7 @@ cv::Mat FITSStack::postProcessImage(cv::Mat image32F)
 
         cv::Mat sharpenedImage;
 
-        // Sharpen using Unsharp Mask
+        // Sharpen using Unsharp Mask - openCV functions work on mono and colour images
         double sharpenAmount = m_StackData.postProcessing.sharpenAmt;
         if (sharpenAmount <= 0.0)
             sharpenedImage = image;
@@ -869,14 +846,23 @@ cv::Mat FITSStack::postProcessImage(cv::Mat image32F)
             cv::Mat blurredImage;
             int sharpenKernal = m_StackData.postProcessing.sharpenKernal;
             double sharpenSigma = m_StackData.postProcessing.sharpenSigma;
+
+            // Ensure kernel size is odd and positive
+            if (sharpenKernal < 3)
+                sharpenKernal = 3;
+            else if (sharpenKernal % 2 == 0)
+                sharpenKernal++;
+
             cv::GaussianBlur(image, blurredImage, cv::Size(sharpenKernal, sharpenKernal), sharpenSigma);
             cv::addWeighted(image, 1.0 + sharpenAmount, blurredImage, -sharpenAmount, 0, sharpenedImage);
         }
 
         // Denoise
-        double denoiseAmount = m_StackData.postProcessing.denoiseAmt;
+        float denoiseAmount = m_StackData.postProcessing.denoiseAmt;
         if (denoiseAmount <= 0.0)
             finalImage = sharpenedImage;
+        else if (m_Channels == 3)
+            cv::fastNlMeansDenoisingColored(sharpenedImage, finalImage, denoiseAmount, denoiseAmount, 7, 21);
         else
         {
             std::vector<float> amount;
@@ -895,16 +881,9 @@ cv::Mat FITSStack::postProcessImage(cv::Mat image32F)
 // Calculate psf for the passed in image from stars in the image
 cv::Mat FITSStack::calculatePSF(const cv::Mat &image, int patchSize)
 {
-    cv::Mat psf;
     try
     {
-        // JEE CV_Assert(patchSize % 2 == 1); // Must be odd
-        //cv::Mat gray;
-        //if (image.channels() == 3)
-        //    cvtColor(image, gray, COLOR_BGR2GRAY);
-        //else
-        //    gray = image.clone();
-
+        cv::Mat psf;
         QList<Edge *> starCenters = m_Data->getStarCenters();
 
         QVector<cv::Mat> starPatches;
@@ -942,7 +921,8 @@ cv::Mat FITSStack::calculatePSF(const cv::Mat &image, int patchSize)
                 cv::Rect roi(minx, miny, patchSize, patchSize);
                 cv::Mat patch = image(roi).clone();
                 // Normalise the patch so we're adding together stars of similar brightness
-                patch /= cv::sum(patch);
+                cv::Scalar patchSum = cv::sum(patch);
+                patch /= patchSum[0];
                 starPatches.push_back(patch);
             }
 
@@ -960,54 +940,42 @@ cv::Mat FITSStack::calculatePSF(const cv::Mat &image, int patchSize)
                 psf += patch;
 
             // Normalise PSF to unit energy
-            psf /= cv::sum(psf);
+            cv::Scalar psfSum = cv::sum(psf);
+            psf /= psfSum[0];
         }
+        return psf;
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+        return cv::Mat();
     }
-    return psf;
 }
 
-// Wiener deconvolution assumes Gaussian noise and can be calculated using a single pass
+// Wiener deconvolution assumes Gaussian noise and can be calculated using a single pass.
 // Lucy-Richardson deconvolution assumes Poisson noise and needs to be done iteratively.
 // For now we'll try Wiener
 cv::Mat FITSStack::wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf)
 {
-    cv::Mat result;
     try
     {
-        // Check inputs
-        if (image.type() != CV_MAKETYPE(CV_32F, 1) || psf.type() != CV_MAKETYPE(CV_32F, 1))
-            return result;
-
-        //cv::Mat normImage;
-        //cv::normalize(image, normImage, 0, 1, cv::NORM_MINMAX);
+        if (image.type() != m_CVType || psf.type() != CV_MAKETYPE(CV_32F, 1))
+            return image;
 
         // Pad the image to the optimum size for FFT
         cv::Mat imagePadded;
         int m = cv::getOptimalDFTSize(image.rows);
         int n = cv::getOptimalDFTSize(image.cols);
-        cv::copyMakeBorder(image, imagePadded, 0, m - image.rows, 0, n - image.cols, cv::BORDER_CONSTANT, cv::Scalar::all(0));
-        std::cout << "ImagePadded: " << m << " x " << n << std::endl;
-
-        // Centre the PSF in an image of the same size as imagePadded
-        // Pad PSF to match input size (centered)
-        //cv::Mat psfPadded;
-        //int top = (imagePadded.rows - psf.rows) / 2;
-        //int bottom = imagePadded.rows - psf.rows - top;
-        //int left = (imagePadded.cols - psf.cols) / 2;
-        //int right = imagePadded.cols - psf.cols - left;
-        //cv::copyMakeBorder(psf, psfPadded, top, bottom, left, right, cv::BORDER_CONSTANT, cv::Scalar::all(0));
+        cv::copyMakeBorder(image, imagePadded, 0, m - image.rows, 0, n - image.cols,
+                                                                cv::BORDER_CONSTANT, cv::Scalar::all(0));
 
         // Centre the PSF in an image of the same size as imagePadded
         cv::Mat psfPadded = cv::Mat::zeros(imagePadded.size(), CV_32F);
         cv::Rect psfROI((psfPadded.cols - psf.cols) / 2, (psfPadded.rows - psf.rows) / 2, psf.cols, psf.rows);
         psf.copyTo(psfPadded(psfROI));
 
-        // Move the PSF from the centre to the corners
+        // Shift PSF so zero frequency is at corners (fftshift)
         int cx = psfPadded.cols / 2;
         int cy = psfPadded.rows / 2;
 
@@ -1017,140 +985,120 @@ cv::Mat FITSStack::wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf)
         cv::Mat q2(psfPadded, cv::Rect(0, cy, cx, cy)); // Bottom-Left
         cv::Mat q3(psfPadded, cv::Rect(cx, cy, cx, cy)); // Bottom-Right
 
-        // Swap diagonally opposite quadrants
+        // Swap diagonally opposite quadrants (0<->3, 1<->2)
         cv::Mat tmp;
-        q0.copyTo(tmp);
-        q3.copyTo(q0);
-        tmp.copyTo(q3);
+        q0.copyTo(tmp); q3.copyTo(q0); tmp.copyTo(q3);
+        q1.copyTo(tmp); q2.copyTo(q1); tmp.copyTo(q2);
 
-        q1.copyTo(tmp);
-        q2.copyTo(q1);
-        tmp.copyTo(q2);
+        // Split into channels: 1 for mono, 3 for colour
+        std::vector<cv::Mat> channels;
+        cv::split(imagePadded, channels);
+        std::vector<cv::Mat> deconChannels(channels.size());
 
-        // Take FFTs
-        cv::Mat imgFFT, psfFFT;
-        cv::dft(imagePadded, imgFFT, cv::DFT_COMPLEX_OUTPUT);
-        double minVal, maxVal;
-        cv::minMaxLoc(imgFFT, &minVal, &maxVal);
-        std::cout << "Image FFT range: " << minVal << " to " << maxVal << std::endl;
-
+        // FFT the PSF
+        cv::Mat psfFFT;
         cv::dft(psfPadded, psfFFT, cv::DFT_COMPLEX_OUTPUT);
-        cv::minMaxLoc(psfFFT, &minVal, &maxVal);
-        std::cout << "psfPadded FFT range: " << minVal << " to " << maxVal << std::endl;
-
-        // Conjugate multiplication (|psf|² = psf* · psf)
+        // Compute |PSF|² = PSF* × PSF (complex conjugate multiplication)
         cv::Mat psfPower;
         cv::mulSpectrums(psfFFT, psfFFT, psfPower, 0, true);
-        cv::minMaxLoc(psfPower, &minVal, &maxVal);
-        std::cout << "psfPower image range: " << minVal << " to " << maxVal << std::endl;
 
-        // We only need the real channel of psfPower
-        //cv::Mat psfPowerArray[2];
-        //cv::split(psfPowerComp, psfPowerArray);
+        // Denominator: |PSF|² + NSR
+        cv::Mat denomReal, denomImag;
+        cv::Mat psfPowerChannels[2];
+        cv::split(psfPower, psfPowerChannels);
 
-        // Get the noise
-        // Flatten image into a single row for easy sorting
-        cv::Mat sorted;
-        image.reshape(0, 1).copyTo(sorted);
-        cv::sort(sorted, sorted, cv::SORT_ASCENDING);
+        // Loop through the channels applying the Wiener filter
+        for (int i = 0; i < m_Channels; i++)
+        {
+            // Take FFTs
+            cv::Mat channelFFT;
+            cv::dft(channels[i], channelFFT, cv::DFT_COMPLEX_OUTPUT);
 
-        // Median
-        float median = sorted.at<float>(sorted.cols / 2);
+            // Estimate noise variance using MAD
+            cv::Mat channelSorted;
+            channels[i].reshape(1, channels[i].total()).copyTo(channelSorted);
+            cv::sort(channelSorted, channelSorted, cv::SORT_ASCENDING);
 
-        // Absolute deviation (MAD) from median
-        cv::Mat absDiff;
-        cv::absdiff(image, median, absDiff);
-        absDiff = absDiff.reshape(0, 1);
-        cv::sort(absDiff, absDiff, cv::SORT_ASCENDING);
-        float mad = absDiff.at<float>(absDiff.cols / 2);
+            float median = channelSorted.at<float>(channelSorted.total() / 2);
 
-        // Variance of Gaussian noise
-        float varNoise = std::pow((1.4826f * mad), 2.0);
+            cv::Mat absDiff;
+            cv::absdiff(channelSorted, median, absDiff);
+            cv::Mat madSorted;
+            absDiff.reshape(1, absDiff.total()).copyTo(madSorted);
+            cv::sort(madSorted, madSorted, cv::SORT_ASCENDING);
+            float mad = madSorted.at<float>(madSorted.total() / 2);
+            float noiseVariance = std::pow(1.4826f * mad, 2.0f);
 
-        // Now get the Total Variance of the image
-        cv::Scalar imageMean, imageStddev;
-        cv::meanStdDev(image, imageMean, imageStddev);
-        float varTotal = imageStddev[0] * imageStddev[0];
+            // Calculate signal variance
+            cv::Scalar channelMean, channelStddev;
+            cv::meanStdDev(channelSorted, channelMean, channelStddev);
+            float totalVariance = channelStddev[0] * channelStddev[0];
+            float signalVariance = std::max(totalVariance - noiseVariance, 1e-6f);
 
-        // Calculate the signal variance (set a minimum amount)
-        float varSignal = std::max((varTotal - varNoise), 1e-6f);
+            // Calculate the Noise to Signal ratio
+            float NSR = noiseVariance / signalVariance;
 
-        // Noise to signal
-        float NSR = varNoise / varSignal;
+            // Apply Wiener filter: H* × G / (|H|² + NSR)
+            // Add NSR to real part only
+            denomReal = psfPowerChannels[0] + NSR;
+            denomImag = psfPowerChannels[1];
 
-        // Wiener Filter
-        cv::Mat numer;
-        cv::mulSpectrums(imgFFT, psfFFT, numer, 0, true);
-        cv::minMaxLoc(numer, &minVal, &maxVal);
-        std::cout << "Numer image range: " << minVal << " to " << maxVal << std::endl;
+            // Protect against division by zero / very small numbers
+            cv::Mat mask = denomReal < 1e-10f;
+            denomReal.setTo(1e-10f, mask);
 
-        cv::Mat denom, denomComp[2];
-        cv::split(psfPower, denomComp);
-        denomComp[0] += NSR; // JEE + 1e-6f
-        std::vector<cv::Mat> denomArray = { denomComp[0], denomComp[1] };
-        cv::merge(denomArray, denom);
+            cv::Mat denominator;
+            std::vector<cv::Mat> denomChannels = {denomReal, denomImag};
+            cv::merge(denomChannels, denominator);
 
-        cv::minMaxLoc(denomComp[0], &minVal, &maxVal);
-        std::cout << "denomComp[0] image range: " << minVal << " to " << maxVal << std::endl;
-        cv::minMaxLoc(denomComp[1], &minVal, &maxVal);
-        std::cout << "denomComp[1] image range: " << minVal << " to " << maxVal << std::endl;
-        cv::minMaxLoc(denom, &minVal, &maxVal);
-        std::cout << "denom image range: " << minVal << " to " << maxVal << std::endl;
+            // Numerator: PSF* × Image_FFT
+            cv::Mat numerator;
+            cv::mulSpectrums(psfFFT, channelFFT, numerator, 0, true);
 
-        // Safe division
-        cv::Mat mask = denom < 1e-6;
-        denom.setTo(1e-6, mask);
+            // Wiener filter result
+            cv::Mat wienerResult;
+            cv::divide(numerator, denominator, wienerResult);
 
-        cv::Mat wienerFFT;
-        cv::divide(numer, denom, wienerFFT);
-        cv::minMaxLoc(wienerFFT, &minVal, &maxVal);
-        std::cout << "wienerFFT range: " << minVal << " to " << maxVal << std::endl;
+            // Inverse FFT to get deconvolved image
+            cv::dft(wienerResult, deconChannels[i], cv::DFT_INVERSE | cv::DFT_REAL_OUTPUT | cv::DFT_SCALE);
 
-        // Apply the Wiener filter
+            // Ensure result is positive (deconvolution can create negative values)
+            cv::threshold(deconChannels[i], deconChannels[i], 0, 0, cv::THRESH_TOZERO);
+        }
 
+        // Merge channels back
+        cv::Mat mergedResult;
+        cv::merge(deconChannels, mergedResult);
 
-        cv::Mat resultFFT;
-        cv::mulSpectrums(imagePadded, wienerFFT, resultFFT, 0);
-        cv::minMaxLoc(resultFFT, &minVal, &maxVal);
-        std::cout << "resultFFT range: " << minVal << " to " << maxVal << std::endl;
-
-        // Take the inverse FFT
-        cv::dft(resultFFT, result, cv::DFT_INVERSE | cv::DFT_REAL_OUTPUT | cv::DFT_SCALE);
-        // JEE cv::normalize(result, result, 0, 255, cv::NORM_MINMAX);
-        // result.convertTo(result, CV_8U);
-        cv::minMaxLoc(result, &minVal, &maxVal);
-        std::cout << "Deconvolved image range: " << minVal << " to " << maxVal << std::endl;
-
-        cv::minMaxLoc(result, &minVal, &maxVal);
-        std::cout << "result range: " << minVal << " to " << maxVal << std::endl;
-
-        // Normalize to original image range
-        cv::minMaxLoc(image, &minVal, &maxVal);
-        result = result * (maxVal - minVal) + minVal;
-        cv::minMaxLoc(result, &minVal, &maxVal);
-        std::cout << "result range: " << minVal << " to " << maxVal << std::endl;
+        // Extract the original image region (remove padding)
+        cv::Rect originalROI(0, 0, image.cols, image.rows);
+        cv::Mat result = mergedResult(originalROI).clone();
+        return result;
     }
     catch (const cv::Exception &ex)
     {
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+        return image;
     }
-    return result;
 }
 
 void FITSStack::redoPostProcessStack()
 {
+    if (!getInitialStackDone())
+        // Nothing to do if there is no initial image to operate on
+        return;
+
     // Get the current user options for post processing
     m_StackData.postProcessing = loadStackPPData();
 
-    cv::Mat finalImage;
-    finalImage = postProcessImage(m_StackedImage32F);
+    cv::Mat finalImage = postProcessImage(m_StackedImage32F);
     m_StackSNR = getSNR(finalImage);
     convertMatToFITS(finalImage);
     emit stackChanged();
 }
 
-bool FITSStack::convertMatToFITS(const cv::Mat image)
+bool FITSStack::convertMatToFITS(const cv::Mat &image)
 {
     try
     {
@@ -1168,8 +1116,6 @@ bool FITSStack::convertMatToFITS(const cv::Mat image)
         long fpixel = 1, nelements;
         long naxis = (channels == 1) ? 2 : 3;
         long naxes[3] = { width, height, channels };
-        //long naxis = 2;
-        //long naxes[2] = { width, height };
         char error_status[512] = { 0 };
         void* fits_buffer = nullptr;
         size_t fits_buffer_size = 0;
@@ -1194,83 +1140,36 @@ bool FITSStack::convertMatToFITS(const cv::Mat image)
         if (channels == 3)
         {
             // Add BAYERPAT keyword here
-            const char* bayerPattern = "RGGB";
+            // JEE NEED to do bayer pattern properly
+            QByteArray ba = m_BayerPattern.toUtf8();
+            const char* bayerPattern = ba.constData();
             const char* comment = "Bayer color filter array pattern";
 
             if (fits_write_key(fptr, TSTRING, "BAYERPAT", (void*)bayerPattern, (char*)comment, &status))
             {
                 fits_get_errstatus(status, error_status);
                 qCDebug(KSTARS_FITS) << "fits_write_key BAYERPAT failed:" << error_status;
-                // This is typically non-critical, so you might choose to continue rather than return false
                 status = 0;  // Reset status to continue
             }
         }
 
         nelements = width * height * channels;
 
-        //if (channels == 1)
-        //{
-            // Gray image
-            cv::Mat contImage;
-            if (image.isContinuous())
-                contImage = image;
-            else
-                contImage = image.clone();
+        cv::Mat contImage;
+        if (image.isContinuous())
+            contImage = image;
+        else
+            contImage = image.clone();
 
-            if (fits_write_img(fptr, TUSHORT, fpixel, nelements, contImage.data, &status))
-            {
-                fits_get_errstatus(status, error_status);
-                qCDebug(KSTARS_FITS) << "fits_write_img failed " << status;
-                status = 0;
-                fits_close_file(fptr, &status);
-                free(fits_buffer);
-                return false;
-            }
-        //}
-        /*else
+        if (fits_write_img(fptr, TUSHORT, fpixel, nelements, contImage.data, &status))
         {
-            // Multi-channel - need to handle channel interleaving
-            // OpenCV uses BGRBGR..., FITS uses planes: BBB...GGG...RRR...
-            std::vector<cv::Mat> planes;
-            cv::split(image, planes);
-
-            uint16_t *bgrBuffer = new uint16_t[nelements];
-            if (bgrBuffer == nullptr)
-            {
-                qCDebug(KSTARS_FITS) << "Not enough memory for RGB buffer";
-                status = 0;
-                fits_close_file(fptr, &status);
-                free(fits_buffer);
-                return false;
-            }
-
-            // Copy each channel to its plane in the buffer
-            for (int c = 0; c < channels; c++)
-            {
-                cv::Mat contPlane;
-                if (planes[c].isContinuous())
-                    contPlane = planes[c];
-                else
-                    contPlane = planes[c].clone();
-
-                const long planeElements = width * height; // Number of elements, not bytes
-                std::memcpy(bgrBuffer + c * planeElements, contPlane.data, planeElements * sizeof(uint16_t));
-            }
-
-            if (fits_write_img(fptr, TUSHORT, fpixel, nelements, bgrBuffer, &status))
-            {
-                fits_get_errstatus(status, error_status);
-                qCWarning(KSTARS_FITS) << "fits_write_img RGB failed:" << error_status;
-                status = 0;
-                fits_flush_file(fptr, &status);
-                fits_close_file(fptr, &status);
-                free(fits_buffer);
-                delete [] bgrBuffer;
-                return false;
-            }
-
-            delete [] bgrBuffer;
-        }*/
+            fits_get_errstatus(status, error_status);
+            qCDebug(KSTARS_FITS) << "fits_write_img failed " << status;
+            status = 0;
+            fits_close_file(fptr, &status);
+            free(fits_buffer);
+            return false;
+        }
 
         if (fits_flush_file(fptr, &status))
         {
@@ -1290,7 +1189,6 @@ bool FITSStack::convertMatToFITS(const cv::Mat image)
             return false;
         }
 
-        // JEE fitsBuffer = QByteArray(reinterpret_cast<char *>(fits_buffer), fits_buffer_size);
         m_StackedBuffer.reset(new QByteArray(reinterpret_cast<char *>(fits_buffer), fits_buffer_size));
         free(fits_buffer);
         return true;
@@ -1303,7 +1201,7 @@ bool FITSStack::convertMatToFITS(const cv::Mat image)
     return false;
 }
 
-// Calculate the SNR of the passed in image
+// Calculate the SNR of the passed in image.
 double FITSStack::getSNR(const cv::Mat &image)
 {
     double snr = 0.0;
@@ -1316,14 +1214,18 @@ double FITSStack::getSNR(const cv::Mat &image)
         std::vector<cv::Mat> channels;
         cv::split(image, channels);
 
+        // Get a ROI in the centre of the image to use for the signal region
+        cv::Rect roi = cv::Rect(image.cols/4, image.rows/4, image.cols/2, image.rows/2);
+
         int count = 0;
-        for (const auto& channel : channels)
+        for (const auto &channel : channels)
         {
-            cv::Scalar mean, stddev;
-            cv::meanStdDev(channel, mean, stddev);
-            if (stddev.val[0] > 0.0)
+            cv::Mat channelRoi = channel(roi);
+            cv::Scalar mean, stdDev;
+            cv::meanStdDev(channelRoi, mean, stdDev);
+            if (stdDev.val[0] > 1e-06)
             {
-                snr += mean.val[0] / stddev.val[0];
+                snr += mean.val[0] / stdDev.val[0];
                 count++;
             }
         }

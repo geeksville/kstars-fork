@@ -146,7 +146,7 @@ bool FITSTab::setupView(FITSMode mode, FITSScale filter)
         m_CatalogObjectItem = fitsTools->addItem(m_CatalogObjectWidget, i18n("Catalog Objects"));
         initCatalogObject();
 
-        // JEE Setup the Live Stacking page
+        // Setup the Live Stacking page
         if (mode == FITS_LIVESTACKING)
         {
             m_LiveStackingUI.setupUi(m_LiveStackingWidget);
@@ -196,7 +196,7 @@ bool FITSTab::setupView(FITSMode mode, FITSScale filter)
         // On Failure to load
         connect(m_View.get(), &FITSView::failed, this, &FITSTab::failed);
 
-        // JEE Automatic plate solve
+        // Automatic plate solve
         connect(m_View.get(), &FITSView::autoPlateSolve, this, &FITSTab::extractImage);
 
         return true;
@@ -238,7 +238,6 @@ void FITSTab::loadFile(const QUrl &imageURL, FITSMode mode, FITSScale filter)
     m_View->loadFile(imageURL.toLocalFile());
 }
 
-// JEE
 void FITSTab::initStack(const QString &dir, FITSMode mode, FITSScale filter)
 {
     // check if the address points to an appropriate address
@@ -250,7 +249,6 @@ void FITSTab::initStack(const QString &dir, FITSMode mode, FITSScale filter)
 
     if (setupView(mode, filter))
     {
-
         // On Success loading image
         connect(m_View.get(), &FITSView::loaded, this, [&]()
         {
@@ -261,25 +259,15 @@ void FITSTab::initStack(const QString &dir, FITSMode mode, FITSScale filter)
         connect(m_View.get(), &FITSView::updated, this, &FITSTab::updated);
     }
     else
-        // JEE check this... update tab text
         modifyFITSState(true, QUrl(dir));
 
-    // JEE Check this
-    //currentURL = imageURL;
-
     m_View->setFilter(filter);
-
-    // JEE get the solver details to use
-    //QList<SSolver::Parameters> parameters = getSSolverParametersList(static_cast<Ekos::ProfileGroup>(Options::fitsSolverModule())).at(
-    //    m_PlateSolveUI.kcfg_FitsSolverProfile->currentIndex());
-    //parameters.search_radius = m_PlateSolveUI.kcfg_FitsSolverRadius->value();
 
     m_liveStackDir = dir;
     m_LiveStackingUI.Stack->setText(m_liveStackDir);
 
     // Popup the Live Stacking pane
     fitsTools->setCurrentIndex(m_LiveStackingItem);
-    // JEE
     fitsTools->show();
     if(m_View->width() > 200)
         fitsSplitter->setSizes(QList<int>() << 200 << m_View->width() - 200);
@@ -844,11 +832,6 @@ void FITSTab::initCatalogObject()
             &FITSTab::catRowChanged);
     connect(m_CatalogObjectUI.tableView, &QAbstractItemView::doubleClicked, this, &FITSTab::catCellDoubleClicked);
     connect(m_CatalogObjectUI.filterPB, &QPushButton::clicked, this, &FITSTab::launchCatTypeFilterDialog);
-    // JEE
-    connect(m_View.get(), &FITSView::plateSolveImage, this, &FITSTab::plateSolveImage);
-    connect(m_View.get(), &FITSView::alignMasterChosen, this, &FITSTab::alignMasterChosen);
-    connect(m_View.get(), &FITSView::stackUpdateStats, this, &FITSTab::stackUpdateStats);
-    connect(m_View.get(), &FITSView::updateStackSNR, this, &FITSTab::updateStackSNR);
 
     // Setup the Object Type filter popup
     setupCatObjTypeFilter();
@@ -906,7 +889,6 @@ void FITSTab::setupCatObjTypeFilter()
     connect(m_CatObjTypeFilterUI.tree, &QTreeWidget::itemChanged, this, &FITSTab::typeFilterItemChanged);
 }
 
-// JEE
 void FITSTab::initLiveStacking()
 {
     // Set the GUI to the saved options
@@ -1010,6 +992,12 @@ void FITSTab::initLiveStacking()
     {
         Options::setFitsLSSharpenSigma(value);
     });
+
+    // Other connections used by Live Stacking
+    connect(m_View.get(), &FITSView::plateSolveImage, this, &FITSTab::plateSolveImage);
+    connect(m_View.get(), &FITSView::alignMasterChosen, this, &FITSTab::alignMasterChosen);
+    connect(m_View.get(), &FITSView::stackUpdateStats, this, &FITSTab::stackUpdateStats);
+    connect(m_View.get(), &FITSView::updateStackSNR, this, &FITSTab::updateStackSNR);
 }
 
 void FITSTab::selectLiveStack()
@@ -1280,24 +1268,27 @@ void FITSTab::extractImage()
     m_PlateSolve->extractImage(m_View->imageData());
 }
 
-// JEE - reload the live stack
+// Reload the live stack
 void FITSTab::liveStack()
 {
     m_liveStackDir = m_LiveStackingUI.Stack->text();
     m_StackSubsTotal = 0;
     m_StackSubsProcessed = 0;
     m_StackSubsFailed = 0;
+    m_LiveStackingUI.SubsProcessed->setText("0 / 0 / 0");
+    m_LiveStackingUI.SubsSNR->setText("0 / 0 / 0");
+    m_LiveStackingUI.ImageSNR->setText("0");
     viewer->restack(m_liveStackDir);
     m_View->loadStack(m_liveStackDir);
 }
 
-// JEE OK to here
-
-// JEE
 void FITSTab::plateSolveImage(const double ra, const double dec, const double pixScale,
-                              const LiveStackFrameWeighting weighting)
+                              const LiveStackFrameWeighting &weighting)
 {
-    connect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, this, [&](double medianHFR, int numStars)
+    disconnect(m_PlateSolve.get(), nullptr, this, nullptr);
+
+    connect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, this, [this, ra, dec, pixScale]
+                                (double medianHFR, int numStars)
     {
         m_StackMedianHFR = medianHFR;
         m_StackNumStars = numStars;
@@ -1325,8 +1316,6 @@ void FITSTab::plateSolveImage(const double ra, const double dec, const double pi
         m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
     }, Qt::UniqueConnection);
 
-    // JEE can we get rid of m_stack???
-    m_Stack = true;
     SSolver::ProcessType solveType;
 
     if (!m_StackExtracted && (weighting == LS_STACKING_HFR || weighting == LS_STACKING_NUM_STARS))
@@ -1340,10 +1329,7 @@ void FITSTab::plateSolveImage(const double ra, const double dec, const double pi
         // No star details required (or we just extracted them) so now plate solve
         solveType = SSolver::SOLVE;
         m_StackExtracted = false;
-    }    
-    //m_Solver->useScale(true, pixScale * 0.8, pixScale * 1.2);
-    //m_Solver->usePosition(true, ra, dec);
-    //m_Solver->runSolver(m_View->imageData(), true);
+    }
     m_StackMedianHFR = -1.0;
     m_StackNumStars = 0;
     m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, solveType);
@@ -1359,7 +1345,6 @@ void FITSTab::stackUpdateStats(const bool ok, const int sub, const int total, co
     Q_UNUSED(sub);
     m_StackSubsTotal = total;
     (ok) ? m_StackSubsProcessed++ : m_StackSubsFailed++;
-    qCDebug(KSTARS_FITS) << "JEE - Total: " << m_StackSubsTotal << " Processed: " << m_StackSubsProcessed << " Failed: " << m_StackSubsFailed;
     m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2 / %3").arg(m_StackSubsProcessed).arg(m_StackSubsFailed).arg(m_StackSubsTotal));
     m_LiveStackingUI.SubsSNR->setText(QString("%1 / %2 / %3").arg(meanSNR, 0, 'f', 2).arg(minSNR, 0, 'f', 2).arg(maxSNR, 0, 'f', 2));
 }

@@ -1325,7 +1325,6 @@ void KStars::slotBlink()
 #endif
 }
 
-// JEE
 void KStars::slotStack()
 {
 #if defined(HAVE_CFITSIO) && defined(HAVE_OPENCV)

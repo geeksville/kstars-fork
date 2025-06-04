@@ -74,7 +74,6 @@ void SolverUtils::prepareSolver(const bool stack)
     if (m_StellarSolver->isRunning())
         m_StellarSolver->abort();
     m_StellarSolver->setProperty("ProcessType", m_Type);
-    // JEE
     if (stack)
         m_StellarSolver->loadNewImageBuffer(m_ImageData->getStackStatistics(), m_ImageData->getStackImageBuffer());
     else
@@ -151,7 +150,6 @@ void SolverUtils::prepareSolver(const bool stack)
     patchMultiAlgorithm(m_StellarSolver.get());
 }
 
-// JEE
 void SolverUtils::runSolver(const QSharedPointer<FITSData> &data, const bool stack)
 {
     // Limit the time the solver can run.

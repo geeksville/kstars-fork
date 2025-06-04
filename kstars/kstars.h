@@ -714,7 +714,7 @@ class KStars : public KXmlGuiWindow
         void slotOpenFITS();
         void slotBlink();
 
-        /** JEE Open stacking directory */
+        /** Open live stacking directory */
         void slotStack();
 
         /** Action slot to save the sky image to a file.*/

@@ -71,7 +71,6 @@ class FITSTab : public QWidget
         void clearRecentFITS();
         void selectRecentFITS(int i);
         void loadFile(const QUrl &imageURL, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
-        // JEE
         void initStack(const QString &dir, FITSMode mode = FITS_LIVESTACKING, FITSScale filter = FITS_NONE);
         bool loadData(const QSharedPointer<FITSData> &data, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
 
@@ -253,22 +252,20 @@ class FITSTab : public QWidget
         QPushButton *m_UncheckAllButton;
         int m_CatalogObjectItem { 0 };
         QStandardItemModel m_CatObjModel;
-        // JEE
-        int m_LiveStackingItem { 0 };
 
         QList<QString> m_BlinkFilenames;
         int m_BlinkIndex { 0 };
 
         QSharedPointer<PlateSolve> m_PlateSolve;
 
-        // JEE
+        // Live Stacking
         void plateSolveImage(const double ra, const double dec, const double pixScale,
-                             const LiveStackFrameWeighting weighting);
+                             const LiveStackFrameWeighting &weighting);
         void alignMasterChosen(const QString alignMaster);
         void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
                               const double maxSNR);
         void updateStackSNR(const double SNR);
-        bool m_Stack { false };
+        int m_LiveStackingItem { 0 };
         bool m_StackExtracted { false };
         double m_SavedRa { 0.0 };
         double m_SavedDec { 0.0 };
