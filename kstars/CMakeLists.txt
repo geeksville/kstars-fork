@@ -1501,7 +1501,7 @@ endif()
 #endif( OPENGL_FOUND )
 
 if (OpenCV_FOUND)
-    target_link_libraries(KStarsLib ${OpenCV_LIBRARIES})
+    target_link_libraries(KStarsLib opencv_highgui opencv_imgcodecs)
 endif()
 
 set (KSTARS_APP_SRCS
