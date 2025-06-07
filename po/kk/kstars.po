@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kstars\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2025-06-01 02:04+0000\n"
+"POT-Creation-Date: 2025-06-07 01:55+0000\n"
 "PO-Revision-Date: 2013-11-16 05:16+0600\n"
 "Last-Translator: Sairan Kikkarin <sairan@computer.org>\n"
 "Language-Team: Kazakh <kde-i18n-doc@kde.org>\n"
@@ -844,7 +844,7 @@ msgstr "< &Шегіну"
 
 #. i18n: ectx: property (text), widget (QPushButton, PAHManualDone)
 #: auxiliary/kswizard.cpp:80 ekos/align/manualrotator.cpp:47
-#: ekos/align/polaralignmentassistant.ui:278 ekos/focus/focusadvisor.cpp:169
+#: ekos/align/polaralignmentassistant.ui:282 ekos/focus/focusadvisor.cpp:169
 #: ekos/focus/focusadvisor.cpp:757 ekos/focus/focusadvisor.cpp:1152
 #: ekos/focus/focusadvisor.cpp:1397
 #, fuzzy, kde-format
@@ -4774,7 +4774,7 @@ msgstr "Азимуты:"
 #. i18n: ectx: property (text), widget (QLabel, label_PAHOrigErrorAz)
 #. i18n: ectx: property (text), widget (QLabel, textLabel1)
 #. i18n: ectx: property (text), widget (QLabel, label_7)
-#: dialogs/focusdialog.ui:151 ekos/align/polaralignmentassistant.ui:592
+#: dialogs/focusdialog.ui:151 ekos/align/polaralignmentassistant.ui:596
 #: ekos/capture/calibrationoptions.ui:73 tools/argsetaltaz.ui:30
 #: tools/modcalcplanets.ui:303
 #, kde-format
@@ -6732,7 +6732,7 @@ msgstr "Есеп шығарғыш %1 секундтан кейін доғары�
 
 #: ekos/align/align.cpp:2637 ekos/analyze/analyze.cpp:4136
 #: ekos/capture/capture.cpp:309 ekos/focus/focusmodule.cpp:458
-#: ekos/guide/guide.cpp:1241 ekos/manager.cpp:2158 ekos/mount/mount.cpp:765
+#: ekos/guide/guide.cpp:1242 ekos/manager.cpp:2158 ekos/mount/mount.cpp:765
 #: ekos/observatory/observatory.cpp:1042
 #: ekos/scheduler/schedulerprocess.cpp:3688
 #, kde-format
@@ -7055,8 +7055,8 @@ msgstr "Каталогты жүктеу..."
 #. i18n: ectx: property (toolTip), widget (QPushButton, PAHStopB)
 #. i18n: ectx: property (text), widget (QPushButton, PAHStopB)
 #. i18n: ectx: property (text), widget (QPushButton, stopFocusB)
-#: ekos/align/align.ui:148 ekos/align/polaralignmentassistant.ui:819
-#: ekos/align/polaralignmentassistant.ui:822 ekos/auxiliary/darklibrary.ui:585
+#: ekos/align/align.ui:148 ekos/align/polaralignmentassistant.ui:823
+#: ekos/align/polaralignmentassistant.ui:826 ekos/auxiliary/darklibrary.ui:585
 #: ekos/focus/focus.ui:173 ekos/guide/guide.ui:153 ekos/manager.cpp:231
 #: ekos/observatory/observatorydomemodel.cpp:132
 #: ekos/observatory/observatorydomemodel.cpp:135
@@ -10212,7 +10212,7 @@ msgstr "Жинақтау жаңылысы"
 
 #. i18n: ectx: property (text), widget (QLabel, PAHMessageText)
 #: ekos/align/polaralignmentassistant.cpp:1242
-#: ekos/align/polaralignmentassistant.ui:212
+#: ekos/align/polaralignmentassistant.ui:216
 #, kde-format
 msgid ""
 "<p>The assistant requires three images to find a solution.  Ekos is now "
@@ -10386,14 +10386,21 @@ msgstr "Градустағы бойлығы"
 msgid "Speed:"
 msgstr "Жылдамдығы:"
 
+#. i18n: ectx: property (toolTip), widget (QComboBox, pAHMountSpeed)
+#: ekos/align/polaralignmentassistant.ui:162
+#, fuzzy, kde-format
+#| msgid "Adjust time step"
+msgid "Mount slew speed"
+msgstr "Уақыт қадамынын таңдау"
+
 #. i18n: ectx: property (toolTip), widget (QCheckBox, pAHManualSlew)
-#: ekos/align/polaralignmentassistant.ui:168
+#: ekos/align/polaralignmentassistant.ui:172
 #, kde-format
 msgid "Toggle for manual slewing with non-GOTO mounts"
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QCheckBox, pAHManualSlew)
-#: ekos/align/polaralignmentassistant.ui:171
+#: ekos/align/polaralignmentassistant.ui:175
 #, fuzzy, kde-format
 #| msgctxt "string from libindi, used in the config dialog"
 #| msgid "Manual Blue"
@@ -10401,13 +10408,13 @@ msgid "Manual slew"
 msgstr "Көк, қолмен"
 
 #. i18n: ectx: property (text), widget (QLabel, manualRotateText)
-#: ekos/align/polaralignmentassistant.ui:262
+#: ekos/align/polaralignmentassistant.ui:266
 #, kde-format
 msgid "Please rotate your mount in RA"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, PAHRefreshB)
-#: ekos/align/polaralignmentassistant.ui:337
+#: ekos/align/polaralignmentassistant.ui:341
 #, kde-format
 msgid ""
 "Start the refresh phase--where image captures loop while you adjust the "
@@ -10417,28 +10424,28 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, PAHRefreshB)
 #. i18n: ectx: property (text), widget (QPushButton, refreshB)
 #. i18n: ectx: property (text), widget (QPushButton, refreshSourceB)
-#: ekos/align/polaralignmentassistant.ui:340 ekos/auxiliary/darklibrary.ui:1202
+#: ekos/align/polaralignmentassistant.ui:344 ekos/auxiliary/darklibrary.ui:1202
 #: hips/opships.ui:116
 #, kde-format
 msgid "Refresh"
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QDoubleSpinBox, pAHExposure)
-#: ekos/align/polaralignmentassistant.ui:347
+#: ekos/align/polaralignmentassistant.ui:351
 #, fuzzy, kde-format
 #| msgid "Start Camera/CCD exposure. The duration is in seconds."
 msgid "Exposure duration in seconds during refresh phase"
 msgstr "Камера/CCD түсірілімін бастау. Экспозициясы - секундаларда."
 
 #. i18n: ectx: property (text), widget (QLabel, PAHIteration)
-#: ekos/align/polaralignmentassistant.ui:385
+#: ekos/align/polaralignmentassistant.ui:389
 #, fuzzy, kde-format
 #| msgid "Image"
 msgid "Image#"
 msgstr "Кескін"
 
 #. i18n: ectx: property (toolTip), widget (QComboBox, pAHRefreshAlgorithm)
-#: ekos/align/polaralignmentassistant.ui:414
+#: ekos/align/polaralignmentassistant.ui:418
 #, fuzzy, kde-format
 #| msgid ""
 #| "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
@@ -10514,21 +10521,21 @@ msgstr ""
 "</p></body></html>"
 
 #. i18n: ectx: property (text), item, widget (QComboBox, pAHRefreshAlgorithm)
-#: ekos/align/polaralignmentassistant.ui:418
+#: ekos/align/polaralignmentassistant.ui:422
 #, fuzzy, kde-format
 #| msgid "INDI Server:"
 msgid "Plate Solve"
 msgstr "INDI сервері:"
 
 #. i18n: ectx: property (text), item, widget (QComboBox, pAHRefreshAlgorithm)
-#: ekos/align/polaralignmentassistant.ui:423
+#: ekos/align/polaralignmentassistant.ui:427
 #, fuzzy, kde-format
 #| msgid "Auto Stretch"
 msgid "Move Star"
 msgstr "Автосозу"
 
 #. i18n: ectx: property (text), item, widget (QComboBox, pAHRefreshAlgorithm)
-#: ekos/align/polaralignmentassistant.ui:428
+#: ekos/align/polaralignmentassistant.ui:432
 #, fuzzy, kde-format
 #| msgid "Measure Alt Error"
 msgid "Move Star & Calc Error"
@@ -10536,8 +10543,8 @@ msgstr "Биіктік қатесін өлшеу"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHOrigErrorTotal)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHOrigErrorTotal)
-#: ekos/align/polaralignmentassistant.ui:501
-#: ekos/align/polaralignmentassistant.ui:526
+#: ekos/align/polaralignmentassistant.ui:505
+#: ekos/align/polaralignmentassistant.ui:530
 #, kde-format
 msgid ""
 "Polar Alignment total error measured by the 3 exposures at the start of the "
@@ -10545,7 +10552,7 @@ msgid ""
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, label_PAHOrigErrorTotal)
-#: ekos/align/polaralignmentassistant.ui:504
+#: ekos/align/polaralignmentassistant.ui:508
 #, fuzzy, kde-format
 #| msgid "Measure Az Error"
 msgid "Measured Err:"
@@ -10553,8 +10560,8 @@ msgstr "Азимут қатесін өлшеу"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHOrigErrorAlt)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHOrigErrorAlt)
-#: ekos/align/polaralignmentassistant.ui:545
-#: ekos/align/polaralignmentassistant.ui:570
+#: ekos/align/polaralignmentassistant.ui:549
+#: ekos/align/polaralignmentassistant.ui:574
 #, kde-format
 msgid ""
 "Polar Alignment altitude error measured by the 3 exposures at the start of "
@@ -10565,7 +10572,7 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #. i18n: ectx: property (text), widget (QLabel, textLabel1_2)
 #. i18n: ectx: property (text), widget (QLabel, label_8)
-#: ekos/align/polaralignmentassistant.ui:548
+#: ekos/align/polaralignmentassistant.ui:552
 #: ekos/capture/calibrationoptions.ui:87 tools/argsetaltaz.ui:37
 #: tools/modcalcplanets.ui:296
 #, kde-format
@@ -10574,8 +10581,8 @@ msgstr "Биік.:"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHOrigErrorAz)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHOrigErrorAz)
-#: ekos/align/polaralignmentassistant.ui:589
-#: ekos/align/polaralignmentassistant.ui:614
+#: ekos/align/polaralignmentassistant.ui:593
+#: ekos/align/polaralignmentassistant.ui:618
 #, kde-format
 msgid ""
 "Polar Alignment azimuth error measured by the 3 exposures at the start of "
@@ -10584,14 +10591,14 @@ msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHUpdatedErrorTotal)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHUpdatedErrorTotal)
-#: ekos/align/polaralignmentassistant.ui:646
-#: ekos/align/polaralignmentassistant.ui:671
+#: ekos/align/polaralignmentassistant.ui:650
+#: ekos/align/polaralignmentassistant.ui:675
 #, kde-format
 msgid "Polar Alignment total error estimated after recent adjustments."
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, label_PAHUpdatedErrorTotal)
-#: ekos/align/polaralignmentassistant.ui:649
+#: ekos/align/polaralignmentassistant.ui:653
 #, fuzzy, kde-format
 #| msgid "Update TLEs"
 msgid "Updated Err:"
@@ -10599,16 +10606,16 @@ msgstr "TLE деректерін жаңарту"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHUpdatedErrorAlt)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHUpdatedErrorAlt)
-#: ekos/align/polaralignmentassistant.ui:690
-#: ekos/align/polaralignmentassistant.ui:715
+#: ekos/align/polaralignmentassistant.ui:694
+#: ekos/align/polaralignmentassistant.ui:719
 #, kde-format
 msgid "Polar Alignment altitude error estimated after recent adjustments."
 msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHUpdatedErrorAz)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHUpdatedErrorAz)
-#: ekos/align/polaralignmentassistant.ui:734
-#: ekos/align/polaralignmentassistant.ui:759
+#: ekos/align/polaralignmentassistant.ui:738
+#: ekos/align/polaralignmentassistant.ui:763
 #, kde-format
 msgid "Polar Alignment azimuth error estimated after recent adjustments."
 msgstr ""
@@ -10616,8 +10623,8 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QPushButton, PAHStartB)
 #. i18n: ectx: property (text), widget (QPushButton, PAHStartB)
 #. i18n: ectx: property (text), widget (QPushButton, startB)
-#: ekos/align/polaralignmentassistant.ui:806
-#: ekos/align/polaralignmentassistant.ui:809 ekos/auxiliary/darklibrary.ui:575
+#: ekos/align/polaralignmentassistant.ui:810
+#: ekos/align/polaralignmentassistant.ui:813 ekos/auxiliary/darklibrary.ui:575
 #: ekos/manager.cpp:146 ekos/manager.cpp:237 ekos/manager.cpp:796
 #: ekos/observatory/observatorydomemodel.cpp:132
 #: ekos/observatory/observatorydomemodel.cpp:135
@@ -16285,7 +16292,7 @@ msgid "Exposure timeout. More than 3 have been detected, will restart driver."
 msgstr ""
 
 #: ekos/capture/cameraprocess.cpp:2132 ekos/focus/focus.cpp:5782
-#: ekos/guide/guide.cpp:1009
+#: ekos/guide/guide.cpp:1010
 #, fuzzy, kde-format
 #| msgid "Autofocus in progress..."
 msgid "Exposure timeout. Restarting exposure..."
@@ -22802,229 +22809,229 @@ msgstr ""
 msgid "Error: lost connection to CCD."
 msgstr "Қате: CCD-мен байланыс үзілді."
 
-#: ekos/guide/guide.cpp:1003
+#: ekos/guide/guide.cpp:1004
 #, fuzzy, kde-format
 #| msgid "Start Camera/CCD exposure. The duration is in seconds."
 msgid "Exposure timeout, but suspended. Ignoring..."
 msgstr "Камера/CCD түсірілімін бастау. Экспозициясы - секундаларда."
 
-#: ekos/guide/guide.cpp:1031
+#: ekos/guide/guide.cpp:1032
 #, fuzzy, kde-format
 #| msgid "Start Camera/CCD exposure. The duration is in seconds."
 msgid "Exposure timeout. Aborting Autoguide."
 msgstr "Камера/CCD түсірілімін бастау. Экспозициясы - секундаларда."
 
-#: ekos/guide/guide.cpp:1033
+#: ekos/guide/guide.cpp:1034
 #, fuzzy, kde-format
 #| msgid "Start Camera/CCD exposure. The duration is in seconds."
 msgid "Exposure timeout. Aborting Dithering."
 msgstr "Камера/CCD түсірілімін бастау. Экспозициясы - секундаларда."
 
-#: ekos/guide/guide.cpp:1035
+#: ekos/guide/guide.cpp:1036
 #, fuzzy, kde-format
 #| msgid "Start Camera/CCD exposure. The duration is in seconds."
 msgid "Exposure timeout. Aborting Calibration."
 msgstr "Камера/CCD түсірілімін бастау. Экспозициясы - секундаларда."
 
-#: ekos/guide/guide.cpp:1044
+#: ekos/guide/guide.cpp:1045
 #, fuzzy, kde-format
 #| msgid "Autofocus in progress..."
 msgid "Exposure timeout. Too many. Restarting driver."
 msgstr "Автотоғыстау барысында..."
 
-#: ekos/guide/guide.cpp:1314
+#: ekos/guide/guide.cpp:1315
 #, kde-format
 msgid "No camera detected. Check camera in optical trains."
 msgstr ""
 
-#: ekos/guide/guide.cpp:1320
+#: ekos/guide/guide.cpp:1321
 #, kde-format
 msgid "No guider detected. Check guide-via in optical trains."
 msgstr ""
 
-#: ekos/guide/guide.cpp:1401
+#: ekos/guide/guide.cpp:1402
 #, kde-format
 msgid "The mount is parked. Unpark to start guiding."
 msgstr ""
 
-#: ekos/guide/guide.cpp:1504
+#: ekos/guide/guide.cpp:1505
 #, kde-format
 msgid "Pier side change detected. Clearing calibration."
 msgstr ""
 
-#: ekos/guide/guide.cpp:1518
+#: ekos/guide/guide.cpp:1519
 #, fuzzy, kde-format
 #| msgid "Slewing back to original position..."
 msgid "Mount is moving. Resetting calibration..."
 msgstr "Бастапқы орнына қайтып бұралу..."
 
-#: ekos/guide/guide.cpp:1535
+#: ekos/guide/guide.cpp:1536
 #, fuzzy, kde-format
 #| msgctxt "City in Italy"
 #| msgid "Mount Ekar"
 msgid "Mount is parking. Aborting guide..."
 msgstr "Экар тауы"
 
-#: ekos/guide/guide.cpp:1537
+#: ekos/guide/guide.cpp:1538
 #, fuzzy, kde-format
 #| msgid "Slewing back to original position..."
 msgid "Mount is slewing. Aborting guide..."
 msgstr "Бастапқы орнына қайтып бұралу..."
 
-#: ekos/guide/guide.cpp:1600
+#: ekos/guide/guide.cpp:1601
 #, fuzzy, kde-format
 #| msgid "Calibration completed."
 msgid "Calibration is cleared."
 msgstr "Калибрлеу бітті."
 
-#: ekos/guide/guide.cpp:1628
+#: ekos/guide/guide.cpp:1629
 #, kde-format
 msgid "External guider connected."
 msgstr ""
 
-#: ekos/guide/guide.cpp:1646
+#: ekos/guide/guide.cpp:1647
 #, kde-format
 msgid "External guider disconnected."
 msgstr ""
 
-#: ekos/guide/guide.cpp:1663
+#: ekos/guide/guide.cpp:1664
 #, kde-format
 msgid "Calibration completed."
 msgstr "Калибрлеу бітті."
 
-#: ekos/guide/guide.cpp:1681
+#: ekos/guide/guide.cpp:1682
 #, fuzzy, kde-format
 #| msgid "Calibration completed."
 msgid "Calibration started."
 msgstr "Калибрлеу бітті."
 
-#: ekos/guide/guide.cpp:1688
+#: ekos/guide/guide.cpp:1689
 #, fuzzy, kde-format
 #| msgid "Guiding rate,x15\"/sec"
 msgid "Guiding resumed."
 msgstr "Дәлдеу жылдамдығы, x15\"/сек"
 
-#: ekos/guide/guide.cpp:1691
+#: ekos/guide/guide.cpp:1692
 #, fuzzy, kde-format
 #| msgid "Guiding rate,x15\"/sec"
 msgid "Autoguiding running."
 msgstr "Дәлдеу жылдамдығы, x15\"/сек"
 
-#: ekos/guide/guide.cpp:1703
+#: ekos/guide/guide.cpp:1704
 #, fuzzy, kde-format
 #| msgid "Autoguiding started."
 msgid "Autoguiding aborted."
 msgstr "Автодәлдеу басталды."
 
-#: ekos/guide/guide.cpp:1708
+#: ekos/guide/guide.cpp:1709
 #, fuzzy, kde-format
 #| msgid "Autoguiding stopped."
 msgid "Guiding suspended."
 msgstr "Автодәлдеу тоқталды."
 
-#: ekos/guide/guide.cpp:1717
+#: ekos/guide/guide.cpp:1718
 #, fuzzy, kde-format
 #| msgctxt "City in British Columbia Canada"
 #| msgid "Dome Creek"
 msgid "Manual dithering in progress."
 msgstr "Доум-Крик"
 
-#: ekos/guide/guide.cpp:1721
+#: ekos/guide/guide.cpp:1722
 #, fuzzy, kde-format
 #| msgctxt "City in British Columbia Canada"
 #| msgid "Dome Creek"
 msgid "Dithering in progress."
 msgstr "Доум-Крик"
 
-#: ekos/guide/guide.cpp:1725
+#: ekos/guide/guide.cpp:1726
 #, kde-format
 msgid "Post-dither settling for %1 second..."
 msgid_plural "Post-dither settling for %1 seconds..."
 msgstr[0] ""
 
-#: ekos/guide/guide.cpp:1730
+#: ekos/guide/guide.cpp:1731
 #, fuzzy, kde-format
 #| msgctxt "Satellite group name"
 #| msgid "Other"
 msgid "Dithering failed."
 msgstr "Басқа"
 
-#: ekos/guide/guide.cpp:1741
+#: ekos/guide/guide.cpp:1742
 #, fuzzy, kde-format
 #| msgid "Telescope Wizard completed successfully."
 msgid "Dithering completed successfully."
 msgstr "Телескоп шебері сәтті аяқтады."
 
-#: ekos/guide/guide.cpp:1790
+#: ekos/guide/guide.cpp:1791
 #, fuzzy, kde-format
 #| msgid "Autofocus in progress..."
 msgid "%1x%1 guide binning is not supported."
 msgstr "Автотоғыстау барысында..."
 
-#: ekos/guide/guide.cpp:1812
+#: ekos/guide/guide.cpp:1813
 #, fuzzy, kde-format
 #| msgid "Autofocus in progress..."
 msgid "Exposure failed. Restarting exposure..."
 msgstr "Автотоғыстау барысында..."
 
-#: ekos/guide/guide.cpp:1938
+#: ekos/guide/guide.cpp:1939
 #, fuzzy, kde-format
 #| msgid "Autofocus in progress..."
 msgid "Cannot change guider type while active."
 msgstr "Автотоғыстау барысында..."
 
-#: ekos/guide/guide.cpp:2033
+#: ekos/guide/guide.cpp:2034
 #, kde-format
 msgid ""
 "Warning: Reset Guiding Calibration is enabled. It is recommended to turn "
 "this option off for PHD2."
 msgstr ""
 
-#: ekos/guide/guide.cpp:2440
+#: ekos/guide/guide.cpp:2441
 #, fuzzy, kde-format
 #| msgid "Calibration"
 msgid "Calibration failed to start."
 msgstr "Калибрлеу"
 
-#: ekos/guide/guide.cpp:2591
+#: ekos/guide/guide.cpp:2592
 #, fuzzy, kde-format
 #| msgid "1 star detected."
 #| msgid_plural "%1 stars detected."
 msgid "Auto star selected."
 msgstr "%1 жұлдыз көрінді."
 
-#: ekos/guide/guide.cpp:2595
+#: ekos/guide/guide.cpp:2596
 #, fuzzy, kde-format
 #| msgid "Set box size to select a focus star."
 msgid "Failed to select an auto star."
 msgstr "Тоғыстағы жұлдызды таңдау тікбұрыш өлшемін орнату."
 
-#: ekos/guide/guide.cpp:2604
+#: ekos/guide/guide.cpp:2605
 #, fuzzy, kde-format
 #| msgid "2. Select guide star"
 msgid "Select a guide star to calibrate."
 msgstr "2. Дәлдеу үшін жұлдызды таңдау"
 
-#: ekos/guide/guide.cpp:2866
+#: ekos/guide/guide.cpp:2867
 #, fuzzy, kde-format
 #| msgid "pixels"
 msgid "dx (pixels)"
 msgstr "пиксел"
 
-#: ekos/guide/guide.cpp:2867
+#: ekos/guide/guide.cpp:2868
 #, fuzzy, kde-format
 #| msgid "pixels"
 msgid "dy (pixels)"
 msgstr "пиксел"
 
-#: ekos/guide/guide.cpp:3010 ekos/guide/guide.cpp:3138
+#: ekos/guide/guide.cpp:3011 ekos/guide/guide.cpp:3139
 #, kde-format
 msgid ""
 "The PHD2 camera is not available to Ekos, so you cannot see the captured "
 "images.  But you will still see the Guide Star Image when you guide."
 msgstr ""
 
-#: ekos/guide/guide.cpp:3014 ekos/guide/guide.cpp:3142
+#: ekos/guide/guide.cpp:3015 ekos/guide/guide.cpp:3143
 #, kde-format
 msgid ""
 "To receive PHD2 images other than the Guide Star Image, SubFrame must be "
@@ -23032,7 +23039,7 @@ msgid ""
 "enable it before Guiding"
 msgstr ""
 
-#: ekos/guide/guide.cpp:3309
+#: ekos/guide/guide.cpp:3310
 #, kde-format
 msgid "Cannot change active optical train while PHD2 is connected"
 msgstr ""
@@ -103963,11 +103970,6 @@ msgstr "Аспан аясының түсін орнату."
 #~| msgid "Calibration Options"
 #~ msgid "Calibration Settings"
 #~ msgstr "Калибрлеу параметрлері"
-
-#, fuzzy
-#~| msgid "Adjust time step"
-#~ msgid "Slew speed"
-#~ msgstr "Уақыт қадамынын таңдау"
 
 #~ msgid "Filename for sky image"
 #~ msgstr "Аспан кескіні файлының атауы"

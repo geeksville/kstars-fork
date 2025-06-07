@@ -1,7 +1,7 @@
 # translation of kstars.po to Polish
 # translation of kstars_merge.po to
 # translation of kstars.po to
-# Version: $Revision: 1710189 $
+# Version: $Revision: 1710576 $
 #
 # Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 # Grzegorz Borek <grzebo@poczta.onet.pl>, 2002.
@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kstars\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2025-06-01 02:04+0000\n"
+"POT-Creation-Date: 2025-06-07 01:55+0000\n"
 "PO-Revision-Date: 2023-10-29 08:47+0100\n"
 "Last-Translator: Łukasz Wojniłowicz <lukasz.wojnilowicz@gmail.com>\n"
 "Language-Team: Polish <kde-i18n-doc@kde.org>\n"
@@ -823,7 +823,7 @@ msgstr "< &Wstecz"
 
 #. i18n: ectx: property (text), widget (QPushButton, PAHManualDone)
 #: auxiliary/kswizard.cpp:80 ekos/align/manualrotator.cpp:47
-#: ekos/align/polaralignmentassistant.ui:278 ekos/focus/focusadvisor.cpp:169
+#: ekos/align/polaralignmentassistant.ui:282 ekos/focus/focusadvisor.cpp:169
 #: ekos/focus/focusadvisor.cpp:757 ekos/focus/focusadvisor.cpp:1152
 #: ekos/focus/focusadvisor.cpp:1397
 #, kde-format
@@ -4604,7 +4604,7 @@ msgstr "Azymut"
 #. i18n: ectx: property (text), widget (QLabel, label_PAHOrigErrorAz)
 #. i18n: ectx: property (text), widget (QLabel, textLabel1)
 #. i18n: ectx: property (text), widget (QLabel, label_7)
-#: dialogs/focusdialog.ui:151 ekos/align/polaralignmentassistant.ui:592
+#: dialogs/focusdialog.ui:151 ekos/align/polaralignmentassistant.ui:596
 #: ekos/capture/calibrationoptions.ui:73 tools/argsetaltaz.ui:30
 #: tools/modcalcplanets.ui:303
 #, kde-format
@@ -6532,7 +6532,7 @@ msgstr "Program rozwiązujący przerwał po %1 sekundach."
 
 #: ekos/align/align.cpp:2637 ekos/analyze/analyze.cpp:4136
 #: ekos/capture/capture.cpp:309 ekos/focus/focusmodule.cpp:458
-#: ekos/guide/guide.cpp:1241 ekos/manager.cpp:2158 ekos/mount/mount.cpp:765
+#: ekos/guide/guide.cpp:1242 ekos/manager.cpp:2158 ekos/mount/mount.cpp:765
 #: ekos/observatory/observatory.cpp:1042
 #: ekos/scheduler/schedulerprocess.cpp:3688
 #, kde-format
@@ -6828,8 +6828,8 @@ msgstr "Wczytaj i obróć..."
 #. i18n: ectx: property (toolTip), widget (QPushButton, PAHStopB)
 #. i18n: ectx: property (text), widget (QPushButton, PAHStopB)
 #. i18n: ectx: property (text), widget (QPushButton, stopFocusB)
-#: ekos/align/align.ui:148 ekos/align/polaralignmentassistant.ui:819
-#: ekos/align/polaralignmentassistant.ui:822 ekos/auxiliary/darklibrary.ui:585
+#: ekos/align/align.ui:148 ekos/align/polaralignmentassistant.ui:823
+#: ekos/align/polaralignmentassistant.ui:826 ekos/auxiliary/darklibrary.ui:585
 #: ekos/focus/focus.ui:173 ekos/guide/guide.ui:153 ekos/manager.cpp:231
 #: ekos/observatory/observatorydomemodel.cpp:132
 #: ekos/observatory/observatorydomemodel.cpp:135
@@ -9993,7 +9993,7 @@ msgstr "PAA: Nie udało się znaleźć osi RA. Kończenie."
 
 #. i18n: ectx: property (text), widget (QLabel, PAHMessageText)
 #: ekos/align/polaralignmentassistant.cpp:1242
-#: ekos/align/polaralignmentassistant.ui:212
+#: ekos/align/polaralignmentassistant.ui:216
 #, kde-format
 msgid ""
 "<p>The assistant requires three images to find a solution.  Ekos is now "
@@ -10185,26 +10185,33 @@ msgstr "Wielkość obrotu w stopniach"
 msgid "Speed:"
 msgstr "Szybkość:"
 
+#. i18n: ectx: property (toolTip), widget (QComboBox, pAHMountSpeed)
+#: ekos/align/polaralignmentassistant.ui:162
+#, fuzzy, kde-format
+#| msgid "Slew speed"
+msgid "Mount slew speed"
+msgstr "Szybkość obrot"
+
 #. i18n: ectx: property (toolTip), widget (QCheckBox, pAHManualSlew)
-#: ekos/align/polaralignmentassistant.ui:168
+#: ekos/align/polaralignmentassistant.ui:172
 #, kde-format
 msgid "Toggle for manual slewing with non-GOTO mounts"
 msgstr "Przełącz na ręczne obracanie z montażami nie-GOTO"
 
 #. i18n: ectx: property (text), widget (QCheckBox, pAHManualSlew)
-#: ekos/align/polaralignmentassistant.ui:171
+#: ekos/align/polaralignmentassistant.ui:175
 #, kde-format
 msgid "Manual slew"
 msgstr "Ręczny obrót"
 
 #. i18n: ectx: property (text), widget (QLabel, manualRotateText)
-#: ekos/align/polaralignmentassistant.ui:262
+#: ekos/align/polaralignmentassistant.ui:266
 #, kde-format
 msgid "Please rotate your mount in RA"
 msgstr "Obróć swój montaż w RA"
 
 #. i18n: ectx: property (toolTip), widget (QPushButton, PAHRefreshB)
-#: ekos/align/polaralignmentassistant.ui:337
+#: ekos/align/polaralignmentassistant.ui:341
 #, kde-format
 msgid ""
 "Start the refresh phase--where image captures loop while you adjust the "
@@ -10217,26 +10224,26 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QPushButton, PAHRefreshB)
 #. i18n: ectx: property (text), widget (QPushButton, refreshB)
 #. i18n: ectx: property (text), widget (QPushButton, refreshSourceB)
-#: ekos/align/polaralignmentassistant.ui:340 ekos/auxiliary/darklibrary.ui:1202
+#: ekos/align/polaralignmentassistant.ui:344 ekos/auxiliary/darklibrary.ui:1202
 #: hips/opships.ui:116
 #, kde-format
 msgid "Refresh"
 msgstr "Odśwież"
 
 #. i18n: ectx: property (toolTip), widget (QDoubleSpinBox, pAHExposure)
-#: ekos/align/polaralignmentassistant.ui:347
+#: ekos/align/polaralignmentassistant.ui:351
 #, kde-format
 msgid "Exposure duration in seconds during refresh phase"
 msgstr "Czas naświetlenia, w sekundach podczas fazy odświeżania"
 
 #. i18n: ectx: property (text), widget (QLabel, PAHIteration)
-#: ekos/align/polaralignmentassistant.ui:385
+#: ekos/align/polaralignmentassistant.ui:389
 #, kde-format
 msgid "Image#"
 msgstr "Obraz#"
 
 #. i18n: ectx: property (toolTip), widget (QComboBox, pAHRefreshAlgorithm)
-#: ekos/align/polaralignmentassistant.ui:414
+#: ekos/align/polaralignmentassistant.ui:418
 #, kde-format
 msgid ""
 "<html><head/><body><p>Select polar-alignment correction algorithm:</p><ul "
@@ -10285,27 +10292,27 @@ msgstr ""
 "bieżący błąd wyrównania wtedy, gdy może.</li></ul><p></body></html>"
 
 #. i18n: ectx: property (text), item, widget (QComboBox, pAHRefreshAlgorithm)
-#: ekos/align/polaralignmentassistant.ui:418
+#: ekos/align/polaralignmentassistant.ui:422
 #, kde-format
 msgid "Plate Solve"
 msgstr "Fotoastronometria"
 
 #. i18n: ectx: property (text), item, widget (QComboBox, pAHRefreshAlgorithm)
-#: ekos/align/polaralignmentassistant.ui:423
+#: ekos/align/polaralignmentassistant.ui:427
 #, kde-format
 msgid "Move Star"
 msgstr "Przesuń Gwiazdę"
 
 #. i18n: ectx: property (text), item, widget (QComboBox, pAHRefreshAlgorithm)
-#: ekos/align/polaralignmentassistant.ui:428
+#: ekos/align/polaralignmentassistant.ui:432
 #, kde-format
 msgid "Move Star & Calc Error"
 msgstr "Błąd przemieszczania gwiazdy i obliczeń"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHOrigErrorTotal)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHOrigErrorTotal)
-#: ekos/align/polaralignmentassistant.ui:501
-#: ekos/align/polaralignmentassistant.ui:526
+#: ekos/align/polaralignmentassistant.ui:505
+#: ekos/align/polaralignmentassistant.ui:530
 #, kde-format
 msgid ""
 "Polar Alignment total error measured by the 3 exposures at the start of the "
@@ -10315,15 +10322,15 @@ msgstr ""
 "początku czynności wyrównania biegunowego."
 
 #. i18n: ectx: property (text), widget (QLabel, label_PAHOrigErrorTotal)
-#: ekos/align/polaralignmentassistant.ui:504
+#: ekos/align/polaralignmentassistant.ui:508
 #, kde-format
 msgid "Measured Err:"
 msgstr "Pomierzony błąd:"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHOrigErrorAlt)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHOrigErrorAlt)
-#: ekos/align/polaralignmentassistant.ui:545
-#: ekos/align/polaralignmentassistant.ui:570
+#: ekos/align/polaralignmentassistant.ui:549
+#: ekos/align/polaralignmentassistant.ui:574
 #, kde-format
 msgid ""
 "Polar Alignment altitude error measured by the 3 exposures at the start of "
@@ -10336,7 +10343,7 @@ msgstr ""
 #. i18n: ectx: property (text), widget (QLabel, label_2)
 #. i18n: ectx: property (text), widget (QLabel, textLabel1_2)
 #. i18n: ectx: property (text), widget (QLabel, label_8)
-#: ekos/align/polaralignmentassistant.ui:548
+#: ekos/align/polaralignmentassistant.ui:552
 #: ekos/capture/calibrationoptions.ui:87 tools/argsetaltaz.ui:37
 #: tools/modcalcplanets.ui:296
 #, kde-format
@@ -10345,8 +10352,8 @@ msgstr "Wys:"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHOrigErrorAz)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHOrigErrorAz)
-#: ekos/align/polaralignmentassistant.ui:589
-#: ekos/align/polaralignmentassistant.ui:614
+#: ekos/align/polaralignmentassistant.ui:593
+#: ekos/align/polaralignmentassistant.ui:618
 #, kde-format
 msgid ""
 "Polar Alignment azimuth error measured by the 3 exposures at the start of "
@@ -10357,23 +10364,23 @@ msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHUpdatedErrorTotal)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHUpdatedErrorTotal)
-#: ekos/align/polaralignmentassistant.ui:646
-#: ekos/align/polaralignmentassistant.ui:671
+#: ekos/align/polaralignmentassistant.ui:650
+#: ekos/align/polaralignmentassistant.ui:675
 #, kde-format
 msgid "Polar Alignment total error estimated after recent adjustments."
 msgstr ""
 "Całkowity błąd wyrównania biegunowego oszacowany po ostatnich dostosowaniach."
 
 #. i18n: ectx: property (text), widget (QLabel, label_PAHUpdatedErrorTotal)
-#: ekos/align/polaralignmentassistant.ui:649
+#: ekos/align/polaralignmentassistant.ui:653
 #, kde-format
 msgid "Updated Err:"
 msgstr "Uaktualniony błąd:"
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHUpdatedErrorAlt)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHUpdatedErrorAlt)
-#: ekos/align/polaralignmentassistant.ui:690
-#: ekos/align/polaralignmentassistant.ui:715
+#: ekos/align/polaralignmentassistant.ui:694
+#: ekos/align/polaralignmentassistant.ui:719
 #, kde-format
 msgid "Polar Alignment altitude error estimated after recent adjustments."
 msgstr ""
@@ -10381,8 +10388,8 @@ msgstr ""
 
 #. i18n: ectx: property (toolTip), widget (QLabel, label_PAHUpdatedErrorAz)
 #. i18n: ectx: property (toolTip), widget (QLabel, PAHUpdatedErrorAz)
-#: ekos/align/polaralignmentassistant.ui:734
-#: ekos/align/polaralignmentassistant.ui:759
+#: ekos/align/polaralignmentassistant.ui:738
+#: ekos/align/polaralignmentassistant.ui:763
 #, kde-format
 msgid "Polar Alignment azimuth error estimated after recent adjustments."
 msgstr ""
@@ -10391,8 +10398,8 @@ msgstr ""
 #. i18n: ectx: property (toolTip), widget (QPushButton, PAHStartB)
 #. i18n: ectx: property (text), widget (QPushButton, PAHStartB)
 #. i18n: ectx: property (text), widget (QPushButton, startB)
-#: ekos/align/polaralignmentassistant.ui:806
-#: ekos/align/polaralignmentassistant.ui:809 ekos/auxiliary/darklibrary.ui:575
+#: ekos/align/polaralignmentassistant.ui:810
+#: ekos/align/polaralignmentassistant.ui:813 ekos/auxiliary/darklibrary.ui:575
 #: ekos/manager.cpp:146 ekos/manager.cpp:237 ekos/manager.cpp:796
 #: ekos/observatory/observatorydomemodel.cpp:132
 #: ekos/observatory/observatorydomemodel.cpp:135
@@ -16073,7 +16080,7 @@ msgid "Exposure timeout. More than 3 have been detected, will restart driver."
 msgstr ""
 
 #: ekos/capture/cameraprocess.cpp:2132 ekos/focus/focus.cpp:5782
-#: ekos/guide/guide.cpp:1009
+#: ekos/guide/guide.cpp:1010
 #, kde-format
 msgid "Exposure timeout. Restarting exposure..."
 msgstr "Upłynął czas naświetlenia. Rozpoczynanie ponownego naświetlania..."
@@ -22548,126 +22555,126 @@ msgstr "Połączenie z naprowadzającą matrycą CCD zostało utracone."
 msgid "Error: lost connection to CCD."
 msgstr "Błąd: utracono połączenie z CCD."
 
-#: ekos/guide/guide.cpp:1003
+#: ekos/guide/guide.cpp:1004
 #, fuzzy, kde-format
 #| msgid "Exposure timeout. Aborting..."
 msgid "Exposure timeout, but suspended. Ignoring..."
 msgstr "Upłynął czas naświetlenia. Przerywanie..."
 
-#: ekos/guide/guide.cpp:1031
+#: ekos/guide/guide.cpp:1032
 #, kde-format
 msgid "Exposure timeout. Aborting Autoguide."
 msgstr "Upłynął czas naświetlenia. Przerywanie samoogniskowania."
 
-#: ekos/guide/guide.cpp:1033
+#: ekos/guide/guide.cpp:1034
 #, kde-format
 msgid "Exposure timeout. Aborting Dithering."
 msgstr "Upłynął czas naświetlenia. Przerywanie rozpraszania."
 
-#: ekos/guide/guide.cpp:1035
+#: ekos/guide/guide.cpp:1036
 #, kde-format
 msgid "Exposure timeout. Aborting Calibration."
 msgstr "Upłynął czas naświetlenia. Przerywanie kalibracji."
 
-#: ekos/guide/guide.cpp:1044
+#: ekos/guide/guide.cpp:1045
 #, fuzzy, kde-format
 #| msgid "Exposure timeout. Restarting exposure..."
 msgid "Exposure timeout. Too many. Restarting driver."
 msgstr "Upłynął czas naświetlenia. Rozpoczynanie ponownego naświetlania..."
 
-#: ekos/guide/guide.cpp:1314
+#: ekos/guide/guide.cpp:1315
 #, fuzzy, kde-format
 #| msgid "Pier side change detected. Clearing calibration."
 msgid "No camera detected. Check camera in optical trains."
 msgstr "Wykryto zmianę strony doku. Czyszczenie kalibracji."
 
-#: ekos/guide/guide.cpp:1320
+#: ekos/guide/guide.cpp:1321
 #, kde-format
 msgid "No guider detected. Check guide-via in optical trains."
 msgstr ""
 
-#: ekos/guide/guide.cpp:1401
+#: ekos/guide/guide.cpp:1402
 #, kde-format
 msgid "The mount is parked. Unpark to start guiding."
 msgstr "Montaż jest zaparkowany. Wyparkuj go, aby zacząć naprowadzać."
 
-#: ekos/guide/guide.cpp:1504
+#: ekos/guide/guide.cpp:1505
 #, kde-format
 msgid "Pier side change detected. Clearing calibration."
 msgstr "Wykryto zmianę strony doku. Czyszczenie kalibracji."
 
-#: ekos/guide/guide.cpp:1518
+#: ekos/guide/guide.cpp:1519
 #, kde-format
 msgid "Mount is moving. Resetting calibration..."
 msgstr "Montaż jest w ruchu. Zerowanie kalibracji..."
 
-#: ekos/guide/guide.cpp:1535
+#: ekos/guide/guide.cpp:1536
 #, kde-format
 msgid "Mount is parking. Aborting guide..."
 msgstr "Montaż parkuje. Przerywanie naprowadzania..."
 
-#: ekos/guide/guide.cpp:1537
+#: ekos/guide/guide.cpp:1538
 #, kde-format
 msgid "Mount is slewing. Aborting guide..."
 msgstr "Montaż obraca się. Przerywanie naprowadzania..."
 
-#: ekos/guide/guide.cpp:1600
+#: ekos/guide/guide.cpp:1601
 #, kde-format
 msgid "Calibration is cleared."
 msgstr "Wyczyszczono kalibrację."
 
-#: ekos/guide/guide.cpp:1628
+#: ekos/guide/guide.cpp:1629
 #, kde-format
 msgid "External guider connected."
 msgstr "Zewnętrzne naprowadzanie podłączone."
 
-#: ekos/guide/guide.cpp:1646
+#: ekos/guide/guide.cpp:1647
 #, kde-format
 msgid "External guider disconnected."
 msgstr "Zewnętrzne naprowadzanie rozłączone."
 
-#: ekos/guide/guide.cpp:1663
+#: ekos/guide/guide.cpp:1664
 #, kde-format
 msgid "Calibration completed."
 msgstr "Ukończono kalibrację."
 
-#: ekos/guide/guide.cpp:1681
+#: ekos/guide/guide.cpp:1682
 #, kde-format
 msgid "Calibration started."
 msgstr "Rozpoczęto kalibrację."
 
-#: ekos/guide/guide.cpp:1688
+#: ekos/guide/guide.cpp:1689
 #, kde-format
 msgid "Guiding resumed."
 msgstr "Wznowiono naprowadzanie."
 
-#: ekos/guide/guide.cpp:1691
+#: ekos/guide/guide.cpp:1692
 #, fuzzy, kde-format
 #| msgid "Autoguiding resumed."
 msgid "Autoguiding running."
 msgstr "Wznowiono samonaprowadzanie."
 
-#: ekos/guide/guide.cpp:1703
+#: ekos/guide/guide.cpp:1704
 #, kde-format
 msgid "Autoguiding aborted."
 msgstr "Przerwano samoczynne naprowadzanie."
 
-#: ekos/guide/guide.cpp:1708
+#: ekos/guide/guide.cpp:1709
 #, kde-format
 msgid "Guiding suspended."
 msgstr "Wstrzymano naprowadzanie."
 
-#: ekos/guide/guide.cpp:1717
+#: ekos/guide/guide.cpp:1718
 #, kde-format
 msgid "Manual dithering in progress."
 msgstr "Ręczne rozpraszanie w trakcie."
 
-#: ekos/guide/guide.cpp:1721
+#: ekos/guide/guide.cpp:1722
 #, kde-format
 msgid "Dithering in progress."
 msgstr "Rozpraszanie w trakcie."
 
-#: ekos/guide/guide.cpp:1725
+#: ekos/guide/guide.cpp:1726
 #, kde-format
 msgid "Post-dither settling for %1 second..."
 msgid_plural "Post-dither settling for %1 seconds..."
@@ -22675,33 +22682,33 @@ msgstr[0] "Po-rozpraszanie ustali się za %1 sekundę..."
 msgstr[1] "Po-rozpraszanie ustali się za %1 sekundy..."
 msgstr[2] "Po-rozpraszanie ustali się za %1 sekund..."
 
-#: ekos/guide/guide.cpp:1730
+#: ekos/guide/guide.cpp:1731
 #, kde-format
 msgid "Dithering failed."
 msgstr "Nie udało się rozpraszanie."
 
-#: ekos/guide/guide.cpp:1741
+#: ekos/guide/guide.cpp:1742
 #, kde-format
 msgid "Dithering completed successfully."
 msgstr "Pomyślnie ukończono rozpraszanie."
 
-#: ekos/guide/guide.cpp:1790
+#: ekos/guide/guide.cpp:1791
 #, kde-format
 msgid "%1x%1 guide binning is not supported."
 msgstr "%1x%1 binning naprowadzania jest nieobsługiwany."
 
-#: ekos/guide/guide.cpp:1812
+#: ekos/guide/guide.cpp:1813
 #, kde-format
 msgid "Exposure failed. Restarting exposure..."
 msgstr "Nieudane naświetlanie. Ponowne naświetlanie..."
 
-#: ekos/guide/guide.cpp:1938
+#: ekos/guide/guide.cpp:1939
 #, kde-format
 msgid "Cannot change guider type while active."
 msgstr ""
 "Nie można zmienić rodzaju naprowadzania podczas jego aktywności.zajęty."
 
-#: ekos/guide/guide.cpp:2033
+#: ekos/guide/guide.cpp:2034
 #, kde-format
 msgid ""
 "Warning: Reset Guiding Calibration is enabled. It is recommended to turn "
@@ -22710,39 +22717,39 @@ msgstr ""
 "Uwaga: włączono zerowanie kalibracji naprowadzania. Zalecane jest jej "
 "wyłączenie dla PHD2."
 
-#: ekos/guide/guide.cpp:2440
+#: ekos/guide/guide.cpp:2441
 #, kde-format
 msgid "Calibration failed to start."
 msgstr "Nie udało się rozpocząć kalibracji."
 
-#: ekos/guide/guide.cpp:2591
+#: ekos/guide/guide.cpp:2592
 #, kde-format
 msgid "Auto star selected."
 msgstr "Wybrano auto gwiazdę."
 
-#: ekos/guide/guide.cpp:2595
+#: ekos/guide/guide.cpp:2596
 #, kde-format
 msgid "Failed to select an auto star."
 msgstr "Nie udało się wybrać auto gwiazdy."
 
-#: ekos/guide/guide.cpp:2604
+#: ekos/guide/guide.cpp:2605
 #, kde-format
 msgid "Select a guide star to calibrate."
 msgstr "Wybierz gwiazdę przewodnią do skalibrowania."
 
-#: ekos/guide/guide.cpp:2866
+#: ekos/guide/guide.cpp:2867
 #, fuzzy, kde-format
 #| msgid "x (pixels)"
 msgid "dx (pixels)"
 msgstr "x (piksele)"
 
-#: ekos/guide/guide.cpp:2867
+#: ekos/guide/guide.cpp:2868
 #, fuzzy, kde-format
 #| msgid "y (pixels)"
 msgid "dy (pixels)"
 msgstr "y (piksele)"
 
-#: ekos/guide/guide.cpp:3010 ekos/guide/guide.cpp:3138
+#: ekos/guide/guide.cpp:3011 ekos/guide/guide.cpp:3139
 #, kde-format
 msgid ""
 "The PHD2 camera is not available to Ekos, so you cannot see the captured "
@@ -22752,7 +22759,7 @@ msgstr ""
 "obrazów, lecz nadal będzie widać obraz gwiazdy naprowadzającej podczas "
 "naprowadzania."
 
-#: ekos/guide/guide.cpp:3014 ekos/guide/guide.cpp:3142
+#: ekos/guide/guide.cpp:3015 ekos/guide/guide.cpp:3143
 #, kde-format
 msgid ""
 "To receive PHD2 images other than the Guide Star Image, SubFrame must be "
@@ -22763,7 +22770,7 @@ msgstr ""
 "podklatka musi być odznaczona. Odznaczono ją teraz, aby umożliwić "
 "przechwytywanie klatek. Można ją ponownie zaznaczyć przed naprowadzaniem"
 
-#: ekos/guide/guide.cpp:3309
+#: ekos/guide/guide.cpp:3310
 #, kde-format
 msgid "Cannot change active optical train while PHD2 is connected"
 msgstr ""
@@ -117211,9 +117218,6 @@ msgstr "Ustaw barwę tła."
 
 #~ msgid "Calibration Settings"
 #~ msgstr "Ustawienia kalibracji"
-
-#~ msgid "Slew speed"
-#~ msgstr "Szybkość obrot"
 
 #~ msgid ""
 #~ "Preferred Imagery (Always downloads DSS. SDSS support has been removed "
