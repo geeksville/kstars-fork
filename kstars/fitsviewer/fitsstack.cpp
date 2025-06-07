@@ -24,9 +24,7 @@
 
 #include <fitsio.h>
 
-// JEE class FITSData;
-
-FITSStack::FITSStack(FITSData *parent) : QObject()
+FITSStack::FITSStack(FITSData *parent) : QObject(parent)
 {
     m_Data = parent;
     m_StackData = loadStackData();
@@ -80,9 +78,6 @@ LiveStackPPData FITSStack::loadStackPPData()
     data.sharpenSigma = Options::fitsLSSharpenSigma();
     return data;
 }
-
-// JEE
-// #ifdef HAVE_OPENCV
 
 // Setup the image data structure for later processing
 void FITSStack::setupNextSub()
@@ -1273,7 +1268,6 @@ void FITSStack::tidyUpInitalStack(struct wcsprm * refWCS)
             free(m_StackImageData[i].wcsprm);
             m_StackImageData[i].wcsprm = nullptr;
         }
-        // JEE if (!m_StackImageData[i].image.empty())
         int refcount = m_StackImageData[i].image.u->refcount;
         qCDebug(KSTARS_FITS) << QString("JEE m_StackImageData[%1].image refcount %2").arg(i).arg(refcount);
         m_StackImageData[i].image.release();

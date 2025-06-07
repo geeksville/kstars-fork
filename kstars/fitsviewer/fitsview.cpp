@@ -404,6 +404,7 @@ void FITSView::loadFile(const QString &inFilename)
     fitsWatcher.setFuture(m_ImageData->loadFromFile(inFilename));
 }
 
+// Initialise the stack, displaying the noimage image - signalled from FitsTab
 void FITSView::initStack()
 {
     if (floatingToolBar != nullptr)
@@ -411,16 +412,6 @@ void FITSView::initStack()
         floatingToolBar->setVisible(true);
     }
 
-    bool setBayerParams = false;
-
-    // JEE - do we need this?
-    BayerParams param;
-    if ((m_ImageData != nullptr) && m_ImageData->hasDebayer())
-    {
-        setBayerParams = true;
-        m_ImageData->getBayerParams(&param);
-    }
-
     filterStack.clear();
     filterStack.push(FITS_NONE);
     if (filter != FITS_NONE)
@@ -428,33 +419,6 @@ void FITSView::initStack()
 
     m_ImageData.reset(new FITSData(mode), &QObject::deleteLater);
 
-    if (setBayerParams)
-        m_ImageData->setBayerParams(&param);
-
-    // JEE
-    /*connect(m_ImageData.data(), &FITSData::plateSolveImage, this, [this](const double ra, const double dec,
-                                                                         const double pixScale, const LiveStackFrameWeighting weighting)
-    {
-        emit plateSolveImage(ra, dec, pixScale, weighting);
-    });
-
-    connect(m_ImageData.data(), &FITSData::alignMasterChosen, this, [this](const QString alignMaster)
-    {
-        emit alignMasterChosen(alignMaster);
-    });
-
-    connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
-    {
-        fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
-    });
-
-    connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,
-                                                                          const int total)
-    {
-        emit stackUpdateStats(ok, sub, total);
-    });*/
-
-    // JEE fitsWatcher.setFuture(m_ImageData->loadStack(inDir, parameters));
     QString noImage = ":/images/noimage.png";
     fitsWatcher.setFuture(m_ImageData->loadFromFile(noImage));
 }
@@ -462,29 +426,15 @@ void FITSView::initStack()
 void FITSView::loadStack(const QString &inDir)
 {
     if (floatingToolBar != nullptr)
-    {
         floatingToolBar->setVisible(true);
-    }
 
     bool setBayerParams = false;
-
-    // JEE - do we need this?
     BayerParams param;
     if ((m_ImageData != nullptr) && m_ImageData->hasDebayer())
     {
         setBayerParams = true;
         m_ImageData->getBayerParams(&param);
     }
-
-    // JEE - do we need this?
-    /*
-    // In case image is still loading, wait until it is done.
-    fitsWatcher.waitForFinished();
-    // In case loadWCS is still running for previous image data, let's wait until it's over
-    wcsWatcher.waitForFinished();*/
-
-    //    delete m_ImageData;
-    //    m_ImageData = nullptr;
 
     filterStack.clear();
     filterStack.push(FITS_NONE);
@@ -496,35 +446,38 @@ void FITSView::loadStack(const QString &inDir)
     if (setBayerParams)
         m_ImageData->setBayerParams(&param);
 
-    // JEE
-    connect(m_ImageData.data(), &FITSData::plateSolveImage, this, [this](const double ra, const double dec,
-                                                    const double pixScale, const LiveStackFrameWeighting weighting)
+    connect(m_ImageData.data(), &FITSData::plateSolveSub, this, [this](const double ra, const double dec,
+                                                                         const double pixScale, const LiveStackFrameWeighting weighting)
     {
-        emit plateSolveImage(ra, dec, pixScale, weighting);
-    }, Qt::UniqueConnection);
+        emit plateSolveSub(ra, dec, pixScale, weighting);
+    });
 
     connect(m_ImageData.data(), &FITSData::alignMasterChosen, this, [this](const QString alignMaster)
     {
         emit alignMasterChosen(alignMaster);
-    }, Qt::UniqueConnection);
+    });
+
+    connect(m_ImageData.data(), &FITSData::stackInProgress, this, [this]()
+    {
+        emit stackInProgress();
+    });
 
     connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
     {
         emit updateStackSNR(m_ImageData->stack()->getStackSNR());
-        fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
-    }, Qt::UniqueConnection);
+       fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
+    });
 
     connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,
-                                const int total, const double meanSNR, const double minSNR, const double maxSNR)
+                                                                          const int total, const double meanSNR, const double minSNR, const double maxSNR)
     {
         emit stackUpdateStats(ok, sub, total, meanSNR, minSNR, maxSNR);
-    }, Qt::UniqueConnection);
+    });
 
-    // JEE fitsWatcher.setFuture(m_ImageData->loadStack(inDir, parameters));
     m_ImageData->loadStack(inDir);
 }
 
-// JEE Called when post processing controls in Fitstab changed by the user
+// Called when post processing controls in Fitstab changed by the user
 void FITSView::redoPostProcessStack()
 {
     auto stack = m_ImageData->stack();
@@ -592,22 +545,22 @@ bool FITSView::processData()
     {
         rescale(ZOOM_KEEP_LEVEL);
         updateFrame();
-    }, Qt::UniqueConnection);
+    });
 
     connect(m_ImageData.data(), &FITSData::headerChanged, this, [this]()
     {
         emit headerChanged();
-    }, Qt::UniqueConnection);
+    });
 
     connect(m_ImageData.data(), &FITSData::loadingCatalogData, this, [this]()
     {
         emit catQueried();
-    }, Qt::UniqueConnection);
+    });
 
     connect(m_ImageData.data(), &FITSData::catalogQueryFailed, this, [this](QString text)
     {
         emit catQueryFailed(text);
-    }, Qt::UniqueConnection);
+    });
 
     connect(m_ImageData.data(), &FITSData::loadedCatalogData, this, [this]()
     {
@@ -616,7 +569,7 @@ bool FITSView::processData()
         // Reprocess FITSView
         rescale(ZOOM_KEEP_LEVEL);
         updateFrame();
-    }, Qt::UniqueConnection);
+    });
 
     currentWidth = m_ImageData->width();
     currentHeight = m_ImageData->height();
@@ -628,11 +581,11 @@ bool FITSView::processData()
     {
         m_ImageFrame = new FITSLabel(this);
         m_ImageFrame->setMouseTracking(true);
-        connect(m_ImageFrame, &FITSLabel::newStatus, this, &FITSView::newStatus, Qt::UniqueConnection);
-        connect(m_ImageFrame, &FITSLabel::pointSelected, this, &FITSView::processPointSelection, Qt::UniqueConnection);
-        connect(m_ImageFrame, &FITSLabel::markerSelected, this, &FITSView::processMarkerSelection, Qt::UniqueConnection);
-        connect(m_ImageFrame, &FITSLabel::highlightSelected, this, &FITSView::processHighlight, Qt::UniqueConnection);
-        connect(m_ImageFrame, &FITSLabel::circleSelected, this, &FITSView::processCircle, Qt::UniqueConnection);
+        connect(m_ImageFrame, &FITSLabel::newStatus, this, &FITSView::newStatus);
+        connect(m_ImageFrame, &FITSLabel::pointSelected, this, &FITSView::processPointSelection);
+        connect(m_ImageFrame, &FITSLabel::markerSelected, this, &FITSView::processMarkerSelection);
+        connect(m_ImageFrame, &FITSLabel::highlightSelected, this, &FITSView::processHighlight);
+        connect(m_ImageFrame, &FITSLabel::circleSelected, this, &FITSView::processCircle);
     }
     m_ImageFrame->setSize(image_width, image_height);
 
@@ -672,7 +625,7 @@ bool FITSView::processData()
             return false;
         }
 
-        // JEE For livestacking the noimage is displayed first so only reset firstload
+        // For livestacking the noimage is displayed first so only reset firstload
         // after the 1st stack image is displayed
         if (mode != FITS_LIVESTACKING || m_ImageData->filename() != ":/images/noimage.png")
             firstLoad = false;
@@ -689,7 +642,6 @@ bool FITSView::processData()
     setAlignment(Qt::AlignCenter);
 
     // Load WCS data now if selected and image contains valid WCS header
-    // JEE
     if ((mode == FITS_NORMAL || mode == FITS_ALIGN || mode == FITS_LIVESTACKING) &&
             m_ImageData->hasWCS() && m_ImageData->getWCSState() == FITSData::Idle &&
             Options::autoWCS() &&
@@ -748,7 +700,7 @@ void FITSView::loadInFrame()
     else
         emit failed(m_LastError);
 
-    // JEE If stack has just been processed, check if there are more subs to do...
+    // If stack has just been processed, plate solve and check for more subs...
     if (mode == FITS_LIVESTACKING && m_ImageData->stack())
     {
         emit autoPlateSolve();

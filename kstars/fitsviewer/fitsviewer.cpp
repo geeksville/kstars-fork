@@ -35,19 +35,10 @@
 
 #include <fits_debug.h>
 
-// JEE
-#ifdef HAVE_OPENCV
-#include "opencv2/opencv.hpp"
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/video/tracking.hpp"
-#endif
-
-
 #define INITIAL_W 785
 #define INITIAL_H 640
 
 bool FITSViewer::m_BlinkBusy = false;
-// JEE
 bool FITSViewer::m_StackBusy = false;
 
 QList<KLocalizedString> FITSViewer::filterTypes = {ki18n("Auto Stretch"), ki18n("High Contrast"), ki18n("Equalize"),
@@ -492,7 +483,6 @@ bool FITSViewer::addFITSCommon(const QSharedPointer<FITSTab> &tab, const QUrl &i
     switch (mode)
     {
         case FITS_NORMAL:
-        // JEE
         case FITS_LIVESTACKING:
         case FITS_CALIBRATE:
             fitsTabWidget->addTab(tab.get(), previewText.isEmpty() ? imageName.fileName() : previewText);
@@ -596,7 +586,6 @@ void FITSViewer::loadFiles()
 
     connect(tab.get(), &FITSTab::loaded, this, [ = ]()
     {
-        // JEE anything to do here
         if (addFITSCommon(m_Tabs.last(), imageName, FITS_NORMAL, ""))
             emit loaded(fitsID++);
         else
@@ -606,7 +595,6 @@ void FITSViewer::loadFiles()
             loadFiles();
     });
 
-    // JEE anything to do
     tab->loadFile(imageName, FITS_NORMAL, FITS_NONE);
 }
 
@@ -753,7 +741,6 @@ bool FITSViewer::updateFITSCommon(const QSharedPointer<FITSTab> &tab, const QUrl
 
     if (tabTitle != "")
         fitsTabWidget->setTabText(tabIndex, tabTitle);
-    // JEE anything to do?
     else if (tab->getView()->getMode() == FITS_NORMAL)
     {
         if ((imageName.fileName() == "Preview" ||
@@ -960,7 +947,6 @@ void FITSViewer::blink()
     connect(tab.get(), &FITSTab::loaded, this, [ = ]()
     {
         QObject::sender()->disconnect(this);
-        // JEE anything to do
         addFITSCommon(m_Tabs.last(), imageName, FITS_NORMAL, "");
         //fitsTabWidget->tabBar()->setTabTextColor(tabIndex, Qt::red);
         fitsTabWidget->setTabText(tabIndex, tabName);
@@ -1057,31 +1043,14 @@ void FITSViewer::openFile()
     loadFiles();
 }
 
-// JEE
+// Launch the Live Stacking functionality...
 void FITSViewer::stack()
 {
     if (m_StackBusy)
         return;
     m_StackBusy = true;
 
-    // JEE QFileDialog dialog(KStars::Instance(), i18nc("@title:window", "Stack Top Directory"));
-    // dialog.setFileMode(QFileDialog::Directory);
-    // dialog.setDirectoryUrl(lastURL);
-
-    /*if (!dialog.exec())
-    {
-        m_StackBusy = false;
-        return;
-    }*/
-    /*QStringList selected = dialog.selectedFiles();
-    if (selected.size() < 1)
-    {
-        m_StackBusy = false;
-        return;
-    }*/
     QString topDir = lastURL.toString();
-
-    // JEEconst QUrl imageName(QUrl::fromLocalFile(topDir));
     const QUrl imageName;
 
     led.setColor(Qt::yellow);
@@ -1091,7 +1060,6 @@ void FITSViewer::stack()
 
     m_Tabs.push_back(tab);
     int tabIndex = m_Tabs.size();
-    // JEE QString tabName = QString("Stack of %1").arg(topDir);
     QString tabName = QString("Stack");
     connect(tab.get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
         {
@@ -1113,7 +1081,7 @@ void FITSViewer::stack()
     tab->initStack(topDir, FITS_LIVESTACKING, FITS_NONE);
 }
 
-// JEE
+// Called when a stacking operation is in motion...
 void FITSViewer::restack(const QString dir)
 {
     if (m_StackBusy)
@@ -1129,9 +1097,9 @@ void FITSViewer::restack(const QString dir)
 
     QString tabName = i18n("Stack of %1", dir);
     connect(m_Tabs[tabIndex].get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
-        {
-            Q_UNUSED(errorMessage);
-            QObject::sender()->disconnect(this);
+    {
+        Q_UNUSED(errorMessage);
+        QObject::sender()->disconnect(this);
             QApplication::restoreOverrideCursor();
             led.setColor(Qt::red);
             m_StackBusy = false;
@@ -1140,59 +1108,12 @@ void FITSViewer::restack(const QString dir)
     connect(m_Tabs[tabIndex].get(), &FITSTab::loaded, this, [ = ]()
         {
             QObject::sender()->disconnect(this);
-            // addFITSCommon(m_Tabs[tabIndex], imageName, FITS_LIVESTACKING, tabName);
             fitsTabWidget->setTabText(tabIndex, tabName);
             QApplication::restoreOverrideCursor();
             led.setColor(Qt::green);
             m_StackBusy = false;
         }, Qt::UniqueConnection);
 }
-
-// JEE
-#ifdef HAVE_OPENCV
-void FITSViewer::stackImages(QList<QString> subs)
-{
-    bool first = true;
-
-    try
-    {
-        cv::Mat refImage, stackedImage;
-
-        for(QString sub : subs)
-        {
-            cv::Mat image = cv::imread(sub.toStdString(), cv::IMREAD_GRAYSCALE);
-            cv::imshow("Raw Image", image);
-            cv::waitKey(0);
-            if (first)
-            {
-                first = false;
-                refImage = image;
-                stackedImage = image;
-            }
-            else
-            {
-                const int warp_mode = cv::MOTION_HOMOGRAPHY;
-                cv::TermCriteria criteria(cv::TermCriteria::Type::COUNT + cv::TermCriteria::Type::EPS, 5000, 1e-10);
-                cv::Mat warp = cv::Mat::eye(3, 3, CV_32FC1);
-                cv::findTransformECC(image, refImage, warp, warp_mode, criteria);
-                cv::Mat warpedImage;
-                cv::warpPerspective(image, warpedImage, warp, image.size(), cv::INTER_LINEAR + cv::WARP_INVERSE_MAP);
-                stackedImage += warpedImage;
-            }
-        }
-        stackedImage /= subs.size();
-        cv::imshow("Stacked Image", stackedImage);
-        cv::waitKey(0);
-        cv::destroyAllWindows();
-    }
-    catch (const cv::Exception &ex)
-    {
-        QString s1 = ex.what();
-        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(ex.what()).arg(__FUNCTION__);
-    }
-
-}
-#endif
 
 void FITSViewer::saveFile()
 {

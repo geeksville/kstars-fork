@@ -71,7 +71,7 @@ class FITSTab : public QWidget
         void clearRecentFITS();
         void selectRecentFITS(int i);
         void loadFile(const QUrl &imageURL, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
-        void initStack(const QString &dir, FITSMode mode = FITS_LIVESTACKING, FITSScale filter = FITS_NONE);
+
         bool loadData(const QSharedPointer<FITSData> &data, FITSMode mode = FITS_NORMAL, FITSScale filter = FITS_NONE);
 
         // Methods to setup and control blinking--loading a directory of images one-by-one
@@ -93,6 +93,12 @@ class FITSTab : public QWidget
             if (index >= 0 && index < m_BlinkFilenames.size())
                 m_BlinkIndex = index;
         };
+
+        /**
+         * @brief Initialise Live Stacking processing
+         */
+        void initStack(const QString &dir, FITSMode mode = FITS_LIVESTACKING, FITSScale filter = FITS_NONE);
+
         bool saveImage(const QString &filename);
 
         inline QUndoStack *getUndoStack()
@@ -259,18 +265,15 @@ class FITSTab : public QWidget
         QSharedPointer<PlateSolve> m_PlateSolve;
 
         // Live Stacking
-        void plateSolveImage(const double ra, const double dec, const double pixScale,
+        void plateSolveSub(const double ra, const double dec, const double pixScale,
                              const LiveStackFrameWeighting &weighting);
-        void alignMasterChosen(const QString alignMaster);
+        void stackInProgress();
+        void alignMasterChosen(const QString &alignMaster);
         void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
                               const double maxSNR);
         void updateStackSNR(const double SNR);
         int m_LiveStackingItem { 0 };
         bool m_StackExtracted { false };
-        double m_SavedRa { 0.0 };
-        double m_SavedDec { 0.0 };
-        double m_SavedPixScale { 0.0 };
-        LiveStackFrameWeighting m_SavedWeighting { LS_STACKING_EQUAL };
         QString m_liveStackDir;
         int m_StackSubsTotal { 0 };
         int m_StackSubsProcessed { 0 };

@@ -45,13 +45,6 @@
 #include <libxisf.h>
 #endif
 
-// JEE
-#ifdef HAVE_OPENCV
-#include "opencv2/opencv.hpp"
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/video/tracking.hpp"
-#endif
-
 #include <cfloat>
 #include <cmath>
 
@@ -163,6 +156,30 @@ FITSData::~FITSData()
         m_PackBuffer = nullptr;
         fptr = nullptr;
     }
+
+    // Live Stacking
+    if (m_StackImageBuffer != nullptr)
+    {
+        delete[] m_StackImageBuffer;
+        m_StackImageBuffer = nullptr;
+        m_StackImageBufferSize = 0;
+    }
+#ifdef HAVE_WCSLIB
+    if (m_StackWCSHandle != nullptr)
+    {
+        wcsvfree(&m_Stacknwcs, &m_StackWCSHandle);
+        m_StackWCSHandle = nullptr;
+        m_Stacknwcs = 0;
+    }
+#endif
+    if (m_Stackfptr != nullptr)
+    {
+        status = 0;
+        fits_flush_file(m_Stackfptr, &status);
+        status = 0;
+        fits_close_file(m_Stackfptr, &status);
+        m_Stackfptr = nullptr;
+    }
 }
 
 void FITSData::loadCommon(const QString &inFilename)
@@ -203,7 +220,6 @@ QFuture<bool> FITSData::loadFromFile(const QString &inFilename)
 #endif
 }
 
-// JEE
 #ifdef HAVE_OPENCV
 bool FITSData::initStack(const QString &inDir)
 {
@@ -214,17 +230,12 @@ bool FITSData::initStack(const QString &inDir)
 bool FITSData::loadStack(const QString &inDir)
 {
     m_StackDir = inDir;
-    // JEE m_Stack.reset(new FITSStack(this), &QObject::deleteLater);
-    m_Stack.reset(new FITSStack(this));
+    m_Stack.reset(new FITSStack(this), &QObject::deleteLater);
     connect(m_Stack.get(), &FITSStack::stackChanged, this, [this]()
     {
-        if (m_Stack)
-        {
-            QByteArray buffer = m_Stack->getStackedImage();
-            loadFromBuffer(buffer);
-            // JEE do we need this?
-            emit dataChanged();
-        }
+        QByteArray buffer = m_Stack->getStackedImage();
+        loadFromBuffer(buffer);
+        emit dataChanged();
     });
 
     // Clear the work queue
@@ -236,10 +247,6 @@ bool FITSData::loadStack(const QString &inDir)
 
     m_StackDirWatcher->watchDir(m_StackDir);
     QStringList subs = m_StackDirWatcher->getCurrentFiles();
-
-    // JEE m_StackSubs = findAllImagesInDir(m_StackDir);
-    //QList<QString> subs = findAllImagesInDir(m_StackDir);
-    //QStringList subs = findAllImagesInDir(m_StackDir);
 
     auto stackData = m_Stack->getStackData();
     QString alignMaster = stackData.alignMaster;
@@ -255,7 +262,7 @@ bool FITSData::loadStack(const QString &inDir)
         int pos = subs.indexOf(alignMaster);
         if (pos >= 0 && pos < subs.size())
             // Align Master is in the directory of subs to be processed so remove it from its current position
-            QString item = subs.takeAt(pos);
+            subs.takeAt(pos);
         subs.insert(0, alignMaster);
     }
 
@@ -275,11 +282,10 @@ bool FITSData::loadStack(const QString &inDir)
 
     // Set the control variables
     m_StackSubPos = -1;
-    m_Stack->setStackInProgress(true);
     m_Stack->setInitalStackDone(false);
+    m_Stack->setStackInProgress(true);
     m_MastersLoaded = false;
     nextStackAction();
-    // JEEreturn processNextSub(m_StackSubs[m_StackSubPos]);
     return true;
 }
 
@@ -305,6 +311,7 @@ void FITSData::incrementalStack()
         return;
 
     m_Stack->setStackInProgress(true);
+    emit stackInProgress();
     int subsToProcess = m_Stack->getStackData().numInMem;
     m_StackSubs.clear();
     m_StackSubPos = -1;
@@ -315,12 +322,10 @@ void FITSData::incrementalStack()
             break;
     }
     nextStackAction();
-    // JEE processNextSub(m_StackSubs[m_StackSubPos]);
 }
 
 QFuture<bool> FITSData::loadStackBuffer()
 {
-    // JEE this is a hack to get privateLoad to load the buffer
     m_Extension = "fits";
     QByteArray buffer = m_Stack->getStackedImage();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -330,7 +335,7 @@ QFuture<bool> FITSData::loadStackBuffer()
 #endif
 }
 
-bool FITSData::processNextSub(QString sub)
+bool FITSData::processNextSub(QString &sub)
 {
     m_Stack->setupNextSub();
 
@@ -343,7 +348,7 @@ bool FITSData::processNextSub(QString sub)
         if (m_Stack->addSub((void *) m_StackImageBuffer, m_StackStatistics.cvType, m_StackStatistics.stats.width,
                               m_StackStatistics.stats.height, m_StackStatistics.stats.bytesPerPixel))
         {
-            emit plateSolveImage(ra, dec, pixScale, m_Stack->getStackData().weighting);
+            emit plateSolveSub(ra, dec, pixScale, m_Stack->getStackData().weighting);
             return true;
         }
     }
@@ -419,13 +424,12 @@ void FITSData::nextStackAction()
 
             // Stack... either an initial stack or add 1 or more subs to an existing stack
             m_Stack->getInitialStackDone() ? m_Stack->stackn() : m_Stack->stack();
-            // JEE if (stackOK)
             emit stackReady();
             m_Stack->setStackInProgress(false);
         }
     }
 }
-#endif
+#endif // HAVE_OPENCV
 
 namespace
 {
@@ -652,7 +656,6 @@ bool FITSData::loadFITSImage(const QByteArray &buffer, const bool isCompressed)
 
     // Channels always set to #1 if we are not required to process 3D Cubes
     // Or if mode is not FITS_NORMAL (guide, focus..etc)
-    // JEE
     if ( (m_Mode != FITS_NORMAL && m_Mode != FITS_CALIBRATE && m_Mode != FITS_LIVESTACKING) || !Options::auto3DCube())
         m_Statistics.channels = 1;
 
@@ -707,7 +710,6 @@ bool FITSData::loadFITSImage(const QByteArray &buffer, const bool isCompressed)
     else
         calculateStats(false, false);
 
-    // JEE
     if (m_Mode == FITS_NORMAL || m_Mode == FITS_ALIGN || m_Mode == FITS_LIVESTACKING)
         loadWCS();
 
@@ -716,7 +718,7 @@ bool FITSData::loadFITSImage(const QByteArray &buffer, const bool isCompressed)
     return true;
 }
 
-// JEE load a FITS image temporarily for stacking so no need to setup all the global
+// Load a FITS image temporarily for stacking so no need to setup all the global
 // variables required for a "normal" load
 bool FITSData::stackLoadFITSImage(QString filename, const bool isCompressed)
 {
@@ -914,9 +916,15 @@ bool FITSData::stackLoadFITSImage(QString filename, const bool isCompressed)
     return stackLoadWCS();
 }
 
-// JEE
 bool FITSData::stackLoadWCS()
 {
+    if (m_StackWCSHandle != nullptr)
+    {
+        wcsvfree(&m_Stacknwcs, &m_StackWCSHandle);
+        m_Stacknwcs = 0;
+        m_StackWCSHandle = nullptr;
+    }
+
     // Get the FITS header in a format to do WCS processing...
     int status = 0, nreject = 0, nkeyrec = 1;
     QByteArray header_str;
@@ -4837,7 +4845,7 @@ bool FITSData::checkDebayer()
     return true;
 }
 
-// JEE check whether a stack sub needs debayering
+// Check whether a stack sub needs debayering
 bool FITSData::stackCheckDebayer(BayerParams bayerParams)
 {
     int status = 0;

@@ -238,6 +238,7 @@ void FITSTab::loadFile(const QUrl &imageURL, FITSMode mode, FITSScale filter)
     m_View->loadFile(imageURL.toLocalFile());
 }
 
+// Initialise the stack - signalled once from FitsViewer
 void FITSTab::initStack(const QString &dir, FITSMode mode, FITSScale filter)
 {
     // check if the address points to an appropriate address
@@ -917,6 +918,7 @@ void FITSTab::initLiveStacking()
     connect(m_LiveStackingUI.StackB, &QPushButton::clicked, this, &FITSTab::liveStack);
     connect(m_LiveStackingUI.ReprocessB, &QPushButton::clicked, this, [this]
     {
+        viewer->restack(m_liveStackDir);
         if(m_View)
             m_View->redoPostProcessStack();
     });
@@ -994,7 +996,8 @@ void FITSTab::initLiveStacking()
     });
 
     // Other connections used by Live Stacking
-    connect(m_View.get(), &FITSView::plateSolveImage, this, &FITSTab::plateSolveImage);
+    connect(m_View.get(), &FITSView::plateSolveSub, this, &FITSTab::plateSolveSub);
+    connect(m_View.get(), &FITSView::stackInProgress, this, &FITSTab::stackInProgress);
     connect(m_View.get(), &FITSView::alignMasterChosen, this, &FITSTab::alignMasterChosen);
     connect(m_View.get(), &FITSView::stackUpdateStats, this, &FITSTab::stackUpdateStats);
     connect(m_View.get(), &FITSView::updateStackSNR, this, &FITSTab::updateStackSNR);
@@ -1282,7 +1285,8 @@ void FITSTab::liveStack()
     m_View->loadStack(m_liveStackDir);
 }
 
-void FITSTab::plateSolveImage(const double ra, const double dec, const double pixScale,
+// Plate solve the sub. May require 2 runs; firstly to get stars (if needed) and then to actually plate solve
+void FITSTab::plateSolveSub(const double ra, const double dec, const double pixScale,
                               const LiveStackFrameWeighting &weighting)
 {
     disconnect(m_PlateSolve.get(), nullptr, this, nullptr);
@@ -1293,14 +1297,14 @@ void FITSTab::plateSolveImage(const double ra, const double dec, const double pi
         m_StackMedianHFR = medianHFR;
         m_StackNumStars = numStars;
         m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, SSolver::SOLVE);
-    }, Qt::UniqueConnection);
+    });
     connect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, this, [this]()
     {
         disconnect(m_PlateSolve.get(), nullptr, nullptr, nullptr);
         const bool timedOut = false;
         const bool success = false;
         m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
-    }, Qt::UniqueConnection);
+    });
     connect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, this, [this]()
     {
         disconnect(m_PlateSolve.get(), nullptr, nullptr, nullptr);
@@ -1335,7 +1339,12 @@ void FITSTab::plateSolveImage(const double ra, const double dec, const double pi
     m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, solveType);
 }
 
-void FITSTab::alignMasterChosen(const QString alignMaster)
+void FITSTab::stackInProgress()
+{
+    viewer->restack(m_liveStackDir);
+}
+
+void FITSTab::alignMasterChosen(const QString &alignMaster)
 {
     m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText(alignMaster);
 }

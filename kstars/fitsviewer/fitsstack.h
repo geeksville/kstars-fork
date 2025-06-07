@@ -253,23 +253,11 @@ class FITSStack : public QObject
         void tidyUpInitalStack(struct wcsprm * refWCS);
         void tidyUpRunningStack();
 
-        //void extractorDone(bool timedOut, bool success, const FITSImage::Solution &solution, double elapsedSeconds);
-        //void initSolverUI();
-        //void setupProfiles(int profileIndex);
-        //int getProfileIndex(int moduleIndex);
-        //void setProfileIndex(int moduleIndex, int profileIndex);
-
         FITSData *m_Data;
         QSharedPointer<SolverUtils> m_Solver;
         bool m_ReadyToStack { false };
         QString m_BayerPattern;
 
-        // QVector<QString> m_ImagePaths;
-        //QVector<cv::Mat> m_Images;
-        //QVector<PlateSolveStatus> m_PlateSolvedStatus;
-        //QVector<struct wcsprm *> m_Wcsprm;
-        //QVector<double> m_HFR;
-        //QVector<int> m_NumStars;
         typedef struct
         {
             cv::Mat image;
@@ -310,7 +298,6 @@ class FITSStack : public QObject
         // Stacking
         cv::Mat m_StackedImage32F;
         QVector<cv::Mat> m_SigmaClip32FC4;
-        // JEE QByteArray m_StackedBuffer;
         std::unique_ptr<QByteArray> m_StackedBuffer { nullptr };
 
         double m_StackSNR { 0.0 };

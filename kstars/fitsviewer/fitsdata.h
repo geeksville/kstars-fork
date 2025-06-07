@@ -39,7 +39,6 @@
 #include <QTemporaryFile>
 #include <QNetworkReply>
 #include <QTimer>
-// JEE
 #include <QQueue>
 
 #ifndef KSTARS_LITE
@@ -50,7 +49,6 @@
 #endif
 
 #include "fitsskyobject.h"
-// JEE
 #include "fitsstack.h"
 #include "fitsdirwatcher.h"
 
@@ -121,21 +119,21 @@ class FITSData : public QObject
         QFuture<bool> loadFromFile(const QString &inFilename);
 
         /**
-         * @brief JEE initialise FITSData for a stack.
+         * @brief Initialise FITSData for a stack.
          * @param inDirectory Inital directory path
          * @return success.
          */
         bool initStack(const QString &inDirectory);
 
         /**
-         * @brief JEE Load and stack directory of FITS files asynchronously.
+         * @brief Load and stack directory of FITS files asynchronously.
          * @param inDirectory Path to directory of FITS files
-         * @return A QFuture that can be watched until the async operation is complete.
+         * @return success (or not)
          */
         bool loadStack(const QString &inDirectory);
 
         /**
-         * @brief JEE Load stack from buffer
+         * @brief Load stack from buffer
          * @return A QFuture that can be watched until the async operation is complete.
          */
         QFuture<bool> loadStackBuffer();
@@ -697,7 +695,7 @@ class FITSData : public QObject
 
         ////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////
-        /// JEE Live Stacking Functions
+        /// Live Stacking Functions
         ////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -778,19 +776,28 @@ class FITSData : public QObject
          * @param failure text
          */
         void catalogQueryFailed(const QString text);
+
         /**
-         * @brief JEE Signal FITSView then FITSTab to plate solve the current image
+         * @brief Signal FITSView then FITSTab to plate solve the current image sub
          */
-        void plateSolveImage(const double ra, const double dec, const double pixScale,
+        void plateSolveSub(const double ra, const double dec, const double pixScale,
                              const LiveStackFrameWeighting &weighting);
+
         /**
-         * @brief JEE Signal FITSView then FITSTab that an align master sub has been chosen
+         * @brief Signal FITSView->FITSTab->FITSViewer that a stacking process is in operation
          */
-        void alignMasterChosen(const QString alignMaster);
+        void stackInProgress();
+
         /**
-         * @brief JEE Signal FITSView the stack is ready to load
+         * @brief Signal FITSView then FITSTab that an align master sub has been chosen
+         */
+        void alignMasterChosen(const QString &alignMaster);
+
+        /**
+         * @brief Signal FITSView the stack is ready to load
          */
         void stackReady();
+
         /**
          * @brief update FITSTab on progress
          * @param ok whether sub being processed was successful or not
@@ -802,7 +809,11 @@ class FITSData : public QObject
 
     public slots:
         void makeRoiBuffer(QRect roi);
-        // JEE
+
+        /**
+         * @brief Called when 1 (or more) new files added to the watched stack directory
+         * @param list of files added to directory
+         */
         void newStackSubs(const QStringList &newFiles);
 
     private:
@@ -851,7 +862,7 @@ class FITSData : public QObject
         void recordLastError(int errorCode);
         void logOOMError(uint32_t requiredMemory = 0);
 
-        // FITS Record JEE
+        // FITS Record
         bool parseHeader(const bool stack = false);
         //int getFITSRecord(QString &recordList, int &nkeys);
 
@@ -948,7 +959,7 @@ class FITSData : public QObject
 
         ////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////
-        /// Private Stacking Functions.
+        /// Private Live Stacking Functions.
         ////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////
         /**
@@ -967,7 +978,7 @@ class FITSData : public QObject
          * @return success
          */
         bool stackCheckDebayer(BayerParams bayerParams);
-        // JEE
+
         /**
          * @brief stackDebayer debayers a stack sub
          * @param if debayering is successful, debayerParams contains the appropriate params
@@ -982,11 +993,11 @@ class FITSData : public QObject
         void nextStackAction();
 
         /**
-         * @brief JEE Process the next sub
+         * @brief Process the next sub
          * @param sub to process
          * @return success
          */
-        bool processNextSub(QString sub);
+        bool processNextSub(QString &sub);
 
         /// Pointer to CFITSIO FITS file struct
         fitsfile *fptr { nullptr };
@@ -1110,14 +1121,12 @@ class FITSData : public QObject
         int m_CatROIRadius { -1 };
 
         // Live Stacking
-        /// Pointer to FITSStack object
         QSharedPointer<FITSStack> m_Stack;
         QList<QString> m_StackSubs;
         int m_StackSubPos { -1 };
         QString m_StackDir;
         QSharedPointer<FITSDirWatcher> m_StackDirWatcher;
         QQueue<QString> m_StackQ;
-        QList<Edge *> subStarCenters;
         bool m_MastersLoaded { false };
         uint8_t *m_StackImageBuffer { nullptr };
         uint32_t m_StackImageBufferSize { 0 };

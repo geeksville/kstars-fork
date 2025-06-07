@@ -76,7 +76,7 @@ class FITSView : public QScrollArea
         void loadStack(const QString &inDir);
 
         /**
-         * @brief Redo post processing on an existing stack
+         * @brief Redo post processing on an existing stack, e.g. noise, sharpen
          */
         void redoPostProcessStack();
 
@@ -526,10 +526,10 @@ class FITSView : public QScrollArea
         void catReset();
         void catHighlightChanged(const int highlight);
         void headerChanged();
-        // JEE
-        void plateSolveImage(const double ra, const double dec, const double pixScale,
-                             const LiveStackFrameWeighting weighting);
-        void alignMasterChosen(const QString alignMaster);
+        void plateSolveSub(const double ra, const double dec, const double pixScale,
+                             const LiveStackFrameWeighting &weighting);
+        void stackInProgress();
+        void alignMasterChosen(const QString &alignMaster);
         void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
                               const double maxSNR);
         void updateStackSNR(const double SNR);
