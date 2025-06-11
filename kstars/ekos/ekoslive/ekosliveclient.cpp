@@ -55,21 +55,27 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
 
     // Initialize node managers
     QSharedPointer<NodeManager> onlineManager(new NodeManager(NodeManager::Message | NodeManager::Media | NodeManager::Cloud));
-    connect(onlineManager.get(), &NodeManager::authenticationError, this, [this](const QString & message)
+    connect(onlineManager.get(), &NodeManager::authenticationError, this, [this, onlineManager](const QString & message)
     {
         onlineLabel->setToolTip(message);
         if (pi && pi->isAnimated()) pi->stopAnimation();
+        onlineManager->setIsReauthenticating(false);
         onDisconnected(); // Refresh overall UI state potentially
     });
+    connect(onlineManager.get(), &NodeManager::connected, this, &Client::onConnected);
+    connect(onlineManager.get(), &NodeManager::disconnected, this, &Client::onDisconnected);
 
     QSharedPointer<NodeManager> offlineManager(new NodeManager(NodeManager::Message | NodeManager::Media));
 
-    connect(offlineManager.get(), &NodeManager::authenticationError, this, [this](const QString & message)
+    connect(offlineManager.get(), &NodeManager::authenticationError, this, [this, offlineManager](const QString & message)
     {
         offlineLabel->setToolTip(message);
         if (pi && pi->isAnimated()) pi->stopAnimation();
+        offlineManager->setIsReauthenticating(false);
         onDisconnected(); // Refresh overall UI state potentially
     });
+    connect(offlineManager.get(), &NodeManager::connected, this, &Client::onConnected);
+    connect(offlineManager.get(), &NodeManager::disconnected, this, &Client::onDisconnected);
 
     m_NodeManagers.append(std::move(onlineManager));
     m_NodeManagers.append(std::move(offlineManager));
@@ -88,7 +94,7 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
         {
             m_userRequestedDisconnect = false; // User is clicking "Connect"
             // pi->startAnimation() will be handled by checkAndTriggerAuth if auth is attempted
-            checkAndTriggerAuth();
+            checkAndTriggerAuth(true); // Force re-authentication
         }
     });
 
@@ -97,7 +103,7 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
         if (!m_isConnected)
         {
             // pi->startAnimation() will be handled by checkAndTriggerAuth if auth is attempted
-            checkAndTriggerAuth();
+            checkAndTriggerAuth(true); // Force re-authentication
         }
     });
 
@@ -162,7 +168,7 @@ Client::Client(Ekos::Manager *manager) : QDialog(manager), m_Manager(manager)
     connect(m_Cloud, &Cloud::globalLogoutTriggered, this, &Client::processGlobalLogoutTrigger); // Connect Cloud's signal
 }
 
-void Client::checkAndTriggerAuth()
+void Client::checkAndTriggerAuth(bool force)
 {
     bool needsReAuthForAllManagers = false;
     int managersAttemptingAuth = 0;
@@ -179,35 +185,47 @@ void Client::checkAndTriggerAuth()
         }
     }
 
-    if (needsReAuthForAllManagers)
+    if (needsReAuthForAllManagers || force)
     {
-        qCInfo(KSTARS_EKOS) << "One or more tokens are nearly expired/missing. Re-authenticating all managers.";
+        qCInfo(KSTARS_EKOS) <<
+        "One or more tokens are nearly expired/missing or connection is forced. Re-authenticating all managers.";
         for (auto &oneManager : m_NodeManagers)
         {
-            if (oneManager->isReauthenticating())
+            if (oneManager->isReauthenticating() && !force)
             {
                 qCInfo(KSTARS_EKOS) << "NodeManager" << oneManager->property("serviceURL").toUrl().toDisplayString() <<
-                                       "is already re-authenticating. Skipping.";
+                                       "is already re-authenticating (and not forced). Skipping.";
                 managersAttemptingAuth++; // Count it as an attempt in progress
                 continue;
             }
+
+            if (force && oneManager->isReauthenticating())
+            {
+                qCInfo(KSTARS_EKOS) << "Forcing re-authentication for NodeManager"
+                                    << oneManager->property("serviceURL").toUrl().toDisplayString()
+                                    << "which was already re-authenticating. Resetting state.";
+                oneManager->setIsReauthenticating(false); // Reset the state to allow new attempt
+            }
+
             oneManager->clearAuthentication();
             oneManager->setCredentials(username->text(), password->text());
             oneManager->authenticate();
             managersAttemptingAuth++;
         }
     }
-    else
+    else // Tokens are fine and not forcing connection
     {
         // Tokens are likely fine, but user might be clicking "Connect" because not all nodes are up.
         // Trigger authenticate on any manager that isn't fully connected and isn't already trying.
-        qCInfo(KSTARS_EKOS) << "Tokens seem valid. Checking for disconnected managers to trigger authentication.";
+        qCInfo(KSTARS_EKOS) <<
+        "Tokens seem valid and connection not forced. Checking for disconnected managers to trigger authentication.";
         for (auto &oneManager : m_NodeManagers)
         {
             if (!oneManager->isConnected() && !oneManager->isReauthenticating())
             {
                 qCInfo(KSTARS_EKOS) << "NodeManager" << oneManager->property("serviceURL").toUrl().toDisplayString()
                                     << "is not connected and not re-authenticating. Triggering authenticate.";
+                oneManager->clearAuthentication(); // Ensure clean state
                 oneManager->setCredentials(username->text(), password->text());
                 oneManager->authenticate();
                 managersAttemptingAuth++;
@@ -280,7 +298,6 @@ void Client::processGlobalLogoutTrigger(const QUrl &url)
                                 (oneManager->property("websocketURL").toUrl().isValid() ? oneManager->property("websocketURL").toUrl().toDisplayString() :
             "related to " + url.toDisplayString());
             oneManager->clearAuthentication(); // Clear old token before re-auth
-            oneManager->setIsReauthenticating(true);
             oneManager->disconnectNodes(); // Disconnect first
             // Consider a small delay if disconnect is not immediate, though authenticate should be fine
             oneManager->setCredentials(username->text(), password->text());
