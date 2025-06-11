@@ -439,7 +439,7 @@ if (CFITSIO_FOUND)
         set(fits_SRCS ${fits_SRCS} fitsviewer/starprofileviewer.cpp)
     endif()
 
-    if (OpenCV_FOUND)
+    if (OpenCV_FOUND AND WCSLIB_FOUND)
         set(fits_SRCS ${fits_SRCS} fitsviewer/fitsstack.cpp)
     endif()
 

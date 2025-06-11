@@ -8,7 +8,7 @@
 #include "fitsdata.h"
 #include <fits_debug.h>
 #include "fitscommon.h"
-#include "fitsstardetector.h"
+//#include "fitsstardetector.h"
 #include "ekos/auxiliary/stellarsolverprofile.h"
 #include "ekos/auxiliary/stellarsolverprofileeditor.h"
 #include "ekos/auxiliary/solverutils.h"
@@ -18,10 +18,7 @@
 #include "../auxiliary/robuststatistics.h"
 #include "../auxiliary/gslhelpers.h"
 
-#if !defined(KSTARS_LITE) && defined(HAVE_WCSLIB)
 #include <wcshdr.h>
-#endif
-
 #include <fitsio.h>
 
 FITSStack::FITSStack(FITSData *parent) : QObject(parent)
@@ -323,7 +320,6 @@ bool FITSStack::stack()
             {
                 // First image is the reference to which others are aligned
                 ref = i;
-                // JEE m_Aligned.push_back(m_StackImageData[i].image.clone());
                 m_Aligned.push_back(m_StackImageData[i].image);
             }
             else
@@ -383,7 +379,6 @@ bool FITSStack::stackn()
                 cv::warpPerspective(m_StackImageData[i].image, warpedImage, warp, m_StackImageData[i].image.size(), cv::INTER_LANCZOS4);
                 warpedImage.convertTo(warpedImage32F, CV_MAKETYPE(CV_32F, m_Channels));
                 m_Aligned.push_back(warpedImage32F.clone());
-                qCDebug(KSTARS_FITS) << QString("JEE m_Aligned %1 %2").arg(m_Aligned.last().depth()).arg(__FUNCTION__);
             }
         }
         // Stack the aligned subs
@@ -448,14 +443,14 @@ bool FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::M
 
         // Compute the homography matrix using OpenCV to go from image 2 to image 1 (reference)
         warp = cv::findHomography(corners2, corners1, 0);
-        // JEE warpMatrix = cv::findHomography(corners2, corners1, cv::RANSAC, 1.0);
         if (warp.empty())
         {
             qCDebug(KSTARS_FITS) << QString("openCV findHomography warp matrix empty");
             return false;
         }
-        // JEE cv::Ptr<cv::Formatter> fmt = cv::Formatter::get(cv::Formatter::FMT_DEFAULT);
-        // std::cout << fmt->format(warp) << std::endl;
+        // JEE
+        cv::Ptr<cv::Formatter> fmt = cv::Formatter::get(cv::Formatter::FMT_DEFAULT);
+        std::cout << fmt->format(warp) << std::endl;
         return true;
     }
     catch (const cv::Exception &ex)
@@ -802,7 +797,8 @@ cv::Mat FITSStack::postProcessImage(const cv::Mat &image32F)
         if (m_StackData.postProcessing.deconvolution)
         {
             cv::Mat greyImage32F, deconvolved;
-            if (image32F.channels() == 1)
+            int channels = image32F.channels();
+            if (channels == 1)
                 greyImage32F = image32F;
             else
                 cv::cvtColor(image32F, greyImage32F, cv::COLOR_BGR2GRAY);
@@ -810,9 +806,9 @@ cv::Mat FITSStack::postProcessImage(const cv::Mat &image32F)
             cv::Mat psf = calculatePSF(greyImage32F);
             if (!psf.empty())
             {
-                deconvolved = wienerDeconvolution(greyImage32F, psf);
+                deconvolved = wienerDeconvolution(image32F, psf);
                 if (!deconvolved.empty())
-                    deconvolved.convertTo(image, CV_MAKETYPE(CV_16U, 1));
+                    deconvolved.convertTo(image, CV_MAKETYPE(CV_16U, channels));
             }
         }
 
@@ -856,13 +852,23 @@ cv::Mat FITSStack::postProcessImage(const cv::Mat &image32F)
         float denoiseAmount = m_StackData.postProcessing.denoiseAmt;
         if (denoiseAmount <= 0.0)
             finalImage = sharpenedImage;
-        else if (m_Channels == 3)
-            cv::fastNlMeansDenoisingColored(sharpenedImage, finalImage, denoiseAmount, denoiseAmount, 7, 21);
         else
         {
+            // cv::fastNlMeansDenoising works on single channel images in 16bit
+            // cv::fastNlMeansDenoisingColored works on colour images but only 8bit
+            // So denoise per channel at 16bit
             std::vector<float> amount;
             amount.push_back(denoiseAmount);
-            cv::fastNlMeansDenoising(sharpenedImage, finalImage, amount, 7, 21, cv::NORM_L1);
+            std::vector<cv::Mat> channels;
+            cv::split(sharpenedImage, channels);
+
+            for (auto& channel : channels)
+            {
+                cv::Mat denoisedChannel;
+                cv::fastNlMeansDenoising(channel, denoisedChannel, amount, 7, 21, cv::NORM_L1);
+                channel = denoisedChannel;
+            }
+            cv::merge(channels, finalImage);
         }
     }
     catch (const cv::Exception &ex)
@@ -1080,8 +1086,8 @@ cv::Mat FITSStack::wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf)
 
 void FITSStack::redoPostProcessStack()
 {
-    if (!getInitialStackDone())
-        // Nothing to do if there is no initial image to operate on
+    if (m_StackedImage32F.empty())
+        // Nothing to do if there is no image to operate on
         return;
 
     // Get the current user options for post processing
@@ -1243,8 +1249,8 @@ void FITSStack::setupRunningStack(struct wcsprm * refWCS, const int numSubs, con
     setInitalStackDone(true);
     m_RunningStackImageData.numSubs = numSubs;
     m_RunningStackImageData.ref_wcsprm = refWCS;
-    m_RunningStackImageData.ref_hfr = 0; // JEE
-    m_RunningStackImageData.ref_numStars = 0; // JEE
+    m_RunningStackImageData.ref_hfr = 0;
+    m_RunningStackImageData.ref_numStars = 0;
     m_RunningStackImageData.totalWeight = totalWeight;
     tidyUpInitalStack(refWCS);
 }
@@ -1269,7 +1275,6 @@ void FITSStack::tidyUpInitalStack(struct wcsprm * refWCS)
             m_StackImageData[i].wcsprm = nullptr;
         }
         int refcount = m_StackImageData[i].image.u->refcount;
-        qCDebug(KSTARS_FITS) << QString("JEE m_StackImageData[%1].image refcount %2").arg(i).arg(refcount);
         m_StackImageData[i].image.release();
     }
     m_StackImageData.clear();

@@ -260,7 +260,7 @@ void PlateSolve::solveImage(const QSharedPointer<FITSData> &imageData)
     m_Solver->runSolver(imageData);
 }
 
-// JEE Plate solve an image sub as part of Live Stacking
+// Plate solve an image sub as part of Live Stacking
 // In this case we are not using the FitsTab Plate Solving UI except to use
 // the currently selected profile for solving.
 void PlateSolve::plateSolveSub(const QSharedPointer<FITSData> &imageData, const double ra, const double dec,
@@ -351,7 +351,6 @@ void PlateSolve::extractorDone(bool timedOut, bool success, const FITSImage::Sol
     }
 }
 
-// JEE
 void PlateSolve::subExtractorDone(bool timedOut, bool success, const FITSImage::Solution &solution, double elapsedSeconds)
 {
     Q_UNUSED(solution);
@@ -448,7 +447,6 @@ void PlateSolve::solverDone(bool timedOut, bool success, const FITSImage::Soluti
     }
 }
 
-// JEE
 void PlateSolve::subSolverDone(bool timedOut, bool success, const FITSImage::Solution &solution, double elapsedSeconds)
 {
     disconnect(m_Solver.get(), &SolverUtils::done, this, &PlateSolve::subSolverDone);

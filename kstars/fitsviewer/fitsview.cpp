@@ -465,7 +465,7 @@ void FITSView::loadStack(const QString &inDir)
     connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
     {
         emit updateStackSNR(m_ImageData->stack()->getStackSNR());
-       fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
+        fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
     });
 
     connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,

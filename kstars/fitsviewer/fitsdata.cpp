@@ -221,11 +221,6 @@ QFuture<bool> FITSData::loadFromFile(const QString &inFilename)
 }
 
 #ifdef HAVE_OPENCV
-bool FITSData::initStack(const QString &inDir)
-{
-    m_StackDir = inDir;
-    return true;
-}
 
 bool FITSData::loadStack(const QString &inDir)
 {
@@ -236,6 +231,7 @@ bool FITSData::loadStack(const QString &inDir)
         QByteArray buffer = m_Stack->getStackedImage();
         loadFromBuffer(buffer);
         emit dataChanged();
+        emit stackReady();
     });
 
     // Clear the work queue
@@ -301,6 +297,7 @@ void FITSData::newStackSubs(const QStringList &newFiles)
     incrementalStack();
 }
 
+// Add 1 or more new subs to an existing stack
 void FITSData::incrementalStack()
 {
     if (m_StackQ.isEmpty())

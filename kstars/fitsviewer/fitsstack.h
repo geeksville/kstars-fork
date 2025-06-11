@@ -12,17 +12,13 @@
 #include <QObject>
 #include <QPointer>
 
-// JEE
 #include "opencv2/opencv.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/calib3d.hpp"
 #include "opencv2/xphoto.hpp"
 
-// JEE Need to change as won't compile if no WCS
-#ifdef HAVE_WCSLIB
 #include <wcs.h>
-#endif
 
 namespace Ekos
 {
@@ -31,6 +27,20 @@ class StellarSolverProfileEditor;
 
 /**
  * @brief The FITSStack class for Live Stacking within the Fitsviewer
+ *        The functionality is as follows:
+ *        1. A directory is selected and any subs already in the directory are stacked
+ *          a) Each sub may be calibrated with a dark and / or a flat
+ *          b) A reference frame is chosen as master for alignment.
+ *          c) All subs are aligned to the master by plate solving each subs and using
+ *             WCS for alignment.
+ *          d) Subs are stacked. Modes are basic addition of pixel values or more complex
+ *             statistical processing like sigma clipping or winsorized sigma clipping
+ *          e) Basic post-processing options such as sharpening and denoising are offered
+ *        2. The stack is displayed in the FITSViewer.
+ *        3. As new subs are added to the directory these are detected by FitsDirWatcher
+ *        4. The new sub(s) are added to the already existing stack.
+ *        5. The new stack is post-processed and displayed.
+ *
  * @author John Evans
  */
 class FITSStack : public QObject
@@ -94,6 +104,9 @@ class FITSStack : public QObject
          */
         bool stackn();
 
+        /**
+         * @brief Redo post-processing on the stack
+         */
         void redoPostProcessStack();
 
         const bool &getStackInProgress() const
@@ -154,14 +167,23 @@ class FITSStack : public QObject
             SOLVED_OK
         } PlateSolveStatus;
 
-        // Get the current user stack options
+        /**
+         * @brief Load a structure of user options from Options
+         * @return user options
+         */
         LiveStackData loadStackData();
+
+        /**
+         * @brief Load a structure of post-processing user options from Options
+         * @return user options
+         */
         LiveStackPPData loadStackPPData();
 
-        // Used for solving an image.
+        /**
+         * @brief Check that a new image is consistent with previous images in size, datatype, etc
+         * @return success (or not)
+         */
         bool checkSub(const int width, const int height, const int bytesPerPixel, const int channels);
-        void solveImage(QList<SSolver::Parameters> parameters, double pixscale, int width, int height, int bytesPerPixel);
-        void setupSolver(bool extractOnly = false);
 
         /**
          * @brief Calculate the warp matrix to warp image 2 to image 1 (reference)
@@ -248,9 +270,30 @@ class FITSStack : public QObject
          */
         cv::Mat wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf);
 
-        void setupRunningStack(struct wcsprm * wcsprm, const int numSubs, const float totalWeight);
+        /**
+         * @brief Called to transition initial stack data to running stack
+         * @param Reference frame WCS
+         * @param numSubs in the initial stack
+         * @param totalWeight of subs processed so far
+         */
+        void setupRunningStack(struct wcsprm * refWCS, const int numSubs, const float totalWeight);
+
+        /**
+         * @brief Called to update running stack data
+         * @param numSubs processed so far
+         * @param totalWeight of subs processed so far
+         */
         void updateRunningStack(const int numSubs, const float totalWeight);
+
+        /**
+         * @brief Tidy up initial stack data, e.g. free heap
+         * @param refWCS
+         */
         void tidyUpInitalStack(struct wcsprm * refWCS);
+
+        /**
+         * @brief Tidy up running stack data, e.g. free heap
+         */
         void tidyUpRunningStack();
 
         FITSData *m_Data;
@@ -298,7 +341,7 @@ class FITSStack : public QObject
         // Stacking
         cv::Mat m_StackedImage32F;
         QVector<cv::Mat> m_SigmaClip32FC4;
-        std::unique_ptr<QByteArray> m_StackedBuffer { nullptr };
+        QSharedPointer<QByteArray> m_StackedBuffer { nullptr };
 
         double m_StackSNR { 0.0 };
         float m_Width { 0.0f };

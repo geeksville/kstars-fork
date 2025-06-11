@@ -918,9 +918,11 @@ void FITSTab::initLiveStacking()
     connect(m_LiveStackingUI.StackB, &QPushButton::clicked, this, &FITSTab::liveStack);
     connect(m_LiveStackingUI.ReprocessB, &QPushButton::clicked, this, [this]
     {
-        viewer->restack(m_liveStackDir);
         if(m_View)
+        {
+            viewer->restack(m_liveStackDir);
             m_View->redoPostProcessStack();
+        }
     });
 
     connect(m_LiveStackingUI.MasterDarkB, &QPushButton::clicked, this, &FITSTab::selectLiveStackMasterDark);

@@ -119,40 +119,6 @@ class FITSData : public QObject
         QFuture<bool> loadFromFile(const QString &inFilename);
 
         /**
-         * @brief Initialise FITSData for a stack.
-         * @param inDirectory Inital directory path
-         * @return success.
-         */
-        bool initStack(const QString &inDirectory);
-
-        /**
-         * @brief Load and stack directory of FITS files asynchronously.
-         * @param inDirectory Path to directory of FITS files
-         * @return success (or not)
-         */
-        bool loadStack(const QString &inDirectory);
-
-        /**
-         * @brief Load stack from buffer
-         * @return A QFuture that can be watched until the async operation is complete.
-         */
-        QFuture<bool> loadStackBuffer();
-
-        /**
-         * @brief JEE Process master files for stacking
-         */
-        void processMasters();
-
-        /**
-         * @brief JEE Solver results are in so take the next action
-         * @param whether the solver timed out or not
-         * @param success status
-         * @param median hfr
-         * @param number of stars
-         */
-        void solverDone(const bool timedOut, const bool success, const double hfr, const int numStars);
-
-        /**
          * @brief loadFITSFromMemory Loading FITS from memory buffer.
          * @param buffer The memory buffer containing the fits data.
          * @return bool indicating success or failure.
@@ -725,6 +691,34 @@ class FITSData : public QObject
         }
 
         /**
+         * @brief Initialise FITSData for a stack.
+         * @param inDirectory Inital directory path
+         * @return success.
+         */
+
+        /**
+         * @brief Load and stack directory of FITS files asynchronously.
+         * @param inDirectory Path to directory of FITS files
+         * @return success (or not)
+         */
+        bool loadStack(const QString &inDirectory);
+
+        /**
+         * @brief Load stack from buffer
+         * @return A QFuture that can be watched until the async operation is complete.
+         */
+        QFuture<bool> loadStackBuffer();
+
+        /**
+         * @brief Solver results are in so take the next action
+         * @param whether the solver timed out or not
+         * @param success status
+         * @param median hfr
+         * @param number of stars
+         */
+        void solverDone(const bool timedOut, const bool success, const double hfr, const int numStars);
+
+        /**
          * @brief Process new subs into an existing stack
          */
         void incrementalStack();
@@ -962,6 +956,11 @@ class FITSData : public QObject
         /// Private Live Stacking Functions.
         ////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////
+        /**
+         * @brief Process master files for stacking
+         */
+        void processMasters();
+
         /**
          * @brief A quicker version of loadFITSImage used by Live Stacking
          * @param filename to open
