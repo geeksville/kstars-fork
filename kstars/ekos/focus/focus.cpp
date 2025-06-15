@@ -1161,7 +1161,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
 
     clearDataPoints();
     profilePlot->clear();
-    FWHMOut->setText("");
+    FWHMOut->setText("--");
 
     qCInfo(KSTARS_EKOS_FOCUS)  << "Starting Autofocus " << m_AFRun
                                << " on" << opticalTrain()
@@ -2231,7 +2231,7 @@ void Focus::getFWHM(const QList<Edge *> &stars, double *FWHM, double *weight)
 
         default:
             qCDebug(KSTARS_EKOS_FOCUS) << "Unknown image buffer datatype " << m_ImageData->getStatistics().dataType <<
-                                          " Cannot calc FWHM";
+                                       " Cannot calc FWHM";
             break;
     }
 }
@@ -2288,7 +2288,7 @@ void Focus::getFourierPower(double *fourierPower, double *weight, const int mosa
 
         default:
             qCDebug(KSTARS_EKOS_FOCUS) << "Unknown image buffer datatype " << m_ImageData->getStatistics().dataType <<
-                                          " Cannot calc Fourier Power";
+                                       " Cannot calc Fourier Power";
             break;
     }
 }
@@ -2348,7 +2348,7 @@ void Focus::getBlurriness(const StarMeasure starMeasure, const bool denoise, dou
 
         default:
             qCDebug(KSTARS_EKOS_FOCUS) << "Unknown image buffer datatype " << m_ImageData->getStatistics().dataType <<
-                                          " Cannot calc Blurriness";
+                                       " Cannot calc Blurriness";
             break;
     }
 #else
@@ -2653,7 +2653,7 @@ void Focus::completeFocusProcedure(FocusState completionState, AutofocusFailReas
         appendLogText(i18n("Settling for %1s...", settleTime));
 
     QTimer::singleShot(settleTime * 1000, this, [ &, settleTime, completionState, autoFocusUsed, inBuildOffsetsUsed, failCode,
-                       failCodeInfo]()
+                          failCodeInfo]()
     {
         settle(completionState, autoFocusUsed, inBuildOffsetsUsed, failCode, failCodeInfo);
 
@@ -2704,7 +2704,7 @@ void Focus::setCurrentMeasure()
     if (m_StarMeasure == FOCUS_STAR_FWHM)
         FWHMOut->setText(QString("%1").arg(currentFWHM * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
     starsOut->setText(QString("%1").arg(m_ImageData->getDetectedStars()));
-    iterOut->setText(QString("%1").arg(absIterations + 1));
+    iterOut->setText(QString("%1/%2").arg(absIterations + 1).arg(absIterations + 1));
 
     // Display message in case _last_ HFR was invalid
     if (lastHFR == INVALID_STAR_MEASURE)
@@ -3164,7 +3164,7 @@ void Focus::setHFRComplete()
         else if (currentHFR > minimumRequiredHFR)
         {
             qCDebug(KSTARS_EKOS_FOCUS) << "Current HFR:" << currentHFR << "is above required minimum HFR:" << minimumRequiredHFR <<
-                                          ". Starting AutoFocus...";
+                                       ". Starting AutoFocus...";
             QString reasonInfo = i18n("HFR %1 > Limit %2", QString::number(currentHFR, 'f', 2), QString::number(minimumRequiredHFR, 'f',
                                       2));
             minimumRequiredHFR = INVALID_STAR_MEASURE;
@@ -3174,7 +3174,7 @@ void Focus::setHFRComplete()
         else
         {
             qCDebug(KSTARS_EKOS_FOCUS) << "Current HFR:" << currentHFR << "is below required minimum HFR:" << minimumRequiredHFR <<
-                                          ". Autofocus successful.";
+                                       ". Autofocus successful.";
             completeFocusProcedure(Ekos::FOCUS_COMPLETE, Ekos::FOCUS_FAIL_NONE);
         }
 
@@ -5062,7 +5062,7 @@ void Focus::focusStarSelected(int x, int y)
         subFramed = true;
 
         qCDebug(KSTARS_EKOS_FOCUS) << "Frame is subframed. X:" << x << "Y:" << y << "W:" << w << "H:" << h << "binX:" << subBinX <<
-                                      "binY:" << subBinY;
+                                   "binY:" << subBinY;
 
         m_FocusView->setFirstLoad(true);
 
