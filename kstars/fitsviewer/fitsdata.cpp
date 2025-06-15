@@ -220,8 +220,7 @@ QFuture<bool> FITSData::loadFromFile(const QString &inFilename)
 #endif
 }
 
-#ifdef HAVE_OPENCV
-
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
 bool FITSData::loadStack(const QString &inDir)
 {
     m_StackDir = inDir;
@@ -336,9 +335,10 @@ bool FITSData::processNextSub(QString &sub)
 {
     m_Stack->setupNextSub();
 
-    if (stackLoadFITSImage(sub))
+    qCDebug(KSTARS_FITS) << "Loading sub " << sub;
+    if (stackLoadFITSImage(sub) && stackLoadWCS())
     {
-        double pixScale = (m_StackWCSHandle) ? std::abs(m_StackWCSHandle->cdelt[0]) * 3600 : 0.0;
+        double pixScale = (m_StackWCSHandle) ? std::fabs(m_StackWCSHandle->cdelt[0]) * 3600.0 : 0.0;
         double ra = m_StackWCSHandle->crval[0];
         double dec = m_StackWCSHandle->crval[1];
 
@@ -426,7 +426,62 @@ void FITSData::nextStackAction()
         }
     }
 }
-#endif // HAVE_OPENCV
+
+void FITSData::stackSetupWCS()
+{
+    if (m_WCSHandle != nullptr)
+    {
+        wcsvfree(&m_nwcs, &m_WCSHandle);
+        m_nwcs = 0;
+        m_WCSHandle = nullptr;
+    }
+
+    if (!m_Stack)
+    {
+        qCDebug(KSTARS_FITS) << QString("%1 called by no m_Stack").arg(__FUNCTION__);
+        return;
+    }
+
+    struct wcsprm * wcsRef = m_Stack->getWCSRef();
+
+    // Take a deep copy of the WCS state
+    m_WCSHandle = new struct wcsprm;
+    m_WCSHandle->flag = -1; // Allocate space
+    int status = 0;
+    if ((status = wcssub(1, wcsRef, 0x0, 0x0, m_WCSHandle)) != 0)
+    {
+        qCDebug(KSTARS_FITS) << QString("%1 wcssub error processing %1 %2").arg(__FUNCTION__).arg(status)
+                                            .arg(wcs_errmsg[status]);
+        return;
+    }
+    if ((status = wcsset(m_WCSHandle)) != 0)
+    {
+        qCDebug(KSTARS_FITS) << QString("%1 wcsset error processing %1 %2").arg(__FUNCTION__).arg(status)
+                                            .arg(wcs_errmsg[status]);
+        return;
+    }
+
+    // Setup headers based on the solution
+    double ra = m_WCSHandle->crval[0];
+    double dec = m_WCSHandle->crval[1];
+
+    if (m_WCSHandle->cdelt && m_WCSHandle->crota)
+    {
+        double pixscale = fabs(m_WCSHandle->cdelt[0]) * 3600.0;
+        double orientation = 360.0 - m_WCSHandle->crota[0];
+        if (orientation > 360.0)
+            orientation -= 360.0;
+        bool eastToTheRight = (m_WCSHandle->cdelt[0] > 0.0);
+
+        injectWCS(orientation, ra, dec, pixscale, eastToTheRight);
+    }
+
+    m_ObjectsSearched = false;
+    m_CatObjectsSearched = false;
+    m_WCSState = Success;
+    HasWCS = true;
+}
+#endif // #if !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 
 namespace
 {
@@ -707,8 +762,12 @@ bool FITSData::loadFITSImage(const QByteArray &buffer, const bool isCompressed)
     else
         calculateStats(false, false);
 
-    if (m_Mode == FITS_NORMAL || m_Mode == FITS_ALIGN || m_Mode == FITS_LIVESTACKING)
+    if (m_Mode == FITS_NORMAL || m_Mode == FITS_ALIGN)
         loadWCS();
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
+    else if (m_Mode == FITS_LIVESTACKING)
+        stackSetupWCS();
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 
     starsSearched = false;
 
@@ -717,6 +776,7 @@ bool FITSData::loadFITSImage(const QByteArray &buffer, const bool isCompressed)
 
 // Load a FITS image temporarily for stacking so no need to setup all the global
 // variables required for a "normal" load
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
 bool FITSData::stackLoadFITSImage(QString filename, const bool isCompressed)
 {
     int status = 0, anynull = 0;
@@ -733,7 +793,6 @@ bool FITSData::stackLoadFITSImage(QString filename, const bool isCompressed)
 
     QFileInfo info(filename);
     QString extension = info.completeSuffix().toLower();
-    qCDebug(KSTARS_FITS) << "Loading sub " << filename;
 
     if (extension.contains(".fz") || isCompressed)
     {
@@ -909,8 +968,7 @@ bool FITSData::stackLoadFITSImage(QString filename, const bool isCompressed)
             qCDebug(KSTARS_FITS) << QString("Unsupported bit depth for debayering: %1 bytes per pixel")
                                         .arg(m_StackStatistics.stats.bytesPerPixel);
     }
-
-    return stackLoadWCS();
+    return true;
 }
 
 bool FITSData::stackLoadWCS()
@@ -977,6 +1035,8 @@ bool FITSData::stackLoadWCS()
     }
     return true;
 }
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
+
 
 bool FITSData::loadXISFImage(const QByteArray &buffer)
 {
@@ -4843,6 +4903,7 @@ bool FITSData::checkDebayer()
 }
 
 // Check whether a stack sub needs debayering
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
 bool FITSData::stackCheckDebayer(BayerParams bayerParams)
 {
     int status = 0;
@@ -4924,6 +4985,7 @@ bool FITSData::stackCheckDebayer(BayerParams bayerParams)
         m_Stack->setBayerPattern(bayerPattern);
     return true;
 }
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 
 void FITSData::getBayerParams(BayerParams * param)
 {
@@ -5153,6 +5215,7 @@ bool FITSData::debayer_16bit()
 }
 
 // Template function to handle both 8-bit and 16-bit debayering
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
 template <typename T>
 bool FITSData::stackDebayer(BayerParams &bayerParams)
 {
@@ -5252,6 +5315,7 @@ bool FITSData::stackDebayer(BayerParams &bayerParams)
     delete[] destinationBuffer;
     return true;
 }
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 
 void FITSData::logOOMError(uint32_t requiredMemory)
 {

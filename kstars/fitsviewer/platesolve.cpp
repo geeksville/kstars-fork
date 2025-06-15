@@ -475,10 +475,12 @@ void PlateSolve::subSolverDone(bool timedOut, bool success, const FITSImage::Sol
         return;
     }
 
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     const bool eastToTheRight = solution.parity == FITSImage::POSITIVE ? false : true;
     m_imageData->injectStackWCS(solution.orientation, solution.ra, solution.dec, solution.pixscale, eastToTheRight);
     m_imageData->stackLoadWCS();
     emit subSolverSuccess();
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 }
 
 // Each module can default to its own profile index. These two methods retrieves and saves

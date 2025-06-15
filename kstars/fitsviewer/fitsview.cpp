@@ -425,6 +425,7 @@ void FITSView::initStack()
 
 void FITSView::loadStack(const QString &inDir)
 {
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     if (floatingToolBar != nullptr)
         floatingToolBar->setVisible(true);
 
@@ -475,14 +476,19 @@ void FITSView::loadStack(const QString &inDir)
     });
 
     m_ImageData->loadStack(inDir);
+#else
+    Q_UNUSED(inDir);
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 }
 
 // Called when post processing controls in Fitstab changed by the user
 void FITSView::redoPostProcessStack()
 {
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     auto stack = m_ImageData->stack();
     if (stack)
         stack->redoPostProcessStack();
+#endif
 }
 
 void FITSView::clearData()
@@ -701,11 +707,13 @@ void FITSView::loadInFrame()
         emit failed(m_LastError);
 
     // If stack has just been processed, plate solve and check for more subs...
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     if (mode == FITS_LIVESTACKING && m_ImageData->stack())
     {
-        emit autoPlateSolve();
+        // JEE emit autoPlateSolve();
         m_ImageData->incrementalStack();
     }
+#endif
 }
 
 bool FITSView::saveImage(const QString &newFilename)

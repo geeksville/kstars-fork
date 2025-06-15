@@ -73,7 +73,7 @@ class FITSStack : public QObject
          * @param image buffer
          * @param width is master width
          * @param height is master height
-         * @param bytesPerPixel
+         * @param bytesPerPixel. Set to zero to skip this check
          * @param cvType
          */
         void addMaster(const bool dark, void *imageBuffer, const int width, const int height, const int bytesPerPixel, const int cvType);
@@ -108,6 +108,12 @@ class FITSStack : public QObject
          * @brief Redo post-processing on the stack
          */
         void redoPostProcessStack();
+
+        /**
+         * @brief Get the WCS data structure for the reference alignment frame
+         * @return wcsprm pointer to reference alignment frame
+         */
+        struct wcsprm * getWCSRef();
 
         const bool &getStackInProgress() const
         {
@@ -338,6 +344,8 @@ class FITSStack : public QObject
         cv::Mat m_MasterFlat;
 
         // Aligning
+        int m_InitialStackRef = -1;
+
         // Stacking
         cv::Mat m_StackedImage32F;
         QVector<cv::Mat> m_SigmaClip32FC4;

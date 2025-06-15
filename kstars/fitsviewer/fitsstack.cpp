@@ -68,7 +68,8 @@ LiveStackData FITSStack::loadStackData()
 LiveStackPPData FITSStack::loadStackPPData()
 {
     LiveStackPPData data;
-    data.deconvolution = Options::fitsLSDeconvolution();
+    data.deconvAmt = Options::fitsLSDeconvAmt();
+    data.PSFSigma = Options::fitsLSPSFSigma();
     data.denoiseAmt = Options::fitsLSDenoiseAmt();
     data.sharpenAmt = Options::fitsLSSharpenAmt();
     data.sharpenKernal = Options::fitsLSSharpenKernal();
@@ -142,8 +143,9 @@ void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, 
 
         int channels = CV_MAT_CN(cvType);
 
-        // Check the image is the correct shape
-        if (!checkSub(width, height, bytesPerPixel, channels))
+        // Check the image is the correct shape - pass 0 for bytesPerPixel to skip check
+        // This allows masters to be different datatypes to subs
+        if (!checkSub(width, height, 0, channels))
             return;
 
         size_t rowLen = width * bytesPerPixel * channels;
@@ -154,12 +156,20 @@ void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, 
         cv::Mat imageClone = image.clone();
 
         if (dark)
+        {
             m_MasterDark = imageClone;
+
+            // JEE If the dark has been normalised to 0-1 then we need to extend
+            double minVal, maxVal;
+            cv::minMaxLoc(m_MasterDark, &minVal, &maxVal);
+            if (maxVal <= 1.0)
+                m_MasterDark *= 65535;
+        }
         else
         {
             m_MasterFlat = imageClone;
 
-            // Scale the flat down using the median value
+            // Scale the flat down using the median value (note that this also takes care of normalised flats 0-1
             std::vector<cv::Mat> channels;
             cv::split(m_MasterFlat, channels);
 
@@ -220,12 +230,16 @@ bool FITSStack::checkSub(const int width, const int height, const int bytesPerPi
             return false;
         }
 
-        if (m_BytesPerPixel == 0)
-            m_BytesPerPixel = bytesPerPixel;
-        else if (m_BytesPerPixel != bytesPerPixel)
+        if (bytesPerPixel > 0)
         {
-            qCDebug(KSTARS_FITS) << QString("%1 Images have inconsistent bytes per pixel").arg(__FUNCTION__);
-            return false;
+            // Skip the check if bytesPerPixel set to 0, e.g. to allow master flat to be different to subs
+            if (m_BytesPerPixel == 0)
+                m_BytesPerPixel = bytesPerPixel;
+            else if (m_BytesPerPixel != bytesPerPixel)
+            {
+                qCDebug(KSTARS_FITS) << QString("%1 Images have inconsistent bytes per pixel").arg(__FUNCTION__);
+                return false;
+            }
         }
 
         // Now setup the target CVTYPE for use in stacking calculations - use 32bit floating
@@ -305,7 +319,7 @@ bool FITSStack::stack()
 {
     try
     {
-        int ref = -1;
+        m_InitialStackRef = -1;
         QVector<cv::Mat> m_Aligned;
         for(int i = 0; i < m_StackImageData.size(); i++)
         {
@@ -316,19 +330,20 @@ bool FITSStack::stack()
             if (!calibrateSub(m_StackImageData[i].image))
                 continue;
 
-            if (ref < 0)
+            if (m_InitialStackRef < 0)
             {
                 // First image is the reference to which others are aligned
-                ref = i;
+                m_InitialStackRef = i;
                 m_Aligned.push_back(m_StackImageData[i].image);
             }
             else
             {
                 // Align this image to the reference image
                 cv::Mat warp, warpedImage;
-                if (calcWarpMatrix(m_StackImageData[ref].wcsprm, m_StackImageData[i].wcsprm, warp))
+                if (calcWarpMatrix(m_StackImageData[m_InitialStackRef].wcsprm, m_StackImageData[i].wcsprm, warp))
                 {
-                    cv::warpPerspective(m_StackImageData[i].image, warpedImage, warp, m_StackImageData[i].image.size(), cv::INTER_LANCZOS4);
+                    cv::warpPerspective(m_StackImageData[i].image, warpedImage, warp,
+                                        m_StackImageData[i].image.size(), cv::INTER_LANCZOS4);
                     m_Aligned.push_back(warpedImage);
                 }
             }
@@ -345,7 +360,7 @@ bool FITSStack::stack()
 
         if (m_StackData.numInMem <= m_StackImageData.size())
             // We've completed the initial stack so move to incremental stacking as new subs arrive
-            setupRunningStack(m_StackImageData[ref].wcsprm, m_Aligned.size(), totalWeight);
+            setupRunningStack(m_StackImageData[m_InitialStackRef].wcsprm, m_Aligned.size(), totalWeight);
 
         return true;
     }
@@ -472,6 +487,12 @@ bool FITSStack::calibrateSub(cv::Mat &sub)
         // Dark subtraction (make sure no negative pixels)
         if (!m_MasterDark.empty())
         {
+            double minVal, maxVal;
+            cv::minMaxLoc(m_MasterDark, &minVal, &maxVal);
+            qCDebug(KSTARS_FITS) << QString("JEE m_MasterDark min %1 max %2").arg(minVal).arg(maxVal);
+            cv::minMaxLoc(sub, &minVal, &maxVal);
+            qCDebug(KSTARS_FITS) << QString("JEE sub min %1 max %2").arg(minVal).arg(maxVal);
+
             sub -= m_MasterDark;
             cv::max(sub, 0.0f, sub);
         }
@@ -794,7 +815,7 @@ cv::Mat FITSStack::postProcessImage(const cv::Mat &image32F)
     {
         // Firstly perform deconvolution (if requested). Calculate psf from stars in the image then use this for deconvolution
         cv::Mat image;
-        if (m_StackData.postProcessing.deconvolution)
+        if (m_StackData.postProcessing.deconvAmt > 0.0)
         {
             cv::Mat greyImage32F, deconvolved;
             int channels = image32F.channels();
@@ -884,7 +905,21 @@ cv::Mat FITSStack::calculatePSF(const cv::Mat &image, int patchSize)
 {
     try
     {
-        cv::Mat psf;
+        // JEE Test with simple delta function (should return original image)
+        //cv::Mat testPSF = cv::Mat::zeros(21, 21, CV_32F);
+        //testPSF.at<float>(10, 10) = 1.0f; // Delta function
+        //std::cout << "JEE PSF:\n" << testPSF << std::endl;
+        //return testPSF;
+
+        // JEE Create 1D Gaussian kernel, then make it 2D
+        // JEE need to fix this...
+        double sigma = m_StackData.postProcessing.PSFSigma;
+        cv::Mat kernel1D = cv::getGaussianKernel(patchSize, sigma, CV_32F);
+        cv::Mat psf = kernel1D * kernel1D.t(); // Outer product for 2D
+        std::cout << "JEE PSF:\n" << psf << std::endl;
+        return psf;
+
+        // JEE cv::Mat psf;
         QList<Edge *> starCenters = m_Data->getStarCenters();
 
         QVector<cv::Mat> starPatches;
@@ -971,10 +1006,15 @@ cv::Mat FITSStack::wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf)
         cv::copyMakeBorder(image, imagePadded, 0, m - image.rows, 0, n - image.cols,
                                                                 cv::BORDER_CONSTANT, cv::Scalar::all(0));
 
+        // At the end, scale back to original range if needed
         // Centre the PSF in an image of the same size as imagePadded
         cv::Mat psfPadded = cv::Mat::zeros(imagePadded.size(), CV_32F);
         cv::Rect psfROI((psfPadded.cols - psf.cols) / 2, (psfPadded.rows - psf.rows) / 2, psf.cols, psf.rows);
         psf.copyTo(psfPadded(psfROI));
+
+        // JEE
+        std::cout << "JEE DEBUG Image padded size: " << imagePadded.size() << std::endl;
+        std::cout << "JEE DEBUG PSF padded size: " << psfPadded.size() << std::endl;
 
         // Shift PSF so zero frequency is at corners (fftshift)
         int cx = psfPadded.cols / 2;
@@ -991,10 +1031,18 @@ cv::Mat FITSStack::wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf)
         q0.copyTo(tmp); q3.copyTo(q0); tmp.copyTo(q3);
         q1.copyTo(tmp); q2.copyTo(q1); tmp.copyTo(q2);
 
+        // JEE Debug normalize the image:
+        //cv::Mat imagePaddedNorm;
+        //cv::normalize(imagePadded, imagePaddedNorm, 0, 1, cv::NORM_MINMAX, CV_32F);
+
         // Split into channels: 1 for mono, 3 for colour
         std::vector<cv::Mat> channels;
         cv::split(imagePadded, channels);
         std::vector<cv::Mat> deconChannels(channels.size());
+
+        // JEE Debug
+        std::cout << "channels.size(): " << channels.size() << std::endl;
+        std::cout << "m_Channels: " << m_Channels << std::endl;
 
         // FFT the PSF
         cv::Mat psfFFT;
@@ -1008,72 +1056,125 @@ cv::Mat FITSStack::wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf)
         cv::Mat psfPowerChannels[2];
         cv::split(psfPower, psfPowerChannels);
 
+        // JEE debug
+        cv::Mat psfFFTMag;
+        cv::magnitude(psfPowerChannels[0], psfPowerChannels[1], psfFFTMag);
+        double minPSF, maxPSF;
+        cv::minMaxLoc(psfFFTMag, &minPSF, &maxPSF);
+        std::cout << "JEE DEBUG PSF FFT magnitude range: " << minPSF << " to " << maxPSF << std::endl;
+
         // Loop through the channels applying the Wiener filter
         for (int i = 0; i < m_Channels; i++)
         {
+            // JEE Debug
+            double minCh, maxCh;
+            cv::minMaxLoc(channels[i], &minCh, &maxCh);
+            std::cout << "JEE DEBUG Original channel range: " << minCh << " to " << maxCh << std::endl;
+
             // Take FFTs
             cv::Mat channelFFT;
             cv::dft(channels[i], channelFFT, cv::DFT_COMPLEX_OUTPUT);
 
-            // Estimate noise variance using MAD
-            cv::Mat channelSorted;
-            channels[i].reshape(1, channels[i].total()).copyTo(channelSorted);
-            cv::sort(channelSorted, channelSorted, cv::SORT_ASCENDING);
+            // JEE Debug
+            cv::Mat chFFTChannels[2];
+            cv::split(channelFFT, chFFTChannels);
+            cv::Mat chFFTMag;
+            cv::magnitude(chFFTChannels[0], chFFTChannels[1], chFFTMag);
+            cv::minMaxLoc(chFFTMag, &minCh, &maxCh);
+            std::cout << "JEE debug Channel FFT magnitude range: " << minCh << " to " << maxCh << std::endl;
 
+            // Estimate noise variance using MAD
+            // Flatten and sort for median
+            cv::Mat channelFlat = channels[i].reshape(1, channels[i].total());
+            cv::Mat channelSorted;
+            channelFlat.copyTo(channelSorted);
+            cv::sort(channelSorted, channelSorted, cv::SORT_ASCENDING);
             float median = channelSorted.at<float>(channelSorted.total() / 2);
 
+            // MAD calculation - fix the absdiff operation
             cv::Mat absDiff;
-            cv::absdiff(channelSorted, median, absDiff);
-            cv::Mat madSorted;
-            absDiff.reshape(1, absDiff.total()).copyTo(madSorted);
-            cv::sort(madSorted, madSorted, cv::SORT_ASCENDING);
-            float mad = madSorted.at<float>(madSorted.total() / 2);
+            cv::absdiff(channelFlat, cv::Scalar(median), absDiff);  // Key fix: use Scalar
+            cv::sort(absDiff, absDiff, cv::SORT_ASCENDING);
+            float mad = std::max(absDiff.at<float>(absDiff.total() * 0.75), 1e-6f);
             float noiseVariance = std::pow(1.4826f * mad, 2.0f);
 
             // Calculate signal variance
             cv::Scalar channelMean, channelStddev;
-            cv::meanStdDev(channelSorted, channelMean, channelStddev);
+            cv::meanStdDev(channels[i], channelMean, channelStddev);
             float totalVariance = channelStddev[0] * channelStddev[0];
             float signalVariance = std::max(totalVariance - noiseVariance, 1e-6f);
 
             // Calculate the Noise to Signal ratio
             float NSR = noiseVariance / signalVariance;
+            NSR = std::max(NSR, 1e-6f);
+
+            // JEE Debug
+            std::cout << "NSR: " << NSR << std::endl;
+            std::cout << "Noise variance: " << noiseVariance << std::endl;
+            std::cout << "Signal variance: " << signalVariance << std::endl;
+            // Replace the problematic division section with this:
 
             // Apply Wiener filter: H* × G / (|H|² + NSR)
             // Add NSR to real part only
             denomReal = psfPowerChannels[0] + NSR;
-            denomImag = psfPowerChannels[1];
+            denomImag = psfPowerChannels[1];  // Should be near zero for |PSF|²
 
             // Protect against division by zero / very small numbers
             cv::Mat mask = denomReal < 1e-10f;
             denomReal.setTo(1e-10f, mask);
 
-            cv::Mat denominator;
-            std::vector<cv::Mat> denomChannels = {denomReal, denomImag};
-            cv::merge(denomChannels, denominator);
+            // JEE Debug - denominator
+            cv::minMaxLoc(denomReal, &minCh, &maxCh);
+            std::cout << "Denominator real range: " << minCh << " to " << maxCh << std::endl;
 
-            // Numerator: PSF* × Image_FFT
+            // Numerator: PSF* × Image_FFT (this part is correct)
             cv::Mat numerator;
             cv::mulSpectrums(psfFFT, channelFFT, numerator, 0, true);
 
-            // Wiener filter result
+            // **FIXED: Proper complex division**
+            // Split numerator into real and imaginary parts
+            cv::Mat numChannels[2];
+            cv::split(numerator, numChannels);
+            cv::Mat numReal = numChannels[0];
+            cv::Mat numImag = numChannels[1];
+
+            // For denominator, we have (denomReal + denomImag*i)
+            // But since we're dividing by |PSF|² + NSR, imaginary part should be ~0
+            // So we can use simplified division: (a+bi)/(c+0i) = (a/c) + (b/c)i
+
+            cv::Mat wienerReal, wienerImag;
+            cv::divide(numReal, denomReal, wienerReal);
+            cv::divide(numImag, denomReal, wienerImag);
+
+            // Merge back into complex result
+            std::vector<cv::Mat> wienerChannels = {wienerReal, wienerImag};
             cv::Mat wienerResult;
-            cv::divide(numerator, denominator, wienerResult);
+            cv::merge(wienerChannels, wienerResult);
+
+            // JEE Debug
+            cv::Mat wienerResultChannels[2];
+            cv::split(wienerResult, wienerResultChannels);
+            cv::Mat wienerMag;
+            cv::magnitude(wienerResultChannels[0], wienerResultChannels[1], wienerMag);
+            cv::minMaxLoc(wienerMag, &minCh, &maxCh);
+            std::cout << "JEE debug Wiener result magnitude range: " << minCh << " to " << maxCh << std::endl;
 
             // Inverse FFT to get deconvolved image
             cv::dft(wienerResult, deconChannels[i], cv::DFT_INVERSE | cv::DFT_REAL_OUTPUT | cv::DFT_SCALE);
-
-            // Ensure result is positive (deconvolution can create negative values)
-            cv::threshold(deconChannels[i], deconChannels[i], 0, 0, cv::THRESH_TOZERO);
         }
-
         // Merge channels back
         cv::Mat mergedResult;
         cv::merge(deconChannels, mergedResult);
 
+        // Rotate by 180 degrees - necessary because of the original PSF fftshift.
+        cv::rotate(mergedResult, mergedResult, cv::ROTATE_180);
+
         // Extract the original image region (remove padding)
         cv::Rect originalROI(0, 0, image.cols, image.rows);
         cv::Mat result = mergedResult(originalROI).clone();
+
+        // Blend deconv result with the original
+        result = (m_StackData.postProcessing.deconvAmt * result) + ((1 - m_StackData.postProcessing.deconvAmt) * image);
         return result;
     }
     catch (const cv::Exception &ex)
@@ -1097,6 +1198,16 @@ void FITSStack::redoPostProcessStack()
     m_StackSNR = getSNR(finalImage);
     convertMatToFITS(finalImage);
     emit stackChanged();
+}
+
+struct wcsprm * FITSStack::getWCSRef()
+{
+    struct wcsprm * ref = nullptr;
+    if (getInitialStackDone())
+        ref = m_RunningStackImageData.ref_wcsprm;
+    else if (m_StackImageData.size() > m_InitialStackRef)
+        ref = m_StackImageData[m_InitialStackRef].wcsprm;
+    return ref;
 }
 
 bool FITSStack::convertMatToFITS(const cv::Mat &image)
@@ -1274,7 +1385,6 @@ void FITSStack::tidyUpInitalStack(struct wcsprm * refWCS)
             free(m_StackImageData[i].wcsprm);
             m_StackImageData[i].wcsprm = nullptr;
         }
-        int refcount = m_StackImageData[i].image.u->refcount;
         m_StackImageData[i].image.release();
     }
     m_StackImageData.clear();

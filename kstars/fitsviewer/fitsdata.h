@@ -49,8 +49,10 @@
 #endif
 
 #include "fitsskyobject.h"
-#include "fitsstack.h"
 #include "fitsdirwatcher.h"
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
+#include "fitsstack.h"
+#endif
 
 class QProgressDialog;
 
@@ -665,14 +667,17 @@ class FITSData : public QObject
         ////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////
 
+
         /**
          * @brief Get the live stack object pointer
          * @return Live Stack pointer
          */
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
         const QSharedPointer<FITSStack> stack() const
         {
             return m_Stack;
         }
+#endif
         /**
          * @brief Get the live stacking image buffer
          * @return Live Stacking image buffer
@@ -808,7 +813,9 @@ class FITSData : public QObject
          * @brief Called when 1 (or more) new files added to the watched stack directory
          * @param list of files added to directory
          */
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
         void newStackSubs(const QStringList &newFiles);
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 
     private:
         void loadCommon(const QString &inFilename);
@@ -998,6 +1005,11 @@ class FITSData : public QObject
          */
         bool processNextSub(QString &sub);
 
+        /**
+         * @brief Setup WCS for the image stack based on the master sub WCS
+         */
+        void stackSetupWCS();
+
         /// Pointer to CFITSIO FITS file struct
         fitsfile *fptr { nullptr };
         /// Generic data image buffer
@@ -1120,7 +1132,9 @@ class FITSData : public QObject
         int m_CatROIRadius { -1 };
 
         // Live Stacking
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
         QSharedPointer<FITSStack> m_Stack;
+#endif
         QList<QString> m_StackSubs;
         int m_StackSubPos { -1 };
         QString m_StackDir;

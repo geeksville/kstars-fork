@@ -1821,9 +1821,13 @@
       <label>Live Stacking sigma clipping windzor cutoff</label>
       <default>5</default>
    </entry>
-   <entry name="FitsLSDeconvolution" type="Bool">
-      <label>Live Stacking deconvolution</label>
-      <default>false</default>
+   <entry name="FitsLSDeconvAmt" type="Double">
+      <label>Live Stacking deconvolution amount</label>
+      <default>0.0</default>
+   </entry>
+   <entry name="FitsLSPSFSigma" type="Double">
+      <label>Live Stacking PSF sigma to apply in deconvolution</label>
+      <default>1.0</default>
    </entry>
    <entry name="FitsLSDenoiseAmt" type="Double">
       <label>Live Stacking denoise amount</label>

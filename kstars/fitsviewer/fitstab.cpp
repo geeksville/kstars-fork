@@ -892,6 +892,7 @@ void FITSTab::setupCatObjTypeFilter()
 
 void FITSTab::initLiveStacking()
 {
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     // Set the GUI to the saved options
     m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2 / %3").arg(0).arg(0).arg(0));
     m_LiveStackingUI.SubsSNR->setText(QString("%1 / %2 / %3").arg(0).arg(0).arg(0));
@@ -907,7 +908,8 @@ void FITSTab::initLiveStacking()
     m_LiveStackingUI.kcfg_FitsLSLowSigma->setValue(Options::fitsLSLowSigma());
     m_LiveStackingUI.kcfg_FitsLSHighSigma->setValue(Options::fitsLSHighSigma());
     m_LiveStackingUI.kcfg_FitsLSWinsorCutoff->setValue(Options::fitsLSWinsorCutoff());
-    m_LiveStackingUI.kcfg_FitsLSDeconvolution->setChecked(Options::fitsLSDeconvolution());
+    m_LiveStackingUI.kcfg_FitsLSDeconvAmt->setValue(Options::fitsLSDeconvAmt());
+    m_LiveStackingUI.kcfg_FitsLSPSFSigma->setValue(Options::fitsLSPSFSigma());
     m_LiveStackingUI.kcfg_FitsLSDenoiseAmt->setValue(Options::fitsLSDenoiseAmt());
     m_LiveStackingUI.kcfg_FitsLSSharpenAmt->setValue(Options::fitsLSSharpenAmt());
     m_LiveStackingUI.kcfg_FitsLSSharpenKernal->setValue(Options::fitsLSSharpenKernal());
@@ -976,9 +978,13 @@ void FITSTab::initLiveStacking()
     });
 
     // Post processing
-    connect(m_LiveStackingUI.kcfg_FitsLSDeconvolution, &QCheckBox::toggled, this, [&](bool value)
+    connect(m_LiveStackingUI.kcfg_FitsLSDeconvAmt, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
     {
-        Options::setFitsLSDeconvolution(value);
+        Options::setFitsLSDeconvAmt(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSPSFSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
+    {
+        Options::setFitsLSPSFSigma(value);
     });
     connect(m_LiveStackingUI.kcfg_FitsLSDenoiseAmt, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
     {
@@ -1003,6 +1009,7 @@ void FITSTab::initLiveStacking()
     connect(m_View.get(), &FITSView::alignMasterChosen, this, &FITSTab::alignMasterChosen);
     connect(m_View.get(), &FITSView::stackUpdateStats, this, &FITSTab::stackUpdateStats);
     connect(m_View.get(), &FITSView::updateStackSNR, this, &FITSTab::updateStackSNR);
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 }
 
 void FITSTab::selectLiveStack()
@@ -1288,39 +1295,50 @@ void FITSTab::liveStack()
 }
 
 // Plate solve the sub. May require 2 runs; firstly to get stars (if needed) and then to actually plate solve
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
 void FITSTab::plateSolveSub(const double ra, const double dec, const double pixScale,
                               const LiveStackFrameWeighting &weighting)
 {
-    disconnect(m_PlateSolve.get(), nullptr, this, nullptr);
-
     connect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, this, [this, ra, dec, pixScale]
                                 (double medianHFR, int numStars)
     {
+        disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, nullptr, nullptr);
         m_StackMedianHFR = medianHFR;
         m_StackNumStars = numStars;
         m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, SSolver::SOLVE);
     });
     connect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, this, [this]()
     {
-        disconnect(m_PlateSolve.get(), nullptr, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subSolverSuccess, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, nullptr, nullptr);
+        const bool timedOut = false;
+        const bool success = false;
+        m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
+
+    });
+    connect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, this, [this]()
+    {
+        disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subSolverSuccess, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, nullptr, nullptr);
         const bool timedOut = false;
         const bool success = false;
         m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
     });
-    connect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, this, [this]()
-    {
-        disconnect(m_PlateSolve.get(), nullptr, nullptr, nullptr);
-        const bool timedOut = false;
-        const bool success = false;
-        m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
-    }, Qt::UniqueConnection);
     connect(m_PlateSolve.get(), &PlateSolve::subSolverSuccess, this, [this]()
     {
-        disconnect(m_PlateSolve.get(), nullptr, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subSolverSuccess, nullptr, nullptr);
+        disconnect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, nullptr, nullptr);
         const bool timedOut = false;
         const bool success = true;
         m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
-    }, Qt::UniqueConnection);
+    });
 
     SSolver::ProcessType solveType;
 
@@ -1340,6 +1358,7 @@ void FITSTab::plateSolveSub(const double ra, const double dec, const double pixS
     m_StackNumStars = 0;
     m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, solveType);
 }
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 
 void FITSTab::stackInProgress()
 {

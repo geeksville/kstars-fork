@@ -1073,7 +1073,7 @@ void FITSViewer::stack()
     connect(tab.get(), &FITSTab::loaded, this, [ = ]()
         {
             QObject::sender()->disconnect(this);
-            addFITSCommon(m_Tabs.last(), imageName, FITS_LIVESTACKING, tabName);
+            addFITSCommon(tab, imageName, FITS_LIVESTACKING, tabName);
             fitsTabWidget->setTabText(tabIndex, tabName);
             m_StackBusy = false;
         }, Qt::UniqueConnection);
@@ -1108,6 +1108,7 @@ void FITSViewer::restack(const QString dir)
     connect(m_Tabs[tabIndex].get(), &FITSTab::loaded, this, [ = ]()
         {
             QObject::sender()->disconnect(this);
+            addFITSCommon(m_Tabs[tabIndex], imageName, FITS_LIVESTACKING, tabName);
             fitsTabWidget->setTabText(tabIndex, tabName);
             QApplication::restoreOverrideCursor();
             led.setColor(Qt::green);
