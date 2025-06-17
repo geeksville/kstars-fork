@@ -6,9 +6,13 @@
 
 #pragma once
 
+#include "../indi/indicommon.h"
+
 #include <QMap>
 #include <QString>
 #include <QJsonObject>
+#include <QJsonArray>
+#include <QList>
 
 class ProfileInfo
 {
@@ -22,6 +26,9 @@ class ProfileInfo
             return host.isEmpty();
         }
         QJsonObject toJson() const;
+
+        void addDriver(DeviceFamily family, const QString &driver);
+        QList<QString> getDrivers(DeviceFamily family) const;
 
         QString mount() const;
         QString ccd() const;
@@ -53,5 +60,5 @@ class ProfileInfo
         bool autoConnect { false };
         bool portSelector {false};
         int INDIWebManagerPort { -1 };
-        QMap<QString, QString> drivers;
+        QMap<DeviceFamily, QList<QString>> drivers;
 };
