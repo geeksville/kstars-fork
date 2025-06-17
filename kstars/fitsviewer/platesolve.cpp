@@ -453,7 +453,6 @@ void PlateSolve::subSolverDone(bool timedOut, bool success, const FITSImage::Sol
 
     if (m_Solver->isRunning())
     {
-        // JEE Need to handle this better
         qCDebug(KSTARS_FITS) << "subSolverDone called, but it is still running. Waiting to finish...";
         QTimer::singleShot(1000, this, [ &, timedOut, success, solution, elapsedSeconds]()
         {

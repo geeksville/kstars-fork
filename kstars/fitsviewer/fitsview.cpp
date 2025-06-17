@@ -465,8 +465,14 @@ void FITSView::loadStack(const QString &inDir)
 
     connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
     {
-        emit updateStackSNR(m_ImageData->stack()->getStackSNR());
-        fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
+        QByteArray buffer = m_ImageData->stack()->getStackedImage();
+        if (buffer.isEmpty())
+            fitsWatcher.setFuture(m_ImageData->loadFromFile(":/images/noimage.png"));
+        else
+        {
+            emit updateStackSNR(m_ImageData->stack()->getStackSNR());
+            fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
+        }
     });
 
     connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,
@@ -620,6 +626,11 @@ bool FITSView::processData()
         m_PreviewSampling = m_AdaptiveSampling;
     }
 
+    // For livestacking the noimage is displayed first each time a stack is started
+    // or if there are no subs to stack... so treat these situations as a first load
+    if (mode == FITS_LIVESTACKING && m_ImageData->filename() == ":/images/noimage.png")
+        firstLoad = true;
+
     // Rescale to fits window on first load
     if (firstLoad)
     {
@@ -631,8 +642,6 @@ bool FITSView::processData()
             return false;
         }
 
-        // For livestacking the noimage is displayed first so only reset firstload
-        // after the 1st stack image is displayed
         if (mode != FITS_LIVESTACKING || m_ImageData->filename() != ":/images/noimage.png")
             firstLoad = false;
     }

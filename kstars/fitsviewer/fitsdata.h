@@ -1140,6 +1140,7 @@ class FITSData : public QObject
         QString m_StackDir;
         QSharedPointer<FITSDirWatcher> m_StackDirWatcher;
         QQueue<QString> m_StackQ;
+        bool m_AlignMasterChosen { false };
         bool m_MastersLoaded { false };
         uint8_t *m_StackImageBuffer { nullptr };
         uint32_t m_StackImageBufferSize { 0 };

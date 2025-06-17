@@ -244,12 +244,17 @@ bool FITSData::loadStack(const QString &inDir)
     QStringList subs = m_StackDirWatcher->getCurrentFiles();
 
     auto stackData = m_Stack->getStackData();
+
+    // Choose and alignment master if we can
+    m_AlignMasterChosen = true;
     QString alignMaster = stackData.alignMaster;
     if (alignMaster.isEmpty())
     {
-        // No align master chosen so use the first sub to be processed
+        // No align master chosen so use the first sub
         if (subs.size() > 0)
             emit alignMasterChosen(subs[0]);
+        else
+            m_AlignMasterChosen = false;
     }
     else
     {
@@ -272,8 +277,11 @@ bool FITSData::loadStack(const QString &inDir)
     }
 
     if (m_StackSubs.size() == 0)
-        // No subs in the selected directory so we're done
+    {
+        // No subs in the selected directory
+        emit stackReady();
         return true;
+    }
 
     // Set the control variables
     m_StackSubPos = -1;
@@ -287,7 +295,6 @@ bool FITSData::loadStack(const QString &inDir)
 // Called when 1 (or more) new files added to the watched stack directory
 void FITSData::newStackSubs(const QStringList &newFiles)
 {
-    qCDebug(KSTARS_FITS) << QString("JEE %1 New files detected").arg(newFiles.size());
     for (const QString &file : newFiles)
     {
         qCDebug(KSTARS_FITS) << file;
@@ -418,6 +425,13 @@ void FITSData::nextStackAction()
             done = true;
             if (!m_MastersLoaded)
                 processMasters();
+
+            // If we haven't already chosen an alignment master use the first sub
+            if (!m_AlignMasterChosen)
+            {
+                m_AlignMasterChosen = true;
+                emit alignMasterChosen(m_StackSubs[0]);
+            }
 
             // Stack... either an initial stack or add 1 or more subs to an existing stack
             m_Stack->getInitialStackDone() ? m_Stack->stackn() : m_Stack->stack();
