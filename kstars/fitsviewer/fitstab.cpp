@@ -1042,8 +1042,11 @@ void FITSTab::selectLiveStackAlignSub()
     QString selectedFilter;
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Alignment Sub"),
                                                     m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
-    QUrl sequenceURL = QUrl::fromLocalFile(file);
-    m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText(sequenceURL.toLocalFile());
+    if (!file.isNull())
+    {
+        QUrl sequenceURL = QUrl::fromLocalFile(file);
+        m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText(sequenceURL.toLocalFile());
+    }
 }
 
 void FITSTab::selectLiveStackMasterDark()
@@ -1051,8 +1054,11 @@ void FITSTab::selectLiveStackMasterDark()
     QString selectedFilter;
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Dark"),
                                                     m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
-    QUrl sequenceURL = QUrl::fromLocalFile(file);
-    m_LiveStackingUI.kcfg_FitsLSMasterDark->setText(sequenceURL.toLocalFile());
+    if (!file.isNull())
+    {
+        QUrl sequenceURL = QUrl::fromLocalFile(file);
+        m_LiveStackingUI.kcfg_FitsLSMasterDark->setText(sequenceURL.toLocalFile());
+    }
 }
 
 void FITSTab::selectLiveStackMasterFlat()
@@ -1060,8 +1066,11 @@ void FITSTab::selectLiveStackMasterFlat()
     QString selectedFilter;
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Flat"),
                                     m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
-    QUrl sequenceURL = QUrl::fromLocalFile(file);
-    m_LiveStackingUI.kcfg_FitsLSMasterFlat->setText(sequenceURL.toLocalFile());
+    if (!file.isNull())
+    {
+        QUrl sequenceURL = QUrl::fromLocalFile(file);
+        m_LiveStackingUI.kcfg_FitsLSMasterFlat->setText(sequenceURL.toLocalFile());
+    }
 }
 
 void FITSTab::applyTypeFilter()
