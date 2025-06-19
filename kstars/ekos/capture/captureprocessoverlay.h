@@ -65,12 +65,6 @@ public:
     void displayTargetStatistics();
 
     /**
-     * @brief Loads a new frame into the view and displays meta data in the overlay
-     * @param data pointer to FITSData object
-     */
-    bool addFrame(const QString &devicename, const QSharedPointer<FITSData> &data);
-
-    /**
      * @brief Show the next frame from the capture history
      */
     bool showNextFrame();
