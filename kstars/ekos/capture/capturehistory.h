@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "ekos/ekos.h"
 #include "indi/indicommon.h"
 #include "sequencejob.h"
 
@@ -37,6 +38,13 @@ public:
         double offset;
         QString iso;
         int count, completed;
+        double hfr { Ekos::INVALID_STAR_MEASURE };
+        double fwhm { Ekos::INVALID_STAR_MEASURE };
+        double numStars { Ekos::INVALID_STAR_MEASURE };
+        double measure { Ekos::INVALID_STAR_MEASURE };
+        double fourierPower { Ekos::INVALID_STAR_MEASURE };
+        double blurriness { Ekos::INVALID_STAR_MEASURE };
+        double weight { 0 };
     };
 
     /**

@@ -11,6 +11,7 @@
 #include "ekos/ekos.h"
 #include "parameters.h"
 #include "ekos/auxiliary/filtermanager.h"
+#include "ekos/capture/capturehistory.h"
 
 #include "indi/indicamera.h"
 #include "indi/indifocuser.h"
@@ -129,7 +130,7 @@ class Focus : public QWidget, public Ui::Focus
              */
         Q_SCRIPTABLE double getHFR()
         {
-            return currentHFR;
+            return getLastHFR();
         }
 
         /** DBUS interface function.
@@ -247,6 +248,14 @@ class Focus : public QWidget, public Ui::Focus
         const QString &opsDialogName() const
         {
             return m_opsDialogName;
+        }
+
+        /**
+         * @brief Capture history of the current focuser
+         */
+        CaptureHistory &captureHistory()
+        {
+            return m_captureHistory;
         }
 
 public slots:
@@ -967,6 +976,67 @@ public slots:
          */
         bool checkAFOptimisation(const AutofocusReason autofocusReason);
 
+        /**
+         * @brief Retrieve the currently selected frame
+         */
+        const CaptureHistory::FrameData currentFrame() {return captureHistory().currentFrame();}
+
+        /******************************************
+         * Accessors to the last focusing measurements
+         ******************************************/
+
+        /**
+         * @brief getLastHFR Determine the last measured HFR value
+         */
+        double getLastHFR() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).hfr) : Ekos::INVALID_STAR_MEASURE;}
+        /**
+         * @brief getLastFWHM Determine the last measured FWHM value
+         */
+        double getLastFWHM() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).fwhm) : Ekos::INVALID_STAR_MEASURE;}
+        /**
+         * @brief getLastNumStars Determine the last measured number of stars
+         */
+        double getLastNumStars() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).numStars) : Ekos::INVALID_STAR_MEASURE;}
+        /**
+         * @brief getLastMeasure Determine the last measured value
+         */
+        double getLastMeasure() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).measure) : Ekos::INVALID_STAR_MEASURE;}
+        /**
+         * @brief getLastFourierPower Determine the last measured fourier power value
+         */
+        double getLastFourierPower() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).fourierPower) : Ekos::INVALID_STAR_MEASURE;}
+        /**
+         * @brief getLastBlurriness Determine the last bluriness value
+         */
+        double getLastBlurriness() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).blurriness) : Ekos::INVALID_STAR_MEASURE;}
+        /**
+         * @brief getLastWeight Determine the last weight value
+         */
+        double getLastWeight() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).weight) : Ekos::INVALID_STAR_MEASURE;}
+
+        /**
+         * @brief Obtain the frame from the given position in the history
+         */
+        const CaptureHistory::FrameData getFrame(int pos) {return captureHistory().getFrame(pos);}
+
+        /**
+         * @brief Read the focus values from the current frame and update the history
+         */
+        void updateFrameData();
+
+        /**
+         * @brief calculateCurrentHFR calculate the HFR from the current frame, taking into
+         *        account which setting are used for focusing
+         */
+        double calculateCurrentHFR();
+
+        /**
+         * @brief calculateCurrentMeasureAndWeight Calculate the current measure and its weight, depending on
+         *        the selected measurement function.
+         * @return the measured data setof the current frame
+         */
+        CaptureHistory::FrameData calculateCurrentMeasureAndWeight();
+
         /// Focuser device needed for focus operation
         ISD::Focuser *m_Focuser { nullptr };
         int m_focuserId;
@@ -1014,17 +1084,9 @@ public slots:
         Mathematics::RobustStatistics::ScaleCalculation m_ScaleCalc { Mathematics::RobustStatistics::SCALE_SESTIMATOR };
 
         /******************************************
-         * "Measure" variables, HFR, FWHM, numStars
+         * Current "Measure" variables (HFR, FWHM and number of stars are part of the capture history)
          ******************************************/
 
-        /// Current HFR value just fetched from FITS file
-        double currentHFR { INVALID_STAR_MEASURE };
-        double currentFWHM { INVALID_STAR_MEASURE };
-        double currentNumStars { INVALID_STAR_MEASURE };
-        double currentFourierPower { INVALID_STAR_MEASURE };
-        double currentBlurriness { INVALID_STAR_MEASURE };
-        double currentMeasure { INVALID_STAR_MEASURE };
-        double currentWeight { 0 };
         /// Last HFR value recorded
         double lastHFR { 0 };
         /// If (currentHFR > deltaHFR) we start the autofocus process.
@@ -1035,6 +1097,11 @@ public slots:
         int HFRInc { 0 };
         /// If HFR decreasing? Well, good job. Once HFR start decreasing, we can start calculating HFR slope and estimating our next move.
         int HFRDec { 0 };
+
+        /******************************************
+         * capture history and stuff
+         ******************************************/
+        CaptureHistory m_captureHistory;
 
         /****************************
          * Absolute position focusers
