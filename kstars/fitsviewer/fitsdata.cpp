@@ -180,6 +180,8 @@ FITSData::~FITSData()
         fits_close_file(m_Stackfptr, &status);
         m_Stackfptr = nullptr;
     }
+    stackFITSWatcher.waitForFinished();
+    stackWatcher.waitForFinished();
 }
 
 void FITSData::loadCommon(const QString &inFilename)
@@ -245,6 +247,13 @@ bool FITSData::loadStack(const QString &inDir)
 
     auto stackData = m_Stack->getStackData();
 
+    // Make sure the future watchers aren't still active
+    // JEE
+    stackWatcher.waitForFinished();
+    stackFITSWatcher.waitForFinished();
+    connect(&stackWatcher, &QFutureWatcher<bool>::finished, this, &FITSData::stackProcessDone);
+    connect(&stackFITSWatcher, &QFutureWatcher<bool>::finished, this, &FITSData::stackFITSLoaded);
+
     // Choose and alignment master if we can
     m_AlignMasterChosen = true;
     QString alignMaster = stackData.alignMaster;
@@ -287,7 +296,9 @@ bool FITSData::loadStack(const QString &inDir)
     m_StackSubPos = -1;
     m_Stack->setInitalStackDone(false);
     m_Stack->setStackInProgress(true);
-    m_MastersLoaded = false;
+    // JEE
+    m_DarkLoaded = false;
+    m_FlatLoaded = false;
     nextStackAction();
     return true;
 }
@@ -341,63 +352,133 @@ QFuture<bool> FITSData::loadStackBuffer()
 bool FITSData::processNextSub(QString &sub)
 {
     m_Stack->setupNextSub();
-
+    m_StackFITSAsync = stackFITSSub;
     qCDebug(KSTARS_FITS) << "Loading sub " << sub;
-    if (stackLoadFITSImage(sub) && stackLoadWCS())
-    {
-        double pixScale = (m_StackWCSHandle) ? std::fabs(m_StackWCSHandle->cdelt[0]) * 3600.0 : 0.0;
-        double ra = m_StackWCSHandle->crval[0];
-        double dec = m_StackWCSHandle->crval[1];
-
-        if (m_Stack->addSub((void *) m_StackImageBuffer, m_StackStatistics.cvType, m_StackStatistics.stats.width,
-                              m_StackStatistics.stats.height, m_StackStatistics.stats.bytesPerPixel))
-        {
-            emit plateSolveSub(ra, dec, pixScale, m_Stack->getStackData().weighting);
-            return true;
-        }
-    }
-    m_Stack->addSubFailed();
-    emit stackUpdateStats(false, m_StackSubPos, m_StackDirWatcher->getCurrentFiles().size(), m_Stack->getMeanSubSNR(),
-                          m_Stack->getMinSubSNR(), m_Stack->getMaxSubSNR());
-    return false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QFuture<bool> future = QtConcurrent::run(&FITSData::stackLoadFITSImage, this, sub, false);
+#else
+    QFuture<bool> future = QtConcurrent::run(this, &FITSData::stackLoadFITSImage, sub, false);
+#endif
+    stackFITSWatcher.setFuture(future);
+    return true;
 }
 
 void FITSData::processMasters()
 {
     // Dark
-    QString dark = Options::fitsLSMasterDark();
-    if (!dark.isEmpty())
+    if (!m_DarkLoaded)
     {
-        qCDebug(KSTARS_FITS) << "Loading master dark " << dark;
-        if (stackLoadFITSImage(dark))
-        {
-            int width = m_StackStatistics.stats.width;
-            int height = m_StackStatistics.stats.height;
-            int bytesPerPixel = m_StackStatistics.stats.bytesPerPixel;
-            int cvType = m_StackStatistics.cvType;
-            m_Stack->addMaster(true, (void *) m_StackImageBuffer, width, height, bytesPerPixel, cvType);
-        }
+        QString dark = Options::fitsLSMasterDark();
+        if (dark.isEmpty())
+            m_DarkLoaded = true;
         else
-            qCDebug(KSTARS_FITS) << QString("%1 Unable to load master dark").arg(__FUNCTION__);
+        {
+            m_StackFITSAsync = stackFITSDark;
+            qCDebug(KSTARS_FITS) << "Loading master dark " << dark;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            QFuture<bool> future = QtConcurrent::run(&FITSData::stackLoadFITSImage, this, dark, false);
+#else
+            QFuture<bool> future = QtConcurrent::run(this, &FITSData::stackLoadFITSImage, dark, false);
+#endif
+            stackFITSWatcher.setFuture(future);
+            return;
+        }
     }
 
     // Flat
-    QString flat = Options::fitsLSMasterFlat();
-    if (!flat.isEmpty())
+    if (!m_FlatLoaded)
     {
-        qCDebug(KSTARS_FITS) << "Loading master flat " << flat;
-        if (stackLoadFITSImage(flat))
-        {
-            int width = m_StackStatistics.stats.width;
-            int height = m_StackStatistics.stats.height;
-            int bytesPerPixel = m_StackStatistics.stats.bytesPerPixel;
-            int cvType = m_StackStatistics.cvType;
-            m_Stack->addMaster(false, (void *) m_StackImageBuffer, width, height, bytesPerPixel, cvType);
-        }
+        QString flat = Options::fitsLSMasterFlat();
+        if (flat.isEmpty())
+            m_FlatLoaded = true;
         else
-            qCDebug(KSTARS_FITS) << QString("%1 Unable to load master flat").arg(__FUNCTION__);
+        {
+            m_StackFITSAsync = stackFITSFlat;
+            qCDebug(KSTARS_FITS) << "Loading master flat " << flat;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            QFuture<bool> future = QtConcurrent::run(&FITSData::stackLoadFITSImage, this, flat, false);
+#else
+            QFuture<bool> future = QtConcurrent::run(this, &FITSData::stackLoadFITSImage, flat, false);
+#endif
+            stackFITSWatcher.setFuture(future);
+            return;
+        }
     }
-    m_MastersLoaded = true;
+    nextStackAction();
+}
+
+// JEE Callback when a FITS file has been asynchronously loaded. This happens:
+// 1. A new sub is loaded
+// 2. A dark or flat master is loaded
+// This function checks the result and takes the next action
+void FITSData::stackFITSLoaded()
+{
+    StackFITSAsyncType action = m_StackFITSAsync;
+    m_StackFITSAsync = stackFITSNone;
+
+    switch (action)
+    {
+        case stackFITSDark:
+            if (!stackFITSWatcher.result())
+                qCDebug(KSTARS_FITS) << QString("%1 Unable to load master dark").arg(__FUNCTION__);
+            else
+            {
+                int width = m_StackStatistics.stats.width;
+                int height = m_StackStatistics.stats.height;
+                int bytesPerPixel = m_StackStatistics.stats.bytesPerPixel;
+                int cvType = m_StackStatistics.cvType;
+                m_Stack->addMaster(true, (void *) m_StackImageBuffer, width, height, bytesPerPixel, cvType);
+            }
+            m_DarkLoaded = true;
+            processMasters();
+            break;
+
+        case stackFITSFlat:
+            if (!stackFITSWatcher.result())
+                qCDebug(KSTARS_FITS) << QString("%1 Unable to load master flat").arg(__FUNCTION__);
+            else
+            {
+                int width = m_StackStatistics.stats.width;
+                int height = m_StackStatistics.stats.height;
+                int bytesPerPixel = m_StackStatistics.stats.bytesPerPixel;
+                int cvType = m_StackStatistics.cvType;
+                m_Stack->addMaster(false, (void *) m_StackImageBuffer, width, height, bytesPerPixel, cvType);
+            }
+            m_FlatLoaded = true;
+            processMasters();
+            break;
+
+        case stackFITSSub:
+            if (!stackFITSWatcher.result())
+                qCDebug(KSTARS_FITS) << QString("%1 Unable to load sub").arg(__FUNCTION__);
+            else
+            {
+                // Load the WCS based on image header data
+                if (stackLoadWCS())
+                {
+                    double pixScale = (m_StackWCSHandle) ? std::fabs(m_StackWCSHandle->cdelt[0]) * 3600.0 : 0.0;
+                    double ra = m_StackWCSHandle->crval[0];
+                    double dec = m_StackWCSHandle->crval[1];
+
+                    if (m_Stack->addSub((void *) m_StackImageBuffer, m_StackStatistics.cvType, m_StackStatistics.stats.width,
+                                        m_StackStatistics.stats.height, m_StackStatistics.stats.bytesPerPixel))
+                    {
+                        // Next step in the chain is to plate solve
+                        emit plateSolveSub(ra, dec, pixScale, m_Stack->getStackData().weighting);
+                        return;
+                    }
+                }
+            }
+
+            // Something has gone wrong with this sub so mark it failed and move to the next action
+            m_Stack->addSubFailed();
+            emit stackUpdateStats(false, m_StackSubPos, m_StackDirWatcher->getCurrentFiles().size(),
+                                      m_Stack->getMeanSubSNR(), m_Stack->getMinSubSNR(), m_Stack->getMaxSubSNR());
+            nextStackAction();
+            break;
+        default:
+            qCDebug(KSTARS_FITS) << QString("%1 Unknown m_StackFITSAsync %2").arg(__FUNCTION__).arg(m_StackFITSAsync);
+    }
 }
 
 // Update plate solving status
@@ -423,8 +504,11 @@ void FITSData::nextStackAction()
         {
             // All subs have been processed so load calibration masters (if any)
             done = true;
-            if (!m_MastersLoaded)
+            if (!m_DarkLoaded || !m_FlatLoaded)
+            {
                 processMasters();
+                return;
+            }
 
             // If we haven't already chosen an alignment master use the first sub
             if (!m_AlignMasterChosen)
@@ -434,11 +518,41 @@ void FITSData::nextStackAction()
             }
 
             // Stack... either an initial stack or add 1 or more subs to an existing stack
-            m_Stack->getInitialStackDone() ? m_Stack->stackn() : m_Stack->stack();
-            emit stackReady();
-            m_Stack->setStackInProgress(false);
+            QFuture<bool> future;
+            if (m_Stack->getInitialStackDone())
+            {
+                qCDebug(KSTARS_FITS) << "Starting incremental stack...";
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                future = QtConcurrent::run(&FITSStack::stackn, m_Stack.get());
+#else
+                future = QtConcurrent::run(m_Stack.get(), &FITSStack::stackn);
+#endif
+            }
+            else
+            {
+                qCDebug(KSTARS_FITS) << "Starting initial stack...";
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                future = QtConcurrent::run(&FITSStack::stack, m_Stack.get());
+#else
+                future = QtConcurrent::run(m_Stack.get(), &FITSStack::stack);
+#endif
+            }
+            stackWatcher.setFuture(future);
+            return;
         }
     }
+}
+
+// JEE Callback when an asynchronous stacking operation completes. This happens:
+// 1. Initial stack
+// 2. Incremental stack
+void FITSData::stackProcessDone()
+{
+    if (!stackWatcher.result())
+        qCDebug(KSTARS_FITS) << QString("Stacking operation failed");
+
+    emit stackReady();
+    m_Stack->setStackInProgress(false);
 }
 
 void FITSData::stackSetupWCS()
@@ -1050,7 +1164,6 @@ bool FITSData::stackLoadWCS()
     return true;
 }
 #endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
-
 
 bool FITSData::loadXISFImage(const QByteArray &buffer)
 {

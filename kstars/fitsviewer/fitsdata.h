@@ -969,13 +969,18 @@ class FITSData : public QObject
         void processMasters();
 
         /**
+         * @brief Async callback when a stack FITS file load has completed
+         */
+        void stackFITSLoaded();
+
+        /**
          * @brief A quicker version of loadFITSImage used by Live Stacking
          * @param filename to open
          * @param buffer
          * @param isCompressed
          * @return success
          */
-        bool stackLoadFITSImage(QString filename, const bool isCompressed = false);
+        bool stackLoadFITSImage(QString filename, const bool isCompressed);
 
         /**
          * @brief stackCheckDebayer checks whether a stack sub needs to be debayered
@@ -1004,6 +1009,11 @@ class FITSData : public QObject
          * @return success
          */
         bool processNextSub(QString &sub);
+
+        /**
+         * @brief Callback to handle an asynchronous stacking operation completion
+         */
+        void stackProcessDone();
 
         /**
          * @brief Setup WCS for the image stack based on the master sub WCS
@@ -1141,7 +1151,8 @@ class FITSData : public QObject
         QSharedPointer<FITSDirWatcher> m_StackDirWatcher;
         QQueue<QString> m_StackQ;
         bool m_AlignMasterChosen { false };
-        bool m_MastersLoaded { false };
+        bool m_DarkLoaded { false };
+        bool m_FlatLoaded { false };
         uint8_t *m_StackImageBuffer { nullptr };
         uint32_t m_StackImageBufferSize { 0 };
         typedef struct
@@ -1154,4 +1165,14 @@ class FITSData : public QObject
         int m_Stacknwcs {0};
         fitsfile *m_Stackfptr { nullptr };
         QList<Record> m_StackHeaderRecords;
+        QFutureWatcher<bool> stackWatcher;
+        QFutureWatcher<bool> stackFITSWatcher;
+        typedef enum
+        {
+            stackFITSNone,
+            stackFITSDark,
+            stackFITSFlat,
+            stackFITSSub
+        } StackFITSAsyncType;
+        StackFITSAsyncType m_StackFITSAsync { stackFITSNone };
 };
