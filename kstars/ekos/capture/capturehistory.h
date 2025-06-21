@@ -58,9 +58,10 @@ public:
     /**
      * @brief Delete the current frame and (if possible) the corresponding file.
      * If the last one has been deleted, navigate to the frame before, if possible.
+     * @param existingFilesOnly if true the history is cleared for non existing files
      * @return true iff deleting was successful
      */
-    bool deleteFrame(int pos);
+    bool deleteFrame(int pos, bool existingFilesOnly = true);
 
     /**
      * @brief the currently pointed capture frame
@@ -105,8 +106,9 @@ public:
     /**
      * @brief Iterate over the current target history and add all
      *        those where the corresponding file exists.
+     * @param existingFilesOnly if true the history is cleared for non existing files
      */
-    void updateTargetStatistics();
+    void updateTargetStatistics(bool existingFilesOnly = true);
 
     // capture statistics
     TargetStatistics statistics;

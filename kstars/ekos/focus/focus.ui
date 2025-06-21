@@ -1129,7 +1129,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="historyLastB">
+            <widget class="QPushButton" name="historyForwardB">
              <property name="toolTip">
               <string>Next focusing frame</string>
              </property>
@@ -1149,7 +1149,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QPushButton" name="historyLastB">
              <property name="toolTip">
               <string>Last focusing frame</string>
              </property>

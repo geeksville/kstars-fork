@@ -1152,6 +1152,14 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
 
     resetButtons();
 
+    // clear the history
+    m_captureHistory.reset();
+    iterOut->setText("--");
+    HFROut->setText("--");
+    FWHMOut->setText("--");
+    starsOut->setText("--");
+    checkNavigationButtons();
+
     reverseDir = false;
 
     /*if (fw > 0 && fh > 0)
@@ -2491,7 +2499,7 @@ bool Focus::appendMeasure(double newMeasure)
             }
 
             // since the history entries are read only, the last one is deleted and added again.
-            m_captureHistory.deleteFrame(m_captureHistory.size() - 1);
+            m_captureHistory.deleteFrame(m_captureHistory.size() - 1, false);
             m_captureHistory.addFrame(currentData, false);
         }
     }
@@ -2741,7 +2749,7 @@ void Focus::setCurrentMeasure()
     if (m_StarMeasure == FOCUS_STAR_FWHM)
         FWHMOut->setText(QString("%1").arg(lastFrame().fwhm * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
     starsOut->setText(QString("%1").arg(m_ImageData->getDetectedStars()));
-    iterOut->setText(QString("%1/%2").arg(absIterations + 1).arg(absIterations + 1));
+    iterOut->setText(QString("%1/%2").arg(m_captureHistory.position() + 1).arg(m_captureHistory.size()));
 
     // Display message in case _last_ HFR was invalid
     if (lastHFR == INVALID_STAR_MEASURE)
@@ -4871,6 +4879,12 @@ void Focus::resetButtons()
             AFDisable(focusAdvisor->focusAdvGroupBox, false);
             AFDisable(m_CFZDialog, false);
 
+            // Disable the navigation buttons
+            AFDisable(historyFirstB, false);
+            AFDisable(historyBackwardB, false);
+            AFDisable(historyForwardB, false);
+            AFDisable(historyLastB, false);
+
             // Enable the "stop" button so the user can abort an AF run
             stopFocusB->setEnabled(true);
         }
@@ -4890,6 +4904,7 @@ void Focus::resetButtons()
     startLoopB->setEnabled(enableCaptureButtons);
     startFocusB->setEnabled(enableCaptureButtons);
 
+    checkNavigationButtons();
 
     if (cameraConnected)
     {
@@ -4936,6 +4951,16 @@ void Focus::updateButtonColors(QPushButton *button, bool shift, bool ctrl)
         stylesheet = "background-color: #FF5722";
 
     button->setStyleSheet(stylesheet);
+}
+
+void Focus::checkNavigationButtons()
+{
+    bool backward = m_captureHistory.position() >= 0;
+    bool forward  = m_captureHistory.size() > 0 && m_captureHistory.position() + 2 < m_captureHistory.size();
+    historyFirstB->setEnabled(backward);
+    historyBackwardB->setEnabled(backward);
+    historyForwardB->setEnabled(forward);
+    historyLastB->setEnabled(forward);
 }
 
 // Return whether the Aberration Inspector Start button should be enabled. The pre-requisties are:

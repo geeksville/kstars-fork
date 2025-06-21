@@ -752,6 +752,11 @@ public slots:
         void updateButtonColors(QPushButton *button, bool shift, bool ctrl);
 
         /**
+         * @brief updateNavigationButtons Enable navigation buttons if the position in the history is appropriate
+         */
+        void checkNavigationButtons();
+
+        /**
          * @brief returns whether the Aberration Inspector can be used or not
          * @return can / cant be started
          */

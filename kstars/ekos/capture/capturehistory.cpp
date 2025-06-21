@@ -26,7 +26,7 @@ bool CaptureHistory::addFrame(FrameData data, bool noduplicates)
     return true;
 }
 
-bool CaptureHistory::deleteFrame(int pos)
+bool CaptureHistory::deleteFrame(int pos, bool existingFilesOnly)
 {
     if (m_history.size() != 0 && pos < m_history.size())
     {
@@ -40,7 +40,7 @@ bool CaptureHistory::deleteFrame(int pos)
         else if (m_position >= m_history.size())
             m_position = m_history.size() - 1;
         // update statistics, since one file is missing
-        updateTargetStatistics();
+        updateTargetStatistics(existingFilesOnly);
         return true;
     }
     else
@@ -95,7 +95,7 @@ bool CaptureHistory::backward()
         return false;
 }
 
-void CaptureHistory::updateTargetStatistics()
+void CaptureHistory::updateTargetStatistics(bool existingFilesOnly)
 {
     statistics.clear();
     QList<FrameData> new_history;
@@ -103,7 +103,7 @@ void CaptureHistory::updateTargetStatistics()
     for (QList<FrameData>::iterator list_it = m_history.begin(); list_it != m_history.end(); list_it++)
     {
         // if the corresponding file exists, add it to the statistics
-        if (QFile(list_it->filename).exists())
+        if (!existingFilesOnly || QFile(list_it->filename).exists())
         {
             countNewFrame(list_it->target, list_it->frameType, list_it->filterName, list_it->exptime);
             new_history.append(*list_it);
