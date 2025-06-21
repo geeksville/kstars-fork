@@ -50,9 +50,10 @@ public:
     /**
      * @brief Add a newly captured frame to the history
      * @param data frame data
+     * @param noduplicates flag if the file name should be used to avoid doublicate entries
      * @return true iff this is a new frame, i.e. its filename does not exist in the history
      */
-    bool addFrame(FrameData data);
+    bool addFrame(FrameData data, bool noduplicates = true);
 
     /**
      * @brief Delete the current frame and (if possible) the corresponding file.
@@ -65,6 +66,15 @@ public:
      * @brief the currently pointed capture frame
      */
     const FrameData currentFrame() {return m_history.at(m_position);}
+
+    /**
+     * @brief firstFrame first frame of the history (without altering current)
+     */
+    const FrameData firstFrame();
+    /**
+     * @brief firstFrame last frame of the history (without altering current)
+     */
+    const FrameData lastFrame();
 
     /**
      * @brief The current navigation position in the capture history

@@ -981,6 +981,11 @@ public slots:
          */
         const CaptureHistory::FrameData currentFrame() {return captureHistory().currentFrame();}
 
+        /**
+         * @brief Retrieve the last captured frame
+         */
+        const CaptureHistory::FrameData lastFrame() {return captureHistory().lastFrame();}
+
         /******************************************
          * Accessors to the last focusing measurements
          ******************************************/

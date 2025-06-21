@@ -8,13 +8,17 @@
 
 
 
-bool CaptureHistory::addFrame(FrameData data)
+bool CaptureHistory::addFrame(FrameData data, bool noduplicates)
 {
-    // check if the file already exists in the history
-    for (QList<FrameData>::iterator it = m_history.begin(); it != m_history.end(); it++)
-        if (it->filename == data.filename)
-            // already exists, ignore
-            return false;
+    if (noduplicates)
+    {
+        // check if the file already exists in the history
+        for (QList<FrameData>::iterator it = m_history.begin(); it != m_history.end(); it++)
+            if (it->filename == data.filename)
+                // already exists, ignore
+                return false;
+    }
+
     // history is clean, simply append
     m_history.append(data);
     m_position = m_history.size() - 1;
@@ -41,6 +45,26 @@ bool CaptureHistory::deleteFrame(int pos)
     }
     else
         return false;
+}
+
+const CaptureHistory::FrameData CaptureHistory::firstFrame()
+{
+    if (m_history.size() > 0)
+        return getFrame(0);
+
+    // return an empty value
+    CaptureHistory::FrameData dummy;
+    return dummy;
+}
+
+const CaptureHistory::FrameData CaptureHistory::lastFrame()
+{
+    if (m_history.size() > 0)
+        return getFrame(m_history.size() - 1);
+
+    // return an empty value
+    CaptureHistory::FrameData dummy;
+    return dummy;
 }
 
 void CaptureHistory::reset()
