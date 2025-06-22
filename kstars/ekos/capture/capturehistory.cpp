@@ -95,6 +95,24 @@ bool CaptureHistory::backward()
         return false;
 }
 
+bool CaptureHistory::first()
+{
+    if (m_history.size() <= 0)
+        return false;
+
+    m_position = 0;
+    return true;
+}
+
+bool CaptureHistory::last()
+{
+    if (m_history.size() <= 0)
+        return false;
+
+    m_position = m_history.size() - 1;
+    return true;
+}
+
 void CaptureHistory::updateTargetStatistics(bool existingFilesOnly)
 {
     statistics.clear();

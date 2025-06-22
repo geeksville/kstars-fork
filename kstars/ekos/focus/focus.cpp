@@ -167,6 +167,12 @@ Focus::Focus(int id) : QWidget()
         resetButtons();
     });
 
+    // connect navigation
+    connect(historyFirstB, &QPushButton::clicked, this, &Focus::showFirstFrame);
+    connect(historyLastB, &QPushButton::clicked, this, &Focus::showLastFrame);
+    connect(historyBackwardB, &QPushButton::clicked, this, &Focus::showPreviousFrame);
+    connect(historyForwardB, &QPushButton::clicked, this, &Focus::showNextFrame);
+
     setupOpticalTrainManager();
     initOpticalTrain();
 
@@ -986,6 +992,30 @@ void Focus::adaptiveFocus()
     adaptFocus->runAdaptiveFocus(currentPosition, filter());
 }
 
+void Focus::showFirstFrame()
+{
+    if (captureHistory().first())
+        refreshMeasuresDisplay();
+}
+
+void Focus::showLastFrame()
+{
+    if (captureHistory().last())
+        refreshMeasuresDisplay();
+}
+
+void Focus::showPreviousFrame()
+{
+    if (captureHistory().backward())
+        refreshMeasuresDisplay();
+}
+
+void Focus::showNextFrame()
+{
+    if (captureHistory().forward())
+        refreshMeasuresDisplay();
+}
+
 // Run Aberration Inspector
 void Focus::startAbIns()
 {
@@ -1153,12 +1183,8 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     resetButtons();
 
     // clear the history
-    m_captureHistory.reset();
-    iterOut->setText("--");
-    HFROut->setText("--");
-    FWHMOut->setText("--");
-    starsOut->setText("--");
-    updateNavigation();
+    captureHistory().reset();
+    refreshMeasuresDisplay();
 
     reverseDir = false;
 
@@ -2495,7 +2521,7 @@ bool Focus::appendMeasure()
     frameData.filename = saveFocusFrame();
 
     // update the history
-    m_captureHistory.addFrame(frameData, false);
+    captureHistory().addFrame(frameData, false);
 
     // Return whether we need more frame based on user requirement
     int framesCount = m_OpsFocusProcess->focusFramesCount->value();
@@ -2734,13 +2760,8 @@ void Focus::updateMeasurements()
     else
         emit newHFR(lastFrame().hfr, -1, inAutoFocus, opticalTrain());
 
-    // Format the labels under the V-curve
-    HFROut->setText(QString("%1").arg(lastFrame().hfr * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
-    if (m_StarMeasure == FOCUS_STAR_FWHM)
-        FWHMOut->setText(QString("%1").arg(lastFrame().fwhm * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
-    starsOut->setText(QString("%1").arg(m_ImageData->getDetectedStars()));
-    // update the history and its navigation
-    updateNavigation();
+    // update display of the measured values
+    refreshMeasuresDisplay();
     // Display message in case _last_ HFR was invalid
     if (lastHFR == INVALID_STAR_MEASURE)
         appendLogText(i18n("FITS received. No stars detected."));
@@ -4896,7 +4917,7 @@ void Focus::resetButtons()
     startLoopB->setEnabled(enableCaptureButtons);
     startFocusB->setEnabled(enableCaptureButtons);
 
-    updateNavigation();
+    refreshMeasuresDisplay();
 
     if (cameraConnected)
     {
@@ -4945,15 +4966,31 @@ void Focus::updateButtonColors(QPushButton *button, bool shift, bool ctrl)
     button->setStyleSheet(stylesheet);
 }
 
-void Focus::updateNavigation()
+void Focus::refreshMeasuresDisplay()
 {
-    bool backward = m_captureHistory.position() >= 0;
-    bool forward  = m_captureHistory.size() > 0 && m_captureHistory.position() + 2 < m_captureHistory.size();
+    if (captureHistory().size() <= 0)
+    {
+        iterOut->setText("--");
+        HFROut->setText("--");
+        FWHMOut->setText("--");
+        starsOut->setText("--");
+    }
+    else
+    {
+        iterOut->setText(QString("%1/%2").arg(captureHistory().position() + 1).arg(captureHistory().size()));
+        HFROut->setText(QString("%1").arg(currentFrame().hfr * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
+        if (m_StarMeasure == FOCUS_STAR_FWHM)
+            FWHMOut->setText(QString("%1").arg(currentFrame().fwhm * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
+        starsOut->setText(QString("%1").arg(currentFrame().numStars));
+    }
+
+    // enable/disable navigation buttons
+    bool backward = captureHistory().position() >= 0;
+    bool forward  = captureHistory().size() > 0 && captureHistory().position() + 2 < captureHistory().size();
     historyFirstB->setEnabled(backward);
     historyBackwardB->setEnabled(backward);
     historyForwardB->setEnabled(forward);
     historyLastB->setEnabled(forward);
-    iterOut->setText(QString("%1/%2").arg(m_captureHistory.position() + 1).arg(m_captureHistory.size()));
 }
 
 // Return whether the Aberration Inspector Start button should be enabled. The pre-requisties are:

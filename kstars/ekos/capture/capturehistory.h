@@ -104,6 +104,17 @@ public:
      */
     bool backward();
     /**
+     * @brief first Move to the first history entry
+     * @return true iff the move was possible within the limits
+     */
+    bool first();
+    /**
+     * @brief first Move to the last history entry
+     * @return true iff the move was possible within the limits
+     */
+    bool last();
+
+    /**
      * @brief Iterate over the current target history and add all
      *        those where the corresponding file exists.
      * @param existingFilesOnly if true the history is cleared for non existing files

@@ -460,6 +460,12 @@ public slots:
          */
         void adaptiveFocus();
 
+        // ******************* history navigation ********************* //
+        void showFirstFrame();
+        void showLastFrame();
+        void showPreviousFrame();
+        void showNextFrame();
+
     protected:
         void addPlotPosition(int pos, double hfr, bool plot = true);
 
@@ -752,9 +758,10 @@ public slots:
         void updateButtonColors(QPushButton *button, bool shift, bool ctrl);
 
         /**
-         * @brief updateNavigationButtons Enable navigation buttons if the position in the history is appropriate
+         * @brief updateNavigationButtons Update the measured values display and enable
+         *        navigation buttons if the position in the history is appropriate
          */
-        void updateNavigation();
+        void refreshMeasuresDisplay();
 
         /**
          * @brief returns whether the Aberration Inspector can be used or not
