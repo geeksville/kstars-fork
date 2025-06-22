@@ -490,7 +490,7 @@ public slots:
         void setVideoStreamEnabled(bool enabled);
 
         void starDetectionFinished();
-        void setCurrentMeasure();
+        void updateMeasurements();
         void startAbIns();
         void manualStart();
 
@@ -754,7 +754,7 @@ public slots:
         /**
          * @brief updateNavigationButtons Enable navigation buttons if the position in the history is appropriate
          */
-        void checkNavigationButtons();
+        void updateNavigation();
 
         /**
          * @brief returns whether the Aberration Inspector can be used or not
@@ -855,10 +855,9 @@ public slots:
         void analyzeSources();
 
         /** @internal Add a new star measure (HFR, FWHM, etc) for the current focuser position.
-         * @param newMeasure is the new measure (e.g. HFR, FWHM, etc) to consider for the current focuser position.
          * @return true if a new sample is required, else false.
          */
-        bool appendMeasure(double newMeasure);
+        bool appendMeasure();
 
         /**
          * @brief completeAutofocusProcedure finishes off autofocus and emits a message for other modules.
@@ -1013,11 +1012,6 @@ public slots:
          * @brief Obtain the frame from the given position in the history
          */
         const CaptureHistory::FrameData getFrame(int pos) {return captureHistory().getFrame(pos);}
-
-        /**
-         * @brief Read the focus values from the current frame and update the history
-         */
-        void updateFrameData();
 
         /**
          * @brief calculateCurrentHFR calculate the HFR from the current frame, taking into

@@ -1158,7 +1158,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     HFROut->setText("--");
     FWHMOut->setText("--");
     starsOut->setText("--");
-    checkNavigationButtons();
+    updateNavigation();
 
     reverseDir = false;
 
@@ -1415,12 +1415,6 @@ bool Focus::checkAFOptimisation(const AutofocusReason autofocusReason)
             qCDebug(KSTARS_EKOS_FOCUS) << QString("%1 unable to move focuser... trying full Autofocus").arg(__FUNCTION__);
     }
     return dontRunAF;
-}
-
-void Focus::updateFrameData()
-{
-    CaptureHistory::FrameData frameData = calculateCurrentMeasureAndWeight();
-    m_captureHistory.addFrame(frameData, false);
 }
 
 double Focus::calculateCurrentHFR()
@@ -2204,9 +2198,7 @@ void Focus::starDetectionFinished()
 
     appendLogText(i18n("Detection complete."));
 
-    // Beware as this HFR value is then treated specifically by the graph renderer
-    updateFrameData();
-    setCurrentMeasure();
+    updateMeasurements();
 }
 
 // Returns whether the star measure is star based.
@@ -2450,8 +2442,11 @@ void Focus::analyzeSources()
     }
 }
 
-bool Focus::appendMeasure(double newMeasure)
+bool Focus::appendMeasure()
 {
+    CaptureHistory::FrameData frameData = calculateCurrentMeasureAndWeight();
+    double newMeasure = frameData.measure;
+
     // Add new star measure (e.g. HFR, FWHM, etc) to existing values, even if invalid
     starMeasureFrames.append(newMeasure);
 
@@ -2462,35 +2457,33 @@ bool Focus::appendMeasure(double newMeasure)
         return measure == INVALID_STAR_MEASURE;
     }), samples.end());
 
-    CaptureHistory::FrameData currentData = m_captureHistory.lastFrame();
-
     // Consolidate the average star measure. Sigma clips outliers and averages remainder.
     if (!samples.isEmpty())
     {
         double currentMeasure = Mathematics::RobustStatistics::ComputeLocation(
                                     Mathematics::RobustStatistics::LOCATION_SIGMACLIPPING, std::vector<double>(samples.begin(), samples.end()));
 
-        currentData.measure = currentMeasure;
+        frameData.measure = currentMeasure;
         switch(m_StarMeasure)
         {
             case FOCUS_STAR_HFR:
             case FOCUS_STAR_HFR_ADJ:
-                currentData.hfr = currentMeasure;
+                frameData.hfr = currentMeasure;
                 break;
             case FOCUS_STAR_FWHM:
-                currentData.fwhm = currentMeasure;
+                frameData.fwhm = currentMeasure;
                 break;
             case FOCUS_STAR_NUM_STARS:
-                currentData.numStars = currentMeasure;
+                frameData.numStars = currentMeasure;
                 break;
             case FOCUS_STAR_FOURIER_POWER:
-                currentData.fourierPower = currentMeasure;
+                frameData.fourierPower = currentMeasure;
                 break;
             case FOCUS_STAR_STDDEV:
             case FOCUS_STAR_SOBEL:
             case FOCUS_STAR_LAPLASSIAN:
             case FOCUS_STAR_CANNY:
-                currentData.blurriness = currentMeasure;
+                frameData.blurriness = currentMeasure;
                 break;
             default:
                 break;
@@ -2499,15 +2492,10 @@ bool Focus::appendMeasure(double newMeasure)
     }
 
     // Save the focus frame
-    currentData.filename = saveFocusFrame();
+    frameData.filename = saveFocusFrame();
 
     // update the history
-    if (m_captureHistory.size() > 0)
-    {
-        // since the history entries are read only, the last one is deleted and added again.
-        m_captureHistory.deleteFrame(m_captureHistory.size() - 1, false);
-        m_captureHistory.addFrame(currentData, false);
-    }
+    m_captureHistory.addFrame(frameData, false);
 
     // Return whether we need more frame based on user requirement
     int framesCount = m_OpsFocusProcess->focusFramesCount->value();
@@ -2723,7 +2711,7 @@ void Focus::resetFocuser()
     }
 }
 
-void Focus::setCurrentMeasure()
+void Focus::updateMeasurements()
 {
     // Let's now report the current HFR
     qCDebug(KSTARS_EKOS_FOCUS) << "Focus newFITS #" << starMeasureFrames.count() + 1 << ": Current HFR " <<
@@ -2732,7 +2720,7 @@ void Focus::setCurrentMeasure()
                                << (starSelected ? 1 : lastFrame().numStars);
 
     // Take the new HFR into account, eventually continue to stack samples
-    if (appendMeasure(getLastMeasure()))
+    if (appendMeasure())
     {
         capture();
         return;
@@ -2751,8 +2739,8 @@ void Focus::setCurrentMeasure()
     if (m_StarMeasure == FOCUS_STAR_FWHM)
         FWHMOut->setText(QString("%1").arg(lastFrame().fwhm * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
     starsOut->setText(QString("%1").arg(m_ImageData->getDetectedStars()));
-    iterOut->setText(QString("%1/%2").arg(m_captureHistory.position() + 1).arg(m_captureHistory.size()));
-
+    // update the history and its navigation
+    updateNavigation();
     // Display message in case _last_ HFR was invalid
     if (lastHFR == INVALID_STAR_MEASURE)
         appendLogText(i18n("FITS received. No stars detected."));
@@ -4908,7 +4896,7 @@ void Focus::resetButtons()
     startLoopB->setEnabled(enableCaptureButtons);
     startFocusB->setEnabled(enableCaptureButtons);
 
-    checkNavigationButtons();
+    updateNavigation();
 
     if (cameraConnected)
     {
@@ -4957,7 +4945,7 @@ void Focus::updateButtonColors(QPushButton *button, bool shift, bool ctrl)
     button->setStyleSheet(stylesheet);
 }
 
-void Focus::checkNavigationButtons()
+void Focus::updateNavigation()
 {
     bool backward = m_captureHistory.position() >= 0;
     bool forward  = m_captureHistory.size() > 0 && m_captureHistory.position() + 2 < m_captureHistory.size();
@@ -4965,6 +4953,7 @@ void Focus::checkNavigationButtons()
     historyBackwardB->setEnabled(backward);
     historyForwardB->setEnabled(forward);
     historyLastB->setEnabled(forward);
+    iterOut->setText(QString("%1/%2").arg(m_captureHistory.position() + 1).arg(m_captureHistory.size()));
 }
 
 // Return whether the Aberration Inspector Start button should be enabled. The pre-requisties are:
