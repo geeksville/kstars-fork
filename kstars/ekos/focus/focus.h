@@ -130,7 +130,7 @@ class Focus : public QWidget, public Ui::Focus
              */
         Q_SCRIPTABLE double getHFR()
         {
-            return getLastHFR();
+            return captureHistory().lastFrame().hfr;
         }
 
         /** DBUS interface function.
@@ -937,8 +937,9 @@ public slots:
 
         /**
          * @brief Save the focus frame for later dubugging
+         * @return file name of the frame
          */
-        void saveFocusFrame();
+        QString saveFocusFrame();
 
         /**
          * @brief Initialise donut processing
@@ -995,34 +996,18 @@ public slots:
          * Accessors to the last focusing measurements
          ******************************************/
 
-        /**
-         * @brief getLastHFR Determine the last measured HFR value
-         */
-        double getLastHFR() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).hfr) : Ekos::INVALID_STAR_MEASURE;}
-        /**
-         * @brief getLastFWHM Determine the last measured FWHM value
-         */
-        double getLastFWHM() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).fwhm) : Ekos::INVALID_STAR_MEASURE;}
-        /**
+         /**
          * @brief getLastNumStars Determine the last measured number of stars
          */
-        double getLastNumStars() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).numStars) : Ekos::INVALID_STAR_MEASURE;}
+        double getLastNumStars() {return captureHistory().lastFrame().numStars;}
         /**
          * @brief getLastMeasure Determine the last measured value
          */
-        double getLastMeasure() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).measure) : Ekos::INVALID_STAR_MEASURE;}
-        /**
-         * @brief getLastFourierPower Determine the last measured fourier power value
-         */
-        double getLastFourierPower() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).fourierPower) : Ekos::INVALID_STAR_MEASURE;}
-        /**
-         * @brief getLastBlurriness Determine the last bluriness value
-         */
-        double getLastBlurriness() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).blurriness) : Ekos::INVALID_STAR_MEASURE;}
+        double getLastMeasure() {return captureHistory().lastFrame().measure;}
         /**
          * @brief getLastWeight Determine the last weight value
          */
-        double getLastWeight() {return captureHistory().size() > 0 ? (captureHistory().getFrame(captureHistory().size()-1).weight) : Ekos::INVALID_STAR_MEASURE;}
+        double getLastWeight() {return captureHistory().lastFrame().weight;}
 
         /**
          * @brief Obtain the frame from the given position in the history

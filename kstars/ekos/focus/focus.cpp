@@ -2462,50 +2462,52 @@ bool Focus::appendMeasure(double newMeasure)
         return measure == INVALID_STAR_MEASURE;
     }), samples.end());
 
+    CaptureHistory::FrameData currentData = m_captureHistory.lastFrame();
+
     // Consolidate the average star measure. Sigma clips outliers and averages remainder.
     if (!samples.isEmpty())
     {
         double currentMeasure = Mathematics::RobustStatistics::ComputeLocation(
                                     Mathematics::RobustStatistics::LOCATION_SIGMACLIPPING, std::vector<double>(samples.begin(), samples.end()));
 
-        // read the last entry of the capture history
-        if (m_captureHistory.size() > 0)
+        currentData.measure = currentMeasure;
+        switch(m_StarMeasure)
         {
-            CaptureHistory::FrameData currentData = m_captureHistory.getFrame(m_captureHistory.size() - 1);
-            currentData.measure = currentMeasure;
-            switch(m_StarMeasure)
-            {
-                case FOCUS_STAR_HFR:
-                case FOCUS_STAR_HFR_ADJ:
-                    currentData.hfr = currentMeasure;
-                    break;
-                case FOCUS_STAR_FWHM:
-                    currentData.fwhm = currentMeasure;
-                    break;
-                case FOCUS_STAR_NUM_STARS:
-                    currentData.numStars = currentMeasure;
-                    break;
-                case FOCUS_STAR_FOURIER_POWER:
-                    currentData.fourierPower = currentMeasure;
-                    break;
-                case FOCUS_STAR_STDDEV:
-                case FOCUS_STAR_SOBEL:
-                case FOCUS_STAR_LAPLASSIAN:
-                case FOCUS_STAR_CANNY:
-                    currentData.blurriness = currentMeasure;
-                    break;
-                default:
-                    break;
-            }
-
-            // since the history entries are read only, the last one is deleted and added again.
-            m_captureHistory.deleteFrame(m_captureHistory.size() - 1, false);
-            m_captureHistory.addFrame(currentData, false);
+            case FOCUS_STAR_HFR:
+            case FOCUS_STAR_HFR_ADJ:
+                currentData.hfr = currentMeasure;
+                break;
+            case FOCUS_STAR_FWHM:
+                currentData.fwhm = currentMeasure;
+                break;
+            case FOCUS_STAR_NUM_STARS:
+                currentData.numStars = currentMeasure;
+                break;
+            case FOCUS_STAR_FOURIER_POWER:
+                currentData.fourierPower = currentMeasure;
+                break;
+            case FOCUS_STAR_STDDEV:
+            case FOCUS_STAR_SOBEL:
+            case FOCUS_STAR_LAPLASSIAN:
+            case FOCUS_STAR_CANNY:
+                currentData.blurriness = currentMeasure;
+                break;
+            default:
+                break;
         }
+
     }
 
     // Save the focus frame
-    saveFocusFrame();
+    currentData.filename = saveFocusFrame();
+
+    // update the history
+    if (m_captureHistory.size() > 0)
+    {
+        // since the history entries are read only, the last one is deleted and added again.
+        m_captureHistory.deleteFrame(m_captureHistory.size() - 1, false);
+        m_captureHistory.addFrame(currentData, false);
+    }
 
     // Return whether we need more frame based on user requirement
     int framesCount = m_OpsFocusProcess->focusFramesCount->value();
@@ -2826,8 +2828,9 @@ void Focus::setCurrentMeasure()
 }
 
 // Save off focus frame during Autofocus for later debugging
-void Focus::saveFocusFrame()
+QString Focus::saveFocusFrame()
 {
+    QString filename = "";
     if (inAutoFocus && Options::focusLogging() && Options::saveFocusImages())
     {
         QDir dir;
@@ -2856,9 +2859,10 @@ void Focus::saveFocusFrame()
         // IS8601 contains colons but they are illegal under Windows OS, so replacing them with '-'
         // The timestamp is no longer ISO8601 but it should solve interoperality issues between different OS hosts
         QString name     = "autofocus_frame_" + now.toString("HH-mm-ss") + prefix + ".fits";
-        QString filename = path + QStringLiteral("/") + name;
+        filename = path + QStringLiteral("/") + name;
         m_ImageData->saveImage(filename);
     }
+    return filename;
 }
 
 void Focus::calculateAbInsData()
