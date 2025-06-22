@@ -1021,6 +1021,12 @@ public slots:
         const CaptureHistory::FrameData getFrame(int pos) {return captureHistory().getFrame(pos);}
 
         /**
+         * @brief loadFocusFrame Load stored focus frame for the current history position
+         */
+        void loadCurrentFocusFrame();
+
+
+        /**
          * @brief calculateCurrentHFR calculate the HFR from the current frame, taking into
          *        account which setting are used for focusing
          */

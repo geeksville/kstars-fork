@@ -992,28 +992,37 @@ void Focus::adaptiveFocus()
     adaptFocus->runAdaptiveFocus(currentPosition, filter());
 }
 
+void Focus::loadCurrentFocusFrame()
+{
+    {
+        if (currentFrame().filename != "")
+            m_FocusView->loadFile(currentFrame().filename);
+        refreshMeasuresDisplay();
+    }
+}
+
 void Focus::showFirstFrame()
 {
     if (captureHistory().first())
-        refreshMeasuresDisplay();
+        loadCurrentFocusFrame();
 }
 
 void Focus::showLastFrame()
 {
     if (captureHistory().last())
-        refreshMeasuresDisplay();
+        loadCurrentFocusFrame();
 }
 
 void Focus::showPreviousFrame()
 {
     if (captureHistory().backward())
-        refreshMeasuresDisplay();
+        loadCurrentFocusFrame();
 }
 
 void Focus::showNextFrame()
 {
     if (captureHistory().forward())
-        refreshMeasuresDisplay();
+        loadCurrentFocusFrame();
 }
 
 // Run Aberration Inspector
