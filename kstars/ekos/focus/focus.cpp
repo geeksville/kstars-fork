@@ -2529,6 +2529,10 @@ bool Focus::appendMeasure()
     // Save the focus frame
     frameData.filename = saveFocusFrame();
 
+    // the history will only be kept during autofocus runs
+    if (! inAutoFocus)
+        captureHistory().reset();
+
     // update the history
     captureHistory().addFrame(frameData, false);
 
@@ -3347,6 +3351,9 @@ void Focus::clearDataPoints()
             m_abInsNumStars[i].clear();
         }
     }
+
+    captureHistory().reset();
+    refreshMeasuresDisplay();
 
     emit initHFRPlot(getyAxisLabel(m_StarMeasure), getStarUnits(m_StarMeasure, m_StarUnits),
                      m_OptDir == CurveFitting::OPTIMISATION_MINIMISE, m_OpsFocusProcess->focusUseWeights->isChecked(),
@@ -4986,7 +4993,12 @@ void Focus::refreshMeasuresDisplay()
     }
     else
     {
-        iterOut->setText(QString("%1/%2").arg(captureHistory().position() + 1).arg(captureHistory().size()));
+        // display the iteration count during autofocus and afterwards
+        if (inAutoFocus || captureHistory().size() > 1)
+            iterOut->setText(QString("%1/%2").arg(captureHistory().position() + 1).arg(captureHistory().size()));
+        else
+            iterOut->setText("--");
+
         HFROut->setText(QString("%1").arg(currentFrame().hfr * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
         if (m_StarMeasure == FOCUS_STAR_FWHM)
             FWHMOut->setText(QString("%1").arg(currentFrame().fwhm * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
@@ -4994,8 +5006,8 @@ void Focus::refreshMeasuresDisplay()
     }
 
     // enable/disable navigation buttons
-    bool backward = captureHistory().position() >= 0;
-    bool forward  = captureHistory().size() > 0 && captureHistory().position() + 2 < captureHistory().size();
+    bool backward = inAutoFocus && (captureHistory().position() >= 0);
+    bool forward  = inAutoFocus && (captureHistory().size() > 0 && captureHistory().position() + 1 < captureHistory().size());
     historyFirstB->setEnabled(backward);
     historyBackwardB->setEnabled(backward);
     historyForwardB->setEnabled(forward);
