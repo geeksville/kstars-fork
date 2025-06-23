@@ -475,6 +475,11 @@ void FITSView::loadStack(const QString &inDir)
         }
     });
 
+    connect(m_ImageData.data(), &FITSData::resetStack, this, [this]()
+    {
+        emit resetStack();
+    });
+
     connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,
                                                                           const int total, const double meanSNR, const double minSNR, const double maxSNR)
     {
@@ -487,13 +492,25 @@ void FITSView::loadStack(const QString &inDir)
 #endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 }
 
+void FITSView::cancelStack()
+{
+#if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
+    m_ImageData->cancelStack();
+#endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
+}
 // Called when post processing controls in Fitstab changed by the user
 void FITSView::redoPostProcessStack()
 {
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     auto stack = m_ImageData->stack();
     if (stack)
-        stack->redoPostProcessStack();
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QFuture<void> future = QtConcurrent::run(&FITSStack::redoPostProcessStack, stack.get());
+#else
+        QFuture<void> future = QtConcurrent::run(stack.get(), &FITSStack::redoPostProcessStack);
+#endif
+    }
 #endif
 }
 

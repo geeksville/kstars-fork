@@ -76,6 +76,11 @@ class FITSView : public QScrollArea
         void loadStack(const QString &inDir);
 
         /**
+         * @brief User request to cancel stacking operation
+         */
+        void cancelStack();
+
+        /**
          * @brief Redo post processing on an existing stack, e.g. noise, sharpen
          */
         void redoPostProcessStack();
@@ -533,6 +538,7 @@ class FITSView : public QScrollArea
         void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
                               const double maxSNR);
         void updateStackSNR(const double SNR);
+        void resetStack();
         void autoPlateSolve();
 
         friend class FITSLabel;

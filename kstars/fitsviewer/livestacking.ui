@@ -940,8 +940,11 @@
   <tabstop>kcfg_FitsLSHighSigma</tabstop>
   <tabstop>kcfg_FitsLSWinsorCutoff</tabstop>
   <tabstop>StackB</tabstop>
+  <tabstop>kcfg_FitsLSDeconvAmt</tabstop>
+  <tabstop>kcfg_FitsLSPSFSigma</tabstop>
   <tabstop>kcfg_FitsLSDenoiseAmt</tabstop>
   <tabstop>kcfg_FitsLSSharpenAmt</tabstop>
+  <tabstop>kcfg_FitsLSSharpenKernal</tabstop>
   <tabstop>kcfg_FitsLSSharpenSigma</tabstop>
   <tabstop>ReprocessB</tabstop>
  </tabstops>

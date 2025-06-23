@@ -303,6 +303,19 @@ bool FITSData::loadStack(const QString &inDir)
     return true;
 }
 
+// Called when user requested to cancel the in-flight stacking operation
+void FITSData::cancelStack()
+{
+    if (m_Stack->getStackInProgress())
+    {
+        if (stackFITSWatcher.isRunning())
+            stackFITSWatcher.cancel();
+        if (stackWatcher.isRunning())
+            stackWatcher.cancel();
+    }
+    // JEE emit resetStack();
+}
+
 // Called when 1 (or more) new files added to the watched stack directory
 void FITSData::newStackSubs(const QStringList &newFiles)
 {
@@ -415,6 +428,14 @@ void FITSData::stackFITSLoaded()
 {
     StackFITSAsyncType action = m_StackFITSAsync;
     m_StackFITSAsync = stackFITSNone;
+
+    // Check for user cancel request
+    if (stackFITSWatcher.isCanceled())
+    {
+        qCDebug(KSTARS_FITS) << QString("Stacking operation cancelled");
+        emit resetStack();
+        return;
+    }
 
     switch (action)
     {
@@ -548,11 +569,32 @@ void FITSData::nextStackAction()
 // 2. Incremental stack
 void FITSData::stackProcessDone()
 {
-    if (!stackWatcher.result())
-        qCDebug(KSTARS_FITS) << QString("Stacking operation failed");
-
-    emit stackReady();
     m_Stack->setStackInProgress(false);
+
+    if (stackWatcher.isCanceled())
+    {
+        // JEE
+        emit resetStack();
+        qCDebug(KSTARS_FITS) << QString("Stacking operation cancelled");
+    }
+    else if (stackWatcher.result())
+    {
+        emit stackReady();
+        if (stackWatcher.isCanceled())
+        {
+            // JEE
+            emit resetStack();
+            qCDebug(KSTARS_FITS) << QString("Stacking operation cancelled");
+        }
+    }
+    else
+    {
+        if (stackWatcher.isCanceled())
+            qCDebug(KSTARS_FITS) << QString("Stacking operation cancelled");
+        else
+            qCDebug(KSTARS_FITS) << QString("Stacking operation failed");
+        emit resetStack();
+    }
 }
 
 void FITSData::stackSetupWCS()

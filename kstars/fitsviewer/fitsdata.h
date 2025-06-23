@@ -709,6 +709,11 @@ class FITSData : public QObject
         bool loadStack(const QString &inDirectory);
 
         /**
+         * @brief User request to cancel stacking operation
+         */
+        void cancelStack();
+
+        /**
          * @brief Load stack from buffer
          * @return A QFuture that can be watched until the async operation is complete.
          */
@@ -796,6 +801,11 @@ class FITSData : public QObject
          * @brief Signal FITSView the stack is ready to load
          */
         void stackReady();
+
+        /**
+         * @brief Signal FITSView that a cancel has been processed and to reset the GUI
+         */
+        void resetStack();
 
         /**
          * @brief update FITSTab on progress

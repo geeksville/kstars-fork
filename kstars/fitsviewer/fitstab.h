@@ -272,6 +272,7 @@ class FITSTab : public QWidget
         void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
                               const double maxSNR);
         void updateStackSNR(const double SNR);
+        void resetStack();
         int m_LiveStackingItem { 0 };
         bool m_StackExtracted { false };
         QString m_liveStackDir;

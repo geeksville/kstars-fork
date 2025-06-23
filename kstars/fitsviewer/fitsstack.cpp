@@ -4,11 +4,13 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+#include <QtConcurrent>
+// JEE#include <QThread>
+
 #include "fitsstack.h"
 #include "fitsdata.h"
 #include <fits_debug.h>
 #include "fitscommon.h"
-//#include "fitsstardetector.h"
 #include "ekos/auxiliary/stellarsolverprofile.h"
 #include "ekos/auxiliary/stellarsolverprofileeditor.h"
 #include "ekos/auxiliary/solverutils.h"
@@ -350,17 +352,23 @@ bool FITSStack::stack()
         }
         // Stack the aligned subs
         float totalWeight = 0.0;
-        if (stackSubs(m_Aligned, true, totalWeight, m_StackedImage32F))
+        stackSubs(m_Aligned, true, totalWeight, m_StackedImage32F);
+
+        if (m_StackData.numInMem <= m_StackImageData.size())
         {
-            // Perform any post stacking processing such as sharpening / denoising
+            // We've completed the initial stack so perform post processing such as sharpening / denoising
             cv::Mat finalImage = postProcessImage(m_StackedImage32F);
             m_StackSNR = getSNR(finalImage);
             convertMatToFITS(finalImage);
-        }
-
-        if (m_StackData.numInMem <= m_StackImageData.size())
-            // We've completed the initial stack so move to incremental stacking as new subs arrive
+            // Move to incremental stacking as new subs arrive
             setupRunningStack(m_StackImageData[m_InitialStackRef].wcsprm, m_Aligned.size(), totalWeight);
+        }
+        else
+        {
+            // Still more subs to stack so skip post processing which is time consuming
+            m_StackSNR = getSNR(m_StackedImage32F);
+            convertMatToFITS(m_StackedImage32F);
+        }
 
         return true;
     }
@@ -586,6 +594,7 @@ QVector<float> FITSStack::getWeights()
 }
 
 // Function to stack subs using standard or Windsorized Sigma Clipping
+// Uses parallel processing to increase speed
 cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<cv::Mat> &images, const QVector<float> &weights)
 {
     try
@@ -615,96 +624,144 @@ cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<cv::Mat> &images, const 
                                       [](const cv::Mat& mat) { return mat.isContinuous(); }) &&
                           std::all_of(images.begin(), images.end(),
                                       [](const cv::Mat& mat) { return mat.isContinuous(); });
+
         if (continuous)
         {
+            // We can flatten the 2D image to 1D for efficiency and also use parallel processing
             cols *= rows;
             rows = 1;
-        }
 
-        std::vector<float> values(numImages);
+            // Chunk up for available threads. Tried multipliers of 1, 2, 3, 4, 6, 8. Not a big difference by 2 was best
+            const int chunkSize = std::max(1, cols / (QThread::idealThreadCount() * 2));
 
-        // Process each pixel position
-        std::vector<const float *> imagesPtrs(numImages);
-        for (int y = 0; y < rows; y++)
-        {
-            // Update ptrs for current y
-            for (int i = 0; i < numImages; i++)
-                imagesPtrs[i] = images[i].ptr<float>(y);
-
-            finalImagePtr = finalImage.ptr<float>(y);
-            for (int ch = 0; ch < m_Channels; ch++)
-                sigmaClipPtr[ch] = m_SigmaClip32FC4[ch].ptr<cv::Vec4f>(y);
-
-            for (int x = 0; x < cols; x++)
+            QVector<QPair<int, int>> pixelChunks;
+            for (int start = 0; start < cols; start += chunkSize)
             {
-                // Collect values for this pixel/channel from all images
-                for (int ch = 0; ch < m_Channels; ch++)
+                int end = std::min(start + chunkSize, cols);
+                pixelChunks.append(qMakePair(start, end));
+            }
+
+            qCDebug(KSTARS_FITS) << QString("Starting sigma clipping: %1 chunks on %2 threads")
+                                                .arg(pixelChunks.size()).arg(QThread::idealThreadCount());
+
+            // Get pointers once (since rows=1)
+            std::vector<const float *> imagesPtrs(numImages);
+            for (int i = 0; i < numImages; i++)
+                imagesPtrs[i] = images[i].ptr<float>(0);
+
+            float* finalImagePtr = finalImage.ptr<float>(0);
+            QVector<cv::Vec4f *> sigmaClipPtr(m_Channels);
+            for (int ch = 0; ch < m_Channels; ch++)
+                sigmaClipPtr[ch] = m_SigmaClip32FC4[ch].ptr<cv::Vec4f>(0);
+
+            // Setup the function for parallel processing to handle a chunk of pixels
+            auto processPixelChunk = [&](const QPair<int, int>& chunk)
+            {
+                for (int x = chunk.first; x < chunk.second; x++)
                 {
-                    for (int image = 0; image < numImages; image++)
-                        values[image] = imagesPtrs[image][x * m_Channels + ch];
+                    // Cancellation check every once per 100 iterations
+                    if ((x - chunk.first) % 100 == 0 && QThread::currentThread()->isInterruptionRequested())
+                        return;
 
-                    float pixelValue = 0.0;
+                    // Process the pixel
+                    stackSigmaClipPixel(x, imagesPtrs, finalImagePtr, sigmaClipPtr, weights);
+                }
+            };
 
-                    if (m_StackData.rejection == LS_STACKING_REJ_WINDSOR)
+            QtConcurrent::blockingMap(pixelChunks, processPixelChunk);
+        }
+        else
+        {
+            qCDebug(KSTARS_FITS) << QString("Starting single thread sigma clipping");
+
+            std::vector<float> values(numImages);
+
+            // Process each pixel position
+            std::vector<const float *> imagesPtrs(numImages);
+            for (int y = 0; y < rows; y++)
+            {
+                // Update ptrs for current y
+                for (int i = 0; i < numImages; i++)
+                    imagesPtrs[i] = images[i].ptr<float>(y);
+
+                finalImagePtr = finalImage.ptr<float>(y);
+                for (int ch = 0; ch < m_Channels; ch++)
+                    sigmaClipPtr[ch] = m_SigmaClip32FC4[ch].ptr<cv::Vec4f>(y);
+
+                for (int x = 0; x < cols; x++)
+                {
+                    // Process the pixel
+                    stackSigmaClipPixel(x, imagesPtrs, finalImagePtr, sigmaClipPtr, weights);
+
+                    // Collect values for this pixel/channel from all images
+                    for (int ch = 0; ch < m_Channels; ch++)
                     {
-                        // Winsorize the data
+                        for (int image = 0; image < numImages; image++)
+                            values[image] = imagesPtrs[image][x * m_Channels + ch];
+
+                        float pixelValue = 0.0;
+
+                        if (m_StackData.rejection == LS_STACKING_REJ_WINDSOR)
+                        {
+                            // Winsorize the data
+                            float median = Mathematics::RobustStatistics::ComputeLocation(
+                                                    Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
+                            auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
+                                                    Mathematics::RobustStatistics::SCALE_VARIANCE, values));
+
+                            float lower = std::max(0.0, median - (stddev * m_StackData.windsorCutoff));
+                            float upper = median + (stddev * m_StackData.windsorCutoff);
+
+                            for (unsigned int i = 0; i < values.size(); i++)
+                            {
+                                if (values[i] < lower)
+                                    values[i] = lower;
+                                else if (values[i] > upper)
+                                    values[i] = upper;
+                            }
+                        }
+
+                        // Now process the data
                         float median = Mathematics::RobustStatistics::ComputeLocation(
-                                                Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
-                        auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
-                                                Mathematics::RobustStatistics::SCALE_VARIANCE, values));
+                                                    Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
 
-                        float lower = std::max(0.0, median - (stddev * m_StackData.windsorCutoff));
-                        float upper = median + (stddev * m_StackData.windsorCutoff);
-
-                        for (unsigned int i = 0; i < values.size(); i++)
+                        float sum = 0.0, weightSum = 0.0, lower = -1.0, upper = -1.0;
+                        if (values.size() <= 3)
+                            // For small samples just use median
+                            pixelValue = median;
+                        else
                         {
-                            if (values[i] < lower)
-                                values[i] = lower;
-                            else if (values[i] > upper)
-                                values[i] = upper;
+                            // Sigma clipping
+                            auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
+                                                    Mathematics::RobustStatistics::SCALE_VARIANCE, values));
+
+                            // Get the lower and upper bounds
+                            lower = std::max(0.0, median - (stddev * m_StackData.lowSigma));
+                            upper = median + (stddev * m_StackData.highSigma);
+
+                            for (unsigned int i = 0; i < values.size(); i++)
+                            {
+                                if (values[i] < lower || values[i] > upper)
+                                    continue;
+
+                                sum += values[i] * weights[i];
+                                weightSum += weights[i];
+                            }
+
+                            if (weightSum > 0.0)
+                                pixelValue = sum / weightSum;
                         }
+                        // Store intermediate calcs from this process, necessary for processing new subs
+                        cv::Vec4f sigmaClip;
+                        sigmaClip[0] = lower;
+                        sigmaClip[1] = upper;
+                        sigmaClip[2] = sum;
+                        sigmaClip[3] = weightSum;
+                        sigmaClipPtr[ch][x] = sigmaClip;
+
+                        // Update the pixel/channel with the calculated value
+                        finalImagePtr[x * m_Channels + ch] = pixelValue;
                     }
-
-                    // Now process the data
-                    float median = Mathematics::RobustStatistics::ComputeLocation(
-                                                Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
-
-                    float sum = 0.0, weightSum = 0.0, lower = -1.0, upper = -1.0;
-                    if (values.size() <= 3)
-                        // For small samples just use median
-                        pixelValue = median;
-                    else
-                    {
-                        // Sigma clipping
-                        auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
-                                                Mathematics::RobustStatistics::SCALE_VARIANCE, values));
-
-                        // Get the lower and upper bounds
-                        lower = std::max(0.0, median - (stddev * m_StackData.lowSigma));
-                        upper = median + (stddev * m_StackData.highSigma);
-
-                        for (unsigned int i = 0; i < values.size(); i++)
-                        {
-                            if (values[i] < lower || values[i] > upper)
-                                continue;
-
-                            sum += values[i] * weights[i];
-                            weightSum += weights[i];
-                        }
-
-                        if (weightSum > 0.0)
-                            pixelValue = sum / weightSum;
-                    }
-                    // Store intermediate calcs from this process, necessary for processing new subs
-                    cv::Vec4f sigmaClip;
-                    sigmaClip[0] = lower;
-                    sigmaClip[1] = upper;
-                    sigmaClip[2] = sum;
-                    sigmaClip[3] = weightSum;
-                    sigmaClipPtr[ch][x] = sigmaClip;
-
-                    // Update the pixel/channel with the calculated value
-                    finalImagePtr[x * m_Channels + ch] = pixelValue;
                 }
             }
         }
@@ -715,6 +772,83 @@ cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<cv::Mat> &images, const 
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
         return cv::Mat();
+    }
+}
+
+// JEE This function does the pixel level sigma clipping and Winsorization
+void FITSStack::stackSigmaClipPixel(int x, const std::vector<const float *> &imagesPtrs, float* finalImagePtr,
+                                    const QVector<cv::Vec4f *> &sigmaClipPtr, const QVector<float> &weights)
+{
+    int numImages = imagesPtrs.size();
+    std::vector<float> values(numImages);
+    for (int ch = 0; ch < m_Channels; ch++)
+    {
+        for (int image = 0; image < numImages; image++)
+            values[image] = imagesPtrs[image][x * m_Channels + ch];
+
+        float pixelValue = 0.0;
+
+        if (m_StackData.rejection == LS_STACKING_REJ_WINDSOR)
+        {
+            // Winsorize the data
+            float median = Mathematics::RobustStatistics::ComputeLocation(
+                Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
+            auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
+                Mathematics::RobustStatistics::SCALE_VARIANCE, values));
+
+            float lower = std::max(0.0, median - (stddev * m_StackData.windsorCutoff));
+            float upper = median + (stddev * m_StackData.windsorCutoff);
+
+            for (unsigned int i = 0; i < values.size(); i++)
+            {
+                if (values[i] < lower)
+                    values[i] = lower;
+                else if (values[i] > upper)
+                    values[i] = upper;
+            }
+        }
+
+        // Now process the data
+        float median = Mathematics::RobustStatistics::ComputeLocation(
+            Mathematics::RobustStatistics::LOCATION_MEDIAN, values);
+
+        float sum = 0.0, weightSum = 0.0, lower = -1.0, upper = -1.0;
+        if (values.size() <= 3)
+            // For small samples just use median
+            pixelValue = median;
+        else
+        {
+            // Sigma clipping
+            auto const stddev = std::sqrt(Mathematics::RobustStatistics::ComputeScale(
+                Mathematics::RobustStatistics::SCALE_VARIANCE, values));
+
+            // Get the lower and upper bounds
+            lower = std::max(0.0, median - (stddev * m_StackData.lowSigma));
+            upper = median + (stddev * m_StackData.highSigma);
+
+            for (unsigned int i = 0; i < values.size(); i++)
+            {
+                if (values[i] < lower || values[i] > upper)
+                    continue;
+
+                sum += values[i] * weights[i];
+                weightSum += weights[i];
+            }
+
+            if (weightSum > 0.0)
+                pixelValue = sum / weightSum;
+        }
+
+        // Store intermediate calcs from this process
+        cv::Vec4f sigmaClip;
+        sigmaClip[0] = lower;
+        sigmaClip[1] = upper;
+        sigmaClip[2] = sum;
+        sigmaClip[3] = weightSum;
+        sigmaClipPtr[ch][x] = sigmaClip;
+
+        // Update the pixel/channel with the calculated value
+        finalImagePtr[x * m_Channels + ch] = pixelValue;
     }
 }
 

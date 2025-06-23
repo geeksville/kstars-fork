@@ -1009,6 +1009,7 @@ void FITSTab::initLiveStacking()
     connect(m_View.get(), &FITSView::alignMasterChosen, this, &FITSTab::alignMasterChosen);
     connect(m_View.get(), &FITSView::stackUpdateStats, this, &FITSTab::stackUpdateStats);
     connect(m_View.get(), &FITSView::updateStackSNR, this, &FITSTab::updateStackSNR);
+    connect(m_View.get(), &FITSView::resetStack, this, &FITSTab::resetStack);
 #endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 }
 
@@ -1292,15 +1293,31 @@ void FITSTab::extractImage()
 // Reload the live stack
 void FITSTab::liveStack()
 {
-    m_liveStackDir = m_LiveStackingUI.Stack->text();
-    m_StackSubsTotal = 0;
-    m_StackSubsProcessed = 0;
-    m_StackSubsFailed = 0;
-    m_LiveStackingUI.SubsProcessed->setText("0 / 0 / 0");
-    m_LiveStackingUI.SubsSNR->setText("0 / 0 / 0");
-    m_LiveStackingUI.ImageSNR->setText("0");
-    viewer->restack(m_liveStackDir);
-    m_View->loadStack(m_liveStackDir);
+    QString text = m_LiveStackingUI.StackB->text().remove('&');
+    if (text == "Stack")
+    {
+        // Start the stack process
+        m_LiveStackingUI.StackB->setText("Cancel");
+        m_LiveStackingUI.ReprocessB->setEnabled(false);
+
+        m_liveStackDir = m_LiveStackingUI.Stack->text();
+        m_StackSubsTotal = 0;
+        m_StackSubsProcessed = 0;
+        m_StackSubsFailed = 0;
+        m_LiveStackingUI.SubsProcessed->setText("0 / 0 / 0");
+        m_LiveStackingUI.SubsSNR->setText("0 / 0 / 0");
+        m_LiveStackingUI.ImageSNR->setText("0");
+        viewer->restack(m_liveStackDir);
+        m_View->loadStack(m_liveStackDir);
+    }
+    else if (text == QString("Cancel"))
+    {
+        m_LiveStackingUI.StackB->setText("Cancelling...");
+        m_LiveStackingUI.StackB->setEnabled(false);
+        m_LiveStackingUI.ReprocessB->setEnabled(false);
+        m_View->cancelStack();
+    }
+
 }
 
 // Plate solve the sub. May require 2 runs; firstly to get stars (if needed) and then to actually plate solve
@@ -1391,4 +1408,12 @@ void FITSTab::stackUpdateStats(const bool ok, const int sub, const int total, co
 void FITSTab::updateStackSNR(const double SNR)
 {
     m_LiveStackingUI.ImageSNR->setText(QString("%1").arg(SNR, 0, 'f', 2));
+}
+
+void FITSTab::resetStack()
+{
+    m_LiveStackingUI.StackB->setText("Stack");
+    m_LiveStackingUI.StackB->setEnabled(true);
+    m_LiveStackingUI.ReprocessB->setText("Reprocess");
+    m_LiveStackingUI.ReprocessB->setEnabled(true);
 }

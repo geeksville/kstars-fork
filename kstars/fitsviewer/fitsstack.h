@@ -233,6 +233,17 @@ class FITSStack : public QObject
         cv::Mat stackSubsSigmaClipping(const QVector<cv::Mat> &subs, const QVector<float> &weights);
 
         /**
+         * @brief Called by stackSubsSigmaClipping to do the sigma clipping on pixel at position x
+         * @param x position to process
+         * @param imagesPtrs array of pointers to each image
+         * @param finalImagePtr results image
+         * @param sigmaClipPtr intermediate results pointer
+         * @param weights to apply to sigma clipping
+         */
+        void stackSigmaClipPixel(int x, const std::vector<const float *> &imagesPtrs, float* finalImagePtr,
+                                 const QVector<cv::Vec4f *> &sigmaClipPtr, const QVector<float> &weights);
+
+        /**
          * @brief Stack the passed in vector of subs to an existing stack using Sigma Clipping
          * @param subs to be stacked
          * @param weights of each sub for the stack
