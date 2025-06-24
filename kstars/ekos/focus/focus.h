@@ -468,6 +468,7 @@ public slots:
 
     protected:
         void addPlotPosition(int pos, double hfr, bool plot = true);
+        void showEvent(QShowEvent *event) override;
 
     private slots:
         /**

@@ -953,8 +953,41 @@
         </spacer>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="8">
+        <layout class="QGridLayout" name="gridLayout" columnstretch="1,0,1,0">
+         <item row="1" column="3">
+          <widget class="QPushButton" name="clearDataB">
+           <property name="text">
+            <string>Clear</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="0">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="3">
           <widget class="QPushButton" name="relativeProfileB">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -967,43 +1000,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="8">
-          <widget class="QPushButton" name="clearDataB">
-           <property name="text">
-            <string>Clear</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>13</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="0">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="1">
+         <item row="1" column="1">
           <widget class="QWidget" name="measurementsBox" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <property name="leftMargin">
@@ -1019,51 +1016,55 @@
              <number>3</number>
             </property>
             <item>
-             <widget class="QLabel" name="starsLabel">
-              <property name="text">
-               <string>Stars:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="starsOut">
-              <property name="text">
-               <string>--</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="hfrLabel">
-              <property name="text">
-               <string>HFR:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="HFROut">
-              <property name="text">
-               <string>--</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="fwhmLabel">
-              <property name="text">
-               <string>FWHM:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="FWHMOut">
-              <property name="text">
-               <string>--</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QLabel" name="starsLabel">
+                <property name="text">
+                 <string>Stars:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="starsOut">
+                <property name="text">
+                 <string>--</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="hfrLabel">
+                <property name="text">
+                 <string>HFR:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="HFROut">
+                <property name="text">
+                 <string>--</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="fwhmLabel">
+                <property name="text">
+                 <string>FWHM:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="FWHMOut">
+                <property name="text">
+                 <string>--</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="0" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
             <spacer name="horizontalSpacer_3">
@@ -1177,6 +1178,49 @@
               <size>
                <width>3</width>
                <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QPushButton" name="saveFocusImagesB">
+             <property name="toolTip">
+              <string>Store autofocus frames
+If selected, the autofocus frames are stored to disk. Select this option if you want to navigate throught the focus frames.</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset theme="modified"/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>13</height>
               </size>
              </property>
             </spacer>
@@ -1318,10 +1362,7 @@
   <tabstop>resetFrameB</tabstop>
   <tabstop>clearDataB</tabstop>
   <tabstop>iterOut</tabstop>
-  <tabstop>starsOut</tabstop>
   <tabstop>relativeProfileB</tabstop>
-  <tabstop>HFROut</tabstop>
-  <tabstop>FWHMOut</tabstop>
  </tabstops>
  <resources/>
  <connections/>

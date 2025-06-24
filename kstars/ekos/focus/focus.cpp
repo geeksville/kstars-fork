@@ -4155,6 +4155,16 @@ void Focus::addPlotPosition(int pos, double value, bool plot)
         emit newHFRPlotPosition(static_cast<double>(pos), value, 1.0, false, pulseDuration);
 }
 
+void Focus::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+
+    // ensure that underlying changes to Options are reflected in the UI
+    if (isVisible())
+        resetButtons();
+
+}
+
 // Synchronises the plot_position and plot_value vectors with the data used by linearFocuser
 // This keeps the 2 sets of data in sync for the Linear and Linear1Pass algorithms.
 // For Iterative and Polynomial these vectors are built during the focusing cycle so nothing to do here
@@ -4913,6 +4923,7 @@ void Focus::resetButtons()
             AFDisable(historyBackwardB, false);
             AFDisable(historyForwardB, false);
             AFDisable(historyLastB, false);
+            AFDisable(saveFocusImagesB, false);
 
             // Enable the "stop" button so the user can abort an AF run
             stopFocusB->setEnabled(true);
@@ -4934,6 +4945,7 @@ void Focus::resetButtons()
     startFocusB->setEnabled(enableCaptureButtons);
 
     refreshMeasuresDisplay();
+    saveFocusImagesB->setChecked(Options::saveFocusImages());
 
     if (cameraConnected)
     {
@@ -6366,6 +6378,12 @@ void Focus::initConnections()
     // Update the focuser box size used to enclose a star
     connect(m_OpsFocusSettings->focusBoxSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
             &Ekos::Focus::updateBoxSize);
+
+    // toggle saving autofocus frames
+    connect(saveFocusImagesB, &QPushButton::toggled, this, [&](bool checked)
+    {
+        Options::setSaveFocusImages(checked);
+    });
 
     // Setup the tools buttons
     connect(startAbInsB, &QPushButton::clicked, this, &Ekos::Focus::startAbIns);
