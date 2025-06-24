@@ -702,7 +702,7 @@ class FITSData : public QObject
          */
 
         /**
-         * @brief Load and stack directory of FITS files asynchronously.
+         * @brief Load and stack directory of FITS files.
          * @param inDirectory Path to directory of FITS files
          * @return success (or not)
          */
@@ -1030,6 +1030,11 @@ class FITSData : public QObject
          */
         void stackSetupWCS();
 
+        /**
+         * @brief Manage the user cancel stack request within FITSData
+         */
+        void checkCancelStack();
+
         /// Pointer to CFITSIO FITS file struct
         fitsfile *fptr { nullptr };
         /// Generic data image buffer
@@ -1175,8 +1180,8 @@ class FITSData : public QObject
         int m_Stacknwcs {0};
         fitsfile *m_Stackfptr { nullptr };
         QList<Record> m_StackHeaderRecords;
-        QFutureWatcher<bool> stackWatcher;
-        QFutureWatcher<bool> stackFITSWatcher;
+        QFutureWatcher<bool> m_StackWatcher;
+        QFutureWatcher<bool> m_StackFITSWatcher;
         typedef enum
         {
             stackFITSNone,
@@ -1185,4 +1190,7 @@ class FITSData : public QObject
             stackFITSSub
         } StackFITSAsyncType;
         StackFITSAsyncType m_StackFITSAsync { stackFITSNone };
+        bool m_CancelRequest { false };
+        bool m_StackWatcherCancel { false };
+        bool m_StackFITSWatcherCancel { false };
 };

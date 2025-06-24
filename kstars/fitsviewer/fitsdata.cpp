@@ -180,8 +180,8 @@ FITSData::~FITSData()
         fits_close_file(m_Stackfptr, &status);
         m_Stackfptr = nullptr;
     }
-    stackFITSWatcher.waitForFinished();
-    stackWatcher.waitForFinished();
+    m_StackFITSWatcher.waitForFinished();
+    m_StackWatcher.waitForFinished();
 }
 
 void FITSData::loadCommon(const QString &inFilename)
@@ -249,10 +249,10 @@ bool FITSData::loadStack(const QString &inDir)
 
     // Make sure the future watchers aren't still active
     // JEE
-    stackWatcher.waitForFinished();
-    stackFITSWatcher.waitForFinished();
-    connect(&stackWatcher, &QFutureWatcher<bool>::finished, this, &FITSData::stackProcessDone);
-    connect(&stackFITSWatcher, &QFutureWatcher<bool>::finished, this, &FITSData::stackFITSLoaded);
+    m_StackWatcher.waitForFinished();
+    m_StackFITSWatcher.waitForFinished();
+    connect(&m_StackWatcher, &QFutureWatcher<bool>::finished, this, &FITSData::stackProcessDone);
+    connect(&m_StackFITSWatcher, &QFutureWatcher<bool>::finished, this, &FITSData::stackFITSLoaded);
 
     // Choose and alignment master if we can
     m_AlignMasterChosen = true;
@@ -296,9 +296,9 @@ bool FITSData::loadStack(const QString &inDir)
     m_StackSubPos = -1;
     m_Stack->setInitalStackDone(false);
     m_Stack->setStackInProgress(true);
-    // JEE
     m_DarkLoaded = false;
     m_FlatLoaded = false;
+    m_CancelRequest = false;
     nextStackAction();
     return true;
 }
@@ -306,14 +306,33 @@ bool FITSData::loadStack(const QString &inDir)
 // Called when user requested to cancel the in-flight stacking operation
 void FITSData::cancelStack()
 {
-    if (m_Stack->getStackInProgress())
+    m_CancelRequest = true;
+
+    if (m_StackFITSWatcher.isRunning())
     {
-        if (stackFITSWatcher.isRunning())
-            stackFITSWatcher.cancel();
-        if (stackWatcher.isRunning())
-            stackWatcher.cancel();
+        m_StackFITSWatcherCancel = true;
+        m_StackFITSWatcher.cancel();
+        qCDebug(KSTARS_FITS) << "Cancelling stack file loading thread...";
     }
-    // JEE emit resetStack();
+
+    if (m_StackWatcher.isRunning())
+    {
+        m_StackWatcherCancel = true;
+        m_StackWatcher.cancel();
+        qCDebug(KSTARS_FITS) << "Cancelling stacking threads...";
+    }
+}
+
+// Monitor progress of the user's cancel stack request. When all 3 phases are done
+// update other objects
+void FITSData::checkCancelStack()
+{
+    if (!m_CancelRequest && !m_StackFITSWatcherCancel && !m_StackWatcherCancel)
+    {
+        emit stackReady();
+        emit resetStack();
+        qCDebug(KSTARS_FITS) << "Cancel stack request completed";
+    }
 }
 
 // Called when 1 (or more) new files added to the watched stack directory
@@ -372,7 +391,7 @@ bool FITSData::processNextSub(QString &sub)
 #else
     QFuture<bool> future = QtConcurrent::run(this, &FITSData::stackLoadFITSImage, sub, false);
 #endif
-    stackFITSWatcher.setFuture(future);
+    m_StackFITSWatcher.setFuture(future);
     return true;
 }
 
@@ -388,12 +407,25 @@ void FITSData::processMasters()
         {
             m_StackFITSAsync = stackFITSDark;
             qCDebug(KSTARS_FITS) << "Loading master dark " << dark;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-            QFuture<bool> future = QtConcurrent::run(&FITSData::stackLoadFITSImage, this, dark, false);
-#else
-            QFuture<bool> future = QtConcurrent::run(this, &FITSData::stackLoadFITSImage, dark, false);
-#endif
-            stackFITSWatcher.setFuture(future);
+
+            // Lambda to load the dark in the background
+            QFuture<bool> future = QtConcurrent::run([this, dark]() -> bool
+            {
+                bool load = stackLoadFITSImage(dark, false);
+                if (!load)
+                    qCDebug(KSTARS_FITS) << QString("Unable to load master dark");
+                else
+                {
+                    int width = m_StackStatistics.stats.width;
+                    int height = m_StackStatistics.stats.height;
+                    int bytesPerPixel = m_StackStatistics.stats.bytesPerPixel;
+                    int cvType = m_StackStatistics.cvType;
+                    m_Stack->addMaster(true, (void *) m_StackImageBuffer, width, height, bytesPerPixel, cvType);
+                }
+                return load;
+            });
+
+            m_StackFITSWatcher.setFuture(future);
             return;
         }
     }
@@ -408,12 +440,25 @@ void FITSData::processMasters()
         {
             m_StackFITSAsync = stackFITSFlat;
             qCDebug(KSTARS_FITS) << "Loading master flat " << flat;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-            QFuture<bool> future = QtConcurrent::run(&FITSData::stackLoadFITSImage, this, flat, false);
-#else
-            QFuture<bool> future = QtConcurrent::run(this, &FITSData::stackLoadFITSImage, flat, false);
-#endif
-            stackFITSWatcher.setFuture(future);
+
+            // Lambda to load the dark in the background
+            QFuture<bool> future = QtConcurrent::run([this, flat]() -> bool
+            {
+                bool load = stackLoadFITSImage(flat, false);
+                if (!load)
+                    qCDebug(KSTARS_FITS) << QString("Unable to load master flat");
+                else
+                {
+                    int width = m_StackStatistics.stats.width;
+                    int height = m_StackStatistics.stats.height;
+                    int bytesPerPixel = m_StackStatistics.stats.bytesPerPixel;
+                    int cvType = m_StackStatistics.cvType;
+                    m_Stack->addMaster(false, (void *) m_StackImageBuffer, width, height, bytesPerPixel, cvType);
+                }
+                return load;
+            });
+
+            m_StackFITSWatcher.setFuture(future);
             return;
         }
     }
@@ -430,50 +475,31 @@ void FITSData::stackFITSLoaded()
     m_StackFITSAsync = stackFITSNone;
 
     // Check for user cancel request
-    if (stackFITSWatcher.isCanceled())
+    if (m_StackFITSWatcher.isCanceled())
     {
-        qCDebug(KSTARS_FITS) << QString("Stacking operation cancelled");
-        emit resetStack();
+        qCDebug(KSTARS_FITS) << "Cancelled stack file loading thread";
+        checkCancelStack();
         return;
     }
 
     switch (action)
     {
         case stackFITSDark:
-            if (!stackFITSWatcher.result())
-                qCDebug(KSTARS_FITS) << QString("%1 Unable to load master dark").arg(__FUNCTION__);
-            else
-            {
-                int width = m_StackStatistics.stats.width;
-                int height = m_StackStatistics.stats.height;
-                int bytesPerPixel = m_StackStatistics.stats.bytesPerPixel;
-                int cvType = m_StackStatistics.cvType;
-                m_Stack->addMaster(true, (void *) m_StackImageBuffer, width, height, bytesPerPixel, cvType);
-            }
             m_DarkLoaded = true;
             processMasters();
             break;
 
         case stackFITSFlat:
-            if (!stackFITSWatcher.result())
-                qCDebug(KSTARS_FITS) << QString("%1 Unable to load master flat").arg(__FUNCTION__);
-            else
-            {
-                int width = m_StackStatistics.stats.width;
-                int height = m_StackStatistics.stats.height;
-                int bytesPerPixel = m_StackStatistics.stats.bytesPerPixel;
-                int cvType = m_StackStatistics.cvType;
-                m_Stack->addMaster(false, (void *) m_StackImageBuffer, width, height, bytesPerPixel, cvType);
-            }
             m_FlatLoaded = true;
             processMasters();
             break;
 
         case stackFITSSub:
-            if (!stackFITSWatcher.result())
+            if (!m_StackFITSWatcher.result())
                 qCDebug(KSTARS_FITS) << QString("%1 Unable to load sub").arg(__FUNCTION__);
             else
             {
+                // JEE add to Lambda to put this part in the background
                 // Load the WCS based on image header data
                 if (stackLoadWCS())
                 {
@@ -515,6 +541,14 @@ void FITSData::solverDone(const bool timedOut, const bool success, const double 
 // Current stack action is complete so do next action... either process next sub or stack
 void FITSData::nextStackAction()
 {
+    // Check whether a user cancel request has been received
+    if (m_CancelRequest)
+    {
+        m_CancelRequest = false;
+        checkCancelStack();
+        return;
+    }
+
     bool done = false;
     while (!done)
     {
@@ -558,7 +592,7 @@ void FITSData::nextStackAction()
                 future = QtConcurrent::run(m_Stack.get(), &FITSStack::stack);
 #endif
             }
-            stackWatcher.setFuture(future);
+            m_StackWatcher.setFuture(future);
             return;
         }
     }
@@ -571,29 +605,19 @@ void FITSData::stackProcessDone()
 {
     m_Stack->setStackInProgress(false);
 
-    if (stackWatcher.isCanceled())
+    if (m_StackWatcher.isCanceled())
     {
         // JEE
-        emit resetStack();
-        qCDebug(KSTARS_FITS) << QString("Stacking operation cancelled");
-    }
-    else if (stackWatcher.result())
-    {
-        emit stackReady();
-        if (stackWatcher.isCanceled())
-        {
-            // JEE
-            emit resetStack();
-            qCDebug(KSTARS_FITS) << QString("Stacking operation cancelled");
-        }
+        qCDebug(KSTARS_FITS) << "Stacking threads cancelled";
+        m_StackWatcherCancel = false;
+        checkCancelStack();
     }
     else
     {
-        if (stackWatcher.isCanceled())
-            qCDebug(KSTARS_FITS) << QString("Stacking operation cancelled");
-        else
-            qCDebug(KSTARS_FITS) << QString("Stacking operation failed");
-        emit resetStack();
+        if (!m_StackWatcher.result())
+           qCDebug(KSTARS_FITS) << QString("Stacking operation failed");
+
+        emit stackReady();
     }
 }
 
