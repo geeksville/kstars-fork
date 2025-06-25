@@ -5018,8 +5018,8 @@ void Focus::refreshMeasuresDisplay()
     }
 
     // enable/disable navigation buttons
-    bool backward = inAutoFocus && (captureHistory().position() >= 0);
-    bool forward  = inAutoFocus && (captureHistory().size() > 0 && captureHistory().position() + 1 < captureHistory().size());
+    bool backward = !inAutoFocus && (captureHistory().position() >= 0);
+    bool forward  = !inAutoFocus && (captureHistory().size() > 0 && captureHistory().position() + 1 < captureHistory().size());
     historyFirstB->setEnabled(backward);
     historyBackwardB->setEnabled(backward);
     historyForwardB->setEnabled(forward);
