@@ -299,6 +299,7 @@ bool FITSData::loadStack(const QString &inDir)
     m_DarkLoaded = false;
     m_FlatLoaded = false;
     m_CancelRequest = false;
+    setLastStackSolution(0.0, 0.0, 0.0, -1, -1);
     nextStackAction();
     return true;
 }
@@ -329,9 +330,9 @@ void FITSData::checkCancelStack()
 {
     if (!m_CancelRequest && !m_StackFITSWatcherCancel && !m_StackWatcherCancel)
     {
-        emit stackReady();
-        emit resetStack();
         qCDebug(KSTARS_FITS) << "Cancel stack request completed";
+        emit stackReady();
+        // JEE emit resetStack();
     }
 }
 
@@ -501,19 +502,37 @@ void FITSData::stackFITSLoaded()
             {
                 // JEE add to Lambda to put this part in the background
                 // Load the WCS based on image header data
-                if (stackLoadWCS())
+                bool ok = true;
+                double ra, dec, pixScale;
+                int index, healpix;
+                if (m_StackLastIndex == -1)
                 {
-                    double pixScale = (m_StackWCSHandle) ? std::fabs(m_StackWCSHandle->cdelt[0]) * 3600.0 : 0.0;
-                    double ra = m_StackWCSHandle->crval[0];
-                    double dec = m_StackWCSHandle->crval[1];
-
-                    if (m_Stack->addSub((void *) m_StackImageBuffer, m_StackStatistics.cvType, m_StackStatistics.stats.width,
-                                        m_StackStatistics.stats.height, m_StackStatistics.stats.bytesPerPixel))
+                    // 1st time solving, or solving had a problem
+                    if (ok = stackLoadWCS())
                     {
-                        // Next step in the chain is to plate solve
-                        emit plateSolveSub(ra, dec, pixScale, m_Stack->getStackData().weighting);
-                        return;
+                        ra = m_StackWCSHandle->crval[0];
+                        dec = m_StackWCSHandle->crval[1];
+                        pixScale = std::fabs(m_StackWCSHandle->cdelt[0]) * 3600.0;
+                        index = healpix = -1;
                     }
+                }
+                else
+                {
+                    // We have a solution from the last sub so use it on the next sub
+                    // JEE is it worth sanity checking ra, dec and pixscale here
+                    ra = m_StackLastRa;
+                    dec = m_StackLastDec;
+                    pixScale = m_StackLastPixscale;
+                    index = m_StackLastIndex;
+                    healpix = m_StackLastHealpix;
+                }
+
+                if (ok && m_Stack->addSub((void *) m_StackImageBuffer, m_StackStatistics.cvType, m_StackStatistics.stats.width,
+                                        m_StackStatistics.stats.height, m_StackStatistics.stats.bytesPerPixel))
+                {
+                    // Next step in the chain is to plate solve
+                    emit plateSolveSub(ra, dec, pixScale, index, healpix, m_Stack->getStackData().weighting);
+                    return;
                 }
             }
 
@@ -5843,6 +5862,15 @@ void FITSData::injectWCS(double orientation, double ra, double dec, double pixsc
 void FITSData::injectStackWCS(double orientation, double ra, double dec, double pixscale, bool eastToTheRight)
 {
     updateWCSHeaderData(orientation, ra, dec, pixscale, eastToTheRight, true);
+}
+
+void FITSData::setLastStackSolution(const double ra, const double dec, const double pixscale, const int index, const int healpix)
+{
+    m_StackLastRa = ra;
+    m_StackLastDec = dec;
+    m_StackLastPixscale = pixscale;
+    m_StackLastIndex = index;
+    m_StackLastHealpix = healpix;
 }
 
 // Update header records based on plate solver solution

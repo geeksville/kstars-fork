@@ -265,8 +265,8 @@ class FITSTab : public QWidget
         QSharedPointer<PlateSolve> m_PlateSolve;
 
         // Live Stacking
-        void plateSolveSub(const double ra, const double dec, const double pixScale,
-                             const LiveStackFrameWeighting &weighting);
+        void plateSolveSub(const double ra, const double dec, const double pixScale, const int index,
+                           const int healpix, const LiveStackFrameWeighting &weighting);
         void stackInProgress();
         void alignMasterChosen(const QString &alignMaster);
         void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
@@ -281,6 +281,7 @@ class FITSTab : public QWidget
         int m_StackSubsFailed { 0 };
         double m_StackMedianHFR { -1.0 };
         int m_StackNumStars { 0 };
+        bool m_StackExtendedPlateSolve { false };
 
     signals:
         void debayerToggled(bool);

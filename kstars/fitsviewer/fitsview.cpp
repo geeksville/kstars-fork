@@ -448,9 +448,9 @@ void FITSView::loadStack(const QString &inDir)
         m_ImageData->setBayerParams(&param);
 
     connect(m_ImageData.data(), &FITSData::plateSolveSub, this, [this](const double ra, const double dec,
-                                                                         const double pixScale, const LiveStackFrameWeighting weighting)
+                    const double pixScale, const int index, const int healpix, const LiveStackFrameWeighting weighting)
     {
-        emit plateSolveSub(ra, dec, pixScale, weighting);
+        emit plateSolveSub(ra, dec, pixScale, index, healpix, weighting);
     });
 
     connect(m_ImageData.data(), &FITSData::alignMasterChosen, this, [this](const QString alignMaster)
@@ -473,6 +473,7 @@ void FITSView::loadStack(const QString &inDir)
             emit updateStackSNR(m_ImageData->stack()->getStackSNR());
             fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
         }
+        emit resetStack();
     });
 
     connect(m_ImageData.data(), &FITSData::resetStack, this, [this]()

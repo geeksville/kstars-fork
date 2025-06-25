@@ -740,14 +740,24 @@ class FITSData : public QObject
         bool stackLoadWCS();
 
         /**
-             * @brief injectStackWCS to inject a plate solved solution to WCS
-             * @param orientation Solver orientation, degrees E of N.
-             * @param ra J2000 Right Ascension
-             * @param dec J2000 Declination
-             * @param pixscale Pixel scale in arcsecs per pixel
-             * @param eastToTheRight if true, then when the image is rotated so that north is up, then east would be to the right on the image.
-             */
+         * @brief injectStackWCS to inject a plate solved solution to WCS
+         * @param orientation Solver orientation, degrees E of N.
+         * @param ra J2000 Right Ascension
+         * @param dec J2000 Declination
+         * @param pixscale Pixel scale in arcsecs per pixe
+         * @param eastToTheRight if true, then when the image is rotated so that north is up, then east would be to the right on the image.
+         */
         void injectStackWCS(double orientation, double ra, double dec, double pixscale, bool eastToTheRight);
+
+        /**
+         * @brief setLastStackSolution saves the last plate solve sub solution for use with the next sub solution
+         * @param ra J2000 Right Ascension
+         * @param dec J2000 Declination
+         * @param pixscale Pixel scale in arcsecs per pixel
+         * @param indexUsed is the index file used
+         * @param healpixUsed is the index file used
+         */
+        void setLastStackSolution(const double ra, const double dec, const double pixscale, const int index, const int healpix);
 
     signals:
         void converted(QImage);
@@ -784,8 +794,8 @@ class FITSData : public QObject
         /**
          * @brief Signal FITSView then FITSTab to plate solve the current image sub
          */
-        void plateSolveSub(const double ra, const double dec, const double pixScale,
-                             const LiveStackFrameWeighting &weighting);
+        void plateSolveSub(const double ra, const double dec, const double pixScale, const int index,
+                           const int healpix, const LiveStackFrameWeighting &weighting);
 
         /**
          * @brief Signal FITSView->FITSTab->FITSViewer that a stacking process is in operation
@@ -1193,4 +1203,9 @@ class FITSData : public QObject
         bool m_CancelRequest { false };
         bool m_StackWatcherCancel { false };
         bool m_StackFITSWatcherCancel { false };
+        double m_StackLastRa { 0.0 };
+        double m_StackLastDec { 0.0 };
+        double m_StackLastPixscale { 0.0 };
+        int m_StackLastIndex { 0 };
+        int m_StackLastHealpix { 0 };
 };

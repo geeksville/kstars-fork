@@ -531,8 +531,8 @@ class FITSView : public QScrollArea
         void catReset();
         void catHighlightChanged(const int highlight);
         void headerChanged();
-        void plateSolveSub(const double ra, const double dec, const double pixScale,
-                             const LiveStackFrameWeighting &weighting);
+        void plateSolveSub(const double ra, const double dec, const double pixScale, const int index,
+                           const int healpix, const LiveStackFrameWeighting &weighting);
         void stackInProgress();
         void alignMasterChosen(const QString &alignMaster);
         void stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,

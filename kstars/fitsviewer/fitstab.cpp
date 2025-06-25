@@ -1322,17 +1322,17 @@ void FITSTab::liveStack()
 
 // Plate solve the sub. May require 2 runs; firstly to get stars (if needed) and then to actually plate solve
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
-void FITSTab::plateSolveSub(const double ra, const double dec, const double pixScale,
-                              const LiveStackFrameWeighting &weighting)
+void FITSTab::plateSolveSub(const double ra, const double dec, const double pixScale, const int index,
+                            const int healpix, const LiveStackFrameWeighting &weighting)
 {
-    connect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, this, [this, ra, dec, pixScale]
+    connect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, this, [this, ra, dec, pixScale, index, healpix]
                                 (double medianHFR, int numStars)
     {
         disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, nullptr, nullptr);
         disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, nullptr, nullptr);
         m_StackMedianHFR = medianHFR;
         m_StackNumStars = numStars;
-        m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, SSolver::SOLVE);
+        m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, index, healpix, SSolver::SOLVE);
     });
     connect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, this, [this]()
     {
@@ -1345,15 +1345,24 @@ void FITSTab::plateSolveSub(const double ra, const double dec, const double pixS
         m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
 
     });
-    connect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, this, [this]()
+    connect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, this, [this, ra, dec, pixScale]()
     {
         disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, nullptr, nullptr);
         disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, nullptr, nullptr);
-        disconnect(m_PlateSolve.get(), &PlateSolve::subSolverSuccess, nullptr, nullptr);
-        disconnect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, nullptr, nullptr);
-        const bool timedOut = false;
-        const bool success = false;
-        m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
+        if (m_StackExtendedPlateSolve)
+        {
+            // Failed to plate solve on extended criteria so just fail
+            disconnect(m_PlateSolve.get(), &PlateSolve::subSolverSuccess, nullptr, nullptr);
+            disconnect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, nullptr, nullptr);
+            const bool timedOut = false;
+            const bool success = false;
+            m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
+        }
+        else
+        {
+            // Failed to plate solve on tight criteria so have another go on widened criteria
+            m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, -1, -1, SSolver::SOLVE);
+        }
     });
     connect(m_PlateSolve.get(), &PlateSolve::subSolverSuccess, this, [this]()
     {
@@ -1382,7 +1391,8 @@ void FITSTab::plateSolveSub(const double ra, const double dec, const double pixS
     }
     m_StackMedianHFR = -1.0;
     m_StackNumStars = 0;
-    m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, solveType);
+    m_StackExtendedPlateSolve = (index == -1);
+    m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, index, healpix, solveType);
 }
 #endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 

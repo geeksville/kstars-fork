@@ -45,8 +45,9 @@ class PlateSolve: public QDialog, public Ui::PlateSolveUI
         void extractImage(const QSharedPointer<FITSData> &imageData);
         void solveImage(const QSharedPointer<FITSData> &imageData);
         void solveImage(const QString &filename);
-        void plateSolveSub(const QSharedPointer<FITSData> &imageData, const double ra,
-                           const double dec, const double pixScale, const SSolver::ProcessType solveType);
+        void plateSolveSub(const QSharedPointer<FITSData> &imageData, const double ra, const double dec,
+                           const double pixScale, const int index, const int healpix,
+                           const SSolver::ProcessType solveType);
 
     signals:
         void clicked();
