@@ -6,8 +6,6 @@
 
 #pragma once
 
-//#include <fits_debug.h>
-
 #include <QObject>
 #include <QFileSystemWatcher>
 #include <QString>

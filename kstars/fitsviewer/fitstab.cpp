@@ -11,6 +11,7 @@
 #include "fitshistogramcommand.h"
 #include "fitsview.h"
 #include "fitsviewer.h"
+#include "fitsmemmonitor.h"
 #include "ksnotification.h"
 #include "kstars.h"
 #include "Options.h"
@@ -893,6 +894,10 @@ void FITSTab::setupCatObjTypeFilter()
 void FITSTab::initLiveStacking()
 {
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
+    // Setup the memory monitor widget
+    m_LiveStackingUI.MemMonitor->setUpdateInterval(1000);
+    m_LiveStackingUI.MemMonitor->setLabelFormat("Memory: %1 / %2");
+
     // Set the GUI to the saved options
     m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2 / %3").arg(0).arg(0).arg(0));
     m_LiveStackingUI.SubsSNR->setText(QString("%1 / %2 / %3").arg(0).arg(0).arg(0));

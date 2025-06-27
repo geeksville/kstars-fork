@@ -139,6 +139,8 @@ class FITSStack : public QObject
             return (m_StackedBuffer) ? *m_StackedBuffer : QByteArray();
         }
 
+        void resetStackedImage();
+
         void setBayerPattern(QString bayerPattern);
 
         const double &getMeanSubSNR() const

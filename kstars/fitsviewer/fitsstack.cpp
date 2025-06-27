@@ -5,7 +5,6 @@
 */
 
 #include <QtConcurrent>
-// JEE#include <QThread>
 
 #include "fitsstack.h"
 #include "fitsdata.h"
@@ -38,6 +37,11 @@ FITSStack::~FITSStack()
 void FITSStack::setStackInProgress(bool inProgress)
 {
     m_StackInProgress = inProgress;
+}
+
+void FITSStack::resetStackedImage()
+{
+    m_StackedBuffer.reset(new QByteArray());
 }
 
 void FITSStack::setInitalStackDone(bool done)
@@ -775,7 +779,7 @@ cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<cv::Mat> &images, const 
     }
 }
 
-// JEE This function does the pixel level sigma clipping and Winsorization
+// This function does the pixel level sigma clipping and Winsorization
 void FITSStack::stackSigmaClipPixel(int x, const std::vector<const float *> &imagesPtrs, float* finalImagePtr,
                                     const QVector<cv::Vec4f *> &sigmaClipPtr, const QVector<float> &weights)
 {

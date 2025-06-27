@@ -284,10 +284,8 @@ void PlateSolve::plateSolveSub(const QSharedPointer<FITSData> &imageData, const 
     }
     else
     {
-        // Tighten the search radius... allow 500 pixels dither and error
-        // JEEparameters.search_radius = pixScale * 500 / 3600;
+        // Tighten the search radius and pixscale...
         parameters.search_radius = 1;
-        // Pixscale shouldn't change to tighten the range
         lowerPixScale = pixScale * 0.95;
         upperPixScale = pixScale * 1.05;
     }
@@ -497,7 +495,7 @@ void PlateSolve::subSolverDone(bool timedOut, bool success, const FITSImage::Sol
     int indexUsed = -1, healpixUsed = -1;
     m_Solver->getSolutionHealpix(&indexUsed, &healpixUsed);
     // JEE how to handle on plate solve failure???
-    m_imageData->setLastStackSolution(solution.ra, solution.dec, solution.pixscale, indexUsed, healpixUsed);
+    m_imageData->setStackSubSolution(solution.ra, solution.dec, solution.pixscale, indexUsed, healpixUsed);
     const bool eastToTheRight = solution.parity == FITSImage::POSITIVE ? false : true;
     m_imageData->injectStackWCS(solution.orientation, solution.ra, solution.dec, solution.pixscale, eastToTheRight);
     m_imageData->stackLoadWCS();

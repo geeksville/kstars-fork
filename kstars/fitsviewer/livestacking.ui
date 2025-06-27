@@ -415,25 +415,6 @@
       <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout_6" rowstretch="0,0,0">
-      <item row="0" column="1" colspan="2">
-       <widget class="QLineEdit" name="Stack">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-          <horstretch>209</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="clearButtonEnabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="3">
        <widget class="QPushButton" name="StackDirB">
         <property name="sizePolicy">
@@ -447,44 +428,6 @@
         </property>
         <property name="icon">
          <iconset theme="folder-open"/>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="ImageSNR">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>The signal-to-noise ratio of the final image</string>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="stackLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>188</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Stack Directory:</string>
-        </property>
-        <property name="buddy">
-         <cstring>Stack</cstring>
         </property>
        </widget>
       </item>
@@ -529,19 +472,79 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="ImageSNRLabel">
+      <item row="2" column="3">
+       <widget class="QLabel" name="ImageSNR">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="text">
-         <string>Image SNR:</string>
+        <property name="toolTip">
+         <string>The signal-to-noise ratio of the final image</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="SubsSNRLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>SNR Av / Min / Max:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="stackLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Stack Directory:</string>
+        </property>
+        <property name="buddy">
+         <cstring>Stack</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="Stack">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>209</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -567,24 +570,24 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="SubsSNRLabel">
+      <item row="2" column="2">
+       <widget class="QLabel" name="ImageSNRLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>188</width>
-          <height>0</height>
-         </size>
-        </property>
         <property name="text">
-         <string>SNR Av / Min / Max:</string>
+         <string>Image SNR:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
+      </item>
+      <item row="1" column="2" colspan="2">
+       <widget class="FITSMemoryMonitor" name="MemMonitor" native="true"/>
       </item>
      </layout>
     </widget>
@@ -923,6 +926,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FITSMemoryMonitor</class>
+   <extends>QWidget</extends>
+   <header>fitsviewer/fitsmemmonitor.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>Stack</tabstop>
   <tabstop>StackDirB</tabstop>

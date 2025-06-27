@@ -750,14 +750,14 @@ class FITSData : public QObject
         void injectStackWCS(double orientation, double ra, double dec, double pixscale, bool eastToTheRight);
 
         /**
-         * @brief setLastStackSolution saves the last plate solve sub solution for use with the next sub solution
+         * @brief setStackSubSolution saves the last plate solve sub solution for use with the next sub solution
          * @param ra J2000 Right Ascension
          * @param dec J2000 Declination
          * @param pixscale Pixel scale in arcsecs per pixel
          * @param indexUsed is the index file used
          * @param healpixUsed is the index file used
          */
-        void setLastStackSolution(const double ra, const double dec, const double pixscale, const int index, const int healpix);
+        void setStackSubSolution(const double ra, const double dec, const double pixscale, const int index, const int healpix);
 
     signals:
         void converted(QImage);
@@ -1203,9 +1203,9 @@ class FITSData : public QObject
         bool m_CancelRequest { false };
         bool m_StackWatcherCancel { false };
         bool m_StackFITSWatcherCancel { false };
-        double m_StackLastRa { 0.0 };
-        double m_StackLastDec { 0.0 };
-        double m_StackLastPixscale { 0.0 };
-        int m_StackLastIndex { 0 };
-        int m_StackLastHealpix { 0 };
+        double m_StackSubRa { 0.0 };
+        double m_StackSubDec { 0.0 };
+        double m_StackSubPixscale { 0.0 };
+        int m_StackSubIndex { 0 };
+        int m_StackSubHealpix { 0 };
 };

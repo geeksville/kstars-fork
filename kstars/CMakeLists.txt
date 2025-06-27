@@ -435,6 +435,7 @@ if (CFITSIO_FOUND)
         fitsviewer/fitsdebayer.cpp
         fitsviewer/opsfits.cpp
         fitsviewer/fitsdirwatcher.cpp
+        fitsviewer/fitsmemmonitor.cpp
         )
 
     if (Qt5DataVisualization_FOUND OR Qt6DataVisualization_FOUND)

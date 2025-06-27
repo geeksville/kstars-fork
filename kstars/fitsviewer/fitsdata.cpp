@@ -248,7 +248,6 @@ bool FITSData::loadStack(const QString &inDir)
     auto stackData = m_Stack->getStackData();
 
     // Make sure the future watchers aren't still active
-    // JEE
     m_StackWatcher.waitForFinished();
     m_StackFITSWatcher.waitForFinished();
     connect(&m_StackWatcher, &QFutureWatcher<bool>::finished, this, &FITSData::stackProcessDone);
@@ -299,7 +298,7 @@ bool FITSData::loadStack(const QString &inDir)
     m_DarkLoaded = false;
     m_FlatLoaded = false;
     m_CancelRequest = false;
-    setLastStackSolution(0.0, 0.0, 0.0, -1, -1);
+    setStackSubSolution(0.0, 0.0, 0.0, -1, -1);
     nextStackAction();
     return true;
 }
@@ -307,7 +306,8 @@ bool FITSData::loadStack(const QString &inDir)
 // Called when user requested to cancel the in-flight stacking operation
 void FITSData::cancelStack()
 {
-    m_CancelRequest = true;
+    // If there is a stack in progress then no file processing will be happening
+    m_CancelRequest = !m_Stack->getStackInProgress();
 
     if (m_StackFITSWatcher.isRunning())
     {
@@ -331,6 +331,17 @@ void FITSData::checkCancelStack()
     if (!m_CancelRequest && !m_StackFITSWatcherCancel && !m_StackWatcherCancel)
     {
         qCDebug(KSTARS_FITS) << "Cancel stack request completed";
+
+        // Stop watching for more files
+        disconnect(m_StackDirWatcher.get(), &FITSDirWatcher::newFilesDetected, this, &FITSData::newStackSubs);
+        m_StackDirWatcher->stopWatching();
+
+        // Reset the image to noimage
+        m_Stack->resetStackedImage();
+
+        // Drain any subs in the work Q
+        m_StackQ.clear();
+
         emit stackReady();
         // JEE emit resetStack();
     }
@@ -350,6 +361,14 @@ void FITSData::newStackSubs(const QStringList &newFiles)
 // Add 1 or more new subs to an existing stack
 void FITSData::incrementalStack()
 {
+    // Check whether a user cancel request has been received
+    if (m_CancelRequest)
+    {
+        m_CancelRequest = false;
+        checkCancelStack();
+        return;
+    }
+
     if (m_StackQ.isEmpty())
         // Nothing to do
         return;
@@ -386,12 +405,32 @@ bool FITSData::processNextSub(QString &sub)
 {
     m_Stack->setupNextSub();
     m_StackFITSAsync = stackFITSSub;
-    qCDebug(KSTARS_FITS) << "Loading sub " << sub;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    QFuture<bool> future = QtConcurrent::run(&FITSData::stackLoadFITSImage, this, sub, false);
-#else
-    QFuture<bool> future = QtConcurrent::run(this, &FITSData::stackLoadFITSImage, sub, false);
-#endif
+    qCDebug(KSTARS_FITS) << "Loading sub" << sub;
+
+    // Lambda to load the sub in the background
+    QFuture<bool> future = QtConcurrent::run([this, sub]() -> bool
+    {
+        bool ok = stackLoadFITSImage(sub, false);
+        if (!ok)
+            qCDebug(KSTARS_FITS) << QString("Unable to load sub %1").arg(sub);
+        else
+        {
+            if (m_StackSubIndex == -1)
+            {
+                // 1st time solving, or solving had a problem so use WCS from sub header
+                if ((ok = stackLoadWCS()))
+                    setStackSubSolution(m_StackWCSHandle->crval[0], m_StackWCSHandle->crval[1],
+                                        std::fabs(m_StackWCSHandle->cdelt[0]) * 3600.0, -1, -1);
+            }
+
+            if (ok)
+                ok = m_Stack->addSub((void *) m_StackImageBuffer, m_StackStatistics.cvType,
+                                     m_StackStatistics.stats.width, m_StackStatistics.stats.height,
+                                     m_StackStatistics.stats.bytesPerPixel);
+        }
+        return ok;
+    });
+
     m_StackFITSWatcher.setFuture(future);
     return true;
 }
@@ -407,7 +446,7 @@ void FITSData::processMasters()
         else
         {
             m_StackFITSAsync = stackFITSDark;
-            qCDebug(KSTARS_FITS) << "Loading master dark " << dark;
+            qCDebug(KSTARS_FITS) << "Loading master dark" << dark;
 
             // Lambda to load the dark in the background
             QFuture<bool> future = QtConcurrent::run([this, dark]() -> bool
@@ -440,7 +479,7 @@ void FITSData::processMasters()
         else
         {
             m_StackFITSAsync = stackFITSFlat;
-            qCDebug(KSTARS_FITS) << "Loading master flat " << flat;
+            qCDebug(KSTARS_FITS) << "Loading master flat" << flat;
 
             // Lambda to load the dark in the background
             QFuture<bool> future = QtConcurrent::run([this, flat]() -> bool
@@ -466,7 +505,7 @@ void FITSData::processMasters()
     nextStackAction();
 }
 
-// JEE Callback when a FITS file has been asynchronously loaded. This happens:
+// Callback when a FITS file has been asynchronously loaded. This happens when:
 // 1. A new sub is loaded
 // 2. A dark or flat master is loaded
 // This function checks the result and takes the next action
@@ -479,6 +518,7 @@ void FITSData::stackFITSLoaded()
     if (m_StackFITSWatcher.isCanceled())
     {
         qCDebug(KSTARS_FITS) << "Cancelled stack file loading thread";
+        m_StackFITSWatcherCancel = false;
         checkCancelStack();
         return;
     }
@@ -496,51 +536,18 @@ void FITSData::stackFITSLoaded()
             break;
 
         case stackFITSSub:
-            if (!m_StackFITSWatcher.result())
-                qCDebug(KSTARS_FITS) << QString("%1 Unable to load sub").arg(__FUNCTION__);
+            if (m_StackFITSWatcher.result())
+                // Next step in the chain is to plate solve
+                emit plateSolveSub(m_StackSubRa, m_StackSubDec, m_StackSubPixscale, m_StackSubIndex,
+                                   m_StackSubHealpix, m_Stack->getStackData().weighting);
             else
             {
-                // JEE add to Lambda to put this part in the background
-                // Load the WCS based on image header data
-                bool ok = true;
-                double ra, dec, pixScale;
-                int index, healpix;
-                if (m_StackLastIndex == -1)
-                {
-                    // 1st time solving, or solving had a problem
-                    if (ok = stackLoadWCS())
-                    {
-                        ra = m_StackWCSHandle->crval[0];
-                        dec = m_StackWCSHandle->crval[1];
-                        pixScale = std::fabs(m_StackWCSHandle->cdelt[0]) * 3600.0;
-                        index = healpix = -1;
-                    }
-                }
-                else
-                {
-                    // We have a solution from the last sub so use it on the next sub
-                    // JEE is it worth sanity checking ra, dec and pixscale here
-                    ra = m_StackLastRa;
-                    dec = m_StackLastDec;
-                    pixScale = m_StackLastPixscale;
-                    index = m_StackLastIndex;
-                    healpix = m_StackLastHealpix;
-                }
-
-                if (ok && m_Stack->addSub((void *) m_StackImageBuffer, m_StackStatistics.cvType, m_StackStatistics.stats.width,
-                                        m_StackStatistics.stats.height, m_StackStatistics.stats.bytesPerPixel))
-                {
-                    // Next step in the chain is to plate solve
-                    emit plateSolveSub(ra, dec, pixScale, index, healpix, m_Stack->getStackData().weighting);
-                    return;
-                }
-            }
-
-            // Something has gone wrong with this sub so mark it failed and move to the next action
-            m_Stack->addSubFailed();
-            emit stackUpdateStats(false, m_StackSubPos, m_StackDirWatcher->getCurrentFiles().size(),
+                // Something has gone wrong with this sub so mark it failed and move to the next action
+                m_Stack->addSubFailed();
+                emit stackUpdateStats(false, m_StackSubPos, m_StackDirWatcher->getCurrentFiles().size(),
                                       m_Stack->getMeanSubSNR(), m_Stack->getMinSubSNR(), m_Stack->getMaxSubSNR());
-            nextStackAction();
+                nextStackAction();
+            }
             break;
         default:
             qCDebug(KSTARS_FITS) << QString("%1 Unknown m_StackFITSAsync %2").arg(__FUNCTION__).arg(m_StackFITSAsync);
@@ -560,17 +567,17 @@ void FITSData::solverDone(const bool timedOut, const bool success, const double 
 // Current stack action is complete so do next action... either process next sub or stack
 void FITSData::nextStackAction()
 {
-    // Check whether a user cancel request has been received
-    if (m_CancelRequest)
-    {
-        m_CancelRequest = false;
-        checkCancelStack();
-        return;
-    }
-
     bool done = false;
     while (!done)
     {
+        // Check whether a user cancel request has been received
+        if (m_CancelRequest)
+        {
+            m_CancelRequest = false;
+            checkCancelStack();
+            return;
+        }
+
         m_StackSubPos++;
         if (m_StackSubs.size() > m_StackSubPos)
             done = processNextSub(m_StackSubs[m_StackSubPos]);
@@ -617,7 +624,7 @@ void FITSData::nextStackAction()
     }
 }
 
-// JEE Callback when an asynchronous stacking operation completes. This happens:
+// Callback when an asynchronous stacking operation completes. This happens on:
 // 1. Initial stack
 // 2. Incremental stack
 void FITSData::stackProcessDone()
@@ -626,7 +633,6 @@ void FITSData::stackProcessDone()
 
     if (m_StackWatcher.isCanceled())
     {
-        // JEE
         qCDebug(KSTARS_FITS) << "Stacking threads cancelled";
         m_StackWatcherCancel = false;
         checkCancelStack();
@@ -5864,13 +5870,13 @@ void FITSData::injectStackWCS(double orientation, double ra, double dec, double 
     updateWCSHeaderData(orientation, ra, dec, pixscale, eastToTheRight, true);
 }
 
-void FITSData::setLastStackSolution(const double ra, const double dec, const double pixscale, const int index, const int healpix)
+void FITSData::setStackSubSolution(const double ra, const double dec, const double pixscale, const int index, const int healpix)
 {
-    m_StackLastRa = ra;
-    m_StackLastDec = dec;
-    m_StackLastPixscale = pixscale;
-    m_StackLastIndex = index;
-    m_StackLastHealpix = healpix;
+    m_StackSubRa = ra;
+    m_StackSubDec = dec;
+    m_StackSubPixscale = pixscale;
+    m_StackSubIndex = index;
+    m_StackSubHealpix = healpix;
 }
 
 // Update header records based on plate solver solution
