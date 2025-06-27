@@ -1192,11 +1192,15 @@
               <string>Store autofocus frames
 If selected, the autofocus frames are stored to disk. Select this option if you want to navigate throught the focus frames.</string>
              </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton:checked { border: 1.5px solid #FF0000; border-radius: 4px}</string>
+             </property>
              <property name="text">
               <string/>
              </property>
              <property name="icon">
-              <iconset theme="modified"/>
+              <iconset theme="modified">
+               <normaloff>.</normaloff>.</iconset>
              </property>
              <property name="iconSize">
               <size>
