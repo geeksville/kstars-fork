@@ -59,12 +59,6 @@ craft_windows_qt6_x86_64:
   needs:
     - windows_qt68
   rules:
-    - !reference [.craft-recipes, rules]
-
-craft_windows_qt6_x86_64:
-  needs:
-    - windows_qt6
-  rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^stable-.*/
