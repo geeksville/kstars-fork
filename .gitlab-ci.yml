@@ -14,7 +14,6 @@ include:
   - local: '.gitlab-ci/common_rules.yml'
   - project: sysadmin/ci-utilities
     file:
-      - /gitlab-templates/linux.yml
       - /gitlab-templates/linux-qt6.yml
       - /gitlab-templates/windows-qt6.yml
       - /gitlab-templates/flatpak.yml
@@ -43,11 +42,6 @@ windows_qt68:
   rules:
     - !reference [.standard-build-recipes, rules]
 
-suse_tumbleweed_qt69:
-  allow_failure: true
-  rules:
-    - !reference [.standard-build-recipes, rules]
-
 # Craft recipes
     
 craft_windows_qt6_x86_64:
@@ -60,7 +54,7 @@ craft_windows_qt6_x86_64:
       when: always
     - when: manual
       allow_failure: true
-
+      
 craft_macos_qt6_x86_64:
   timeout: 2h # Signing procedure often exceeds the default 1h
   needs:
