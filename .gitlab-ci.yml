@@ -33,6 +33,15 @@ include:
 
 # Standard build recipes
    
+.standard-build-recipes:
+  rules:
+    - !reference [.optional-on-forked-repository, rules]
+    - !reference [.optional-on-draft-merge-requests, rules]
+    - !reference [.always-on-scheduled-pipeline, rules]
+    - !reference [.always-on-master-branch, rules]
+    - !reference [.always-on-merge-requests, rules]
+    - !reference [.manual-skipped-recipe, rules]
+
 suse_tumbleweed_qt69:
   allow_failure: true
   rules:
@@ -49,7 +58,16 @@ suse_tumbleweed_qt69:
     - !reference [.standard-build-recipes, rules]
 
 # Craft recipes
-    
+
+.craft-recipes:
+  rules:
+    - !reference [.optional-on-forked-repository, rules]
+    - !reference [.optional-on-draft-merge-requests, rules]
+    - !reference [.always-on-scheduled-pipeline, rules]
+    - !reference [.always-on-master-branch, rules]
+    - !reference [.always-on-stable-release, rules]
+    - !reference [.manual-skipped-recipe, rules]
+
 craft_windows_qt6_x86_64:
   needs:
     - windows_qt68
@@ -76,6 +94,11 @@ craft_macos_qt6_x86_64:
 
 # Publishing recipes
 
+.publishing-recipes:
+  rules:
+    - !reference [.always-on-stable-release, rules]
+    - when: never
+
 # TODO Update to microsoftpublish for Qt6
 # microsoftstore_qt515:
 #   needs:
@@ -84,6 +107,13 @@ craft_macos_qt6_x86_64:
 #     - !reference [.publishing-recipes, rules]
 
 # Custom build recipes - until tests are operational in the KDE CI image
+
+.custom-build-recipes:
+  rules:
+    - !reference [.optional-on-forked-repository, rules]
+    - !reference [.optional-on-draft-merge-requests, rules]
+    - !reference [.always-on-merge-requests, rules]
+    - !reference [.manual-skipped-recipe, rules]
 
 .custom_build:
   interruptible: true
