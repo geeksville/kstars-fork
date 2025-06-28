@@ -52,7 +52,7 @@ windows_qt68:
   rules:
     - !reference [.standard-build-recipes, rules]
 
-suse_tumbleweed_qt69:
+suse_tumbleweed_qt515:
   allow_failure: true
   rules:
     - !reference [.standard-build-recipes, rules]
@@ -72,21 +72,21 @@ craft_windows_qt6_x86_64: # Extended from /gitlab-templates/craft-windows-x86-64
   needs:
     - windows_qt68
   rules:
-    - !reference [.craft-recipes]
+    - !reference [.craft-recipes, rules]
 
 craft_macos_qt6_x86_64: # Extended from /gitlab-templates/craft-macos-x86-64-qt6.yml
   timeout: 2h # Signing procedure often exceeds the default 1h
   needs:
     - suse_tumbleweed_qt69 # we don't have a macos check build
   rules:
-    - !reference [.craft-recipes]
+    - !reference [.craft-recipes, rules]
 
 craft_macos_qt6_arm64: # Extended from /gitlab-templates/craft-macos-arm64-qt6.yml
   timeout: 2h # Signing procedure often exceeds the default 1h
   needs:
     - suse_tumbleweed_qt69 # we don't have a macos check build
   rules:
-    - !reference [.craft-recipes]
+    - !reference [.craft-recipes, rules]
 
 # Publishing recipes
 
