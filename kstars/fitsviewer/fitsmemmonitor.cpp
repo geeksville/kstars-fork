@@ -69,7 +69,7 @@ void FITSMemoryMonitor::setupUI()
 {
     auto *layout = new QHBoxLayout(this);
 
-    memoryLabel = new QLabel("Memory: -- / --");
+    memoryLabel = new QLabel(i18n("Memory: -- / --"));
     memoryLabel->setVisible(m_showLabel);
     memoryBar = new QProgressBar();
     memoryBar->setRange(0, 100);
@@ -192,7 +192,7 @@ void FITSMemoryMonitor::updateMemoryDisplay()
     }
     else
     {
-        memoryLabel->setText("Memory: -- / --");
+        memoryLabel->setText(i18n("Memory: -- / --"));
         memoryBar->setValue(0);
         QPalette p = memoryBar->palette();
         p.setColor(QPalette::Highlight, Qt::green);

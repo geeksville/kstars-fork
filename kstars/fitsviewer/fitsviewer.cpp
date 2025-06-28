@@ -1096,8 +1096,8 @@ void FITSViewer::restack(const QString dir)
     QApplication::setOverrideCursor(Qt::WaitCursor);
     // JEE
     updateStatusBar(i18n("Stacking..."), FITS_MESSAGE);
-
     QString tabName = i18n("Stack of %1", dir);
+    fitsTabWidget->setTabText(tabIndex, tabName);
     connect(m_Tabs[tabIndex].get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
     {
         Q_UNUSED(errorMessage);
@@ -1106,18 +1106,17 @@ void FITSViewer::restack(const QString dir)
             led.setColor(Qt::red);
             m_StackBusy = false;
             // JEE
-            updateStatusBar(i18n("Stacking Failed..."), FITS_MESSAGE);
+            updateStatusBar(i18n("Stacking Failed"), FITS_MESSAGE);
         }, Qt::UniqueConnection);
 
     connect(m_Tabs[tabIndex].get(), &FITSTab::loaded, this, [ = ]()
         {
             QObject::sender()->disconnect(this);
             addFITSCommon(m_Tabs[tabIndex], imageName, FITS_LIVESTACKING, tabName);
-            fitsTabWidget->setTabText(tabIndex, tabName);
             QApplication::restoreOverrideCursor();
             led.setColor(Qt::green);
             m_StackBusy = false;
-            updateStatusBar(i18n("Stacking Complete..."), FITS_MESSAGE);
+            updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);
         }, Qt::UniqueConnection);
 }
 

@@ -115,28 +115,61 @@ class FITSStack : public QObject
          */
         struct wcsprm * getWCSRef();
 
+        /**
+         * @brief Get whether a stacking operation is in progress
+         * @return stack in progress
+         */
         const bool &getStackInProgress() const
         {
             return m_StackInProgress;
         }
 
+        /**
+         * @brief Set the initial stack state
+         * @param initial stack state
+         */
         void setInitalStackDone(bool done);
 
+        /**
+         * @brief Get whether the initial stack has been completed
+         * @return initial stack done
+         */
         const bool &getInitialStackDone() const
         {
             return m_InitialStackDone;
         }
 
+        /**
+         * @brief Set the stack operation in progress state
+         * @param stack operation in progress
+         */
         void setStackInProgress(bool inProgress);
 
+        /**
+         * @brief Get stack data structure
+         * @return stack data structure
+         */
         const LiveStackData &getStackData() const
         {
             return m_StackData;
         }
 
+        /**
+         * @brief Get the stacked image
+         * @return stacked image
+         */
         QByteArray getStackedImage() const
         {
             return (m_StackedBuffer) ? *m_StackedBuffer : QByteArray();
+        }
+
+        /**
+         * @brief Determine whether a stacked image exists
+         * @return exists (or not)
+         */
+        bool isStackedImageEmpty() const
+        {
+            return !m_StackedBuffer || m_StackedBuffer->isEmpty();
         }
 
         void resetStackedImage();
@@ -170,10 +203,12 @@ class FITSStack : public QObject
     private:      
         typedef enum
         {
-            SOLVED_IN_PROGRESS,
-            SOLVED_FAILED,
-            SOLVED_OK
-        } PlateSolveStatus;
+            PLATESOLVE_IN_PROGRESS,
+            PLATESOLVE_FAILED,
+            CALIBRATION_FAILED,
+            ALIGNMENT_FAILED,
+            OK
+        } Status;
 
         /**
          * @brief Load a structure of user options from Options
@@ -218,21 +253,19 @@ class FITSStack : public QObject
 
         /**
          * @brief Stack the passed in vector of subs
-         * @param subs to be stacked
          * @param initial stack (or incremental)
          * @param totalWeight is the weight of the current stack if this is an incremental stack
          * @param stack is returned to the caller
          * @return success (or not)
          */
-        bool stackSubs(const QVector<cv::Mat> &subs, const bool initial, float &totalWeight, cv::Mat &stack);
+        bool stackSubs(const bool initial, float &totalWeight, cv::Mat &stack);
 
         /**
          * @brief Stack the passed in vector of subs using Sigma Clipping
-         * @param subs to be stacked
          * @param weights of each sub for the stack
          * @return stack is returned to the caller
          */
-        cv::Mat stackSubsSigmaClipping(const QVector<cv::Mat> &subs, const QVector<float> &weights);
+        cv::Mat stackSubsSigmaClipping(const QVector<float> &weights);
 
         /**
          * @brief Called by stackSubsSigmaClipping to do the sigma clipping on pixel at position x
@@ -247,11 +280,10 @@ class FITSStack : public QObject
 
         /**
          * @brief Stack the passed in vector of subs to an existing stack using Sigma Clipping
-         * @param subs to be stacked
          * @param weights of each sub for the stack
          * @return stack
          */
-        cv::Mat stacknSubsSigmaClipping(const QVector<cv::Mat> &subs, const QVector<float> &weights);
+        cv::Mat stacknSubsSigmaClipping(const QVector<float> &weights);
 
         /**
          * @brief Post process the passed in stack
@@ -323,7 +355,9 @@ class FITSStack : public QObject
         typedef struct
         {
             cv::Mat image;
-            PlateSolveStatus plateSolvedStatus;
+            Status status;
+            bool isCalibrated;
+            bool isAligned;
             struct wcsprm * wcsprm;
             double hfr;
             int numStars;

@@ -82,5 +82,5 @@ class FITSMemoryMonitor : public QWidget
     QLabel *memoryLabel { nullptr };
     int m_updateInterval { 1000 };
     bool m_showLabel { true };
-    QString m_labelFormat { i18n("Memory: %1 / %2") };
+    QString m_labelFormat { i18nc("Memory usage format string", "Memory: %1 / %2") };
 };

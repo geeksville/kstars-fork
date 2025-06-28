@@ -465,14 +465,14 @@ void FITSView::loadStack(const QString &inDir)
 
     connect(m_ImageData.data(), &FITSData::stackReady, this, [this]()
     {
-        QByteArray buffer = m_ImageData->stack()->getStackedImage();
-        if (buffer.isEmpty())
-            fitsWatcher.setFuture(m_ImageData->loadFromFile(":/images/noimage.png"));
-        else
+        auto stack = m_ImageData->stack();
+        if(stack && !stack->isStackedImageEmpty())
         {
             emit updateStackSNR(m_ImageData->stack()->getStackSNR());
             fitsWatcher.setFuture(m_ImageData->loadStackBuffer());
         }
+        else
+            fitsWatcher.setFuture(m_ImageData->loadFromFile(":/images/noimage.png"));
         emit resetStack();
     });
 
