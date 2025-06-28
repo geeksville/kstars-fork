@@ -209,7 +209,6 @@ void FITSSEPDetector::getFloatBuffer(float * buffer, int x, int y, int w, int h,
     }
 }
 
-// JEE
 void FITSSEPDetector::abort()
 {
     if (m_Solver)

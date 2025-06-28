@@ -341,7 +341,7 @@ class FITSData : public QObject
         double getHFR(HFRType type = HFR_AVERAGE);
         double getHFR(int x, int y, double scale = 1.0);
 
-        // JEE Request an abort of star detection
+        // Request an abort of star detection
         void abortStarDetection();
 
         ////////////////////////////////////////////////////////////////////////////////////////

@@ -66,7 +66,6 @@
 #define MINIMUM_PULSE_TIMER        32
 #define MAX_RECAPTURE_RETRIES      3
 #define MINIMUM_POLY_SOLUTIONS     2
-// JEE
 #define MAX_STAR_DETECT_FAILS      5
 
 namespace Ekos
@@ -1500,7 +1499,6 @@ void Focus::checkStopFocus(bool abort)
     if (m_starDetectInProgress)
     {
         stopFocusB->setEnabled(false);
-        // JEE
         if (++m_starDetectFailCounter <= MAX_STAR_DETECT_FAILS)
             // Give star detection a few seconds complete
             appendLogText(i18n("Star detection in progress, retrying in 1s..."));

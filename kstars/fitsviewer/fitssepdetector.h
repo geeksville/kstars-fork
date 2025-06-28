@@ -39,7 +39,6 @@ class FITSSEPDetector : public FITSStarDetector
          */
         bool findSourcesAndBackground(QRect const &boundary = QRect());
 
-        // JEE
         void abort() override;
 
     protected:
@@ -61,7 +60,6 @@ class FITSSEPDetector : public FITSStarDetector
         //        double deblendMincont = 0.005;
         //        bool radiusIsBoundary = true;
 
-        // JEE
         QScopedPointer<StellarSolver, QScopedPointerDeleteLater> m_Solver;
 };
 

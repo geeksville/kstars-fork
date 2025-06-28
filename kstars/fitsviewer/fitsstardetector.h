@@ -80,7 +80,7 @@ class FITSStarDetector : public QObject
          */
         //void configure(QStandardItemModel const &settings);
 
-        /** @brief JEE Abort an in-flight star detection
+        /** @brief Abort an in-flight star detection
          */
         virtual void abort() {};
 

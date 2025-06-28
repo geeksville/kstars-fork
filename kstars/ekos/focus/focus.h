@@ -1074,7 +1074,7 @@ public slots:
         bool m_captureInProgress { false };
         /// Are we in the process of star detection?
         bool m_starDetectInProgress { false };
-        /// JEE Counter for timing out star detection
+        /// Counter for timing out star detection
         int m_starDetectFailCounter { 0 };
         // Was the frame modified by us? Better keep track since we need to return it to its previous state once we are done with the focus operation.
         //bool frameModified;

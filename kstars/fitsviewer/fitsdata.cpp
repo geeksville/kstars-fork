@@ -2391,7 +2391,7 @@ double FITSData::getEccentricity()
     return eccentricity;
 }
 
-// JEE Pass a star extraction abort request along to the extraction process
+// Pass a star extraction abort request along to the extraction process
 void FITSData::abortStarDetection()
 {
     if (m_StarDetector)
