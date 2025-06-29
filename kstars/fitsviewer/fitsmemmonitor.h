@@ -12,6 +12,8 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QtGlobal>
+#include <QEvent>
+#include <QMouseEvent>
 #include <KLocalizedString>
 
 /**
@@ -69,8 +71,12 @@ class FITSMemoryMonitor : public QWidget
      */
     void setLabelFormat(const QString &format);
 
+  protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
   private slots:
     void updateMemoryDisplay();
+    void onLabelDoubleClicked();
 
   private:
     void setupUI();

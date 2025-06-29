@@ -985,7 +985,7 @@ cv::Mat FITSStack::postProcessImage(const cv::Mat &image32F)
     try
     {
         cv::Mat finalImage;
-        // Firstly perform deconvolution (if requested). Calculate psf from stars in the image then use this for deconvolution
+        // Firstly perform deconvolution (if requested). Calculate psf then use this for deconvolution
         cv::Mat image;
         if (m_StackData.postProcessing.deconvAmt > 0.0)
         {

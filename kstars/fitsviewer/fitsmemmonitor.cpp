@@ -71,12 +71,19 @@ void FITSMemoryMonitor::setupUI()
 
     memoryLabel = new QLabel(i18n("Memory: -- / --"));
     memoryLabel->setVisible(m_showLabel);
+    memoryLabel->installEventFilter(this);
+
     memoryBar = new QProgressBar();
     memoryBar->setRange(0, 100);
     memoryBar->setTextVisible(true);
     memoryBar->setFormat("%p%");
+    memoryBar->setToolTip(i18n("Double-click to toggle text display"));
+    memoryBar->setMinimumWidth(100);
+    memoryBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    memoryBar->installEventFilter(this);
 
     layout->addWidget(memoryLabel);
+    layout->addStretch();
     layout->addWidget(memoryBar);
     layout->setContentsMargins(0, 0, 0, 0);
 
@@ -198,4 +205,25 @@ void FITSMemoryMonitor::updateMemoryDisplay()
         p.setColor(QPalette::Highlight, Qt::green);
         memoryBar->setPalette(p);
     }
+}
+
+bool FITSMemoryMonitor::eventFilter(QObject *obj, QEvent *event)
+{
+    if ((obj == memoryLabel || obj == memoryBar) && event->type() == QEvent::MouseButtonDblClick)
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if (mouseEvent->button() == Qt::LeftButton)
+        {
+            onLabelDoubleClicked();
+            return true;
+        }
+    }
+    return QWidget::eventFilter(obj, event);
+}
+
+// Toggle the label visibility
+void FITSMemoryMonitor::onLabelDoubleClicked()
+{
+    m_showLabel = !m_showLabel;
+    memoryLabel->setVisible(m_showLabel);
 }
