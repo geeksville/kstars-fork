@@ -110,7 +110,6 @@ craft_macos_qt6_arm64: # Extended from /gitlab-templates/craft-macos-arm64-qt6.y
     - !reference [.manual-skipped-recipe, rules]
 
 .custom_build:
-  allow_failure: true # TODO: REMOVE WHEN STABLE AGAIN
   interruptible: true
   image: tallfurryman/kstars-ci:latest
   variables:
@@ -138,6 +137,7 @@ craft_macos_qt6_arm64: # Extended from /gitlab-templates/craft-macos-arm64-qt6.y
 build:
   stage: build
   extends: .custom_build
+  allow_failure: true # TODO: REMOVE WHEN STABLE AGAIN
   needs:
     - suse_tumbleweed_qt69
   script:
@@ -152,6 +152,7 @@ build:
 build-and-test-stable:
   stage: test
   extends: .custom_build
+  allow_failure: true # TODO: REMOVE WHEN STABLE AGAIN
   needs:
     - build
   timeout: 3 hours
