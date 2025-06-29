@@ -373,7 +373,8 @@ void FITSData::incrementalStack()
         // Nothing to do
         return;
 
-    if (m_Stack->getStackInProgress())
+    // JEE If processing of other subs is still in progress we must wait for it to complete
+    if (m_StackSubs.size() > m_StackSubPos || m_Stack->getStackInProgress())
         return;
 
     m_Stack->setStackInProgress(true);

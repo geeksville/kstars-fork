@@ -327,7 +327,6 @@ bool FITSStack::stack()
 {
     try
     {
-        // JEE m_InitialStackRef = -1;
         for(int i = 0; i < m_StackImageData.size(); i++)
         {
             // Ignore any bad subs
@@ -367,13 +366,6 @@ bool FITSStack::stack()
                 }
             }
         }
-        // Remove any bad subs so m_StackImageData just contains good data
-        for (int i = m_StackImageData.size() - 1; i >= 0; i--)
-        {
-            if (m_StackImageData[i].status != OK)
-                m_StackImageData.remove(i);
-        }
-
         // Stack the aligned subs
         float totalWeight = 0.0;
         stackSubs(true, totalWeight, m_StackedImage32F);
@@ -409,15 +401,12 @@ bool FITSStack::stackn()
 {
     try
     {
-        // Remove any bad subs so m_StackImageData just contains good data
-        for (int i = m_StackImageData.size() - 1; i >= 0; i--)
-        {
-            if (m_StackImageData[i].status != OK)
-                m_StackImageData.remove(i);
-        }
-
         for(int i = 0; i < m_StackImageData.size(); i++)
         {
+            // Ignore any bad subs
+            if (m_StackImageData[i].status != OK)
+                continue;
+
             // Calibrate sub
             if (!m_StackImageData[i].isCalibrated)
             {
@@ -442,13 +431,6 @@ bool FITSStack::stackn()
                 m_StackImageData[i].isAligned = true;
             }
         }
-        // Remove any bad subs so m_StackImageData just contains good data
-        for (int i = m_StackImageData.size() - 1; i >= 0; i--)
-        {
-            if (m_StackImageData[i].status != OK)
-                m_StackImageData.remove(i);
-        }
-
         // Stack the aligned subs
         float totalWeight = m_RunningStackImageData.totalWeight;
         if (stackSubs(false, totalWeight, m_StackedImage32F))
@@ -562,6 +544,13 @@ bool FITSStack::stackSubs(const bool initial, float &totalWeight, cv::Mat &stack
 {
     try
     {
+        // Remove any bad subs so m_StackImageData just contains good data
+        for (int i = m_StackImageData.size() - 1; i >= 0; i--)
+        {
+            if (m_StackImageData[i].status != OK)
+                m_StackImageData.remove(i);
+        }
+
         if (m_StackImageData.size() <= 0)
             return false;
 

@@ -925,10 +925,15 @@ void FITSTab::initLiveStacking()
     connect(m_LiveStackingUI.StackB, &QPushButton::clicked, this, &FITSTab::liveStack);
     connect(m_LiveStackingUI.ReprocessB, &QPushButton::clicked, this, [this]
     {
-        if(m_View)
+        if(m_View && m_View->imageData() && m_View->imageData()->stack())
         {
-            viewer->restack(m_liveStackDir);
-            m_View->redoPostProcessStack();
+            if (!m_View->imageData()->stack()->isStackedImageEmpty())
+            {
+                m_LiveStackingUI.ReprocessB->setEnabled(false);
+                m_LiveStackingUI.StackB->setEnabled(false);
+                viewer->restack(m_liveStackDir);
+                m_View->redoPostProcessStack();
+            }
         }
     });
 
@@ -1322,7 +1327,6 @@ void FITSTab::liveStack()
         m_LiveStackingUI.ReprocessB->setEnabled(false);
         m_View->cancelStack();
     }
-
 }
 
 // Plate solve the sub. May require 2 runs; firstly to get stars (if needed) and then to actually plate solve
@@ -1403,6 +1407,8 @@ void FITSTab::plateSolveSub(const double ra, const double dec, const double pixS
 
 void FITSTab::stackInProgress()
 {
+    m_LiveStackingUI.StackB->setEnabled(false);
+    m_LiveStackingUI.ReprocessB->setEnabled(false);
     viewer->restack(m_liveStackDir);
 }
 
