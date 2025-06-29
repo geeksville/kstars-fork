@@ -43,17 +43,15 @@ include:
     - !reference [.manual-skipped-recipe, rules]
 
 suse_tumbleweed_qt69:
-  allow_failure: true
   rules:
     - !reference [.standard-build-recipes, rules]
 
 windows_qt68:
-  allow_failure: true
+  allow_failure: true # TODO: REMOVE WHEN STELLARSOLVER IS INCLUDED IN CI IMAGE
   rules:
     - !reference [.standard-build-recipes, rules]
 
 suse_tumbleweed_qt515:
-  allow_failure: true
   rules:
     - !reference [.standard-build-recipes, rules]
 
@@ -112,6 +110,7 @@ craft_macos_qt6_arm64: # Extended from /gitlab-templates/craft-macos-arm64-qt6.y
     - !reference [.manual-skipped-recipe, rules]
 
 .custom_build:
+  allow_failure: true # TODO: REMOVE WHEN STABLE AGAIN
   interruptible: true
   image: tallfurryman/kstars-ci:latest
   variables:
