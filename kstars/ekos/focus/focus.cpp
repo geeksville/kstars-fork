@@ -2853,7 +2853,7 @@ void Focus::updateMeasurements()
 QString Focus::saveFocusFrame()
 {
     QString filename = "";
-    if (inAutoFocus && Options::focusLogging() && Options::saveFocusImages())
+    if (inAutoFocus && Options::saveFocusImages())
     {
         QDir dir;
         QDateTime now = KStarsData::Instance()->lt();
