@@ -4923,7 +4923,6 @@ void Focus::resetButtons()
             AFDisable(historyBackwardB, false);
             AFDisable(historyForwardB, false);
             AFDisable(historyLastB, false);
-            AFDisable(saveFocusImagesB, false);
 
             // Enable the "stop" button so the user can abort an AF run
             stopFocusB->setEnabled(true);
@@ -4945,7 +4944,6 @@ void Focus::resetButtons()
     startFocusB->setEnabled(enableCaptureButtons);
 
     refreshMeasuresDisplay();
-    saveFocusImagesB->setChecked(Options::saveFocusImages());
 
     if (cameraConnected)
     {
@@ -6378,12 +6376,6 @@ void Focus::initConnections()
     // Update the focuser box size used to enclose a star
     connect(m_OpsFocusSettings->focusBoxSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
             &Ekos::Focus::updateBoxSize);
-
-    // toggle saving autofocus frames
-    connect(saveFocusImagesB, &QPushButton::toggled, this, [&](bool checked)
-    {
-        Options::setSaveFocusImages(checked);
-    });
 
     // Setup the tools buttons
     connect(startAbInsB, &QPushButton::clicked, this, &Ekos::Focus::startAbIns);
