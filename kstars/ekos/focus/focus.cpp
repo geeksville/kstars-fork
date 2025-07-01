@@ -2853,7 +2853,7 @@ void Focus::updateMeasurements()
 QString Focus::saveFocusFrame()
 {
     QString filename = "";
-    if (inAutoFocus && Options::saveFocusImages())
+    if (inAutoFocus && Options::maxFocusFrameFiles() != 0)
     {
         QDir dir;
         QDateTime now = KStarsData::Instance()->lt();
@@ -2883,8 +2883,60 @@ QString Focus::saveFocusFrame()
         QString name     = "autofocus_frame_" + now.toString("HH-mm-ss") + prefix + ".fits";
         filename = path + QStringLiteral("/") + name;
         m_ImageData->saveImage(filename);
+        // keep the autofocus file count limit
+        if (Options::maxFocusFrameFiles() > 0)
+            enforceMaxFilesRecursive(QFileInfo(path).dir().absolutePath(), Options::maxFocusFrameFiles());
     }
     return filename;
+}
+
+int Focus::enforceMaxFilesRecursive(const QString &path, int maxCount)
+{
+    QFileInfoList files;
+    // recursive search for files
+    QDirIterator it(path, QDir::Files | QDir::NoSymLinks,
+                    QDirIterator::Subdirectories);
+    while (it.hasNext())
+    {
+        it.next();
+        files << it.fileInfo();
+    }
+
+    if (files.size() <= maxCount)
+        return 0;
+
+    // oldest files first
+    std::sort(files.begin(), files.end(),
+              [](const QFileInfo & a, const QFileInfo & b)
+    {
+        return a.lastModified() < b.lastModified();
+    });
+
+    int removed = 0;
+    for (int i = 0; i < files.size() - maxCount; ++i)
+    {
+        const QString filePath = files[i].absoluteFilePath();
+        if (QFile::remove(filePath))
+        {
+            ++removed;
+            // clear empty directory
+            const QString dirPath  = files[i].absolutePath();
+            QDir dir(dirPath);
+            if (dir.entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty())
+            {
+                if (dir.rmdir(dirPath))
+                    qCInfo(KSTARS_EKOS_FOCUS) << "Empty directory removed:" << dirPath;
+                else
+                    qCDebug(KSTARS_EKOS_FOCUS) << "Cannot remove empty directory:" << dirPath;
+
+            }
+        }
+        else
+            qCWarning(KSTARS_EKOS_FOCUS) << "Deleting focus frame failed: " << filePath;
+
+    }
+    return removed;
+
 }
 
 void Focus::calculateAbInsData()

@@ -949,6 +949,14 @@ public slots:
         QString saveFocusFrame();
 
         /**
+         * @brief enforceMaxFilesRecursive Enforce keeping a maximal amount of files
+         * @param path directory that is used for the recursive search
+         * @param maxCount maximal number of files
+         * @return number of files removed
+         */
+        int enforceMaxFilesRecursive(const QString &path, int maxCount);
+
+        /**
          * @brief Initialise donut processing
          */
         void initDonutProcessing();
