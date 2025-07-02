@@ -1370,6 +1370,7 @@ void FITSTab::plateSolveSub(const double ra, const double dec, const double pixS
         else
         {
             // Failed to plate solve on tight criteria so have another go on widened criteria
+            m_StackExtendedPlateSolve = true;
             m_PlateSolve->plateSolveSub(m_View->imageData(), ra, dec, pixScale, -1, -1, SSolver::SOLVE);
         }
     });

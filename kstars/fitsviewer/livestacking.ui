@@ -85,7 +85,7 @@
       <item row="1" column="1">
        <widget class="QLineEdit" name="kcfg_FitsLSMasterFlat">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -133,7 +133,7 @@
       <item row="0" column="1">
        <widget class="QLineEdit" name="kcfg_FitsLSMasterDark">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -644,7 +644,7 @@
       <item row="0" column="1">
        <widget class="QLineEdit" name="kcfg_FitsLSAlignMaster">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
