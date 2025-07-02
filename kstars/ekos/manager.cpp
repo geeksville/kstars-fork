@@ -746,7 +746,9 @@ void Manager::reset()
     qCDebug(KSTARS_EKOS) << "Resetting Ekos Manager...";
 
     ProfileSettings::release();
-    OpticalTrainManager::release();
+    // 2025-06-29 <sterne-jaeger@openfuture.de>: Do not release the optical train manager, since the
+    // scheduler has already registered for its updates
+    // OpticalTrainManager::release();
     OpticalTrainSettings::release();
     RotatorUtils::release();
 
@@ -902,6 +904,19 @@ void Manager::start()
                 auto drv = driversList.value(driver);
                 if (!drv.isNull())
                 {
+                    bool isDuplicate = false;
+                    for (auto &existingDriver : managedDrivers)
+                    {
+                        if (checkUniqueBinaryDriver(existingDriver, drv))
+                        {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (isDuplicate)
+                        continue;
+
                     if (it.key() == KSTARS_CCD)
                         haveCamera = true;
                     managedDrivers.append(drv->clone());
@@ -1099,7 +1114,7 @@ void Manager::start()
             });
 
             KSMessageBox::Instance()->questionYesNo(i18n("Ekos detected an instance of INDI server running. Do you wish to "
-                                                         "shut down the existing instance before starting a new one?"),
+                                                    "shut down the existing instance before starting a new one?"),
                                                     i18n("INDI Server"), 5);
         }
         else
