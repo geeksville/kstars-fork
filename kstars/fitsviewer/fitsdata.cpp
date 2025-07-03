@@ -373,7 +373,7 @@ void FITSData::incrementalStack()
         // Nothing to do
         return;
 
-    // JEE If processing of other subs is still in progress we must wait for it to complete
+    // If processing of other subs is still in progress we must wait for it to complete
     if (m_StackSubs.size() > m_StackSubPos || m_Stack->getStackInProgress())
         return;
 
@@ -1130,7 +1130,7 @@ bool FITSData::stackLoadFITSImage(QString filename, const bool isCompressed)
         case DOUBLE_IMG:
             m_StackStatistics.stats.dataType      = TDOUBLE;
             m_StackStatistics.stats.bytesPerPixel = sizeof(double);
-            m_StackStatistics.cvType              = CV_MAKETYPE(CV_32F, m_StackStatistics.stats.channels);
+            m_StackStatistics.cvType              = CV_MAKETYPE(CV_64F, m_StackStatistics.stats.channels);
             break;
         default:
             m_StackStatistics.cvType              = -1;

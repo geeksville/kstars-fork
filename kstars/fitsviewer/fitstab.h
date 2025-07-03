@@ -290,5 +290,4 @@ class FITSTab : public QWidget
         void loaded();
         void updated();
         void failed(const QString &errorMessage);
-        void autoPlateSolve();
 };

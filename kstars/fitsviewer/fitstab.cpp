@@ -197,9 +197,6 @@ bool FITSTab::setupView(FITSMode mode, FITSScale filter)
         // On Failure to load
         connect(m_View.get(), &FITSView::failed, this, &FITSTab::failed);
 
-        // Automatic plate solve
-        connect(m_View.get(), &FITSView::autoPlateSolve, this, &FITSTab::extractImage);
-
         return true;
     }
 
@@ -908,6 +905,7 @@ void FITSTab::initLiveStacking()
     Options::setFitsLSAlignMaster("");
     m_LiveStackingUI.kcfg_FitsLSAlignMethod->setCurrentIndex(Options::fitsLSAlignMethod());
     m_LiveStackingUI.kcfg_FitsLSNumInMem->setValue(Options::fitsLSNumInMem());
+    m_LiveStackingUI.kcfg_FitsLSDownscale->setCurrentIndex(Options::fitsLSDownscale());
     m_LiveStackingUI.kcfg_FitsLSWeighting->setCurrentIndex(Options::fitsLSWeighting());
     m_LiveStackingUI.kcfg_FitsLSRejection->setCurrentIndex(Options::fitsLSRejection());
     m_LiveStackingUI.kcfg_FitsLSLowSigma->setValue(Options::fitsLSLowSigma());
@@ -965,6 +963,10 @@ void FITSTab::initLiveStacking()
     connect(m_LiveStackingUI.kcfg_FitsLSNumInMem, QOverload<int>::of(&QSpinBox::valueChanged), this, [&](int value)
     {
         Options::setFitsLSNumInMem(value);
+    });
+    connect(m_LiveStackingUI.kcfg_FitsLSDownscale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int value)
+    {
+        Options::setFitsLSDownscale(value);
     });
     connect(m_LiveStackingUI.kcfg_FitsLSWeighting, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int value)
     {

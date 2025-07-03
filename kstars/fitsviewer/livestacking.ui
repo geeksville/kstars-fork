@@ -288,6 +288,9 @@
       </item>
       <item row="1" column="1">
        <widget class="QComboBox" name="kcfg_FitsLSWeighting">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Frame weighting:&lt;/p&gt;&lt;p&gt;- Equal. All frames have the same weight.&lt;/p&gt;&lt;p&gt;- HFR. Frames are weighted by 1 / Average HFR.&lt;/p&gt;&lt;p&gt;- Num Stars. Frames are weighted by the number of stars detected in the frame.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <item>
          <property name="text">
           <string>Equal</string>
@@ -398,6 +401,52 @@
         <property name="value">
          <double>3.000000000000000</double>
         </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="DownscaleLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Downscale:</string>
+        </property>
+        <property name="buddy">
+         <cstring>kcfg_FitsLSDownscale</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QComboBox" name="kcfg_FitsLSDownscale">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Downscale images:&lt;/p&gt;&lt;p&gt;- None. No downscaling applied .&lt;/p&gt;&lt;p&gt;- 2x2. Subs and masters are downscaled 2x2.&lt;/p&gt;&lt;p&gt;- 3x3. Subs and masters are downscaled 3x3.&lt;/p&gt;&lt;p&gt;- 4x4. Subs and masters are downscaled 4x4.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="currentText">
+         <string>None</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2x2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3x3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4x4</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
@@ -945,6 +994,7 @@
   <tabstop>AlignMasterB</tabstop>
   <tabstop>kcfg_FitsLSAlignMethod</tabstop>
   <tabstop>kcfg_FitsLSNumInMem</tabstop>
+  <tabstop>kcfg_FitsLSDownscale</tabstop>
   <tabstop>kcfg_FitsLSWeighting</tabstop>
   <tabstop>kcfg_FitsLSRejection</tabstop>
   <tabstop>kcfg_FitsLSLowSigma</tabstop>

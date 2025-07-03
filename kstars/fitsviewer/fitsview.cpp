@@ -736,10 +736,7 @@ void FITSView::loadInFrame()
     // If stack has just been processed, plate solve and check for more subs...
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     if (mode == FITS_LIVESTACKING && m_ImageData->stack())
-    {
-        // JEE emit autoPlateSolve();
         m_ImageData->incrementalStack();
-    }
 #endif
 }
 

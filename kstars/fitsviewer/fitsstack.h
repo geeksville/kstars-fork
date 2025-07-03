@@ -8,6 +8,7 @@
 
 #include "fitscommon.h"
 #include "ekos/auxiliary/solverutils.h"
+#include <fits_debug.h>
 
 #include <QObject>
 #include <QPointer>
@@ -227,6 +228,55 @@ class FITSStack : public QObject
          * @return success (or not)
          */
         bool checkSub(const int width, const int height, const int bytesPerPixel, const int channels);
+
+        /**
+         * @brief Convert the input image to float and downscale if required
+         * @param input image
+         * @param output converted image
+         * @return success (or not)
+         */
+        bool convertMat(const cv::Mat &input, cv::Mat &output);
+
+        /**
+         * @brief Gets the downscaling factor for the passed downscale
+         * @param downscale
+         * @return downscale factor
+         */
+        int getDownscaleFactor(LiveStackDownscale downscale);
+
+        /**
+         * @brief Template function to convert planar buffer to cv::Mat (interleaved)
+         * @param buffer is the data buffer of image
+         * @param width of image
+         * @param height of image
+         * @return the cv::Mat
+         */
+        template <typename T>
+        cv::Mat convertToCV(T *buffer, int width, int height)
+        {
+            try
+            {
+                int totalPixels = width * height;
+
+                // Construct one Mat per channel from planar layout
+                cv::Mat channelR(height, width, cv::DataType<T>::type, buffer);
+                cv::Mat channelG(height, width, cv::DataType<T>::type, buffer + totalPixels);
+                cv::Mat channelB(height, width, cv::DataType<T>::type, buffer + 2 * totalPixels);
+
+                // Merge to interleaved RGB
+                std::vector<cv::Mat> channels = { channelR, channelG, channelB };
+                cv::Mat interleaved;
+                cv::merge(channels, interleaved);
+
+                return interleaved;
+            }
+            catch (const cv::Exception &ex)
+            {
+                QString s1 = ex.what();
+                qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from convertToCV").arg(s1);
+                return cv::Mat();
+            }
+        }
 
         /**
          * @brief Calculate the warp matrix to warp image 2 to image 1 (reference)

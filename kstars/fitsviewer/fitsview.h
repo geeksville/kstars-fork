@@ -539,7 +539,6 @@ class FITSView : public QScrollArea
                               const double maxSNR);
         void updateStackSNR(const double SNR);
         void resetStack();
-        void autoPlateSolve();
 
         friend class FITSLabel;
 };

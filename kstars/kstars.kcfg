@@ -1801,6 +1801,10 @@
       <label>Live Stacking max number of subs to keep in memory</label>
       <default>5</default>
    </entry>
+   <entry name="FitsLSDownscale" type="UInt">
+      <whatsthis>Live Stacking downscale factor</whatsthis>
+      <default>0</default>
+   </entry>
    <entry name="FitsLSWeighting" type="UInt">
       <whatsthis>Live Stacking sub weighting</whatsthis>
       <default>0</default>

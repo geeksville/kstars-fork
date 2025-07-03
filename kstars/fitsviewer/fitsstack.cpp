@@ -62,6 +62,7 @@ LiveStackData FITSStack::loadStackData()
     data.alignMaster = Options::fitsLSAlignMaster();
     data.alignMethod = static_cast<LiveStackAlignMethod>(Options::fitsLSAlignMethod());
     data.numInMem = Options::fitsLSNumInMem();
+    data.downscale = static_cast<LiveStackDownscale>(Options::fitsLSDownscale());
     data.weighting = static_cast<LiveStackFrameWeighting>(Options::fitsLSWeighting());
     data.rejection = static_cast<LiveStackRejection>(Options::fitsLSRejection());
     data.lowSigma = Options::fitsLSLowSigma();
@@ -102,22 +103,54 @@ bool FITSStack::addSub(void * imageBuffer, const int cvType, const int width, co
     try
     {
         int channels = CV_MAT_CN(cvType);
-        // Check the image is the correct shape
-        if (!checkSub(width, height, bytesPerPixel, channels))
-            return false;
+        int depth = CV_MAT_DEPTH(cvType);
 
-        size_t rowLen = width * bytesPerPixel * channels;
-        cv::Mat image = cv::Mat(height, width, cvType, imageBuffer, rowLen);
+        cv::Mat image;
+        if (channels == 3)
+        {
+            // Colour image. The image buffer is in planar format (all red pixels, then all green, etc.
+            // openCV wants data interleaved R1G1B1R2G2B2R3....
+            switch (depth)
+            {
+                case CV_8U:
+                    image = convertToCV(reinterpret_cast<uint8_t *>(imageBuffer), width, height);
+                    break;
+                case CV_16U:
+                    image = convertToCV(reinterpret_cast<uint16_t *>(imageBuffer), width, height);
+                    break;
+                case CV_32F:
+                    image = convertToCV(reinterpret_cast<float *>(imageBuffer), width, height);
+                    break;
+                case CV_64F:
+                    image = convertToCV(reinterpret_cast<double *>(imageBuffer), width, height);
+                    break;
+                default:
+                    qCDebug(KSTARS_FITS) << QString("%1 Unsupported openCV datatype %2").arg(__FUNCTION__).arg(cvType);
+                    return false;
+            }
+        }
+        else
+        {
+            // Mono so we can just load up the image
+            size_t rowLen = width * bytesPerPixel * channels;
+            image = cv::Mat(height, width, cvType, imageBuffer, rowLen);
+        }
         if (image.empty())
         {
             qCDebug(KSTARS_FITS) << QString("%1 Unable to process image in openCV").arg(__FUNCTION__);
             return false;
         }
 
-        // Convert the Mat to float type for upcoming calcs
-        image.convertTo(image, m_CVType);
+        // Convert Mat
+        cv::Mat newImage;
+        if (!convertMat(image, newImage))
+            return false;
 
-        double snr = getSNR(image);
+        // Check the image is the correct shape
+        if (!checkSub(newImage.cols, newImage.rows, bytesPerPixel, channels))
+            return false;
+
+        double snr = getSNR(newImage);
         if (snr > 0.0)
         {
             m_MaxSubSNR = std::max(m_MaxSubSNR, snr);
@@ -128,7 +161,7 @@ bool FITSStack::addSub(void * imageBuffer, const int cvType, const int width, co
             m_MeanSubSNR = ((m_MeanSubSNR * (subs - 1)) + snr) / subs;
         }
 
-        m_StackImageData.last().image = image;
+        m_StackImageData.last().image = newImage;
         return true;
     }
     catch (const cv::Exception &ex)
@@ -151,17 +184,53 @@ void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, 
 
         int channels = CV_MAT_CN(cvType);
 
-        // Check the image is the correct shape - pass 0 for bytesPerPixel to skip check
-        // This allows masters to be different datatypes to subs
-        if (!checkSub(width, height, 0, channels))
+        cv::Mat image;
+        if (channels == 3)
+        {
+            // Colour image. The image buffer is in planar format (all red pixels, then all green, etc.
+            // openCV wants data interleaved R1G1B1R2G2B2R3....
+            int depth = CV_MAT_DEPTH(cvType);
+            switch (depth)
+            {
+                case CV_8U:
+                    image = convertToCV(reinterpret_cast<uint8_t *>(imageBuffer), width, height);
+                    break;
+                case CV_16U:
+                    image = convertToCV(reinterpret_cast<uint16_t *>(imageBuffer), width, height);
+                    break;
+                case CV_32F:
+                    image = convertToCV(reinterpret_cast<float *>(imageBuffer), width, height);
+                    break;
+                case CV_64F:
+                    image = convertToCV(reinterpret_cast<double *>(imageBuffer), width, height);
+                    break;
+                default:
+                    qCDebug(KSTARS_FITS) << QString("%1 Unsupported openCV datatype %2").arg(__FUNCTION__).arg(cvType);
+                    return;
+            }
+        }
+        else
+        {
+            // Mono so we can just load up the image
+            size_t rowLen = width * bytesPerPixel * channels;
+            image = cv::Mat(height, width, cvType, imageBuffer, rowLen);
+        }
+        if (image.empty())
+        {
+            qCDebug(KSTARS_FITS) << QString("%1 Unable to process master file").arg(__FUNCTION__);
             return;
-
-        size_t rowLen = width * bytesPerPixel * channels;
-        cv::Mat image = cv::Mat(height, width, cvType, imageBuffer, rowLen);
+        }
 
         // Take a deep copy of the passed in image. Note this ensures the Mat is contiguous
-        image.convertTo(image, m_CVType);
-        cv::Mat imageClone = image.clone();
+        // Convert Mat
+        cv::Mat imageClone;
+        if (!convertMat(image, imageClone))
+            return;
+
+        // Check the image is the correct shape - pass 0 for bytesPerPixel to skip check
+        // This allows masters to be different datatypes to subs
+        if (!checkSub(imageClone.cols, imageClone.rows, 0, channels))
+            return;
 
         if (dark)
         {
@@ -207,6 +276,49 @@ void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, 
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
     }
+}
+
+// Converts the input Mat to float - our standard internal type
+// If required, downscales the Mat (for faster processing)
+bool FITSStack::convertMat(const cv::Mat &input, cv::Mat &output)
+{
+    try
+    {
+        cv::Mat image;
+        // Convert the Mat to float type for upcoming calcs. This is our standard internal processing type
+        input.convertTo(output, CV_MAKETYPE(CV_32F, input.channels()));
+
+        if (m_StackData.downscale != LS_DOWNSCALE_NONE)
+        {
+            // Downscale image (if required). Less data = faster...
+            int downscale = getDownscaleFactor(m_StackData.downscale);
+
+            cv::Mat downsizedImage;
+            int newWidth = output.cols / downscale;
+            int newHeight = output.rows / downscale;
+            cv::resize(output, downsizedImage, cv::Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
+            output = downsizedImage;
+        }
+        return true;
+    }
+    catch (const cv::Exception &ex)
+    {
+        QString s1 = ex.what();
+        qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
+        return false;
+    }
+}
+
+int FITSStack::getDownscaleFactor(LiveStackDownscale downscale)
+{
+    int factor = 1;
+    if (m_StackData.downscale == LS_DOWNSCALE_2X)
+        factor = 2;
+    else if (m_StackData.downscale == LS_DOWNSCALE_3X)
+        factor = 3;
+    else if (m_StackData.downscale == LS_DOWNSCALE_4X)
+        factor = 4;
+    return factor;
 }
 
 // Check that the passed in sub or master is the same shape as the others
@@ -498,7 +610,21 @@ bool FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::M
             qCDebug(KSTARS_FITS) << QString("openCV findHomography warp matrix empty");
             return false;
         }
-        // JEE
+
+        // If we are downscaling the image we need to adjust the warp matrix which is calculated from the un-downscaled images
+        if (m_StackData.downscale != LS_DOWNSCALE_NONE)
+        {
+            int downscale = getDownscaleFactor(m_StackData.downscale);
+            double scale = 1.0 / static_cast<double>(downscale);
+            cv::Mat S = (cv::Mat_<double>(3,3) <<
+                         scale, 0,     0,
+                         0,     scale, 0,
+                         0,     0,     1 );
+            cv::Mat S_inv;
+            cv::invert(S, S_inv);
+            warp = S * warp * S_inv;
+        }
+        // Uncomment to display warp matrix - useless for debugging alignment issues
         //cv::Ptr<cv::Formatter> fmt = cv::Formatter::get(cv::Formatter::FMT_DEFAULT);
         //std::cout << fmt->format(warp) << std::endl;
         return true;
@@ -783,6 +909,8 @@ cv::Mat FITSStack::stackSubsSigmaClipping(const QVector<float> &weights)
 
                             if (weightSum > 0.0)
                                 pixelValue = sum / weightSum;
+                            else
+                                pixelValue = median;
                         }
                         // Store intermediate calcs from this process, necessary for processing new subs
                         cv::Vec4f sigmaClip;
@@ -870,6 +998,8 @@ void FITSStack::stackSigmaClipPixel(int x, const std::vector<const float *> &ima
 
             if (weightSum > 0.0)
                 pixelValue = sum / weightSum;
+            else
+                pixelValue = median;
         }
 
         // Store intermediate calcs from this process
@@ -1315,6 +1445,9 @@ struct wcsprm * FITSStack::getWCSRef()
     return ref;
 }
 
+// This converts the float cv::Mat to TUSHORT for display
+// Keeping to float format would be more accurate but use twice
+// the memory for little benefit.
 bool FITSStack::convertMatToFITS(const cv::Mat &inImage)
 {
     try
@@ -1376,22 +1509,56 @@ bool FITSStack::convertMatToFITS(const cv::Mat &inImage)
             }
         }
 
-        nelements = width * height * channels;
-
-        cv::Mat contImage;
-        if (image.isContinuous())
-            contImage = image;
-        else
-            contImage = image.clone();
-
-        if (fits_write_img(fptr, TUSHORT, fpixel, nelements, contImage.data, &status))
+        // Colour images need to be converted from interleaved R1G1B1R2G2B2R3...
+        // format to planar RRRRR.. GGGGG.. BBBBB.. format for display
+        if (channels == 3)
         {
-            fits_get_errstatus(status, error_status);
-            qCDebug(KSTARS_FITS) << "fits_write_img failed " << status;
-            status = 0;
-            fits_close_file(fptr, &status);
-            free(fits_buffer);
-            return false;
+            int totalPixels = width * height;
+
+            std::vector<cv::Mat> splitChannels(3);
+            cv::split(image, splitChannels);
+
+            // Allocate planar buffer to hold R, G, B planes consecutively
+            std::vector<uint16_t> planarBuffer(totalPixels * 3);
+
+            auto* planarPtr = planarBuffer.data();
+
+            // Copy each channel data into planar buffer
+            memcpy(planarPtr, splitChannels[0].data, totalPixels * sizeof(uint16_t));
+            memcpy(planarPtr + totalPixels, splitChannels[1].data, totalPixels * sizeof(uint16_t));
+            memcpy(planarPtr + 2 * totalPixels, splitChannels[2].data, totalPixels * sizeof(uint16_t));
+
+            nelements = totalPixels * 3;
+            if (fits_write_img(fptr, TUSHORT, fpixel, nelements, planarPtr, &status))
+            {
+                fits_get_errstatus(status, error_status);
+                qCDebug(KSTARS_FITS) << "fits_write_img failed " << status;
+                status = 0;
+                fits_close_file(fptr, &status);
+                free(fits_buffer);
+                return false;
+            }
+        }        
+        else
+        {
+            // Mono image so we can just write it out
+            nelements = width * height * channels;
+
+            cv::Mat contImage;
+            if (image.isContinuous())
+                contImage = image;
+            else
+                contImage = image.clone();
+
+            if (fits_write_img(fptr, TUSHORT, fpixel, nelements, contImage.data, &status))
+            {
+                fits_get_errstatus(status, error_status);
+                qCDebug(KSTARS_FITS) << "fits_write_img failed " << status;
+                status = 0;
+                fits_close_file(fptr, &status);
+                free(fits_buffer);
+                return false;
+            }
         }
 
         if (fits_flush_file(fptr, &status))

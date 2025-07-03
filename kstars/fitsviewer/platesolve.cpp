@@ -494,7 +494,6 @@ void PlateSolve::subSolverDone(bool timedOut, bool success, const FITSImage::Sol
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     int indexUsed = -1, healpixUsed = -1;
     m_Solver->getSolutionHealpix(&indexUsed, &healpixUsed);
-    // JEE how to handle on plate solve failure???
     m_imageData->setStackSubSolution(solution.ra, solution.dec, solution.pixscale, indexUsed, healpixUsed);
     const bool eastToTheRight = solution.parity == FITSImage::POSITIVE ? false : true;
     m_imageData->injectStackWCS(solution.orientation, solution.ra, solution.dec, solution.pixscale, eastToTheRight);
