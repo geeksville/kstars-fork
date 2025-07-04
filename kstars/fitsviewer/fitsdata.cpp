@@ -5183,15 +5183,19 @@ bool FITSData::stackCheckDebayer(BayerParams bayerParams)
         {
             case DC1394_COLOR_FILTER_RGGB:
                 bayerParams.filter = DC1394_COLOR_FILTER_GRBG;
+                pattern = "GRBG";
                 break;
             case DC1394_COLOR_FILTER_GBRG:
                 bayerParams.filter = DC1394_COLOR_FILTER_BGGR;
+                pattern = "BGGR";
                 break;
             case DC1394_COLOR_FILTER_GRBG:
                 bayerParams.filter = DC1394_COLOR_FILTER_RGGB;
+                pattern = "RGGB";
                 break;
             case DC1394_COLOR_FILTER_BGGR:
                 bayerParams.filter = DC1394_COLOR_FILTER_GBRG;
+                pattern = "GBRG";
                 break;
         }
         bayerParams.offsetX = 0;
@@ -5202,7 +5206,7 @@ bool FITSData::stackCheckDebayer(BayerParams bayerParams)
         return false;
     }
     if (m_Stack)
-        m_Stack->setBayerPattern(bayerPattern);
+        m_Stack->setBayerPattern(pattern, bayerParams.offsetX, bayerParams.offsetY);
     return true;
 }
 #endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV

@@ -49,9 +49,11 @@ void FITSStack::setInitalStackDone(bool done)
     m_InitialStackDone = done;
 }
 
-void FITSStack::setBayerPattern(const QString bayerPattern)
+void FITSStack::setBayerPattern(const QString pattern, const int offsetX, const int offsetY)
 {
-    m_BayerPattern = bayerPattern;
+    m_BayerPattern = pattern;
+    m_BayerOffsetX = offsetX;
+    m_BayerOffsetY = offsetY;
 }
 
 LiveStackData FITSStack::loadStackData()
@@ -236,11 +238,16 @@ void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, 
         {
             m_MasterDark = imageClone;
 
-            // JEE If the dark has been normalised to 0-1 then we need to extend
+            // If the dark has been normalised to 0-1 then we need to increase values so they match the subs
             double minVal, maxVal;
             cv::minMaxLoc(m_MasterDark, &minVal, &maxVal);
             if (maxVal <= 1.0)
-                m_MasterDark *= 65535;
+            {
+                if (m_BytesPerPixel = 1)
+                    m_MasterDark *= 255;
+                else if (m_BytesPerPixel = 2)
+                    m_MasterDark *= 65535;
+            }
         }
         else
         {
@@ -1495,24 +1502,36 @@ bool FITSStack::convertMatToFITS(const cv::Mat &inImage)
 
         if (channels == 3)
         {
-            // Add BAYERPAT keyword here
-            // JEE NEED to do bayer pattern properly
+            // Colour image so firstly add bayer FITS keywords
             QByteArray ba = m_BayerPattern.toUtf8();
             const char* bayerPattern = ba.constData();
-            const char* comment = "Bayer color filter array pattern";
+            const char* comment = "Bayer color pattern";
 
             if (fits_write_key(fptr, TSTRING, "BAYERPAT", (void*)bayerPattern, (char*)comment, &status))
             {
                 fits_get_errstatus(status, error_status);
                 qCDebug(KSTARS_FITS) << "fits_write_key BAYERPAT failed:" << error_status;
-                status = 0;  // Reset status to continue
+                status = 0;
             }
-        }
 
-        // Colour images need to be converted from interleaved R1G1B1R2G2B2R3...
-        // format to planar RRRRR.. GGGGG.. BBBBB.. format for display
-        if (channels == 3)
-        {
+            comment = "X offset of Bayer array";
+            if (fits_write_key(fptr, TINT, "XBAYROFF", &m_BayerOffsetX, (char*)comment, &status))
+            {
+                fits_get_errstatus(status, error_status);
+                qCDebug(KSTARS_FITS) << "fits_write_key XBAYROFF failed:" << error_status;
+                status = 0;
+            }
+
+            comment = "Y offset of Bayer arra";
+            if (fits_write_key(fptr, TINT, "YBAYROFF", &m_BayerOffsetY, (char*)comment, &status))
+            {
+                fits_get_errstatus(status, error_status);
+                qCDebug(KSTARS_FITS) << "fits_write_key YBAYROFF failed:" << error_status;
+                status = 0;
+            }
+
+            // Colour images need to be converted from interleaved R1G1B1R2G2B2R3...
+            // format to planar RRRRR.. GGGGG.. BBBBB.. format for display
             int totalPixels = width * height;
 
             std::vector<cv::Mat> splitChannels(3);

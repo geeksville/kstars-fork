@@ -175,7 +175,7 @@ class FITSStack : public QObject
 
         void resetStackedImage();
 
-        void setBayerPattern(QString bayerPattern);
+        void setBayerPattern(const QString pattern, const int offsetX, const int offsetY);
 
         const double &getMeanSubSNR() const
         {
@@ -401,6 +401,8 @@ class FITSStack : public QObject
         QSharedPointer<SolverUtils> m_Solver;
         bool m_ReadyToStack { false };
         QString m_BayerPattern;
+        int m_BayerOffsetX { 0 };
+        int m_BayerOffsetY { 0 };
 
         typedef struct
         {
