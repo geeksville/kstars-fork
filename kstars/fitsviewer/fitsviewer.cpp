@@ -467,7 +467,9 @@ bool FITSViewer::addFITSCommon(const QSharedPointer<FITSTab> &tab, const QUrl &i
     if (!imageName.isValid())
         lastURL = QUrl(imageName.url(QUrl::RemoveFilename));
 
-    QApplication::restoreOverrideCursor();
+    // JEE
+    if (mode != FITS_LIVESTACKING)
+        QApplication::restoreOverrideCursor();
     tab->setPreviewText(previewText);
 
     // Connect tab signals
@@ -1054,7 +1056,7 @@ void FITSViewer::stack()
     const QUrl imageName;
 
     led.setColor(Qt::yellow);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    // JEE QApplication::setOverrideCursor(Qt::WaitCursor);
 
     QSharedPointer<FITSTab> tab(new FITSTab(this));
 
@@ -1065,7 +1067,7 @@ void FITSViewer::stack()
         {
             Q_UNUSED(errorMessage);
             QObject::sender()->disconnect(this);
-            QApplication::restoreOverrideCursor();
+            // JEE QApplication::restoreOverrideCursor();
             led.setColor(Qt::red);
             m_StackBusy = false;
         }, Qt::UniqueConnection);
@@ -1093,8 +1095,7 @@ void FITSViewer::restack(const QString dir)
     const QUrl imageName;
 
     led.setColor(Qt::yellow);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    // JEE
+    // JEE QApplication::setOverrideCursor(Qt::WaitCursor);
     updateStatusBar(i18n("Stacking..."), FITS_MESSAGE);
     QString tabName = i18n("Stack of %1", dir);
     fitsTabWidget->setTabText(tabIndex, tabName);
@@ -1102,7 +1103,7 @@ void FITSViewer::restack(const QString dir)
     {
         Q_UNUSED(errorMessage);
         QObject::sender()->disconnect(this);
-            QApplication::restoreOverrideCursor();
+            // JEE QApplication::restoreOverrideCursor();
             led.setColor(Qt::red);
             m_StackBusy = false;
             // JEE
@@ -1113,7 +1114,7 @@ void FITSViewer::restack(const QString dir)
         {
             QObject::sender()->disconnect(this);
             addFITSCommon(m_Tabs[tabIndex], imageName, FITS_LIVESTACKING, tabName);
-            QApplication::restoreOverrideCursor();
+            // JEE QApplication::restoreOverrideCursor();
             led.setColor(Qt::green);
             m_StackBusy = false;
             updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);

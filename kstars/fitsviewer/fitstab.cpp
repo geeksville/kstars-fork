@@ -1332,6 +1332,9 @@ void FITSTab::liveStack()
 }
 
 // Plate solve the sub. May require 2 runs; firstly to get stars (if needed) and then to actually plate solve
+// Also, we assume that once the first sub is solved subsequent subs can be solved on just the same index and HEALPix
+// This significantly speeds up plate solving but if that solve fails... we widen the criteria and try again
+// before completely giving up on the sub
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
 void FITSTab::plateSolveSub(const double ra, const double dec, const double pixScale, const int index,
                             const int healpix, const LiveStackFrameWeighting &weighting)
@@ -1354,7 +1357,6 @@ void FITSTab::plateSolveSub(const double ra, const double dec, const double pixS
         const bool timedOut = false;
         const bool success = false;
         m_View->imageData()->solverDone(timedOut, success, m_StackMedianHFR, m_StackNumStars);
-
     });
     connect(m_PlateSolve.get(), &PlateSolve::subSolverFailed, this, [this, ra, dec, pixScale]()
     {

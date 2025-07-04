@@ -374,7 +374,8 @@ void FITSData::incrementalStack()
         return;
 
     // If processing of other subs is still in progress we must wait for it to complete
-    if (m_StackSubs.size() > m_StackSubPos || m_Stack->getStackInProgress())
+    bool hasUnprocessedSubs = !m_StackSubs.empty() && m_StackSubPos < m_StackSubs.size();
+    if (m_Stack->getStackInProgress() || hasUnprocessedSubs)
         return;
 
     m_Stack->setStackInProgress(true);
@@ -416,7 +417,7 @@ bool FITSData::processNextSub(QString &sub)
             qCDebug(KSTARS_FITS) << QString("Unable to load sub %1").arg(sub);
         else
         {
-            if (m_StackSubIndex == -1)
+            if (m_StackSubIndex <= 0)
             {
                 // 1st time solving, or solving had a problem so use WCS from sub header
                 if ((ok = stackLoadWCS()))
