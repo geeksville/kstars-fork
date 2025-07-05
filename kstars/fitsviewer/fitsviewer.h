@@ -180,6 +180,7 @@ class FITSViewer : public KXmlGuiWindow
 
         // Live Stacking
         static bool m_StackBusy;
+        int m_LiveStackTabUID { -1 };
 
     signals:
         void trackingStarSelected(int x, int y);

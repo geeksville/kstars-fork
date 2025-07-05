@@ -1080,6 +1080,7 @@ void FITSViewer::stack()
             m_StackBusy = false;
         }, Qt::UniqueConnection);
 
+    m_LiveStackTabUID = tab->getUID();
     tab->initStack(topDir, FITS_LIVESTACKING, FITS_NONE);
 }
 
@@ -1090,16 +1091,14 @@ void FITSViewer::restack(const QString dir)
         return;
     m_StackBusy = true;
 
-    int tabIndex = fitsTabWidget->currentIndex();
-
+    auto tab = fitsMap.value(m_LiveStackTabUID);
     const QUrl imageName;
 
     led.setColor(Qt::yellow);
     // JEE QApplication::setOverrideCursor(Qt::WaitCursor);
     updateStatusBar(i18n("Stacking..."), FITS_MESSAGE);
-    QString tabName = i18n("Stack of %1", dir);
-    fitsTabWidget->setTabText(tabIndex, tabName);
-    connect(m_Tabs[tabIndex].get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
+    QString tabName = i18n("Watching %1", dir);
+    connect(tab.get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
     {
         Q_UNUSED(errorMessage);
         QObject::sender()->disconnect(this);
@@ -1108,17 +1107,16 @@ void FITSViewer::restack(const QString dir)
             m_StackBusy = false;
             // JEE
             updateStatusBar(i18n("Stacking Failed"), FITS_MESSAGE);
-        }, Qt::UniqueConnection);
+    }, Qt::UniqueConnection);
 
-    connect(m_Tabs[tabIndex].get(), &FITSTab::loaded, this, [ = ]()
-        {
-            QObject::sender()->disconnect(this);
-            addFITSCommon(m_Tabs[tabIndex], imageName, FITS_LIVESTACKING, tabName);
-            // JEE QApplication::restoreOverrideCursor();
-            led.setColor(Qt::green);
-            m_StackBusy = false;
-            updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);
-        }, Qt::UniqueConnection);
+    connect(tab.get(), &FITSTab::loaded, this, [ = ]()
+    {
+        updateFITSCommon(tab, imageName, tabName);
+
+        // JEE QApplication::restoreOverrideCursor();
+        m_StackBusy = false;
+        updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);
+    }, Qt::UniqueConnection);
 }
 
 void FITSViewer::saveFile()

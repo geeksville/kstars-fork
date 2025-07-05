@@ -243,9 +243,9 @@ void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, 
             cv::minMaxLoc(m_MasterDark, &minVal, &maxVal);
             if (maxVal <= 1.0)
             {
-                if (m_BytesPerPixel = 1)
+                if (m_BytesPerPixel == 1)
                     m_MasterDark *= 255;
-                else if (m_BytesPerPixel = 2)
+                else if (m_BytesPerPixel == 2)
                     m_MasterDark *= 65535;
             }
         }
@@ -298,11 +298,11 @@ bool FITSStack::convertMat(const cv::Mat &input, cv::Mat &output)
         if (m_StackData.downscale != LS_DOWNSCALE_NONE)
         {
             // Downscale image (if required). Less data = faster...
-            int downscale = getDownscaleFactor(m_StackData.downscale);
+            int downscaleFactor = getDownscaleFactor(m_StackData.downscale);
 
             cv::Mat downsizedImage;
-            int newWidth = output.cols / downscale;
-            int newHeight = output.rows / downscale;
+            int newWidth = output.cols / downscaleFactor;
+            int newHeight = output.rows / downscaleFactor;
             cv::resize(output, downsizedImage, cv::Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
             output = downsizedImage;
         }

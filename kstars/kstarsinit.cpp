@@ -162,7 +162,7 @@ void KStars::initActions()
 #if defined(HAVE_WCSLIB) && defined(HAVE_OPENCV)
     actionCollection()->addAction("stack_directory", this, SLOT(slotStack()))
         << i18n("Live Stacking...") << QIcon::fromTheme("folder-open")
-        << QKeySequence(Qt::CTRL | Qt::Key_K | Qt::AltModifier);
+        << QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_K);
 #endif
 
 #endif
