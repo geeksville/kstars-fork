@@ -319,11 +319,11 @@ bool FITSStack::convertMat(const cv::Mat &input, cv::Mat &output)
 int FITSStack::getDownscaleFactor(LiveStackDownscale downscale)
 {
     int factor = 1;
-    if (m_StackData.downscale == LS_DOWNSCALE_2X)
+    if (downscale == LS_DOWNSCALE_2X)
         factor = 2;
-    else if (m_StackData.downscale == LS_DOWNSCALE_3X)
+    else if (downscale == LS_DOWNSCALE_3X)
         factor = 3;
-    else if (m_StackData.downscale == LS_DOWNSCALE_4X)
+    else if (downscale == LS_DOWNSCALE_4X)
         factor = 4;
     return factor;
 }

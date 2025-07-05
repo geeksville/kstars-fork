@@ -1052,7 +1052,15 @@ void FITSViewer::stack()
         return;
     m_StackBusy = true;
 
-    QString topDir = lastURL.toString();
+    QString topDir = QDir::homePath();
+    QString filePath = lastURL.path();
+    if (filePath.isEmpty())
+        filePath = lastURL.toString();
+    QFileInfo fileInfo(filePath);
+    if (fileInfo.isDir())
+        topDir = fileInfo.absoluteFilePath();
+    else if (fileInfo.isFile())
+        topDir = fileInfo.absolutePath();
     const QUrl imageName;
 
     led.setColor(Qt::yellow);
