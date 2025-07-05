@@ -1080,6 +1080,19 @@
             </spacer>
            </item>
            <item>
+            <widget class="QPushButton" name="historyPreviousRunB">
+             <property name="toolTip">
+              <string>Previous autofocus run</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset theme="media-skip-backward"/>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="historyFirstB">
              <property name="toolTip">
               <string>First focusing frame</string>
@@ -1088,13 +1101,12 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset theme="media-skip-backward">
-               <normaloff>.</normaloff>.</iconset>
+              <iconset theme="media-seek-backward"/>
              </property>
              <property name="iconSize">
               <size>
-               <width>24</width>
-               <height>24</height>
+               <width>16</width>
+               <height>16</height>
               </size>
              </property>
             </widget>
@@ -1108,13 +1120,12 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset theme="media-seek-backward">
-               <normaloff>.</normaloff>.</iconset>
+              <iconset theme="go-previous"/>
              </property>
              <property name="iconSize">
               <size>
-               <width>24</width>
-               <height>24</height>
+               <width>16</width>
+               <height>16</height>
               </size>
              </property>
             </widget>
@@ -1138,13 +1149,12 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset theme="media-seek-forward">
-               <normaloff>.</normaloff>.</iconset>
+              <iconset theme="go-next"/>
              </property>
              <property name="iconSize">
               <size>
-               <width>24</width>
-               <height>24</height>
+               <width>16</width>
+               <height>16</height>
               </size>
              </property>
             </widget>
@@ -1158,14 +1168,26 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset theme="media-skip-forward">
-               <normaloff>.</normaloff>.</iconset>
+              <iconset theme="media-seek-forward"/>
              </property>
              <property name="iconSize">
               <size>
-               <width>24</width>
-               <height>24</height>
+               <width>16</width>
+               <height>16</height>
               </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="historyNextRunB">
+             <property name="toolTip">
+              <string>Next autofocus run</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset theme="media-skip-forward"/>
              </property>
             </widget>
            </item>

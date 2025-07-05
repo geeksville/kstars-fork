@@ -172,6 +172,8 @@ Focus::Focus(int id) : QWidget()
     connect(historyLastB, &QPushButton::clicked, this, &Focus::showLastFrame);
     connect(historyBackwardB, &QPushButton::clicked, this, &Focus::showPreviousFrame);
     connect(historyForwardB, &QPushButton::clicked, this, &Focus::showNextFrame);
+    connect(historyPreviousRunB, &QPushButton::clicked, this, &Focus::showPreviousAFRun);
+    connect(historyNextRunB, &QPushButton::clicked, this, &Focus::showNextAFRun);
 
     setupOpticalTrainManager();
     initOpticalTrain();
@@ -1003,26 +1005,44 @@ void Focus::loadCurrentFocusFrame()
 
 void Focus::showFirstFrame()
 {
-    if (captureHistory().first())
+    if (captureHistory(m_currentAFRun).first())
         loadCurrentFocusFrame();
 }
 
 void Focus::showLastFrame()
 {
-    if (captureHistory().last())
+    if (captureHistory(m_currentAFRun).last())
         loadCurrentFocusFrame();
 }
 
 void Focus::showPreviousFrame()
 {
-    if (captureHistory().backward())
+    if (captureHistory(m_currentAFRun).backward())
         loadCurrentFocusFrame();
 }
 
 void Focus::showNextFrame()
 {
-    if (captureHistory().forward())
+    if (captureHistory(m_currentAFRun).forward())
         loadCurrentFocusFrame();
+}
+
+void Focus::showPreviousAFRun()
+{
+    if (m_currentAFRun > 1)
+    {
+        m_currentAFRun--;
+        loadCurrentFocusFrame();
+    }
+}
+
+void Focus::showNextAFRun()
+{
+    if (m_currentAFRun < m_AFRun)
+    {
+        m_currentAFRun++;
+        loadCurrentFocusFrame();
+    }
 }
 
 // Run Aberration Inspector
@@ -1136,6 +1156,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     }
 
     m_AFRun++;
+    m_currentAFRun = m_AFRun;
     m_StartRetries = 0;
     m_LastFocusDirection = FOCUS_NONE;
 
@@ -1192,7 +1213,6 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
     resetButtons();
 
     // clear the history
-    captureHistory().reset();
     refreshMeasuresDisplay();
 
     reverseDir = false;
@@ -2529,12 +2549,9 @@ bool Focus::appendMeasure()
     // Save the focus frame
     frameData.filename = saveFocusFrame();
 
-    // the history will only be kept during autofocus runs
-    if (! inAutoFocus)
-        captureHistory().reset();
-
     // update the history
-    captureHistory().addFrame(frameData, false);
+    if (inAutoFocus)
+        captureHistory(m_AFRun).addFrame(frameData, false);
 
     // Return whether we need more frame based on user requirement
     int framesCount = m_OpsFocusProcess->focusFramesCount->value();
@@ -3404,7 +3421,7 @@ void Focus::clearDataPoints()
         }
     }
 
-    captureHistory().reset();
+    captureHistory(m_AFRun).reset();
     refreshMeasuresDisplay();
 
     emit initHFRPlot(getyAxisLabel(m_StarMeasure), getStarUnits(m_StarMeasure, m_StarUnits),
@@ -5046,7 +5063,7 @@ void Focus::updateButtonColors(QPushButton *button, bool shift, bool ctrl)
 
 void Focus::refreshMeasuresDisplay()
 {
-    if (captureHistory().size() <= 0)
+    if (captureHistory(m_currentAFRun).size() <= 0)
     {
         iterOut->setText("--");
         HFROut->setText("--");
@@ -5056,8 +5073,9 @@ void Focus::refreshMeasuresDisplay()
     else
     {
         // display the iteration count during autofocus and afterwards
-        if (inAutoFocus || captureHistory().size() > 1)
-            iterOut->setText(QString("%1/%2").arg(captureHistory().position() + 1).arg(captureHistory().size()));
+        if (inAutoFocus || captureHistory(m_currentAFRun).size() > 1)
+            iterOut->setText(QString("Run #%1: %2/%3").arg(m_currentAFRun).arg(captureHistory(m_currentAFRun).position() + 1).arg(
+                                 captureHistory(m_currentAFRun).size()));
         else
             iterOut->setText("--");
 
@@ -5068,12 +5086,15 @@ void Focus::refreshMeasuresDisplay()
     }
 
     // enable/disable navigation buttons
-    bool backward = !inAutoFocus && (captureHistory().position() > 0);
-    bool forward  = !inAutoFocus && (captureHistory().size() > 0 && captureHistory().position() + 1 < captureHistory().size());
+    bool backward = !inAutoFocus && (captureHistory(m_currentAFRun).position() > 0);
+    bool forward  = !inAutoFocus && (captureHistory(m_currentAFRun).size() > 0
+                                     && captureHistory(m_currentAFRun).position() + 1 < captureHistory(m_currentAFRun).size());
     historyFirstB->setEnabled(backward);
     historyBackwardB->setEnabled(backward);
     historyForwardB->setEnabled(forward);
     historyLastB->setEnabled(forward);
+    historyPreviousRunB->setEnabled(m_currentAFRun > 1);
+    historyNextRunB->setEnabled(m_currentAFRun < m_AFRun);
 }
 
 // Return whether the Aberration Inspector Start button should be enabled. The pre-requisties are:
@@ -7766,6 +7787,15 @@ void Focus::setAllSettings(QVariantMap &settings)
     setStarMeasure(static_cast<StarMeasure>(m_OpsFocusProcess->focusStarMeasure->currentIndex()));
     setWalk(static_cast<FocusWalk>(m_OpsFocusMechanics->focusWalk->currentIndex()));
     selectImageMask();
+}
+
+CaptureHistory &Focus::captureHistory(int run)
+{
+    // ensure that the history contains enough entries
+    while (m_captureHistory.size() <= run)
+        m_captureHistory.append(CaptureHistory());
+
+    return m_captureHistory[run];
 }
 
 bool Focus::syncControl(const QVariantMap &settings, const QString &key, QWidget * widget)

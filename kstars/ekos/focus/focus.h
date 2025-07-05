@@ -130,7 +130,7 @@ class Focus : public QWidget, public Ui::Focus
              */
         Q_SCRIPTABLE double getHFR()
         {
-            return captureHistory().lastFrame().hfr;
+            return captureHistory(m_AFRun).lastFrame().hfr;
         }
 
         /** DBUS interface function.
@@ -253,10 +253,7 @@ class Focus : public QWidget, public Ui::Focus
         /**
          * @brief Capture history of the current focuser
          */
-        CaptureHistory &captureHistory()
-        {
-            return m_captureHistory;
-        }
+        CaptureHistory &captureHistory(int run);
 
 public slots:
 
@@ -465,6 +462,8 @@ public slots:
         void showLastFrame();
         void showPreviousFrame();
         void showNextFrame();
+        void showPreviousAFRun();
+        void showNextAFRun();
 
     protected:
         void addPlotPosition(int pos, double hfr, bool plot = true);
@@ -1000,12 +999,12 @@ public slots:
         /**
          * @brief Retrieve the currently selected frame
          */
-        const CaptureHistory::FrameData currentFrame() {return captureHistory().currentFrame();}
+        const CaptureHistory::FrameData currentFrame() {return captureHistory(m_currentAFRun).currentFrame();}
 
         /**
          * @brief Retrieve the last captured frame
          */
-        const CaptureHistory::FrameData lastFrame() {return captureHistory().lastFrame();}
+        const CaptureHistory::FrameData lastFrame() {return captureHistory(m_AFRun).lastFrame();}
 
         /******************************************
          * Accessors to the last focusing measurements
@@ -1014,20 +1013,20 @@ public slots:
          /**
          * @brief getLastNumStars Determine the last measured number of stars
          */
-        double getLastNumStars() {return captureHistory().lastFrame().numStars;}
+        double getLastNumStars() {return captureHistory(m_AFRun).lastFrame().numStars;}
         /**
          * @brief getLastMeasure Determine the last measured value
          */
-        double getLastMeasure() {return captureHistory().lastFrame().measure;}
+        double getLastMeasure() {return captureHistory(m_AFRun).lastFrame().measure;}
         /**
          * @brief getLastWeight Determine the last weight value
          */
-        double getLastWeight() {return captureHistory().lastFrame().weight;}
+        double getLastWeight() {return captureHistory(m_AFRun).lastFrame().weight;}
 
         /**
          * @brief Obtain the frame from the given position in the history
          */
-        const CaptureHistory::FrameData getFrame(int pos) {return captureHistory().getFrame(pos);}
+        const CaptureHistory::FrameData getFrame(int pos) {return captureHistory(m_currentAFRun).getFrame(pos);}
 
         /**
          * @brief loadFocusFrame Load stored focus frame for the current history position
@@ -1112,7 +1111,7 @@ public slots:
         /******************************************
          * capture history and stuff
          ******************************************/
-        CaptureHistory m_captureHistory;
+        QList<CaptureHistory> m_captureHistory;
 
         /****************************
          * Absolute position focusers
@@ -1208,6 +1207,7 @@ public slots:
         QString m_AutofocusReasonInfo;
         // Autofocus run number - to help with debugging logs
         int m_AFRun = 0;
+        int m_currentAFRun = 0;
         // Rerun flag indicating a rerun due to AF failing
         bool m_AFRerun = false;
 
