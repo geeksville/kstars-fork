@@ -8,6 +8,7 @@
 
 #include "ui_focus.h"
 #include "focusfourierpower.h"
+#include "focusfitsview.h"
 #include "ekos/ekos.h"
 #include "parameters.h"
 #include "ekos/auxiliary/filtermanager.h"
@@ -468,6 +469,7 @@ public slots:
         void showNextFrame();
         void showPreviousAFRun();
         void showNextAFRun();
+
 
     protected:
         void addPlotPosition(int pos, double hfr, bool plot = true);
@@ -1259,7 +1261,7 @@ public slots:
         QVector3D rememberStarCenter;
 
         /// Focus Frame
-        QSharedPointer<FITSView> m_FocusView;
+        QSharedPointer<FocusFITSView> m_FocusView;
 
         /// Star Select Timer
         QTimer waitStarSelectTimer;

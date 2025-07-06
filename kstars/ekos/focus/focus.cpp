@@ -3062,9 +3062,14 @@ void Focus::setCaptureComplete()
     // If we have a box, sync the bounding box to its position.
     syncTrackingBoxPosition();
 
-    // Notify user if we're not looping
+    // if we're not looping
     if (inFocusLoop == false)
+    {
+        // notify user
         appendLogText(i18n("Image received."));
+        // show the history navigation panel
+        m_FocusView->showNavigation(true);
+    }
 
     if (m_captureInProgress && inFocusLoop == false && inAutoFocus == false)
         m_Camera->setUploadMode(rememberUploadMode);
@@ -7626,13 +7631,18 @@ void Focus::setState(FocusState newState, const bool update)
 
 void Focus::initView()
 {
-    m_FocusView.reset(new FITSView(focusingWidget, FITS_FOCUS));
-    m_FocusView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // 1. Create the focus view
+    m_FocusView.reset(new FocusFITSView(focusingWidget));
     m_FocusView->setBaseSize(focusingWidget->size());
-    m_FocusView->createFloatingToolBar();
-    QVBoxLayout *vlayout = new QVBoxLayout();
-    vlayout->addWidget(m_FocusView.get());
-    focusingWidget->setLayout(vlayout);
+
+    // 2. Set layout on the parent
+    QVBoxLayout *layout = new QVBoxLayout(focusingWidget);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    layout->addWidget(m_FocusView.get());
+
+    // 3. Create overlay widget AS CHILD OF m_FocusView
+
     connect(m_FocusView.get(), &FITSView::trackingStarSelected, this, &Ekos::Focus::focusStarSelected, Qt::UniqueConnection);
     m_FocusView->setStarsEnabled(true);
     m_FocusView->setStarsHFREnabled(true);

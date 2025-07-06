@@ -306,6 +306,7 @@ if (INDI_FOUND)
             # Focus
             ekos/focus/focus.cpp
             ekos/focus/focusmodule.cpp
+            ekos/focus/focusfitsview.cpp
             ekos/focus/focushfrvplot.cpp
             ekos/focus/focusprofileplot.cpp
             ekos/focus/focusalgorithms.cpp
