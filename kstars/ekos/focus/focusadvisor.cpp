@@ -537,7 +537,7 @@ QString FocusAdvisor::getFocusFramePrefix()
     else if (inFocusAdvisor() && m_inPreAFAdj)
         prefix = "_ca_" + QString("%1_%2").arg(m_preAFRunNum).arg(m_focus->absIterations + 1);
     else if (inFocusAdvisor() && m_focus->inScanStartPos)
-        prefix = "_ssp_" + QString("%1_%2").arg(m_focus->m_AFRun).arg(m_focus->absIterations + 1);
+        prefix = "_ssp_" + QString("%1_%2").arg(m_focus->lastAFRun()).arg(m_focus->absIterations + 1);
     return prefix;
 }
 

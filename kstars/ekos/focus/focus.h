@@ -12,6 +12,7 @@
 #include "parameters.h"
 #include "ekos/auxiliary/filtermanager.h"
 #include "ekos/capture/capturehistory.h"
+#include "ekos/capture/capturehistorynavigation.h"
 
 #include "indi/indicamera.h"
 #include "indi/indifocuser.h"
@@ -130,7 +131,7 @@ class Focus : public QWidget, public Ui::Focus
              */
         Q_SCRIPTABLE double getHFR()
         {
-            return captureHistory(m_AFRun).lastFrame().hfr;
+            return focusHistoryNavigation->lastFrame().hfr;
         }
 
         /** DBUS interface function.
@@ -253,7 +254,10 @@ class Focus : public QWidget, public Ui::Focus
         /**
          * @brief Capture history of the current focuser
          */
-        CaptureHistory &captureHistory(int run);
+        CaptureHistory &captureHistory(int run)
+        {
+            return focusHistoryNavigation->captureHistory(run);
+        }
 
 public slots:
 
@@ -999,12 +1003,17 @@ public slots:
         /**
          * @brief Retrieve the currently selected frame
          */
-        const CaptureHistory::FrameData currentFrame() {return captureHistory(m_currentAFRun).currentFrame();}
+        const CaptureHistory::FrameData currentFrame() {return focusHistoryNavigation->currentFrame();}
 
         /**
          * @brief Retrieve the last captured frame
          */
-        const CaptureHistory::FrameData lastFrame() {return captureHistory(m_AFRun).lastFrame();}
+        const CaptureHistory::FrameData lastFrame() {return focusHistoryNavigation->lastFrame();}
+
+        /**
+         * @brief lastAFRun ID of the last autofocus run
+         */
+        int lastAFRun(){return focusHistoryNavigation->lastRun();};
 
         /******************************************
          * Accessors to the last focusing measurements
@@ -1013,20 +1022,15 @@ public slots:
          /**
          * @brief getLastNumStars Determine the last measured number of stars
          */
-        double getLastNumStars() {return captureHistory(m_AFRun).lastFrame().numStars;}
+        double getLastNumStars() {return focusHistoryNavigation->lastFrame().numStars;}
         /**
          * @brief getLastMeasure Determine the last measured value
          */
-        double getLastMeasure() {return captureHistory(m_AFRun).lastFrame().measure;}
+        double getLastMeasure() {return  focusHistoryNavigation->lastFrame().measure;}
         /**
          * @brief getLastWeight Determine the last weight value
          */
-        double getLastWeight() {return captureHistory(m_AFRun).lastFrame().weight;}
-
-        /**
-         * @brief Obtain the frame from the given position in the history
-         */
-        const CaptureHistory::FrameData getFrame(int pos) {return captureHistory(m_currentAFRun).getFrame(pos);}
+        double getLastWeight() {return  focusHistoryNavigation->lastFrame().weight;}
 
         /**
          * @brief loadFocusFrame Load stored focus frame for the current history position
@@ -1107,11 +1111,6 @@ public slots:
         int HFRInc { 0 };
         /// If HFR decreasing? Well, good job. Once HFR start decreasing, we can start calculating HFR slope and estimating our next move.
         int HFRDec { 0 };
-
-        /******************************************
-         * capture history and stuff
-         ******************************************/
-        QList<CaptureHistory> m_captureHistory;
 
         /****************************
          * Absolute position focusers
@@ -1205,9 +1204,6 @@ public slots:
         AutofocusReason m_AutofocusReason = AutofocusReason::FOCUS_NONE;
         // Extra information about m_AutofocusReason
         QString m_AutofocusReasonInfo;
-        // Autofocus run number - to help with debugging logs
-        int m_AFRun = 0;
-        int m_currentAFRun = 0;
         // Rerun flag indicating a rerun due to AF failing
         bool m_AFRerun = false;
 

@@ -13,3 +13,101 @@ CaptureHistoryNavigation::CaptureHistoryNavigation(QWidget *parent)
     // use white as text color
     setStyleSheet("color: rgb(255, 255, 255);");
 }
+
+void CaptureHistoryNavigation::addRun()
+{
+    m_lastRun++;
+    m_currentRun = m_lastRun;
+}
+
+
+
+CaptureHistory &CaptureHistoryNavigation::captureHistory(int run)
+{
+    // ensure that the history contains enough entries
+    while (m_captureHistory.size() <= run)
+        m_captureHistory.append(CaptureHistory());
+
+    return m_captureHistory[run];
+}
+
+bool CaptureHistoryNavigation::showFirstFrame()
+{
+    if (captureHistory(m_currentRun).first())
+    {
+        refreshNavigation();
+        return true;
+    }
+    else
+        return false;
+}
+
+bool CaptureHistoryNavigation::showLastFrame()
+{
+    if (captureHistory(m_currentRun).last())
+    {
+        refreshNavigation();
+        return true;
+    }
+    else
+        return false;
+}
+
+bool CaptureHistoryNavigation::showPreviousFrame()
+{
+    if (captureHistory(m_currentRun).backward())
+    {
+        refreshNavigation();
+        return true;
+    }
+    else
+        return false;
+}
+
+bool CaptureHistoryNavigation::showNextFrame()
+{
+    if (captureHistory(m_currentRun).forward())
+    {
+        refreshNavigation();
+        return true;
+    }
+    else
+        return false;
+}
+
+bool CaptureHistoryNavigation::showPreviousRun()
+{
+    if (m_currentRun > 1)
+    {
+        m_currentRun--;
+        refreshNavigation();
+        return true;
+    }
+    else
+        return false;
+}
+
+bool CaptureHistoryNavigation::showNextRun()
+{
+    if (m_currentRun < m_lastRun)
+    {
+        m_currentRun++;
+        refreshNavigation();
+        return true;
+    }
+    else
+        return false;
+}
+
+void CaptureHistoryNavigation::refreshNavigation()
+{
+    bool backward = (captureHistory(m_currentRun).position() > 0);
+    bool forward  = (captureHistory(m_currentRun).size() > 0
+                     && captureHistory(m_currentRun).position() + 1 < captureHistory(m_currentRun).size());
+    historyFirstB->setEnabled(backward);
+    historyBackwardB->setEnabled(backward);
+    historyForwardB->setEnabled(forward);
+    historyLastB->setEnabled(forward);
+    historyPreviousRunB->setEnabled(m_currentRun > 1);
+    historyNextRunB->setEnabled(m_currentRun < m_lastRun);
+}
