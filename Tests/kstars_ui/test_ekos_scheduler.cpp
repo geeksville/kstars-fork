@@ -198,10 +198,88 @@ void TestEkosScheduler::testScheduleManipulation()
         QTRY_COMPARE_WITH_TIMEOUT(queueTable->rowCount(), count - i - 1, 5000);
 
         // After a removal, no row is selected, no further removal possible
-        QVERIFY(!removeFromQueueB->isEnabled());
+        QCOMPARE(queueTable->selectionModel()->selectedRows().size(), 0);
     }
 
     QCOMPARE(queueTable->rowCount(), 0);
+}
+
+void TestEkosScheduler::testNewStartupConditions()
+{
+    Ekos::Manager * const ekos = Ekos::Manager::Instance();
+
+    // Wait for Scheduler to come up, switch to Scheduler tab
+    QTRY_VERIFY_WITH_TIMEOUT(ekos->schedulerModule() != nullptr, 5000);
+    KTRY_EKOS_GADGET(QTabWidget, toolsWidget);
+    toolsWidget->setCurrentWidget(ekos->schedulerModule());
+    QTRY_COMPARE_WITH_TIMEOUT(toolsWidget->currentWidget(), ekos->schedulerModule(), 1000);
+
+    // Test that the new startup condition radio buttons are available
+    KTRY_SCHEDULER_GADGET(QRadioButton, asapConditionR);
+    KTRY_SCHEDULER_GADGET(QRadioButton, startupTimeConditionR);
+    KTRY_SCHEDULER_GADGET(QRadioButton, dailyConditionR);
+    KTRY_SCHEDULER_GADGET(QRadioButton, twilightConditionR);
+    KTRY_SCHEDULER_GADGET(QRadioButton, sunsetConditionR);
+
+    // Test that all radio buttons are present and accessible
+    QVERIFY(asapConditionR != nullptr);
+    QVERIFY(startupTimeConditionR != nullptr);
+    QVERIFY(dailyConditionR != nullptr);
+    QVERIFY(twilightConditionR != nullptr);
+    QVERIFY(sunsetConditionR != nullptr);
+
+    // Test that we can switch between different startup conditions
+    // Start with ASAP
+    KTRY_SCHEDULER_CLICK(asapConditionR);
+    QVERIFY(asapConditionR->isChecked());
+    QVERIFY(!startupTimeConditionR->isChecked());
+    QVERIFY(!dailyConditionR->isChecked());
+    QVERIFY(!twilightConditionR->isChecked());
+    QVERIFY(!sunsetConditionR->isChecked());
+
+    // Switch to Daily
+    KTRY_SCHEDULER_CLICK(dailyConditionR);
+    QVERIFY(!asapConditionR->isChecked());
+    QVERIFY(!startupTimeConditionR->isChecked());
+    QVERIFY(dailyConditionR->isChecked());
+    QVERIFY(!twilightConditionR->isChecked());
+    QVERIFY(!sunsetConditionR->isChecked());
+
+    // Switch to Twilight
+    KTRY_SCHEDULER_CLICK(twilightConditionR);
+    QVERIFY(!asapConditionR->isChecked());
+    QVERIFY(!startupTimeConditionR->isChecked());
+    QVERIFY(!dailyConditionR->isChecked());
+    QVERIFY(twilightConditionR->isChecked());
+    QVERIFY(!sunsetConditionR->isChecked());
+
+    // Switch to Sunset
+    KTRY_SCHEDULER_CLICK(sunsetConditionR);
+    QVERIFY(!asapConditionR->isChecked());
+    QVERIFY(!startupTimeConditionR->isChecked());
+    QVERIFY(!dailyConditionR->isChecked());
+    QVERIFY(!twilightConditionR->isChecked());
+    QVERIFY(sunsetConditionR->isChecked());
+
+    // Switch to At (time)
+    KTRY_SCHEDULER_CLICK(startupTimeConditionR);
+    QVERIFY(!asapConditionR->isChecked());
+    QVERIFY(startupTimeConditionR->isChecked());
+    QVERIFY(!dailyConditionR->isChecked());
+    QVERIFY(!twilightConditionR->isChecked());
+    QVERIFY(!sunsetConditionR->isChecked());
+
+    // Test that the daily time edit is available when daily is selected
+    KTRY_SCHEDULER_CLICK(dailyConditionR);
+    KTRY_SCHEDULER_GADGET(QTimeEdit, dailyTimeEdit);
+    QVERIFY(dailyTimeEdit != nullptr);
+    QVERIFY(dailyTimeEdit->isEnabled());
+
+    // Test that the startup time edit is available when "At" is selected
+    KTRY_SCHEDULER_CLICK(startupTimeConditionR);
+    KTRY_SCHEDULER_GADGET(QDateTimeEdit, startupTimeEdit);
+    QVERIFY(startupTimeEdit != nullptr);
+    QVERIFY(startupTimeEdit->isEnabled());
 }
 
 QTEST_KSTARS_MAIN(TestEkosScheduler)

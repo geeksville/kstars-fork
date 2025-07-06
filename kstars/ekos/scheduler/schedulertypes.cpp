@@ -152,6 +152,12 @@ QString startupConditionString(StartupCondition condition)
             return "ASAP";
         case START_AT:
             return "AT";
+        case START_DAILY:
+            return "DAILY";
+        case START_TWILIGHT:
+            return "TWILIGHT";
+        case START_SUNSET:
+            return "SUNSET";
     }
     return QString("????");
 }

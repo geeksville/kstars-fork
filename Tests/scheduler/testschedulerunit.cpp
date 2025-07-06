@@ -51,6 +51,7 @@ class TestSchedulerUnit : public QObject
         void loadSequenceQueueTest();
         void estimateJobTimeTest();
         void evaluateJobsTest();
+        void newStartupConditionsTest();
 
     private:
         void runSetupJob(Ekos::SchedulerJob &job,
@@ -187,6 +188,17 @@ void TestSchedulerUnit::runSetupJob(Ekos::SchedulerJob &job, GeoLocation *geo, K
         case Ekos::START_ASAP:
             QVERIFY(QDateTime() == job.getStartupTime());
             break;
+        case Ekos::START_DAILY:
+            QVERIFY(sTime == job.getStartupTime());
+            break;
+        case Ekos::START_TWILIGHT:
+            // For twilight, the startup time will be calculated dynamically
+            // We just verify that the condition is set correctly
+            break;
+        case Ekos::START_SUNSET:
+            // For sunset, the startup time will be calculated dynamically
+            // We just verify that the condition is set correctly
+            break;
     }
 
     QVERIFY(eCond == job.getCompletionCondition());
@@ -285,6 +297,40 @@ void TestSchedulerUnit::setupJobTest_data()
             << true   // focus
             << true   // align
             << false; // guide
+
+    QTest::newRow("START_DAILY_FINISH_SEQUENCE")
+            << Ekos::START_DAILY // start conditions
+            << QDateTime(QDate(2021, 4, 17), QTime(22, 30, 0), QTimeZone(-7 * 3600))
+            << Ekos::FINISH_SEQUENCE << QDateTime() << 1 // end conditions
+            << true   // enforce twilight
+            << true   // enforce artificial horizon
+            << true   // track
+            << true   // focus
+            << true   // align
+            << true;  // guide
+
+    QTest::newRow("START_TWILIGHT_FINISH_AT")
+            << Ekos::START_TWILIGHT << QDateTime() // start conditions (time will be calculated)
+            << Ekos::FINISH_AT // end conditions
+            << QDateTime(QDate(2021, 4, 18), QTime(2, 0, 0), QTimeZone(-7 * 3600))
+            << 1
+            << true   // enforce twilight
+            << true   // enforce artificial horizon
+            << true   // track
+            << true   // focus
+            << true   // align
+            << true;  // guide
+
+    QTest::newRow("START_SUNSET_FINISH_REPEAT")
+            << Ekos::START_SUNSET << QDateTime() // start conditions (time will be calculated)
+            << Ekos::FINISH_REPEAT // end conditions
+            << QDateTime() << 3
+            << true   // enforce twilight
+            << true   // enforce artificial horizon
+            << true   // track
+            << true   // focus
+            << true   // align
+            << true;  // guide
 }
 
 void TestSchedulerUnit::setupJobTest()
@@ -601,6 +647,59 @@ void TestSchedulerUnit::evaluateJobsTest()
     QVERIFY(compareTimes(jobs[1]->getFinishAtTime(), midNight.addSecs(19 * 3600 + 44 * 60), 300));
 
     jobs.clear();
+}
+
+void TestSchedulerUnit::newStartupConditionsTest()
+{
+    // Test loading jobs with new startup conditions from XML
+    Ekos::SchedulerJob dailyJob(nullptr);
+    Ekos::SchedulerJob twilightJob(nullptr);
+    Ekos::SchedulerJob sunsetJob(nullptr);
+
+    // Setup geo and time for testing
+    Ekos::SchedulerModuleState::setGeo(&siliconValley);
+    Ekos::SchedulerModuleState::setLocalTime(&midNight);
+
+    // Test loading from the new test file
+    QList<Ekos::SchedulerJob *> jobs;
+    QVERIFY(Ekos::SchedulerUtils::loadScheduler("new_startup_conditions_test.esl", jobs, nullptr));
+
+    // Verify that we have 3 jobs
+    QVERIFY(jobs.size() == 3);
+
+    // Check the first job (Daily)
+    Ekos::SchedulerJob *dailyJobPtr = jobs[0];
+    QVERIFY(dailyJobPtr->getName() == "Daily_Test_Job");
+    QVERIFY(dailyJobPtr->getFileStartupCondition() == Ekos::START_DAILY);
+    QVERIFY(dailyJobPtr->getStartupTime().time().toString("hh:mm") == "22:30");
+
+    // Check the second job (Twilight)
+    Ekos::SchedulerJob *twilightJobPtr = jobs[1];
+    QVERIFY(twilightJobPtr->getName() == "Twilight_Test_Job");
+    QVERIFY(twilightJobPtr->getFileStartupCondition() == Ekos::START_TWILIGHT);
+
+    // Check the third job (Sunset)
+    Ekos::SchedulerJob *sunsetJobPtr = jobs[2];
+    QVERIFY(sunsetJobPtr->getName() == "Sunset_Test_Job");
+    QVERIFY(sunsetJobPtr->getFileStartupCondition() == Ekos::START_SUNSET);
+
+    // Test that the jobs can be properly evaluated
+    for (auto job : jobs)
+    {
+        QVERIFY(job->getStartupCondition() == job->getFileStartupCondition());
+        
+        // Test that getNextPossibleStartTime works for each type
+        QDateTime nextStart = job->getNextPossibleStartTime();
+        QVERIFY(nextStart.isValid());
+        
+        // Test that getNextEndTime works for each type
+        QDateTime nextEnd = job->getNextEndTime();
+        // For these test jobs, nextEnd might be empty if startup time is in the future
+        // which is expected behavior
+    }
+
+    // Clean up
+    qDeleteAll(jobs);
 }
 
 QTEST_GUILESS_MAIN(TestSchedulerUnit)

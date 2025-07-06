@@ -45,6 +45,13 @@ QString TestEkosSchedulerHelper::getSchedulerFile(const SkyObject *targetObject,
     else if (startupCondition.type == Ekos::START_AT)
         startupConditionStr = QString("<Condition value='%1'>At</Condition>").arg(
                                   startupCondition.atLocalDateTime.toString(Qt::ISODate));
+    else if (startupCondition.type == Ekos::START_DAILY)
+        startupConditionStr = QString("<Condition value='%1'>Daily</Condition>").arg(
+                                  startupCondition.atLocalDateTime.toString("hh:mm"));
+    else if (startupCondition.type == Ekos::START_TWILIGHT)
+        startupConditionStr = QString("<Condition>Twilight</Condition>");
+    else if (startupCondition.type == Ekos::START_SUNSET)
+        startupConditionStr = QString("<Condition>Sunset</Condition>");
 
     QString completionConditionStr;
     if (completionCondition.type == Ekos::FINISH_SEQUENCE)

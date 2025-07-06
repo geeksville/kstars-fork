@@ -1816,7 +1816,7 @@ void SchedulerProcess::checkMountParkingStatus()
             // If we are starting up and mount is unparked, proceed to next step
             // If we are shutting down, we will park the mount in checkParkWaitState soon
             if (moduleState()->startupState() == STARTUP_UNPARKING_MOUNT)
-                moduleState()->setStartupState(STARTUP_UNPARK_CAP);
+                moduleState()->setStartupState(STARTUP_UNK_CAP);
 
             // Update parking engine state
             if (moduleState()->parkWaitState() == PARKWAIT_UNPARKING)
@@ -1917,7 +1917,7 @@ void SchedulerProcess::checkMountParkingStatus()
 
             // Last unparking action did not result in an action, so proceed to next step
             if (moduleState()->startupState() == STARTUP_UNPARKING_MOUNT)
-                moduleState()->setStartupState(STARTUP_UNPARK_CAP);
+                moduleState()->setStartupState(STARTUP_UNK_CAP);
 
             // Update parking engine state
             if (moduleState()->parkWaitState() == PARKWAIT_PARKING)
@@ -1963,7 +1963,7 @@ void SchedulerProcess::checkDomeParkingStatus()
         case ISD::PARK_UNPARKED:
             if (moduleState()->startupState() == STARTUP_UNPARKING_DOME)
             {
-                moduleState()->setStartupState(STARTUP_UNPARK_MOUNT);
+                moduleState()->setStartupState(STARTUP_UNK_MOUNT);
                 appendLogText(i18n("Dome unparked."));
             }
             moduleState()->resetParkingDomeFailureCount();
@@ -2049,7 +2049,7 @@ bool SchedulerProcess::checkStartupState()
                     appendLogText(i18n("Ekos is already started, skipping startup script..."));
 
                 if (!activeJob() || activeJob()->getLightFramesRequired())
-                    moduleState()->setStartupState(STARTUP_UNPARK_DOME);
+                    moduleState()->setStartupState(STARTUP_UNK_DOME);
                 else
                     moduleState()->setStartupState(STARTUP_COMPLETE);
                 return true;
@@ -2069,7 +2069,7 @@ bool SchedulerProcess::checkStartupState()
                 return false;
             }
 
-            moduleState()->setStartupState(STARTUP_UNPARK_DOME);
+            moduleState()->setStartupState(STARTUP_UNK_DOME);
             return false;
         }
 
@@ -2085,7 +2085,7 @@ bool SchedulerProcess::checkStartupState()
                 if (Options::schedulerUnparkDome())
                     unParkDome();
                 else
-                    moduleState()->setStartupState(STARTUP_UNPARK_MOUNT);
+                    moduleState()->setStartupState(STARTUP_UNK_MOUNT);
             }
             else
             {
@@ -2099,18 +2099,18 @@ bool SchedulerProcess::checkStartupState()
             checkDomeParkingStatus();
             break;
 
-        case STARTUP_UNPARK_MOUNT:
+        case STARTUP_UNK_MOUNT:
             if (Options::schedulerUnparkMount())
                 unParkMount();
             else
-                moduleState()->setStartupState(STARTUP_UNPARK_CAP);
+                moduleState()->setStartupState(STARTUP_UNK_CAP);
             break;
 
         case STARTUP_UNPARKING_MOUNT:
             checkMountParkingStatus();
             break;
 
-        case STARTUP_UNPARK_CAP:
+        case STARTUP_UNK_CAP:
             if (Options::schedulerOpenDustCover())
                 unParkCap();
             else
@@ -2355,7 +2355,7 @@ void SchedulerProcess::runStartupProcedure()
                 domeInterface()->call(QDBus::AutoDetect, "abort");
                 break;
 
-            case STARTUP_UNPARK_MOUNT:
+            case STARTUP_UNK_MOUNT:
                 break;
 
             case STARTUP_UNPARKING_MOUNT:
@@ -2363,7 +2363,7 @@ void SchedulerProcess::runStartupProcedure()
                 mountInterface()->call(QDBus::AutoDetect, "abort");
                 break;
 
-            case STARTUP_UNPARK_CAP:
+            case STARTUP_UNK_CAP:
                 break;
 
             case STARTUP_UNPARKING_CAP:
@@ -3261,6 +3261,13 @@ bool SchedulerProcess::saveScheduler(const QUrl &fileURL)
             else if (job->getFileStartupCondition() == START_AT)
                 outstream << "<Condition value='" << job->getStartAtTime().toString(Qt::ISODate) << "'>At</Condition>"
                           << Qt::endl;
+            else if (job->getFileStartupCondition() == START_DAILY)
+                outstream << "<Condition value='" << job->getStartAtTime().toString("hh:mm") << "'>Daily</Condition>"
+                          << Qt::endl;
+            else if (job->getFileStartupCondition() == START_TWILIGHT)
+                outstream << "<Condition>Twilight</Condition>" << Qt::endl;
+            else if (job->getFileStartupCondition() == START_SUNSET)
+                outstream << "<Condition>Sunset</Condition>" << Qt::endl;
             outstream << "</StartupCondition>" << Qt::endl;
 
             outstream << "<Constraints>" << Qt::endl;

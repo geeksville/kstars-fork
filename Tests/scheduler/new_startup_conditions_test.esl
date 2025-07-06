@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SchedulerList version='1.4'>
+<Profile>Default</Profile>
+<Job>
+<Name>Daily_Test_Job</Name>
+<Priority>10</Priority>
+<Coordinates>
+<J2000RA>5.43806</J2000RA>
+<J2000DE>28.6078</J2000DE>
+</Coordinates>
+<Sequence>/tmp/kstars_tests/1x1s_Lum.esq</Sequence>
+<StartupCondition>
+<Condition value='22:30'>Daily</Condition>
+</StartupCondition>
+<Constraints>
+<Constraint value='15'>MinimumAltitude</Constraint>
+<Constraint>EnforceTwilight</Constraint>
+</Constraints>
+<CompletionCondition>
+<Condition>Sequence</Condition>
+</CompletionCondition>
+<Steps>
+<Step>Track</Step>
+</Steps>
+</Job>
+<Job>
+<Name>Twilight_Test_Job</Name>
+<Priority>10</Priority>
+<Coordinates>
+<J2000RA>5.60333</J2000RA>
+<J2000DE>-1.20167</J2000DE>
+</Coordinates>
+<Sequence>/tmp/kstars_tests/1x1s_Lum.esq</Sequence>
+<StartupCondition>
+<Condition>Twilight</Condition>
+</StartupCondition>
+<Constraints>
+<Constraint value='15'>MinimumAltitude</Constraint>
+<Constraint>EnforceTwilight</Constraint>
+</Constraints>
+<CompletionCondition>
+<Condition>Sequence</Condition>
+</CompletionCondition>
+<Steps>
+<Step>Track</Step>
+</Steps>
+</Job>
+<Job>
+<Name>Sunset_Test_Job</Name>
+<Priority>10</Priority>
+<Coordinates>
+<J2000RA>5.67917</J2000RA>
+<J2000DE>-1.9425</J2000DE>
+</Coordinates>
+<Sequence>/tmp/kstars_tests/1x1s_Lum.esq</Sequence>
+<StartupCondition>
+<Condition>Sunset</Condition>
+</StartupCondition>
+<Constraints>
+<Constraint value='15'>MinimumAltitude</Constraint>
+<Constraint>EnforceTwilight</Constraint>
+</Constraints>
+<CompletionCondition>
+<Condition>Sequence</Condition>
+</CompletionCondition>
+<Steps>
+<Step>Track</Step>
+</Steps>
+</Job>
+<SchedulerAlgorithm value='0'/>
+<ErrorHandlingStrategy value='0'>
+<RescheduleErrors />
+<delay>0</delay>
+</ErrorHandlingStrategy>
+<StartupProcedure>
+</StartupProcedure>
+<ShutdownProcedure>
+</ShutdownProcedure>
+</SchedulerList> 
