@@ -968,34 +968,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="CaptureHistoryNavigation" name="focusHistoryNavigation" native="true">
-           <property name="minimumSize">
-            <size>
-             <width>40</width>
-             <height>16</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>13</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
+          <layout class="QHBoxLayout" name="horizontalLayout_7"/>
          </item>
          <item>
           <widget class="QPushButton" name="relativeProfileB">
@@ -1206,12 +1179,6 @@
    <class>ExposureWidget</class>
    <extends>QDoubleSpinBox</extends>
    <header>ekos/focus/exposurewidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>CaptureHistoryNavigation</class>
-   <extends>QWidget</extends>
-   <header>ekos/capture/capturehistorynavigation.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

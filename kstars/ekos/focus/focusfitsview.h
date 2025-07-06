@@ -22,9 +22,57 @@ public:
      */
     void showNavigation(bool show) { m_focusHistoryNavigation->setVisible(show); }
 
+    /**
+     * @brief addRun Add a new frme sequence
+     */
+    void addRun() {m_focusHistoryNavigation->addRun();}
+
+    /**
+     * @brief Add a newly captured frame to the history
+     * @param data frame data
+     */
+    void addFrame(CaptureHistory::FrameData data) {m_focusHistoryNavigation->addFrame(data, false);}
+
+    /**
+     * @brief loadFocusFrame Load stored focus frame for the current history position
+     */
+    bool loadCurrentFocusFrame();
+
+    /**
+     * @brief Capture history of the current focuser
+     */
+    CaptureHistory &captureHistory(int run) { return m_focusHistoryNavigation->captureHistory(run); }
+
+    /**
+     * @brief Retrieve the currently selected frame
+     */
+    const CaptureHistory::FrameData currentFrame() {return m_focusHistoryNavigation->currentFrame();}
+
+    /**
+     * @brief Retrieve the last captured frame
+     */
+    const CaptureHistory::FrameData lastFrame() {return m_focusHistoryNavigation->lastFrame();}
+
+    /**
+     * @brief lastAFRun ID of the last autofocus run
+     */
+    int lastAFRun(){return m_focusHistoryNavigation->lastRun();};
+
+    /**
+     * @brief currentRun Currently selected autofocus run
+     */
+    int currentAFRun() const { return m_focusHistoryNavigation->currentRun(); }
+
+    QSharedPointer<CaptureHistoryNavigation> m_focusHistoryNavigation;
+
 public slots:
     void resizeEvent(QResizeEvent *event) override;
 
-private:
-    QSharedPointer<CaptureHistoryNavigation> m_focusHistoryNavigation;
+    // ******************* history navigation ********************* //
+    bool showFirstFrame();
+    bool showLastFrame();
+    bool showPreviousFrame();
+    bool showNextFrame();
+    bool showPreviousAFRun();
+    bool showNextAFRun();
 };

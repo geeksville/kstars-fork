@@ -168,12 +168,12 @@ Focus::Focus(int id) : QWidget()
     });
 
     // connect navigation
-    connect(focusHistoryNavigation->historyFirstB, &QPushButton::clicked, this, &Focus::showFirstFrame);
-    connect(focusHistoryNavigation->historyLastB, &QPushButton::clicked, this, &Focus::showLastFrame);
-    connect(focusHistoryNavigation->historyBackwardB, &QPushButton::clicked, this, &Focus::showPreviousFrame);
-    connect(focusHistoryNavigation->historyForwardB, &QPushButton::clicked, this, &Focus::showNextFrame);
-    connect(focusHistoryNavigation->historyPreviousRunB, &QPushButton::clicked, this, &Focus::showPreviousAFRun);
-    connect(focusHistoryNavigation->historyNextRunB, &QPushButton::clicked, this, &Focus::showNextAFRun);
+    connect(m_FocusView->m_focusHistoryNavigation->historyFirstB, &QPushButton::clicked, this, &Focus::showFirstFrame);
+    connect(m_FocusView->m_focusHistoryNavigation->historyLastB, &QPushButton::clicked, this, &Focus::showLastFrame);
+    connect(m_FocusView->m_focusHistoryNavigation->historyBackwardB, &QPushButton::clicked, this, &Focus::showPreviousFrame);
+    connect(m_FocusView->m_focusHistoryNavigation->historyForwardB, &QPushButton::clicked, this, &Focus::showNextFrame);
+    connect(m_FocusView->m_focusHistoryNavigation->historyPreviousRunB, &QPushButton::clicked, this, &Focus::showPreviousAFRun);
+    connect(m_FocusView->m_focusHistoryNavigation->historyNextRunB, &QPushButton::clicked, this, &Focus::showNextAFRun);
 
     setupOpticalTrainManager();
     initOpticalTrain();
@@ -185,8 +185,6 @@ Focus::Focus(int id) : QWidget()
 // Do once only preparation of GUI
 void Focus::prepareGUI()
 {
-    // no focus filename shown
-    focusHistoryNavigation->filenameValue->setVisible(false);
 
     // Parameters are handled by a dedicated KConfigDialog per focuser invoked by pressing the "Options..." button
     // on the Focus window. There are 3 pages of options.
@@ -997,55 +995,40 @@ void Focus::adaptiveFocus()
     adaptFocus->runAdaptiveFocus(currentPosition, filter());
 }
 
-void Focus::loadCurrentFocusFrame()
-{
-    {
-        if (currentFrame().filename != "")
-        {
-            m_FocusView->loadFile(currentFrame().filename);
-            // add stars of the frame to the FITS view (take a clone since
-            // it gets deleted in FITSData
-            for (QSharedPointer<Edge> star : currentFrame().starCenters)
-                m_FocusView->imageData()->appendStar(star->clone());
-        }
-        refreshMeasuresDisplay();
-    }
-}
-
 void Focus::showFirstFrame()
 {
-    if (focusHistoryNavigation->showFirstFrame())
-        loadCurrentFocusFrame();
+    if (m_FocusView->showFirstFrame())
+        refreshMeasuresDisplay();
 }
 
 void Focus::showLastFrame()
 {
-    if (focusHistoryNavigation->showLastFrame())
-        loadCurrentFocusFrame();
+    if (m_FocusView->showLastFrame())
+        refreshMeasuresDisplay();
 }
 
 void Focus::showPreviousFrame()
 {
-    if (focusHistoryNavigation->showPreviousFrame())
-        loadCurrentFocusFrame();
+    if (m_FocusView->showPreviousFrame())
+        refreshMeasuresDisplay();
 }
 
 void Focus::showNextFrame()
 {
-    if (focusHistoryNavigation->showNextFrame())
-        loadCurrentFocusFrame();
+    if (m_FocusView->showNextFrame())
+        refreshMeasuresDisplay();
 }
 
 void Focus::showPreviousAFRun()
 {
-    if (focusHistoryNavigation->showPreviousRun())
-        loadCurrentFocusFrame();
+    if (m_FocusView->showPreviousAFRun())
+        refreshMeasuresDisplay();
 }
 
 void Focus::showNextAFRun()
 {
-    if (focusHistoryNavigation->showNextRun())
-        loadCurrentFocusFrame();
+    if (m_FocusView->showNextAFRun())
+        refreshMeasuresDisplay();
 }
 
 // Run Aberration Inspector
@@ -1158,7 +1141,7 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
         return;
     }
 
-    focusHistoryNavigation->addRun();
+    m_FocusView->addRun();
 
     m_StartRetries = 0;
     m_LastFocusDirection = FOCUS_NONE;
@@ -2561,7 +2544,7 @@ bool Focus::appendMeasure()
 
     // update the history
     if (inAutoFocus)
-        focusHistoryNavigation->addFrame(frameData, false);
+        m_FocusView->addFrame(frameData);
 
     // Return whether we need more frame based on user requirement
     int framesCount = m_OpsFocusProcess->focusFramesCount->value();
@@ -5003,10 +4986,10 @@ void Focus::resetButtons()
             AFDisable(m_CFZDialog, false);
 
             // Disable the navigation buttons
-            AFDisable(focusHistoryNavigation->historyFirstB, false);
-            AFDisable(focusHistoryNavigation->historyBackwardB, false);
-            AFDisable(focusHistoryNavigation->historyForwardB, false);
-            AFDisable(focusHistoryNavigation->historyLastB, false);
+            AFDisable(m_FocusView->m_focusHistoryNavigation->historyFirstB, false);
+            AFDisable(m_FocusView->m_focusHistoryNavigation->historyBackwardB, false);
+            AFDisable(m_FocusView->m_focusHistoryNavigation->historyForwardB, false);
+            AFDisable(m_FocusView->m_focusHistoryNavigation->historyLastB, false);
 
             // Enable the "stop" button so the user can abort an AF run
             stopFocusB->setEnabled(true);
@@ -5078,9 +5061,9 @@ void Focus::updateButtonColors(QPushButton *button, bool shift, bool ctrl)
 
 void Focus::refreshMeasuresDisplay()
 {
-    if (captureHistory(focusHistoryNavigation->currentRun()).size() <= 0)
+    if (captureHistory(m_FocusView->currentAFRun()).size() <= 0)
     {
-        focusHistoryNavigation->iterOut->setText("--");
+        m_FocusView->m_focusHistoryNavigation->iterOut->setText("--");
         HFROut->setText("--");
         FWHMOut->setText("--");
         starsOut->setText("--");
@@ -5088,12 +5071,12 @@ void Focus::refreshMeasuresDisplay()
     else
     {
         // display the iteration count during autofocus and afterwards
-        if (inAutoFocus || captureHistory(focusHistoryNavigation->currentRun()).size() > 1)
-            focusHistoryNavigation->iterOut->setText(QString("Run #%1: %2/%3").arg(focusHistoryNavigation->currentRun()).arg(
+        if (inAutoFocus || captureHistory(m_FocusView->currentAFRun()).size() > 1)
+            m_FocusView->m_focusHistoryNavigation->iterOut->setText(QString("Run #%1: %2/%3").arg(m_FocusView->currentAFRun()).arg(
                         captureHistory(
-                            focusHistoryNavigation->currentRun()).position() + 1).arg(captureHistory(focusHistoryNavigation->currentRun()).size()));
+                            m_FocusView->currentAFRun()).position() + 1).arg(captureHistory(m_FocusView->currentAFRun()).size()));
         else
-            focusHistoryNavigation->iterOut->setText("--");
+            m_FocusView->m_focusHistoryNavigation->iterOut->setText("--");
 
         HFROut->setText(QString("%1").arg(currentFrame().hfr * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
         if (m_StarMeasure == FOCUS_STAR_FWHM)
