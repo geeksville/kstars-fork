@@ -38,6 +38,7 @@ public:
         double offset;
         QString iso;
         int count, completed;
+        QList<QSharedPointer<Edge>> starCenters;
         double hfr { Ekos::INVALID_STAR_MEASURE };
         double fwhm { Ekos::INVALID_STAR_MEASURE };
         double numStars { Ekos::INVALID_STAR_MEASURE };

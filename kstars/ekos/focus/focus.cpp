@@ -998,7 +998,13 @@ void Focus::loadCurrentFocusFrame()
 {
     {
         if (currentFrame().filename != "")
+        {
             m_FocusView->loadFile(currentFrame().filename);
+            // add stars of the frame to the FITS view (take a clone since
+            // it gets deleted in FITSData
+            for (QSharedPointer<Edge> star : currentFrame().starCenters)
+                m_FocusView->imageData()->appendStar(star->clone());
+        }
         refreshMeasuresDisplay();
     }
 }
@@ -2548,6 +2554,13 @@ bool Focus::appendMeasure()
 
     // Save the focus frame
     frameData.filename = saveFocusFrame();
+    // clone the stars since they get cleared
+    for (Edge* star : m_ImageData->getStarCenters())
+    {
+        QSharedPointer<Edge> clonedStar;
+        clonedStar.reset(star->clone());
+        frameData.starCenters.append(clonedStar);
+    }
 
     // update the history
     if (inAutoFocus)
