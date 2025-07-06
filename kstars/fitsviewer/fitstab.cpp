@@ -262,7 +262,7 @@ void FITSTab::initStack(const QString &dir, FITSMode mode, FITSScale filter)
 
     m_View->setFilter(filter);
 
-    m_liveStackDir = dir;
+    m_liveStackDir = m_CurrentStackDir = dir;
     m_LiveStackingUI.Stack->setText(m_liveStackDir);
 
     // Popup the Live Stacking pane
@@ -893,7 +893,8 @@ void FITSTab::initLiveStacking()
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     // Setup the memory monitor widget
     m_LiveStackingUI.MemMonitor->setUpdateInterval(1000);
-    m_LiveStackingUI.MemMonitor->setLabelFormat("Memory: %1 / %2");
+    QString label = i18n("RAM");
+    m_LiveStackingUI.MemMonitor->setLabelFormat(label + ": %1 / %2");
 
     // Set the GUI to the saved options
     m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2 / %3").arg(0).arg(0).arg(0));
@@ -1031,11 +1032,14 @@ void FITSTab::selectLiveStack()
 
     QFileDialog dialog(KStars::Instance(), i18nc("@title:window", "Stack Directory"));
     dialog.setFileMode(QFileDialog::Directory);
+    // JEE TEST
+    dialog.setDirectory(m_CurrentStackDir);
 
     if (dialog.exec())
     {
         dirs = dialog.selectedFiles();
         m_LiveStackingUI.Stack->setText(dirs[0]);
+        m_CurrentStackDir = m_liveStackDir = dirs[0];
 
         // Reset the align master if a new stack has been selected
         QString alignMaster = m_LiveStackingUI.kcfg_FitsLSAlignMaster->text();
@@ -1043,7 +1047,6 @@ void FITSTab::selectLiveStack()
         {
             QFileInfo fileInfo(alignMaster);
             QString alignMasterDir = fileInfo.absolutePath();
-            // Result: "/home/user/images"
             if (alignMasterDir != dirs[0])
                 m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText("");
         }
@@ -1059,30 +1062,40 @@ void FITSTab::selectLiveStackAlignSub()
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
         m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText(sequenceURL.toLocalFile());
+        QFileInfo fileInfo(file);
+        m_CurrentStackDir = fileInfo.absolutePath();
     }
 }
 
 void FITSTab::selectLiveStackMasterDark()
 {
     QString selectedFilter;
+    // JEE TEST QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Dark"),
+    //                                            m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Dark"),
-                                                    m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+                                                m_CurrentStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     if (!file.isNull())
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
         m_LiveStackingUI.kcfg_FitsLSMasterDark->setText(sequenceURL.toLocalFile());
+        QFileInfo fileInfo(file);
+        m_CurrentStackDir = fileInfo.absolutePath();
     }
 }
 
 void FITSTab::selectLiveStackMasterFlat()
 {
     QString selectedFilter;
+    // JEE TEST QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Flat"),
+    //                                            m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Flat"),
-                                    m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+                                                m_CurrentStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     if (!file.isNull())
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
         m_LiveStackingUI.kcfg_FitsLSMasterFlat->setText(sequenceURL.toLocalFile());
+        QFileInfo fileInfo(file);
+        m_CurrentStackDir = fileInfo.absolutePath();
     }
 }
 
@@ -1313,6 +1326,7 @@ void FITSTab::liveStack()
         m_LiveStackingUI.ReprocessB->setEnabled(false);
 
         m_liveStackDir = m_LiveStackingUI.Stack->text();
+        m_CurrentStackDir = m_liveStackDir;
         m_StackSubsTotal = 0;
         m_StackSubsProcessed = 0;
         m_StackSubsFailed = 0;

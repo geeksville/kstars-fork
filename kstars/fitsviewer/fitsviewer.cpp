@@ -1048,9 +1048,9 @@ void FITSViewer::openFile()
 // Launch the Live Stacking functionality...
 void FITSViewer::stack()
 {
-    if (m_StackBusy)
-        return;
-    m_StackBusy = true;
+    // JEE TEST remove m_StackBusy if (m_StackBusy)
+    //    return;
+    //m_StackBusy = true;
 
     QString topDir = QDir::homePath();
     QString filePath = lastURL.path();

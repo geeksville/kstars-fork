@@ -166,7 +166,7 @@ class KStars : public KXmlGuiWindow
 #ifdef HAVE_CFITSIO
         //        void addFITSViewer(const QSharedPointer<FITSViewer> &fv);
         const QSharedPointer<FITSViewer> &genericFITSViewer();
-        const QSharedPointer<FITSViewer> &createFITSViewer();
+        const QSharedPointer<FITSViewer> &createFITSViewer(const bool forceCreate = false);
         void clearAllViewers();
         const QList<QSharedPointer<FITSViewer >> &getFITSViewers() const
         {

@@ -276,6 +276,7 @@ class FITSTab : public QWidget
         int m_LiveStackingItem { 0 };
         bool m_StackExtracted { false };
         QString m_liveStackDir;
+        QString m_CurrentStackDir;
         int m_StackSubsTotal { 0 };
         int m_StackSubsProcessed { 0 };
         int m_StackSubsFailed { 0 };

@@ -1328,6 +1328,7 @@ void KStars::slotBlink()
 void KStars::slotStack()
 {
 #if defined(HAVE_WCSLIB) && defined(HAVE_CFITSIO) && defined(HAVE_OPENCV)
+    // JEE TEST
     auto fv = createFITSViewer();
     fv->stack();
 #endif
