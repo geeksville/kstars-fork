@@ -282,6 +282,10 @@ class FITSView : public QScrollArea
 
         // Automatically generates stretch parameters and use them to re-display the image.
         void setAutoStretchParams();
+        void setAutoStretchPreset(int preset)
+        {
+            m_AutoStretchPreset = preset;
+        }
 
         // When sampling is > 1, we will display the image at a lower resolution.
         // When sampling = 0, reset to the adaptive sampling value
@@ -508,6 +512,9 @@ class FITSView : public QScrollArea
 #ifdef HAVE_DATAVISUALIZATION
         QPointer<StarProfileViewer> starProfileWidget;
 #endif
+
+        // Stretching preset.
+        int m_AutoStretchPreset = 1;
 
     signals:
         void newStatus(const QString &msg, FITSBar id);
