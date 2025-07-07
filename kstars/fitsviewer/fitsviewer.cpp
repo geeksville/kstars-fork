@@ -467,7 +467,6 @@ bool FITSViewer::addFITSCommon(const QSharedPointer<FITSTab> &tab, const QUrl &i
     if (!imageName.isValid())
         lastURL = QUrl(imageName.url(QUrl::RemoveFilename));
 
-    // JEE
     if (mode != FITS_LIVESTACKING)
         QApplication::restoreOverrideCursor();
     tab->setPreviewText(previewText);
@@ -1048,9 +1047,9 @@ void FITSViewer::openFile()
 // Launch the Live Stacking functionality...
 void FITSViewer::stack()
 {
-    // JEE TEST remove m_StackBusy if (m_StackBusy)
-    //    return;
-    //m_StackBusy = true;
+    if (m_StackBusy)
+        return;
+    m_StackBusy = true;
 
     QString topDir = QDir::homePath();
     QString filePath = lastURL.path();
@@ -1113,7 +1112,6 @@ void FITSViewer::restack(const QString dir)
             // JEE QApplication::restoreOverrideCursor();
             led.setColor(Qt::red);
             m_StackBusy = false;
-            // JEE
             updateStatusBar(i18n("Stacking Failed"), FITS_MESSAGE);
     }, Qt::UniqueConnection);
 

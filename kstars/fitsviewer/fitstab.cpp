@@ -1032,7 +1032,6 @@ void FITSTab::selectLiveStack()
 
     QFileDialog dialog(KStars::Instance(), i18nc("@title:window", "Stack Directory"));
     dialog.setFileMode(QFileDialog::Directory);
-    // JEE TEST
     dialog.setDirectory(m_CurrentStackDir);
 
     if (dialog.exec())
@@ -1070,8 +1069,6 @@ void FITSTab::selectLiveStackAlignSub()
 void FITSTab::selectLiveStackMasterDark()
 {
     QString selectedFilter;
-    // JEE TEST QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Dark"),
-    //                                            m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Dark"),
                                                 m_CurrentStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     if (!file.isNull())
@@ -1086,8 +1083,6 @@ void FITSTab::selectLiveStackMasterDark()
 void FITSTab::selectLiveStackMasterFlat()
 {
     QString selectedFilter;
-    // JEE TEST QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Flat"),
-    //                                            m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Flat"),
                                                 m_CurrentStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     if (!file.isNull())
