@@ -1786,10 +1786,11 @@ bool FITSData::saveImage(const QString &newFilename)
     nelements = m_Statistics.samples_per_channel * m_Statistics.channels;
 
     /* close current file */
-    if (fptr && fits_close_file(fptr, &status))
+    if (fptr && fptr->Fptr && fits_close_file(fptr, &status))
     {
-        m_LastError = i18n("Failed to close file: %1", fitsErrorToString(status));
-        return false;
+        // JEE TESTm_LastError = i18n("Failed to close file: %1", fitsErrorToString(status));
+        // JEE TEST return false;
+        status = 0;
     }
 
     /* Create a new File, overwriting existing*/
