@@ -21,6 +21,15 @@ FocusFITSView::FocusFITSView(QWidget *parent): FITSView(parent, FITS_FOCUS)
 
     m_focusHistoryNavigation->filenameValue->setVisible(false);
 
+    const QString style = "QPushButton:hover{background: rgba(200, 200, 200, 255);border:solid; color: white}";
+    // needs to be set explicitly, since Qt does not inherit automatically
+    m_focusHistoryNavigation->historyPreviousRunB->setStyleSheet(style);
+    m_focusHistoryNavigation->historyFirstB->setStyleSheet(style);
+    m_focusHistoryNavigation->historyBackwardB->setStyleSheet(style);
+    m_focusHistoryNavigation->historyForwardB->setStyleSheet(style);
+    m_focusHistoryNavigation->historyLastB->setStyleSheet(style);
+    m_focusHistoryNavigation->historyNextRunB->setStyleSheet(style);
+
     showNavigation(false);
     m_focusHistoryNavigation->raise();
 }
