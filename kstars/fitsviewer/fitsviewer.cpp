@@ -39,7 +39,7 @@
 #define INITIAL_H 640
 
 bool FITSViewer::m_BlinkBusy = false;
-bool FITSViewer::m_StackBusy = false;
+//bool FITSViewer::m_StackBusy = false;
 
 QList<KLocalizedString> FITSViewer::filterTypes = {ki18n("Auto Stretch"), ki18n("High Contrast"), ki18n("Equalize"),
                                                    ki18n("High Pass"), ki18n("Median"), ki18n("Gaussian blur"), ki18n("Rotate Right"), ki18n("Rotate Left"), ki18n("Flip Horizontal"),
@@ -1090,9 +1090,9 @@ void FITSViewer::stack()
 // Called when a stacking operation is in motion...
 void FITSViewer::restack(const QString dir, const int tabUID)
 {
-    if (m_StackBusy)
-        return;
-    m_StackBusy = true;
+    //if (m_StackBusy)
+    //    return;
+    //m_StackBusy = true;
 
     auto tab = fitsMap.value(tabUID);
     const QUrl imageName;
@@ -1105,7 +1105,7 @@ void FITSViewer::restack(const QString dir, const int tabUID)
         Q_UNUSED(errorMessage);
         QObject::sender()->disconnect(this);
             led.setColor(Qt::red);
-            m_StackBusy = false;
+            //m_StackBusy = false;
             updateStatusBar(i18n("Stacking Failed"), FITS_MESSAGE);
     }, Qt::UniqueConnection);
 
@@ -1114,7 +1114,7 @@ void FITSViewer::restack(const QString dir, const int tabUID)
         QObject::sender()->disconnect(this);
         updateFITSCommon(tab, imageName, tabName);
 
-        m_StackBusy = false;
+        //m_StackBusy = false;
         updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);
     }, Qt::UniqueConnection);
 }

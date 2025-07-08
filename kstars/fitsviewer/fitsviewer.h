@@ -179,7 +179,7 @@ class FITSViewer : public KXmlGuiWindow
         static bool m_BlinkBusy;
 
         // Live Stacking
-        static bool m_StackBusy;
+        bool m_StackBusy { false };
 
     signals:
         void trackingStarSelected(int x, int y);
