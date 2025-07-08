@@ -226,7 +226,7 @@ QFuture<bool> FITSData::loadFromFile(const QString &inFilename)
 bool FITSData::loadStack(const QString &inDir, const LiveStackData &params)
 {
     m_StackDir = inDir;
-    m_Stack.reset(new FITSStack(this, params), &QObject::deleteLater);
+    m_Stack.reset(new FITSStack(this, params));
     connect(m_Stack.get(), &FITSStack::stackChanged, this, [this]()
     {
         QByteArray buffer = m_Stack->getStackedImage();
@@ -239,7 +239,7 @@ bool FITSData::loadStack(const QString &inDir, const LiveStackData &params)
     m_StackQ.clear();
 
     // Setup directory watcher on the stack directory
-    m_StackDirWatcher.reset(new FITSDirWatcher(this), &QObject::deleteLater);
+    m_StackDirWatcher.reset(new FITSDirWatcher(this));
     connect(m_StackDirWatcher.get(), &FITSDirWatcher::newFilesDetected, this, &FITSData::newStackSubs);
 
     m_StackDirWatcher->watchDir(m_StackDir);
