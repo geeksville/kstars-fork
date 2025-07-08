@@ -49,7 +49,7 @@ class FITSStack : public QObject
         Q_OBJECT
 
     public:
-        explicit FITSStack(FITSData *parent);
+        explicit FITSStack(FITSData *parent, LiveStackData params);
         virtual ~FITSStack() override;
 
         /**
@@ -107,8 +107,9 @@ class FITSStack : public QObject
 
         /**
          * @brief Redo post-processing on the stack
+         * @param Post processing parameters
          */
-        void redoPostProcessStack();
+        void redoPostProcessStack(const LiveStackPPData &ppParams);
 
         /**
          * @brief Get the WCS data structure for the reference alignment frame
@@ -210,18 +211,6 @@ class FITSStack : public QObject
             ALIGNMENT_FAILED,
             OK
         } Status;
-
-        /**
-         * @brief Load a structure of user options from Options
-         * @return user options
-         */
-        LiveStackData loadStackData();
-
-        /**
-         * @brief Load a structure of post-processing user options from Options
-         * @return user options
-         */
-        LiveStackPPData loadStackPPData();
 
         /**
          * @brief Check that a new image is consistent with previous images in size, datatype, etc

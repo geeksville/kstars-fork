@@ -22,10 +22,10 @@
 #include <wcshdr.h>
 #include <fitsio.h>
 
-FITSStack::FITSStack(FITSData *parent) : QObject(parent)
+FITSStack::FITSStack(FITSData *parent, LiveStackData params) : QObject(parent)
 {
     m_Data = parent;
-    m_StackData = loadStackData();
+    m_StackData = params;
 }
 
 FITSStack::~FITSStack()
@@ -54,36 +54,6 @@ void FITSStack::setBayerPattern(const QString pattern, const int offsetX, const 
     m_BayerPattern = pattern;
     m_BayerOffsetX = offsetX;
     m_BayerOffsetY = offsetY;
-}
-
-LiveStackData FITSStack::loadStackData()
-{
-    LiveStackData data;
-    data.masterDark = Options::fitsLSMasterDark();
-    data.masterFlat = Options::fitsLSMasterFlat();
-    data.alignMaster = Options::fitsLSAlignMaster();
-    data.alignMethod = static_cast<LiveStackAlignMethod>(Options::fitsLSAlignMethod());
-    data.numInMem = Options::fitsLSNumInMem();
-    data.downscale = static_cast<LiveStackDownscale>(Options::fitsLSDownscale());
-    data.weighting = static_cast<LiveStackFrameWeighting>(Options::fitsLSWeighting());
-    data.rejection = static_cast<LiveStackRejection>(Options::fitsLSRejection());
-    data.lowSigma = Options::fitsLSLowSigma();
-    data.highSigma = Options::fitsLSHighSigma();
-    data.windsorCutoff = Options::fitsLSWinsorCutoff();
-    data.postProcessing = loadStackPPData();
-    return data;
-}
-
-LiveStackPPData FITSStack::loadStackPPData()
-{
-    LiveStackPPData data;
-    data.deconvAmt = Options::fitsLSDeconvAmt();
-    data.PSFSigma = Options::fitsLSPSFSigma();
-    data.denoiseAmt = Options::fitsLSDenoiseAmt();
-    data.sharpenAmt = Options::fitsLSSharpenAmt();
-    data.sharpenKernal = Options::fitsLSSharpenKernal();
-    data.sharpenSigma = Options::fitsLSSharpenSigma();
-    return data;
 }
 
 // Setup the image data structure for later processing
@@ -1427,14 +1397,14 @@ cv::Mat FITSStack::wienerDeconvolution(const cv::Mat &image, const cv::Mat &psf)
     }
 }
 
-void FITSStack::redoPostProcessStack()
+void FITSStack::redoPostProcessStack(const LiveStackPPData &ppParams)
 {
     if (m_StackedImage32F.empty())
         // Nothing to do if there is no image to operate on
         return;
 
     // Get the current user options for post processing
-    m_StackData.postProcessing = loadStackPPData();
+    m_StackData.postProcessing = ppParams;
 
     cv::Mat finalImage = postProcessImage(m_StackedImage32F);
     m_StackSNR = getSNR(finalImage);

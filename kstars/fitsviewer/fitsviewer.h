@@ -106,7 +106,7 @@ class FITSViewer : public KXmlGuiWindow
         void nextBlink();
         void previousBlink();
         void stack();
-        void restack(const QString dir);
+        void restack(const QString dir, const int tabUID);
         void saveFile();
         void saveFileAs();
         void copyFITS();
@@ -180,7 +180,6 @@ class FITSViewer : public KXmlGuiWindow
 
         // Live Stacking
         static bool m_StackBusy;
-        int m_LiveStackTabUID { -1 };
 
     signals:
         void trackingStarSelected(int x, int y);

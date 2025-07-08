@@ -223,10 +223,10 @@ QFuture<bool> FITSData::loadFromFile(const QString &inFilename)
 }
 
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
-bool FITSData::loadStack(const QString &inDir)
+bool FITSData::loadStack(const QString &inDir, const LiveStackData &params)
 {
     m_StackDir = inDir;
-    m_Stack.reset(new FITSStack(this), &QObject::deleteLater);
+    m_Stack.reset(new FITSStack(this, params), &QObject::deleteLater);
     connect(m_Stack.get(), &FITSStack::stackChanged, this, [this]()
     {
         QByteArray buffer = m_Stack->getStackedImage();

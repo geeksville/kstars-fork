@@ -1063,18 +1063,15 @@ void FITSViewer::stack()
     const QUrl imageName;
 
     led.setColor(Qt::yellow);
-    // JEE QApplication::setOverrideCursor(Qt::WaitCursor);
 
     QSharedPointer<FITSTab> tab(new FITSTab(this));
 
     m_Tabs.push_back(tab);
-    int tabIndex = m_Tabs.size();
     QString tabName = QString("Stack");
     connect(tab.get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
         {
             Q_UNUSED(errorMessage);
             QObject::sender()->disconnect(this);
-            // JEE QApplication::restoreOverrideCursor();
             led.setColor(Qt::red);
             m_StackBusy = false;
         }, Qt::UniqueConnection);
@@ -1083,33 +1080,30 @@ void FITSViewer::stack()
         {
             QObject::sender()->disconnect(this);
             addFITSCommon(tab, imageName, FITS_LIVESTACKING, tabName);
-            fitsTabWidget->setTabText(tabIndex, tabName);
+            fitsID++;
             m_StackBusy = false;
         }, Qt::UniqueConnection);
 
-    m_LiveStackTabUID = tab->getUID();
     tab->initStack(topDir, FITS_LIVESTACKING, FITS_NONE);
 }
 
 // Called when a stacking operation is in motion...
-void FITSViewer::restack(const QString dir)
+void FITSViewer::restack(const QString dir, const int tabUID)
 {
     if (m_StackBusy)
         return;
     m_StackBusy = true;
 
-    auto tab = fitsMap.value(m_LiveStackTabUID);
+    auto tab = fitsMap.value(tabUID);
     const QUrl imageName;
 
     led.setColor(Qt::yellow);
-    // JEE QApplication::setOverrideCursor(Qt::WaitCursor);
     updateStatusBar(i18n("Stacking..."), FITS_MESSAGE);
     QString tabName = i18n("Watching %1", dir);
     connect(tab.get(), &FITSTab::failed, this, [ this ](const QString & errorMessage)
     {
         Q_UNUSED(errorMessage);
         QObject::sender()->disconnect(this);
-            // JEE QApplication::restoreOverrideCursor();
             led.setColor(Qt::red);
             m_StackBusy = false;
             updateStatusBar(i18n("Stacking Failed"), FITS_MESSAGE);
@@ -1119,7 +1113,6 @@ void FITSViewer::restack(const QString dir)
     {
         updateFITSCommon(tab, imageName, tabName);
 
-        // JEE QApplication::restoreOverrideCursor();
         m_StackBusy = false;
         updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);
     }, Qt::UniqueConnection);

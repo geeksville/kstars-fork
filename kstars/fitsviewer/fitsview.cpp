@@ -423,7 +423,7 @@ void FITSView::initStack()
     fitsWatcher.setFuture(m_ImageData->loadFromFile(noImage));
 }
 
-void FITSView::loadStack(const QString &inDir)
+void FITSView::loadStack(const QString &inDir, const LiveStackData &params)
 {
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     if (floatingToolBar != nullptr)
@@ -487,7 +487,7 @@ void FITSView::loadStack(const QString &inDir)
         emit stackUpdateStats(ok, sub, total, meanSNR, minSNR, maxSNR);
     });
 
-    m_ImageData->loadStack(inDir);
+    m_ImageData->loadStack(inDir, params);
 #else
     Q_UNUSED(inDir);
 #endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
@@ -500,16 +500,16 @@ void FITSView::cancelStack()
 #endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 }
 // Called when post processing controls in Fitstab changed by the user
-void FITSView::redoPostProcessStack()
+void FITSView::redoPostProcessStack(const LiveStackPPData &ppParams)
 {
 #if !defined (KSTARS_LITE) && defined (HAVE_WCSLIB) && defined (HAVE_OPENCV)
     auto stack = m_ImageData->stack();
     if (stack)
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        QFuture<void> future = QtConcurrent::run(&FITSStack::redoPostProcessStack, stack.get());
+        QFuture<void> future = QtConcurrent::run(&FITSStack::redoPostProcessStack, stack.get(), ppParams);
 #else
-        QFuture<void> future = QtConcurrent::run(stack.get(), &FITSStack::redoPostProcessStack);
+        QFuture<void> future = QtConcurrent::run(stack.get(), &FITSStack::redoPostProcessStack, ppParams);
 #endif
     }
 #endif

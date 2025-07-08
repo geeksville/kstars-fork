@@ -896,32 +896,17 @@ void FITSTab::initLiveStacking()
     QString label = i18n("RAM");
     m_LiveStackingUI.MemMonitor->setLabelFormat(label + ": %1 / %2");
 
-    // Set the GUI to the saved options
+    // Set the GUI values
     m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2 / %3").arg(0).arg(0).arg(0));
     m_LiveStackingUI.SubsSNR->setText(QString("%1 / %2 / %3").arg(0).arg(0).arg(0));
     m_LiveStackingUI.ImageSNR->setText(QString("%1").arg(0));
-    m_LiveStackingUI.kcfg_FitsLSMasterDark->setText(Options::fitsLSMasterDark());
-    m_LiveStackingUI.kcfg_FitsLSMasterFlat->setText(Options::fitsLSMasterFlat());
-    m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText("");
-    Options::setFitsLSAlignMaster("");
-    m_LiveStackingUI.kcfg_FitsLSAlignMethod->setCurrentIndex(Options::fitsLSAlignMethod());
-    m_LiveStackingUI.kcfg_FitsLSNumInMem->setValue(Options::fitsLSNumInMem());
-    m_LiveStackingUI.kcfg_FitsLSDownscale->setCurrentIndex(Options::fitsLSDownscale());
-    m_LiveStackingUI.kcfg_FitsLSWeighting->setCurrentIndex(Options::fitsLSWeighting());
-    m_LiveStackingUI.kcfg_FitsLSRejection->setCurrentIndex(Options::fitsLSRejection());
-    m_LiveStackingUI.kcfg_FitsLSLowSigma->setValue(Options::fitsLSLowSigma());
-    m_LiveStackingUI.kcfg_FitsLSHighSigma->setValue(Options::fitsLSHighSigma());
-    m_LiveStackingUI.kcfg_FitsLSWinsorCutoff->setValue(Options::fitsLSWinsorCutoff());
-    m_LiveStackingUI.kcfg_FitsLSDeconvAmt->setValue(Options::fitsLSDeconvAmt());
-    m_LiveStackingUI.kcfg_FitsLSPSFSigma->setValue(Options::fitsLSPSFSigma());
-    m_LiveStackingUI.kcfg_FitsLSDenoiseAmt->setValue(Options::fitsLSDenoiseAmt());
-    m_LiveStackingUI.kcfg_FitsLSSharpenAmt->setValue(Options::fitsLSSharpenAmt());
-    m_LiveStackingUI.kcfg_FitsLSSharpenKernal->setValue(Options::fitsLSSharpenKernal());
-    m_LiveStackingUI.kcfg_FitsLSSharpenSigma->setValue(Options::fitsLSSharpenSigma());
+    m_LiveStackingUI.AlignMaster->setText("");
+    initSettings();
 
     // Manage connections
     connect(m_LiveStackingUI.StackDirB, &QPushButton::clicked, this, &FITSTab::selectLiveStack);
-    connect(m_LiveStackingUI.StackB, &QPushButton::clicked, this, &FITSTab::liveStack);
+    connect(m_LiveStackingUI.StartB, &QPushButton::clicked, this, &FITSTab::liveStack);
+    connect(m_LiveStackingUI.SaveB, &QPushButton::clicked, this, &FITSTab::saveSettings);
     connect(m_LiveStackingUI.ReprocessB, &QPushButton::clicked, this, [this]
     {
         if(m_View && m_View->imageData() && m_View->imageData()->stack())
@@ -929,9 +914,9 @@ void FITSTab::initLiveStacking()
             if (!m_View->imageData()->stack()->isStackedImageEmpty())
             {
                 m_LiveStackingUI.ReprocessB->setEnabled(false);
-                m_LiveStackingUI.StackB->setEnabled(false);
-                viewer->restack(m_liveStackDir);
-                m_View->redoPostProcessStack();
+                m_LiveStackingUI.StartB->setEnabled(false);
+                viewer->restack(m_liveStackDir, getUID());
+                m_View->redoPostProcessStack(getPPSettings());
             }
         }
     });
@@ -939,82 +924,6 @@ void FITSTab::initLiveStacking()
     connect(m_LiveStackingUI.MasterDarkB, &QPushButton::clicked, this, &FITSTab::selectLiveStackMasterDark);
     connect(m_LiveStackingUI.MasterFlatB, &QPushButton::clicked, this, &FITSTab::selectLiveStackMasterFlat);
     connect(m_LiveStackingUI.AlignMasterB, &QPushButton::clicked, this, &FITSTab::selectLiveStackAlignSub);
-
-    // Calibration options
-    connect(m_LiveStackingUI.kcfg_FitsLSMasterDark, &QLineEdit::textChanged, this, [&](QString value)
-    {
-        Options::setFitsLSMasterDark(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSMasterFlat, &QLineEdit::textChanged, this, [&](QString value)
-    {
-        Options::setFitsLSMasterFlat(value);
-    });
-
-    // Alignment
-    connect(m_LiveStackingUI.kcfg_FitsLSAlignMaster, &QLineEdit::textChanged, this, [&](QString value)
-    {
-        Options::setFitsLSAlignMaster(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSAlignMethod, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int value)
-    {
-        Options::setFitsLSAlignMethod(value);
-    });
-
-    // Stacking
-    connect(m_LiveStackingUI.kcfg_FitsLSNumInMem, QOverload<int>::of(&QSpinBox::valueChanged), this, [&](int value)
-    {
-        Options::setFitsLSNumInMem(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSDownscale, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int value)
-    {
-        Options::setFitsLSDownscale(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSWeighting, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int value)
-    {
-        Options::setFitsLSWeighting(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSRejection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int value)
-    {
-        Options::setFitsLSRejection(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSLowSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
-    {
-        Options::setFitsLSLowSigma(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSHighSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
-    {
-        Options::setFitsLSHighSigma(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSWinsorCutoff, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
-    {
-        Options::setFitsLSWinsorCutoff(value);
-    });
-
-    // Post processing
-    connect(m_LiveStackingUI.kcfg_FitsLSDeconvAmt, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
-    {
-        Options::setFitsLSDeconvAmt(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSPSFSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
-    {
-        Options::setFitsLSPSFSigma(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSDenoiseAmt, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
-    {
-        Options::setFitsLSDenoiseAmt(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSSharpenAmt, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
-    {
-        Options::setFitsLSSharpenAmt(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSSharpenKernal, QOverload<int>::of(&QSpinBox::valueChanged), this, [&](int value)
-    {
-        Options::setFitsLSSharpenKernal(value);
-    });
-    connect(m_LiveStackingUI.kcfg_FitsLSSharpenSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [&](double value)
-    {
-        Options::setFitsLSSharpenSigma(value);
-    });
 
     // Other connections used by Live Stacking
     connect(m_View.get(), &FITSView::plateSolveSub, this, &FITSTab::plateSolveSub);
@@ -1024,6 +933,79 @@ void FITSTab::initLiveStacking()
     connect(m_View.get(), &FITSView::updateStackSNR, this, &FITSTab::updateStackSNR);
     connect(m_View.get(), &FITSView::resetStack, this, &FITSTab::resetStack);
 #endif // !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
+}
+
+void FITSTab::initSettings()
+{
+    m_LiveStackingUI.MasterDark->setText(Options::fitsLSMasterDark());
+    m_LiveStackingUI.MasterFlat->setText(Options::fitsLSMasterFlat());
+    m_LiveStackingUI.AlignMethod->setCurrentIndex(Options::fitsLSAlignMethod());
+    m_LiveStackingUI.NumInMem->setValue(Options::fitsLSNumInMem());
+    m_LiveStackingUI.LSDownscale->setCurrentIndex(Options::fitsLSDownscale());
+    m_LiveStackingUI.Weighting->setCurrentIndex(Options::fitsLSWeighting());
+    m_LiveStackingUI.Rejection->setCurrentIndex(Options::fitsLSRejection());
+    m_LiveStackingUI.LowSigma->setValue(Options::fitsLSLowSigma());
+    m_LiveStackingUI.HighSigma->setValue(Options::fitsLSHighSigma());
+    m_LiveStackingUI.WinsorCutoff->setValue(Options::fitsLSWinsorCutoff());
+    m_LiveStackingUI.DeconvAmt->setValue(Options::fitsLSDeconvAmt());
+    m_LiveStackingUI.PSFSigma->setValue(Options::fitsLSPSFSigma());
+    m_LiveStackingUI.DenoiseAmt->setValue(Options::fitsLSDenoiseAmt());
+    m_LiveStackingUI.SharpenAmt->setValue(Options::fitsLSSharpenAmt());
+    m_LiveStackingUI.SharpenKernal->setValue(Options::fitsLSSharpenKernal());
+    m_LiveStackingUI.SharpenSigma->setValue(Options::fitsLSSharpenSigma());
+}
+
+void FITSTab::saveSettings()
+{
+    Options::setFitsLSMasterDark(m_LiveStackingUI.MasterDark->text());
+    Options::setFitsLSMasterFlat(m_LiveStackingUI.MasterFlat->text());
+    Options::setFitsLSAlignMethod(m_LiveStackingUI.AlignMethod->currentIndex());
+    Options::setFitsLSNumInMem(m_LiveStackingUI.NumInMem->value());
+    Options::setFitsLSDownscale(m_LiveStackingUI.LSDownscale->currentIndex());
+    Options::setFitsLSWeighting(m_LiveStackingUI.Weighting->currentIndex());
+    Options::setFitsLSRejection(m_LiveStackingUI.Rejection->currentIndex());
+    Options::setFitsLSLowSigma(m_LiveStackingUI.LowSigma->value());
+    Options::setFitsLSHighSigma(m_LiveStackingUI.HighSigma->value());
+    Options::setFitsLSWinsorCutoff(m_LiveStackingUI.WinsorCutoff->value());
+    Options::setFitsLSDeconvAmt(m_LiveStackingUI.DeconvAmt->value());
+    Options::setFitsLSPSFSigma(m_LiveStackingUI.PSFSigma->value());
+    Options::setFitsLSDenoiseAmt(m_LiveStackingUI.DenoiseAmt->value());
+    Options::setFitsLSSharpenAmt(m_LiveStackingUI.SharpenAmt->value());
+    Options::setFitsLSSharpenKernal(m_LiveStackingUI.SharpenKernal->value());
+    Options::setFitsLSSharpenSigma(m_LiveStackingUI.SharpenSigma->value());
+    // Write the options to disk
+    KSharedConfig::openConfig()->sync();
+    qCDebug(KSTARS_FITS) << "Live Stacker settings saved";
+}
+
+LiveStackData FITSTab::getAllSettings()
+{
+    LiveStackData data;
+    data.masterDark = m_LiveStackingUI.MasterDark->text();
+    data.masterFlat = m_LiveStackingUI.MasterFlat->text();
+    data.alignMaster = m_LiveStackingUI.AlignMaster->text();
+    data.alignMethod = static_cast<LiveStackAlignMethod>(m_LiveStackingUI.AlignMethod->currentIndex());
+    data.numInMem = m_LiveStackingUI.NumInMem->value();
+    data.downscale = static_cast<LiveStackDownscale>(m_LiveStackingUI.LSDownscale->currentIndex());
+    data.weighting = static_cast<LiveStackFrameWeighting>(m_LiveStackingUI.Weighting->currentIndex());
+    data.rejection = static_cast<LiveStackRejection>(m_LiveStackingUI.Rejection->currentIndex());
+    data.lowSigma = m_LiveStackingUI.LowSigma->value();
+    data.highSigma = m_LiveStackingUI.HighSigma->value();
+    data.windsorCutoff = m_LiveStackingUI.WinsorCutoff->value();
+    data.postProcessing = getPPSettings();
+    return data;
+}
+
+LiveStackPPData FITSTab::getPPSettings()
+{
+    LiveStackPPData data;
+    data.deconvAmt = m_LiveStackingUI.DeconvAmt->value();
+    data.PSFSigma = m_LiveStackingUI.PSFSigma->value();
+    data.denoiseAmt = m_LiveStackingUI.DenoiseAmt->value();
+    data.sharpenAmt = m_LiveStackingUI.SharpenAmt->value();
+    data.sharpenKernal = m_LiveStackingUI.SharpenKernal->value();
+    data.sharpenSigma = m_LiveStackingUI.SharpenSigma->value();
+    return data;
 }
 
 void FITSTab::selectLiveStack()
@@ -1041,13 +1023,13 @@ void FITSTab::selectLiveStack()
         m_CurrentStackDir = m_liveStackDir = dirs[0];
 
         // Reset the align master if a new stack has been selected
-        QString alignMaster = m_LiveStackingUI.kcfg_FitsLSAlignMaster->text();
+        QString alignMaster = m_LiveStackingUI.AlignMaster->text();
         if (!alignMaster.isEmpty())
         {
             QFileInfo fileInfo(alignMaster);
             QString alignMasterDir = fileInfo.absolutePath();
             if (alignMasterDir != dirs[0])
-                m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText("");
+                m_LiveStackingUI.AlignMaster->setText("");
         }
     }
 }
@@ -1060,7 +1042,7 @@ void FITSTab::selectLiveStackAlignSub()
     if (!file.isNull())
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
-        m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText(sequenceURL.toLocalFile());
+        m_LiveStackingUI.AlignMaster->setText(sequenceURL.toLocalFile());
         QFileInfo fileInfo(file);
         m_CurrentStackDir = fileInfo.absolutePath();
     }
@@ -1074,7 +1056,7 @@ void FITSTab::selectLiveStackMasterDark()
     if (!file.isNull())
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
-        m_LiveStackingUI.kcfg_FitsLSMasterDark->setText(sequenceURL.toLocalFile());
+        m_LiveStackingUI.MasterDark->setText(sequenceURL.toLocalFile());
         QFileInfo fileInfo(file);
         m_CurrentStackDir = fileInfo.absolutePath();
     }
@@ -1088,7 +1070,7 @@ void FITSTab::selectLiveStackMasterFlat()
     if (!file.isNull())
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
-        m_LiveStackingUI.kcfg_FitsLSMasterFlat->setText(sequenceURL.toLocalFile());
+        m_LiveStackingUI.MasterFlat->setText(sequenceURL.toLocalFile());
         QFileInfo fileInfo(file);
         m_CurrentStackDir = fileInfo.absolutePath();
     }
@@ -1313,11 +1295,11 @@ void FITSTab::extractImage()
 // Reload the live stack
 void FITSTab::liveStack()
 {
-    QString text = m_LiveStackingUI.StackB->text().remove('&');
-    if (text == "Stack")
+    QString text = m_LiveStackingUI.StartB->text().remove('&');
+    if (text == "Start")
     {
         // Start the stack process
-        m_LiveStackingUI.StackB->setText("Cancel");
+        m_LiveStackingUI.StartB->setText("Cancel");
         m_LiveStackingUI.ReprocessB->setEnabled(false);
 
         m_liveStackDir = m_LiveStackingUI.Stack->text();
@@ -1328,13 +1310,13 @@ void FITSTab::liveStack()
         m_LiveStackingUI.SubsProcessed->setText("0 / 0 / 0");
         m_LiveStackingUI.SubsSNR->setText("0 / 0 / 0");
         m_LiveStackingUI.ImageSNR->setText("0");
-        viewer->restack(m_liveStackDir);
-        m_View->loadStack(m_liveStackDir);
+        viewer->restack(m_liveStackDir, getUID());
+        m_View->loadStack(m_liveStackDir, getAllSettings());
     }
     else if (text == QString("Cancel"))
     {
-        m_LiveStackingUI.StackB->setText("Cancelling...");
-        m_LiveStackingUI.StackB->setEnabled(false);
+        m_LiveStackingUI.StartB->setText("Cancelling...");
+        m_LiveStackingUI.StartB->setEnabled(false);
         m_LiveStackingUI.ReprocessB->setEnabled(false);
         m_View->cancelStack();
     }
@@ -1421,14 +1403,14 @@ void FITSTab::plateSolveSub(const double ra, const double dec, const double pixS
 
 void FITSTab::stackInProgress()
 {
-    m_LiveStackingUI.StackB->setEnabled(false);
+    m_LiveStackingUI.StartB->setEnabled(false);
     m_LiveStackingUI.ReprocessB->setEnabled(false);
-    viewer->restack(m_liveStackDir);
+    viewer->restack(m_liveStackDir, getUID());
 }
 
 void FITSTab::alignMasterChosen(const QString &alignMaster)
 {
-    m_LiveStackingUI.kcfg_FitsLSAlignMaster->setText(alignMaster);
+    m_LiveStackingUI.AlignMaster->setText(alignMaster);
 }
 
 void FITSTab::stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR, const double maxSNR)
@@ -1447,8 +1429,8 @@ void FITSTab::updateStackSNR(const double SNR)
 
 void FITSTab::resetStack()
 {
-    m_LiveStackingUI.StackB->setText("Stack");
-    m_LiveStackingUI.StackB->setEnabled(true);
+    m_LiveStackingUI.StartB->setText("Start");
+    m_LiveStackingUI.StartB->setEnabled(true);
     m_LiveStackingUI.ReprocessB->setText("Reprocess");
     m_LiveStackingUI.ReprocessB->setEnabled(true);
 }

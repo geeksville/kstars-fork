@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>683</width>
-    <height>863</height>
+    <height>884</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,66 +38,6 @@
       <string>Calibration</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0">
-       <widget class="QLabel" name="masterFlatLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Master Flat:</string>
-        </property>
-        <property name="buddy">
-         <cstring>kcfg_FitsLSMasterFlat</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="masterDarkLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>188</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Master Dark:</string>
-        </property>
-        <property name="buddy">
-         <cstring>kcfg_FitsLSMasterDark</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="kcfg_FitsLSMasterFlat">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="readOnly">
-         <bool>false</bool>
-        </property>
-        <property name="clearButtonEnabled">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="MasterDarkB">
         <property name="sizePolicy">
@@ -130,8 +70,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="kcfg_FitsLSMasterDark">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="MasterFlat">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -143,6 +83,66 @@
         </property>
         <property name="clearButtonEnabled">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="MasterDark">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="readOnly">
+         <bool>false</bool>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="masterFlatLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Master Flat:</string>
+        </property>
+        <property name="buddy">
+         <cstring>MasterFlat</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="masterDarkLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Master Dark:</string>
+        </property>
+        <property name="buddy">
+         <cstring>MasterDark</cstring>
         </property>
        </widget>
       </item>
@@ -161,19 +161,6 @@
       <string>Stacking</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="7" column="3">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="WeightingLabel">
         <property name="sizePolicy">
@@ -186,12 +173,12 @@
          <string>Frame Weighting:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSWeighting</cstring>
+         <cstring>Weighting</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="1" rowspan="3">
-       <widget class="QComboBox" name="kcfg_FitsLSRejection">
+       <widget class="QComboBox" name="Rejection">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pixel rejection algorithm:&lt;/p&gt;&lt;p&gt;- None. No rejection is applied.&lt;/p&gt;&lt;p&gt;- Sigma Clipping. Outlying pixels are rejected.&lt;/p&gt;&lt;p&gt;- Winsorized Sigma Clipping. Winsorized version of sigma clipping&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -213,7 +200,7 @@
        </widget>
       </item>
       <item row="7" column="1">
-       <widget class="QDoubleSpinBox" name="kcfg_FitsLSWinsorCutoff">
+       <widget class="QDoubleSpinBox" name="WinsorCutoff">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Winsorization cutoff in units of sigma to be used in pixel rejection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -237,12 +224,12 @@
          <string>Rejection Method:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSRejection</cstring>
+         <cstring>Rejection</cstring>
         </property>
        </widget>
       </item>
       <item row="6" column="1">
-       <widget class="QDoubleSpinBox" name="kcfg_FitsLSHighSigma">
+       <widget class="QDoubleSpinBox" name="HighSigma">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Value of High Sigma to be used in pixel rejection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -266,7 +253,7 @@
          <string>Low Sigma:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSLowSigma</cstring>
+         <cstring>LowSigma</cstring>
         </property>
        </widget>
       </item>
@@ -282,12 +269,12 @@
          <string>Winsorization Cutoff:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSWinsorCutoff</cstring>
+         <cstring>WinsorCutoff</cstring>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="kcfg_FitsLSWeighting">
+       <widget class="QComboBox" name="Weighting">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Frame weighting:&lt;/p&gt;&lt;p&gt;- Equal. All frames have the same weight.&lt;/p&gt;&lt;p&gt;- HFR. Frames are weighted by 1 / Average HFR.&lt;/p&gt;&lt;p&gt;- Num Stars. Frames are weighted by the number of stars detected in the frame.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -309,7 +296,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QSpinBox" name="kcfg_FitsLSNumInMem">
+       <widget class="QSpinBox" name="NumInMem">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -327,28 +314,6 @@
         </property>
         <property name="value">
          <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="2">
-       <widget class="QPushButton" name="StackB">
-        <property name="minimumSize">
-         <size>
-          <width>93</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>80</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rerun the stacking process using the selected parameters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Stack</string>
         </property>
        </widget>
       </item>
@@ -370,7 +335,7 @@
          <string>In Memory Subs:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSNumInMem</cstring>
+         <cstring>NumInMem</cstring>
         </property>
        </widget>
       </item>
@@ -386,12 +351,12 @@
          <string>High Sigma:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSHighSigma</cstring>
+         <cstring>HighSigma</cstring>
         </property>
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QDoubleSpinBox" name="kcfg_FitsLSLowSigma">
+       <widget class="QDoubleSpinBox" name="LowSigma">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Value of Low Sigma to be used in pixel rejection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -415,12 +380,12 @@
          <string>Downscale:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSDownscale</cstring>
+         <cstring>LSDownscale</cstring>
         </property>
        </widget>
       </item>
       <item row="0" column="3">
-       <widget class="QComboBox" name="kcfg_FitsLSDownscale">
+       <widget class="QComboBox" name="LSDownscale">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Downscale images:&lt;/p&gt;&lt;p&gt;- None. No downscaling applied .&lt;/p&gt;&lt;p&gt;- 2x2. Subs and masters are downscaled 2x2.&lt;/p&gt;&lt;p&gt;- 3x3. Subs and masters are downscaled 3x3.&lt;/p&gt;&lt;p&gt;- 4x4. Subs and masters are downscaled 4x4.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -452,195 +417,6 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QGroupBox" name="InfoGroupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string/>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_6" rowstretch="0,0,0">
-      <item row="0" column="3">
-       <widget class="QPushButton" name="StackDirB">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset theme="folder-open"/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="NumberSubsLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>188</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Proc / Fail / Total:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="SubsProcessed">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>157</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Number of subs sucessfully processed / failed / total</string>
-        </property>
-        <property name="text">
-         <string>0 / 0 / 0</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="ImageSNR">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>The signal-to-noise ratio of the final image</string>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="SubsSNRLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>188</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>SNR Av / Min / Max:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="stackLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>188</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Stack Directory:</string>
-        </property>
-        <property name="buddy">
-         <cstring>Stack</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="QLineEdit" name="Stack">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-          <horstretch>209</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="clearButtonEnabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="SubsSNR">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>157</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Signal-to-noise ratio Max / Min / Mean of the processed subs</string>
-        </property>
-        <property name="text">
-         <string>0 / 0 / 0</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="ImageSNRLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Image SNR:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" colspan="2">
-       <widget class="FITSMemoryMonitor" name="MemMonitor" native="true"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="2" column="0" colspan="2">
     <widget class="QGroupBox" name="AlignmentGroupBox">
      <property name="sizePolicy">
@@ -654,7 +430,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="1" column="1">
-       <widget class="QComboBox" name="kcfg_FitsLSAlignMethod">
+       <widget class="QComboBox" name="AlignMethod">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>247</horstretch>
@@ -686,12 +462,12 @@
          <string>Master Sub:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSAlignMaster</cstring>
+         <cstring>AlignMaster</cstring>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="kcfg_FitsLSAlignMaster">
+       <widget class="QLineEdit" name="AlignMaster">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -721,7 +497,7 @@
          <string>Method:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSAlignMethod</cstring>
+         <cstring>AlignMethod</cstring>
         </property>
        </widget>
       </item>
@@ -755,6 +531,12 @@
      <property name="title">
       <string>Post Processing</string>
      </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="2" column="0">
        <widget class="QLabel" name="DenoiseLabel">
@@ -774,12 +556,12 @@
          <string>Denoise Amount:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSDenoiseAmt</cstring>
+         <cstring>DenoiseAmt</cstring>
         </property>
        </widget>
       </item>
       <item row="4" column="3">
-       <widget class="QSpinBox" name="kcfg_FitsLSSharpenKernal">
+       <widget class="QSpinBox" name="SharpenKernal">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sharpen kernal size.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -795,7 +577,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="kcfg_FitsLSDeconvAmt">
+       <widget class="QDoubleSpinBox" name="DeconvAmt">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Amount of Wiener Deconvolution to apply in the range 0 to 1. The feature blends this amount of the deconvolved image with (1 - amount) of the original image.&lt;/p&gt;&lt;p&gt;Set to 0 to switch deconvolution off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -808,7 +590,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QDoubleSpinBox" name="kcfg_FitsLSDenoiseAmt">
+       <widget class="QDoubleSpinBox" name="DenoiseAmt">
         <property name="minimumSize">
          <size>
           <width>247</width>
@@ -842,7 +624,7 @@
          <string>Kernal:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSSharpenKernal</cstring>
+         <cstring>SharpenKernal</cstring>
         </property>
        </widget>
       </item>
@@ -858,7 +640,7 @@
          <string>Sharpen Sigma:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSSharpenSigma</cstring>
+         <cstring>SharpenSigma</cstring>
         </property>
        </widget>
       </item>
@@ -876,7 +658,7 @@
        </widget>
       </item>
       <item row="6" column="1">
-       <widget class="QDoubleSpinBox" name="kcfg_FitsLSSharpenSigma">
+       <widget class="QDoubleSpinBox" name="SharpenSigma">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sharpen sigma.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -887,29 +669,6 @@
          <double>3.000000000000000</double>
         </property>
        </widget>
-      </item>
-      <item row="6" column="2">
-       <widget class="QPushButton" name="ReprocessB">
-        <property name="toolTip">
-         <string>Rerun the post processing using the selected parameters</string>
-        </property>
-        <property name="text">
-         <string>Reprocess</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="SharpenLabel">
@@ -929,7 +688,7 @@
          <string>Sharpen Amount:</string>
         </property>
         <property name="buddy">
-         <cstring>kcfg_FitsLSSharpenAmt</cstring>
+         <cstring>SharpenAmt</cstring>
         </property>
        </widget>
       </item>
@@ -941,7 +700,7 @@
        </widget>
       </item>
       <item row="0" column="3">
-       <widget class="QDoubleSpinBox" name="kcfg_FitsLSPSFSigma">
+       <widget class="QDoubleSpinBox" name="PSFSigma">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;PSF Sigma to use for Deconvolution&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -954,7 +713,7 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QDoubleSpinBox" name="kcfg_FitsLSSharpenAmt">
+       <widget class="QDoubleSpinBox" name="SharpenAmt">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Amount of sharpening to apply. Larger values apply more sharpening.&lt;/p&gt;&lt;p&gt;Set to 0 to skip sharpening.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -967,6 +726,237 @@
        <widget class="Line" name="line_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QPushButton" name="ReprocessB">
+        <property name="toolTip">
+         <string>Rerun the post processing using the selected parameters</string>
+        </property>
+        <property name="text">
+         <string>Reprocess</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QGroupBox" name="InfoGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6" rowstretch="0,0,0,0">
+      <item row="2" column="1">
+       <widget class="QLabel" name="SubsSNR">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>157</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Signal-to-noise ratio Max / Min / Mean of the processed subs</string>
+        </property>
+        <property name="text">
+         <string>0 / 0 / 0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QPushButton" name="SaveB">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save Live Stacker parameters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Save Settings</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="Stack">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>209</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLabel" name="ImageSNR">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>The signal-to-noise ratio of the final image</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="NumberSubsLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Proc / Fail / Total:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="stackLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Stack Directory:</string>
+        </property>
+        <property name="buddy">
+         <cstring>Stack</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="StackDirB">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset theme="folder-open"/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="ImageSNRLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Image SNR:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="2">
+       <widget class="FITSMemoryMonitor" name="MemMonitor" native="true"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="SubsProcessed">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>157</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Number of subs sucessfully processed / failed / total</string>
+        </property>
+        <property name="text">
+         <string>0 / 0 / 0</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="SubsSNRLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>188</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>SNR Av / Min / Max:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QPushButton" name="StartB">
+        <property name="minimumSize">
+         <size>
+          <width>93</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Starts watching the Stack Directory and runs stacking.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Start</string>
         </property>
        </widget>
       </item>
@@ -986,28 +976,26 @@
  <tabstops>
   <tabstop>Stack</tabstop>
   <tabstop>StackDirB</tabstop>
-  <tabstop>kcfg_FitsLSMasterDark</tabstop>
+  <tabstop>MasterDark</tabstop>
   <tabstop>MasterDarkB</tabstop>
-  <tabstop>kcfg_FitsLSMasterFlat</tabstop>
+  <tabstop>MasterFlat</tabstop>
   <tabstop>MasterFlatB</tabstop>
-  <tabstop>kcfg_FitsLSAlignMaster</tabstop>
+  <tabstop>AlignMaster</tabstop>
   <tabstop>AlignMasterB</tabstop>
-  <tabstop>kcfg_FitsLSAlignMethod</tabstop>
-  <tabstop>kcfg_FitsLSNumInMem</tabstop>
-  <tabstop>kcfg_FitsLSDownscale</tabstop>
-  <tabstop>kcfg_FitsLSWeighting</tabstop>
-  <tabstop>kcfg_FitsLSRejection</tabstop>
-  <tabstop>kcfg_FitsLSLowSigma</tabstop>
-  <tabstop>kcfg_FitsLSHighSigma</tabstop>
-  <tabstop>kcfg_FitsLSWinsorCutoff</tabstop>
-  <tabstop>StackB</tabstop>
-  <tabstop>kcfg_FitsLSDeconvAmt</tabstop>
-  <tabstop>kcfg_FitsLSPSFSigma</tabstop>
-  <tabstop>kcfg_FitsLSDenoiseAmt</tabstop>
-  <tabstop>kcfg_FitsLSSharpenAmt</tabstop>
-  <tabstop>kcfg_FitsLSSharpenKernal</tabstop>
-  <tabstop>kcfg_FitsLSSharpenSigma</tabstop>
-  <tabstop>ReprocessB</tabstop>
+  <tabstop>AlignMethod</tabstop>
+  <tabstop>NumInMem</tabstop>
+  <tabstop>LSDownscale</tabstop>
+  <tabstop>Weighting</tabstop>
+  <tabstop>Rejection</tabstop>
+  <tabstop>LowSigma</tabstop>
+  <tabstop>HighSigma</tabstop>
+  <tabstop>WinsorCutoff</tabstop>
+  <tabstop>DeconvAmt</tabstop>
+  <tabstop>PSFSigma</tabstop>
+  <tabstop>DenoiseAmt</tabstop>
+  <tabstop>SharpenAmt</tabstop>
+  <tabstop>SharpenKernal</tabstop>
+  <tabstop>SharpenSigma</tabstop>
  </tabstops>
  <resources/>
  <connections/>

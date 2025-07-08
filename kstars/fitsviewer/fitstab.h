@@ -273,6 +273,11 @@ class FITSTab : public QWidget
                               const double maxSNR);
         void updateStackSNR(const double SNR);
         void resetStack();
+        void saveSettings();
+        void initSettings();
+        LiveStackData getAllSettings();
+        LiveStackPPData getPPSettings();
+
         int m_LiveStackingItem { 0 };
         bool m_StackExtracted { false };
         QString m_liveStackDir;

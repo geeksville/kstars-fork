@@ -704,9 +704,10 @@ class FITSData : public QObject
         /**
          * @brief Load and stack directory of FITS files.
          * @param inDirectory Path to directory of FITS files
+         * @param params are stacking parameters
          * @return success (or not)
          */
-        bool loadStack(const QString &inDirectory);
+        bool loadStack(const QString &inDirectory, const LiveStackData &params);
 
         /**
          * @brief User request to cancel stacking operation
