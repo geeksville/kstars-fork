@@ -1111,6 +1111,7 @@ void FITSViewer::restack(const QString dir, const int tabUID)
 
     connect(tab.get(), &FITSTab::loaded, this, [ = ]()
     {
+        QObject::sender()->disconnect(this);
         updateFITSCommon(tab, imageName, tabName);
 
         m_StackBusy = false;
