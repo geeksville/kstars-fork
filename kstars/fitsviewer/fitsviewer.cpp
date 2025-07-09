@@ -800,7 +800,9 @@ bool FITSViewer::updateData(const QSharedPointer<FITSData> &data, const QUrl &im
 
 void FITSViewer::tabFocusUpdated(int currentIndex)
 {
-    if (currentIndex < 0 || m_Tabs.empty())
+    // JEE if (currentIndex < 0 || m_Tabs.empty())
+    //    return;
+    if (currentIndex < 0 || currentIndex >= m_Tabs.size())
         return;
 
     m_Tabs[currentIndex]->tabPositionUpdated();
@@ -1112,6 +1114,14 @@ void FITSViewer::restack(const QString dir, const int tabUID)
     connect(tab.get(), &FITSTab::loaded, this, [ = ]()
     {
         QObject::sender()->disconnect(this);
+        // JEE Reconnect tab signals we need
+        connect(tab.get(), &FITSTab::newStatus, this, &FITSViewer::updateStatusBar);
+        connect(tab.get(), &FITSTab::changeStatus, this, &FITSViewer::updateTabStatus);
+        connect(tab.get(), &FITSTab::debayerToggled, this, &FITSViewer::setDebayerAction);
+        // JEE Reconnect tab view signals we need
+        connect(tab->getView().get(), &FITSView::actionUpdated, this, &FITSViewer::updateAction);
+        connect(tab->getView().get(), &FITSView::wcsToggled, this, &FITSViewer::updateWCSFunctions);
+        connect(tab->getView().get(), &FITSView::starProfileWindowClosed, this, &FITSViewer::starProfileButtonOff);
         updateFITSCommon(tab, imageName, tabName);
 
         //m_StackBusy = false;
@@ -1349,15 +1359,26 @@ void FITSViewer::updateTabStatus(bool clean, const QUrl &imageURL)
 
 void FITSViewer::closeTab(int index)
 {
-    if (m_Tabs.empty())
+    // JEE if (m_Tabs.empty())
+    //     return;
+    if (index < 0 || index >= m_Tabs.size())
         return;
 
     auto tab = m_Tabs[index];
+    // JEE
+    if (!tab)
+        return;
+
+    tab->disconnect(this);
+    // JEE
 
     int UID = tab->getUID();
 
     fitsMap.remove(UID);
     m_Tabs.removeOne(tab);
+
+    // JEE - if changing to QPointer from QSharedPointer
+    //delete tab;
 
     if (m_Tabs.empty())
     {
