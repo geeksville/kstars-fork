@@ -954,6 +954,11 @@ public slots:
         QString saveFocusFrame();
 
         /**
+         * @brief showHistoryNavigation Show the navigation overlay
+         */
+        void showHistoryNavigation(bool enable, bool force = false);
+
+        /**
          * @brief enforceMaxFilesRecursive Enforce keeping a maximal amount of files
          * @param path directory that is used for the recursive search
          * @param maxCount maximal number of files

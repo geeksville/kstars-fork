@@ -21,6 +21,7 @@ public:
      * @brief showNavigation Show the navigation bar
      */
     void showNavigation(bool show) { m_focusHistoryNavigation->setVisible(show); }
+    bool isNavigationVisible() { return m_focusHistoryNavigation->isVisible(); }
 
     /**
      * @brief addRun Add a new frme sequence

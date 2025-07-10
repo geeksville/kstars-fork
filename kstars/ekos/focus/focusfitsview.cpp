@@ -14,7 +14,7 @@ FocusFITSView::FocusFITSView(QWidget *parent): FITSView(parent, FITS_FOCUS)
 
     m_focusHistoryNavigation.reset(new CaptureHistoryNavigation(this));
     auto * eff = new QGraphicsOpacityEffect(this);
-    eff->setOpacity(0.5);
+    eff->setOpacity(0.7);
     m_focusHistoryNavigation->setGraphicsEffect(eff);
     m_focusHistoryNavigation->resize(width(), m_focusHistoryNavigation->height());
     m_focusHistoryNavigation->move(0, height() - m_focusHistoryNavigation->height());

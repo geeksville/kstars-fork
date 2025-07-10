@@ -3050,8 +3050,8 @@ void Focus::setCaptureComplete()
     {
         // notify user
         appendLogText(i18n("Image received."));
-        // show the history navigation panel
-        m_FocusView->showNavigation(true);
+        // show the history navigation panel unless no frames are stored
+        showHistoryNavigation(Options::maxFocusFrameFiles() != 0, true);
     }
 
     if (m_captureInProgress && inFocusLoop == false && inAutoFocus == false)
@@ -5059,6 +5059,11 @@ void Focus::updateButtonColors(QPushButton *button, bool shift, bool ctrl)
     button->setStyleSheet(stylesheet);
 }
 
+void Ekos::Focus::showHistoryNavigation(bool enable, bool force)
+{
+    m_FocusView->showNavigation((m_FocusView->isNavigationVisible() || force) && enable);
+}
+
 void Focus::refreshMeasuresDisplay()
 {
     if (captureHistory(m_FocusView->currentAFRun()).size() <= 0)
@@ -5083,6 +5088,8 @@ void Focus::refreshMeasuresDisplay()
             FWHMOut->setText(QString("%1").arg(currentFrame().fwhm * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
         starsOut->setText(QString("%1").arg(currentFrame().numStars));
     }
+    // disable focus history navigation if no focus frames are stored
+    showHistoryNavigation(Options::maxFocusFrameFiles() != 0, true);
 }
 
 // Return whether the Aberration Inspector Start button should be enabled. The pre-requisties are:
@@ -6092,6 +6099,9 @@ void Focus::syncSettings()
     {
         key = sb->objectName();
         value = sb->value();
+        // refresh the visibility of the history navigation
+        if (key == "maxFocusFrameFiles")
+            showHistoryNavigation(value != 0);
     }
     else if ( (cb = qobject_cast<QCheckBox * >(sender())))
     {
