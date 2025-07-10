@@ -814,11 +814,6 @@ class FITSData : public QObject
         void stackReady();
 
         /**
-         * @brief Signal FITSView that a cancel has been processed and to reset the GUI
-         */
-        void resetStack();
-
-        /**
          * @brief update FITSTab on progress
          * @param ok whether sub being processed was successful or not
          * @param sub just processed

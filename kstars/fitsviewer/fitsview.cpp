@@ -476,11 +476,6 @@ void FITSView::loadStack(const QString &inDir, const LiveStackData &params)
         emit resetStack();
     });
 
-    connect(m_ImageData.data(), &FITSData::resetStack, this, [this]()
-    {
-        emit resetStack();
-    });
-
     connect(m_ImageData.data(), &FITSData::stackUpdateStats, this, [this](const bool ok, const int sub,
                                                                           const int total, const double meanSNR, const double minSNR, const double maxSNR)
     {

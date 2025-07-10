@@ -343,7 +343,6 @@ void FITSData::checkCancelStack()
         m_StackQ.clear();
 
         emit stackReady();
-        // JEE emit resetStack();
     }
 }
 
@@ -442,7 +441,7 @@ void FITSData::processMasters()
     // Dark
     if (!m_DarkLoaded)
     {
-        QString dark = Options::fitsLSMasterDark();
+        QString dark = m_Stack->getStackData().masterDark;
         if (dark.isEmpty())
             m_DarkLoaded = true;
         else
@@ -475,7 +474,7 @@ void FITSData::processMasters()
     // Flat
     if (!m_FlatLoaded)
     {
-        QString flat = Options::fitsLSMasterFlat();
+        QString flat = m_Stack->getStackData().masterFlat;
         if (flat.isEmpty())
             m_FlatLoaded = true;
         else
