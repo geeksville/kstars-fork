@@ -33,6 +33,7 @@
 #include <fitsio.h>
 
 #include <QFuture>
+#include <QFutureWatcher>
 #include <QObject>
 #include <QRect>
 #include <QVariant>
