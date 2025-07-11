@@ -41,7 +41,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="leftLayout" stretch="0,0,0,0,0,0">
+      <layout class="QVBoxLayout" name="leftLayout" stretch="0,0,0,0,0">
        <property name="spacing">
         <number>3</number>
        </property>
@@ -952,46 +952,6 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_7"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="relativeProfileB">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Profile...</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="clearDataB">
-           <property name="text">
-            <string>Clear</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
       </layout>
      </widget>
      <widget class="QSplitter" name="rightLayout">
@@ -1057,6 +1017,12 @@
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
            <widget class="QLabel" name="label">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
             <property name="text">
              <string>V-Curve</string>
             </property>
@@ -1130,6 +1096,26 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QPushButton" name="relativeProfileB">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Profile...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="clearDataB">
+            <property name="text">
+             <string>Clear</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
@@ -1199,7 +1185,6 @@
   <tabstop>focusFilter</tabstop>
   <tabstop>filterManagerB</tabstop>
   <tabstop>resetFrameB</tabstop>
-  <tabstop>relativeProfileB</tabstop>
  </tabstops>
  <resources/>
  <connections/>
