@@ -164,9 +164,9 @@ QString FITSMemoryMonitor::formatBytes(quint64 bytes)
     const quint64 MB = 1024ULL * 1024ULL;
 
     if (bytes >= GB)
-        return QString::number(bytes / (double)GB, 'f', 2) + " GB";
+        return QString::number(bytes / (double)GB, 'f', 1) + " GB";
     else if (bytes >= MB)
-        return QString::number(bytes / (double)MB, 'f', 1) + " MB";
+        return QString::number(bytes / (double)MB, 'f', 0) + " MB";
     else
         return QString::number(bytes / 1024.0, 'f', 0) + " KB";
 }
