@@ -17,7 +17,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/calib3d.hpp"
-#include "opencv2/xphoto.hpp"
+#include "opencv2/photo.hpp"
 
 #include <wcs.h>
 
