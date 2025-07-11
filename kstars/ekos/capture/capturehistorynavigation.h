@@ -36,6 +36,13 @@ public:
     }
 
     /**
+     * @brief refreshHistory Refresh the history and remove all file names where the corresponding
+     *        file does no longer exist.
+     * @return
+     */
+    void refreshHistory();
+
+    /**
      * @brief Retrieve the currently selected frame
      */
     const CaptureHistory::FrameData currentFrame() {return captureHistory(m_currentRun).currentFrame();}

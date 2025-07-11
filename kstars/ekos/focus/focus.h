@@ -956,7 +956,13 @@ public slots:
         /**
          * @brief showHistoryNavigation Show the navigation overlay
          */
-        void showHistoryNavigation(bool enable, bool force = false);
+        void refreshHistoryNavigation(bool enable, bool force = false);
+
+        /**
+         * @brief focusFramePath Path where the saved focus frames are located
+         * @return
+         */
+        QString focusFramePath();
 
         /**
          * @brief enforceMaxFilesRecursive Enforce keeping a maximal amount of files

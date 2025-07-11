@@ -20,6 +20,12 @@ void CaptureHistoryNavigation::addRun()
     m_currentRun = m_lastRun;
 }
 
+void CaptureHistoryNavigation::refreshHistory()
+{
+    for (QList<CaptureHistory>::iterator history = m_captureHistory.begin(); history != m_captureHistory.end(); history++)
+        history->updateTargetStatistics(false);
+}
+
 
 
 CaptureHistory &CaptureHistoryNavigation::captureHistory(int run)

@@ -2860,15 +2860,20 @@ void Focus::updateMeasurements()
 }
 
 // Save off focus frame during Autofocus for later debugging
+QString Ekos::Focus::focusFramePath()
+{
+    QDateTime now = KStarsData::Instance()->lt();
+    return QDir(KSPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("autofocus/" +
+            now.toString("yyyy-MM-dd"));
+}
+
 QString Focus::saveFocusFrame()
 {
     QString filename = "";
     if (inAutoFocus && Options::maxFocusFrameFiles() != 0)
     {
         QDir dir;
-        QDateTime now = KStarsData::Instance()->lt();
-        QString path = QDir(KSPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("autofocus/" +
-                       now.toString("yyyy-MM-dd"));
+        QString path = focusFramePath();
         dir.mkpath(path);
 
         // To help identify focus frames add run number, step and frame (for multiple frames at each step)
@@ -2890,7 +2895,8 @@ QString Focus::saveFocusFrame()
 
         // IS8601 contains colons but they are illegal under Windows OS, so replacing them with '-'
         // The timestamp is no longer ISO8601 but it should solve interoperality issues between different OS hosts
-        QString name     = "autofocus_frame_" + now.toString("HH-mm-ss") + prefix + ".fits";
+        QDateTime now    = KStarsData::Instance()->lt();
+        QString  name    = "autofocus_frame_" + now.toString("HH-mm-ss") + prefix + ".fits";
         filename = path + QStringLiteral("/") + name;
         m_ImageData->saveImage(filename);
         // keep the autofocus file count limit
@@ -3051,7 +3057,7 @@ void Focus::setCaptureComplete()
         // notify user
         appendLogText(i18n("Image received."));
         // show the history navigation panel unless no frames are stored
-        showHistoryNavigation(Options::maxFocusFrameFiles() != 0, true);
+        refreshHistoryNavigation(Options::maxFocusFrameFiles() != 0, true);
     }
 
     if (m_captureInProgress && inFocusLoop == false && inAutoFocus == false)
@@ -5059,9 +5065,21 @@ void Focus::updateButtonColors(QPushButton *button, bool shift, bool ctrl)
     button->setStyleSheet(stylesheet);
 }
 
-void Ekos::Focus::showHistoryNavigation(bool enable, bool force)
+void Ekos::Focus::refreshHistoryNavigation(bool enable, bool force)
 {
-    m_FocusView->showNavigation((m_FocusView->isNavigationVisible() || force) && enable);
+    // remove limit exceeding frames
+    if (Options::maxFocusFrameFiles() > 0)
+    {
+        QString path = focusFramePath();
+        int removed = enforceMaxFilesRecursive(QFileInfo(path).dir().absolutePath(), Options::maxFocusFrameFiles());
+
+        // check the history and clear not existing file name entries
+        if (removed > 0)
+            m_FocusView->m_focusHistoryNavigation->refreshHistory();
+    }
+
+    m_FocusView->showNavigation((m_FocusView->isNavigationVisible() || force) &&
+                                enable && m_FocusView->m_focusHistoryNavigation->lastRun() > 0);
 }
 
 void Focus::refreshMeasuresDisplay()
@@ -5089,7 +5107,7 @@ void Focus::refreshMeasuresDisplay()
         starsOut->setText(QString("%1").arg(currentFrame().numStars));
     }
     // disable focus history navigation if no focus frames are stored
-    showHistoryNavigation(Options::maxFocusFrameFiles() != 0, true);
+    refreshHistoryNavigation(Options::maxFocusFrameFiles() != 0, true);
 }
 
 // Return whether the Aberration Inspector Start button should be enabled. The pre-requisties are:
@@ -6101,7 +6119,11 @@ void Focus::syncSettings()
         value = sb->value();
         // refresh the visibility of the history navigation
         if (key == "maxFocusFrameFiles")
-            showHistoryNavigation(value != 0);
+        {
+            // enforce immediate setting the value
+            Options::setMaxFocusFrameFiles(value.Int);
+            refreshHistoryNavigation(value != 0);
+        }
     }
     else if ( (cb = qobject_cast<QCheckBox * >(sender())))
     {
