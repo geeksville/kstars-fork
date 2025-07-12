@@ -34,6 +34,8 @@ FocusFITSView::FocusFITSView(QWidget *parent): FITSView(parent, FITS_FOCUS)
     m_focusHistoryNavigation->raise();
 }
 
+
+
 bool FocusFITSView::loadCurrentFocusFrame()
 {
     if (currentFrame().filename == "")

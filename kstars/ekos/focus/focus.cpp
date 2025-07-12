@@ -1055,6 +1055,8 @@ void Focus::runAutoFocus(AutofocusReason autofocusReason, const QString &reasonI
 {
     m_AutofocusReason = autofocusReason;
     m_AutofocusReasonInfo = reasonInfo;
+    inSingleCaptureMode = false;
+
     if (m_Focuser == nullptr)
     {
         appendLogText(i18n("No Focuser connected."));
@@ -2542,9 +2544,17 @@ bool Focus::appendMeasure()
         frameData.starCenters.append(clonedStar);
     }
 
-    // keep only the last frame if not in autofocus run
-    if (!inAutoFocus)
+    // do not keep the history while looping
+    if (inFocusLoop)
         captureHistory(lastAFRun()).reset();
+    else if (!inAutoFocus && !inSingleCaptureMode)
+    {
+        // track the history of single frames
+        m_FocusView->addRun();
+        inSingleCaptureMode = true;
+        // initialize the HFR view
+        clearDataPoints();
+    }
 
     // update the history
     m_FocusView->addFrame(frameData);
@@ -2839,7 +2849,7 @@ void Focus::updateMeasurements()
         // If inAutoFocus is true without canAbsMove and without canRelMove, canTimerMove must be true.
         // We'd only want to execute this if the focus linear algorithm is not being used, as that
         // algorithm simulates a position-based system even for timer-based focusers.
-        if (inFocusLoop || (inAutoFocus && ! isPositionBased()))
+        if (inFocusLoop || inSingleCaptureMode || (inAutoFocus && ! isPositionBased()))
         {
             int pos = plot_position.empty() ? 1 : plot_position.last() + 1;
             addPlotPosition(pos, getLastMeasure());
@@ -2873,7 +2883,7 @@ QString Ekos::Focus::focusFramePath()
 QString Focus::saveFocusFrame()
 {
     QString filename = "";
-    if (inAutoFocus && Options::maxFocusFrameFiles() != 0)
+    if (!inFocusLoop && Options::maxFocusFrameFiles() != 0)
     {
         QDir dir;
         QString path = focusFramePath();
@@ -3401,6 +3411,13 @@ QString Focus::getyAxisLabel(StarMeasure starMeasure)
     return str;
 }
 
+void Ekos::Focus::resetHFRPlot()
+{
+    emit initHFRPlot(getyAxisLabel(m_StarMeasure), getStarUnits(m_StarMeasure, m_StarUnits),
+                     m_OptDir == CurveFitting::OPTIMISATION_MINIMISE, m_OpsFocusProcess->focusUseWeights->isChecked(),
+                     inFocusLoop == false && inSingleCaptureMode == false && isPositionBased());
+}
+
 void Focus::clearDataPoints()
 {
     maxHFR = 1;
@@ -3428,12 +3445,15 @@ void Focus::clearDataPoints()
         }
     }
 
-    captureHistory(lastAFRun()).reset();
+    captureHistory(m_FocusView->currentAFRun()).reset();
     refreshMeasuresDisplay();
+    resetHFRPlot();
+}
 
-    emit initHFRPlot(getyAxisLabel(m_StarMeasure), getStarUnits(m_StarMeasure, m_StarUnits),
-                     m_OptDir == CurveFitting::OPTIMISATION_MINIMISE, m_OpsFocusProcess->focusUseWeights->isChecked(),
-                     inFocusLoop == false && isPositionBased());
+void Focus::clearCurrentRun()
+{
+    clearDataPoints();
+    m_FocusView->removeRun(m_FocusView->currentAFRun());
 }
 
 bool Focus::autoFocusChecks()
@@ -5097,7 +5117,7 @@ void Focus::refreshMeasuresDisplay()
     else
     {
         // display the iteration count during autofocus and afterwards
-        if (inAutoFocus || captureHistory(m_FocusView->currentAFRun()).size() > 1)
+        if (inAutoFocus || inSingleCaptureMode || captureHistory(m_FocusView->currentAFRun()).size() > 1)
             m_FocusView->m_focusHistoryNavigation->iterOut->setText(QString("Run #%1: %2/%3").arg(m_FocusView->currentAFRun()).arg(
                         captureHistory(
                             m_FocusView->currentAFRun()).position() + 1).arg(captureHistory(m_FocusView->currentAFRun()).size()));
@@ -5109,8 +5129,8 @@ void Focus::refreshMeasuresDisplay()
             FWHMOut->setText(QString("%1").arg(currentFrame().fwhm * getStarUnits(m_StarMeasure, m_StarUnits), 0, 'f', 2));
         starsOut->setText(QString("%1").arg(currentFrame().numStars));
     }
-    // disable focus history navigation if no focus frames are stored
-    refreshHistoryNavigation(Options::maxFocusFrameFiles() != 0, true);
+    // disable focus history navigation if no history is present or no focus frames are stored
+    refreshHistoryNavigation(m_FocusView->lastAFRun() > 0 && Options::maxFocusFrameFiles() != 0, true);
 }
 
 // Return whether the Aberration Inspector Start button should be enabled. The pre-requisties are:
@@ -6386,7 +6406,7 @@ void Focus::disconnectSyncSettings()
 
 void Focus::initPlots()
 {
-    connect(clearDataB, &QPushButton::clicked, this, &Ekos::Focus::clearDataPoints);
+    connect(clearDataB, &QPushButton::clicked, this, &Ekos::Focus::clearCurrentRun);
 
     profileDialog = new QDialog(this);
     profileDialog->setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);

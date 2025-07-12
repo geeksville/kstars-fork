@@ -20,9 +20,14 @@ public:
     explicit CaptureHistoryNavigation(QWidget *parent = nullptr);
 
     /**
-     * @brief addRun Add a new frme sequence
+     * @brief addRun Add a new frame sequence
      */
     void addRun();
+
+    /**
+     * @brief removeRun Remove a given frame sequence
+     */
+    void removeRun(int run);
 
     /**
      * @brief Add a newly captured frame to the history
@@ -32,13 +37,14 @@ public:
      */
     bool addFrame(CaptureHistory::FrameData data, bool noduplicates = true)
     {
+        m_currentRun = m_lastRun;
+        refreshNavigation();
         return captureHistory(m_lastRun).addFrame(data, noduplicates);
     }
 
     /**
      * @brief refreshHistory Refresh the history and remove all file names where the corresponding
      *        file does no longer exist.
-     * @return
      */
     void refreshHistory();
 

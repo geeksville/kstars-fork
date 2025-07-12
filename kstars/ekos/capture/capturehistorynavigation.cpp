@@ -18,6 +18,21 @@ void CaptureHistoryNavigation::addRun()
 {
     m_lastRun++;
     m_currentRun = m_lastRun;
+
+    refreshNavigation();
+}
+
+void CaptureHistoryNavigation::removeRun(int run)
+{
+    if (run <= m_lastRun)
+    {
+        m_captureHistory.removeAt(run);
+        m_lastRun--;
+        if (run >= m_currentRun)
+            m_currentRun--;
+
+        refreshNavigation();
+    }
 }
 
 void CaptureHistoryNavigation::refreshHistory()

@@ -375,6 +375,11 @@ public slots:
         void clearDataPoints();
 
         /**
+         * @brief clearCurrentRun Remove the entire frame sequence from the capture history
+         */
+        void clearCurrentRun();
+
+        /**
              * @brief focusStarSelected The user selected a focus star, save its coordinates and subframe it if subframing is enabled.
              * @param x X coordinate
              * @param y Y coordinate
@@ -505,6 +510,8 @@ public slots:
         void updateMeasurements();
         void startAbIns();
         void manualStart();
+
+        void resetHFRPlot();
 
     signals:
         void newLog(const QString &text);
@@ -1171,6 +1178,7 @@ public slots:
         /// Keep track of what we're doing right now
         bool inAutoFocus { false };
         bool inFocusLoop { false };
+        bool inSingleCaptureMode { false };
         bool inScanStartPos { false };
         //bool inSequenceFocus { false };
         /// Keep track of request to retry or abort an AutoFocus run after focus position has been reset

@@ -24,9 +24,14 @@ public:
     bool isNavigationVisible() { return m_focusHistoryNavigation->isVisible(); }
 
     /**
-     * @brief addRun Add a new frme sequence
+     * @brief addRun Add a new frame sequence
      */
     void addRun() {m_focusHistoryNavigation->addRun();}
+
+    /**
+     * @brief removeRun Remove a given frame sequence
+     */
+    void removeRun(int run) { m_focusHistoryNavigation->removeRun(run); }
 
     /**
      * @brief Add a newly captured frame to the history
