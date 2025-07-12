@@ -2542,9 +2542,12 @@ bool Focus::appendMeasure()
         frameData.starCenters.append(clonedStar);
     }
 
+    // keep only the last frame if not in autofocus run
+    if (!inAutoFocus)
+        captureHistory(lastAFRun()).reset();
+
     // update the history
-    if (inAutoFocus)
-        m_FocusView->addFrame(frameData);
+    m_FocusView->addFrame(frameData);
 
     // Return whether we need more frame based on user requirement
     int framesCount = m_OpsFocusProcess->focusFramesCount->value();
