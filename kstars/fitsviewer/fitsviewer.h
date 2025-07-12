@@ -55,6 +55,15 @@ class FITSViewer : public KXmlGuiWindow
         Q_OBJECT
 
     public:
+        // JEE TEST
+        enum class Mode
+        {
+            Full,
+            LiveStacking
+        };
+
+        explicit FITSViewer(QWidget *parent = nullptr, Mode mode = Mode::Full);
+        // JEE END TEST
         /** Constructor. */
         explicit FITSViewer(QWidget *parent);
         ~FITSViewer() override;
@@ -180,6 +189,7 @@ class FITSViewer : public KXmlGuiWindow
 
         // Live Stacking
         bool m_StackBusy { false };
+        void createLiveStackingOnly();
 
     signals:
         void trackingStarSelected(int x, int y);
