@@ -61,7 +61,7 @@ void FITSStack::setupNextSub()
 {
     StackImageData imageData;
     imageData.image = cv::Mat();
-    imageData.status = PLATESOLVE_IN_PROGRESS;
+    imageData.status = IN_PROGRESS;
     imageData.isCalibrated = false;
     imageData.isAligned = false;
     imageData.wcsprm = nullptr;
@@ -398,17 +398,16 @@ bool FITSStack::solverDone(const wcsprm * wcsHandle, const bool timedOut, const 
     return true;
 }
 
-// Couldn't add an image to be stacked for some reason so complete the admin needed
-void FITSStack::addSubFailed()
+void FITSStack::addSubStatus(const bool ok)
 {
     if (m_StackImageData.size() <= 0)
     {
         // This shouldn't happen
-        qCDebug(KSTARS_FITS) << "addSubFailed called but no m_StackImageData";
+        qCDebug(KSTARS_FITS) << "addSubStatus called but no m_StackImageData";
         return;
     }
 
-    m_StackImageData.last().status = PLATESOLVE_FAILED;
+    (ok) ? m_StackImageData.last().status = OK : m_StackImageData.last().status = PLATESOLVE_FAILED;
 }
 
 // Perform the initial stack
@@ -440,6 +439,9 @@ bool FITSStack::stack()
                 m_InitialStackRef = i;
                 m_StackImageData[i].isAligned = true;
             }
+            if (m_StackData.alignMethod == LS_ALIGNMENT_NONE)
+                // No alignment needed so skip this stage
+                m_StackImageData[i].isAligned = true;
             else if (!m_StackImageData[i].isAligned)
             {
                 // Align this image to the reference image
@@ -508,9 +510,12 @@ bool FITSStack::stackn()
                 }
             }
 
-            // Align this image to the reference image
+            // Alignment stage
             cv::Mat warp, warpedImage;
-            if (!calcWarpMatrix(m_RunningStackImageData.ref_wcsprm, m_StackImageData[i].wcsprm, warp))
+            if (m_StackData.alignMethod == LS_ALIGNMENT_NONE)
+                // No alignment needed so skip this stage
+                m_StackImageData[i].isAligned = true;
+            else if (!calcWarpMatrix(m_RunningStackImageData.ref_wcsprm, m_StackImageData[i].wcsprm, warp))
                 m_StackImageData[i].status = ALIGNMENT_FAILED;
             else
             {
