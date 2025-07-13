@@ -82,8 +82,8 @@ void SolverUtils::prepareSolver()
     if (m_IndexToUse >= 0)
     {
         // The would only have an effect if Options::solverType() == SOLVER_STELLARSOLVER
-        QStringList indexFiles = StellarSolver::getIndexFiles(
-                                     Options::astrometryIndexFolderList(), m_IndexToUse, m_HealpixToUse);
+        const QStringList folderList = Options::astrometryIndexFolderList();
+        QStringList indexFiles = StellarSolver::getIndexFiles(folderList, m_IndexToUse, m_HealpixToUse);
         m_StellarSolver->setIndexFilePaths(indexFiles);
     }
     else
