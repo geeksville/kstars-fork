@@ -10,7 +10,6 @@
 #include "Options.h"
 #include <QRegularExpression>
 #include <QUuid>
-#include <QStringList>
 
 SolverUtils::SolverUtils(const SSolver::Parameters &parameters, double timeoutSeconds,
                          SSolver::ProcessType type) :
@@ -83,8 +82,8 @@ void SolverUtils::prepareSolver()
     if (m_IndexToUse >= 0)
     {
         // The would only have an effect if Options::solverType() == SOLVER_STELLARSOLVER
-        const QStringList folderList = Options::astrometryIndexFolderList();
-        QStringList indexFiles = StellarSolver::getIndexFiles(folderList, m_IndexToUse, m_HealpixToUse);
+        QStringList indexFiles = StellarSolver::getIndexFiles(
+                                     Options::astrometryIndexFolderList(), m_IndexToUse, m_HealpixToUse);
         m_StellarSolver->setIndexFilePaths(indexFiles);
     }
     else
