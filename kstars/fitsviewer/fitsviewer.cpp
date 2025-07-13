@@ -335,7 +335,9 @@ FITSViewer::FITSViewer(QWidget *parent, Mode mode) : KXmlGuiWindow(parent), m_Mo
     /* Create GUI */
     createGUI("fitsviewerui.rc");
 
-    setWindowTitle(i18nc("@title:window", "KStars FITS Viewer"));
+    QString title = (m_Mode == Mode::LiveStacking) ? i18nc("@title:window", "KStars Live Stacker") :
+                                                     i18nc("@title:window", "KStars FITS Viewer");
+    setWindowTitle(title);
 
     /* initially resize in accord with KDE rules */
     show();
@@ -350,13 +352,8 @@ FITSViewer::FITSViewer(QWidget *parent, Mode mode) : KXmlGuiWindow(parent), m_Mo
         resize(INITIAL_W, INITIAL_H);
 
     // JEE TEST
-    if (mode == Mode::LiveStacking)
-    {
+    if (m_Mode == Mode::LiveStacking)
         stack();
-        //createLiveStackingOnly();
-        return;
-    }
-    // JEE END TEST
 }
 
 void FITSViewer::changeAlwaysOnTop(Qt::ApplicationState state)
