@@ -3454,6 +3454,10 @@ void Focus::clearCurrentRun()
 {
     clearDataPoints();
     m_FocusView->removeRun(m_FocusView->currentAFRun());
+    inSingleCaptureMode = false;
+    // check visibility of the history navigation (enable if possible, but do not force)
+    refreshHistoryNavigation(true, false);
+    refreshMeasuresDisplay();
 }
 
 bool Focus::autoFocusChecks()
@@ -5117,7 +5121,7 @@ void Focus::refreshMeasuresDisplay()
     else
     {
         // display the iteration count during autofocus and afterwards
-        if (inAutoFocus || inSingleCaptureMode || captureHistory(m_FocusView->currentAFRun()).size() > 1)
+        if (inAutoFocus || captureHistory(m_FocusView->currentAFRun()).size() > 0)
             m_FocusView->m_focusHistoryNavigation->iterOut->setText(QString("Run #%1: %2/%3").arg(m_FocusView->currentAFRun()).arg(
                         captureHistory(
                             m_FocusView->currentAFRun()).position() + 1).arg(captureHistory(m_FocusView->currentAFRun()).size()));

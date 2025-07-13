@@ -28,7 +28,7 @@ void CaptureHistoryNavigation::removeRun(int run)
     {
         m_captureHistory.removeAt(run);
         m_lastRun--;
-        if (run >= m_currentRun)
+        if (run <= m_currentRun && (run > 1 || m_captureHistory.size() <= 1))
             m_currentRun--;
 
         refreshNavigation();
