@@ -25,9 +25,10 @@ public:
     void addRun();
 
     /**
-     * @brief removeRun Remove a given frame sequence
+     * @brief removeRun Remove a given frame sequence and delete the corresponding
+     *        frames as well, if requested.
      */
-    void removeRun(int run);
+    void removeRun(int run, bool deleteFiles = false, bool useTrash = false);
 
     /**
      * @brief Add a newly captured frame to the history

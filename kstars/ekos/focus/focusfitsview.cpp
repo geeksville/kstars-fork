@@ -6,6 +6,7 @@
 
 #include "focusfitsview.h"
 #include "QGraphicsOpacityEffect"
+#include "ksmessagebox.h"
 
 FocusFITSView::FocusFITSView(QWidget *parent): FITSView(parent, FITS_FOCUS)
 {
@@ -33,6 +34,8 @@ FocusFITSView::FocusFITSView(QWidget *parent): FITSView(parent, FITS_FOCUS)
     showNavigation(false);
     m_focusHistoryNavigation->raise();
 }
+
+
 
 
 

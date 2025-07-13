@@ -5,6 +5,7 @@
  */
 
 #include "capturehistorynavigation.h"
+#include <ekos_capture_debug.h>
 
 CaptureHistoryNavigation::CaptureHistoryNavigation(QWidget *parent)
     : QWidget{parent}
@@ -22,12 +23,40 @@ void CaptureHistoryNavigation::addRun()
     refreshNavigation();
 }
 
-void CaptureHistoryNavigation::removeRun(int run)
+void CaptureHistoryNavigation::removeRun(int run, bool deleteFiles, bool useTrash)
 {
     if (run <= m_lastRun)
     {
+        if (deleteFiles)
+        {
+            CaptureHistory history = captureHistory(run);
+            // iterate over the files and delete them
+            for (int i = 0; i < history.size(); i++)
+            {
+                auto frame = history.getFrame(i);
+                if (frame.filename != "")
+                {
+                    QFile file(frame.filename);
+                    if (file.exists())
+                    {
+                        if (useTrash)
+                        {
+                            if (!file.moveToTrash())
+                                qCWarning(KSTARS_EKOS_CAPTURE) << "Moving file to trash failed:" << frame.filename;
+                        }
+                        else
+                        {
+                            if (!file.remove())
+                                qCWarning(KSTARS_EKOS_CAPTURE) << "Deleting file failed:" << frame.filename;
+                        }
+                    }
+                }
+
+            }
+        }
         m_captureHistory.removeAt(run);
         m_lastRun--;
+        // update current position if necessary and possible
         if (run <= m_currentRun && (run > 1 || m_captureHistory.size() <= 1))
             m_currentRun--;
 

@@ -1044,6 +1044,42 @@ void Focus::manualStart()
     runAutoFocus(AutofocusReason::FOCUS_MANUAL, "");
 }
 
+void Focus::clearDataRequested()
+{
+    // ask to delete the focus frames
+    // prepare a warning dialog
+    // move to trash or delete permanently
+    QCheckBox *permanentlyDeleteCB = new QCheckBox(i18n("Delete directly, do not move to trash."));
+    permanentlyDeleteCB->setChecked(m_permanentlyDelete);
+    KSMessageBox::Instance()->setCheckBox(permanentlyDeleteCB);
+    connect(permanentlyDeleteCB, &QCheckBox::toggled, this, [this](bool checked)
+    {
+        this->m_permanentlyDelete = checked;
+    });
+
+    // Yes, delete the focus frames
+    connect(KSMessageBox::Instance(), &KSMessageBox::accepted, this, [this]()
+    {
+        clearCurrentRun(true, m_permanentlyDelete);
+        // clean up
+        KSMessageBox::Instance()->disconnect(this);
+        // clear the check box
+        KSMessageBox::Instance()->setCheckBox(nullptr);
+    });
+    // No, don't delete
+    connect(KSMessageBox::Instance(), &KSMessageBox::rejected, this, [this]()
+    {
+        clearCurrentRun(false, m_permanentlyDelete);
+        // clean up
+        KSMessageBox::Instance()->disconnect(this);
+        // clear the check box
+        KSMessageBox::Instance()->setCheckBox(nullptr);
+    });
+
+    KSMessageBox::Instance()->questionYesNo(i18n("Delete the corresponding focus frames?"), i18n("Delete focus frames?"), 0,
+                                            false);
+}
+
 // An Autofocus start request over DBUS (most likely from the Scheduler)
 void Focus::start()
 {
@@ -3445,15 +3481,13 @@ void Focus::clearDataPoints()
         }
     }
 
-    captureHistory(m_FocusView->currentAFRun()).reset();
-    refreshMeasuresDisplay();
     resetHFRPlot();
 }
 
-void Focus::clearCurrentRun()
+void Focus::clearCurrentRun(bool deleteFiles, bool useTrash)
 {
     clearDataPoints();
-    m_FocusView->removeRun(m_FocusView->currentAFRun());
+    m_FocusView->removeRun(m_FocusView->currentAFRun(), deleteFiles, useTrash);
     inSingleCaptureMode = false;
     // check visibility of the history navigation (enable if possible, but do not force)
     refreshHistoryNavigation(true, false);
@@ -6410,7 +6444,7 @@ void Focus::disconnectSyncSettings()
 
 void Focus::initPlots()
 {
-    connect(clearDataB, &QPushButton::clicked, this, &Ekos::Focus::clearCurrentRun);
+    connect(clearDataB, &QPushButton::clicked, this, &Ekos::Focus::clearDataRequested);
 
     profileDialog = new QDialog(this);
     profileDialog->setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);

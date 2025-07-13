@@ -30,8 +30,10 @@ public:
 
     /**
      * @brief removeRun Remove a given frame sequence
+         * @param deleteFiles delete captured focus frames
+         * @param useTrash use trash when deleting
      */
-    void removeRun(int run) { m_focusHistoryNavigation->removeRun(run); }
+    void removeRun(int run, bool deleteFiles, bool useTrash) { m_focusHistoryNavigation->removeRun(run, deleteFiles, useTrash); }
 
     /**
      * @brief Add a newly captured frame to the history

@@ -376,8 +376,10 @@ public slots:
 
         /**
          * @brief clearCurrentRun Remove the entire frame sequence from the capture history
+         * @param deleteFiles delete captured focus frames
+         * @param useTrash use trash when deleting
          */
-        void clearCurrentRun();
+        void clearCurrentRun(bool deleteFiles, bool useTrash);
 
         /**
              * @brief focusStarSelected The user selected a focus star, save its coordinates and subframe it if subframing is enabled.
@@ -510,6 +512,8 @@ public slots:
         void updateMeasurements();
         void startAbIns();
         void manualStart();
+
+        void clearDataRequested();
 
         void resetHFRPlot();
 
@@ -1221,6 +1225,8 @@ public slots:
         QString m_AutofocusReasonInfo;
         // Rerun flag indicating a rerun due to AF failing
         bool m_AFRerun = false;
+        // move to trash or delete finally
+        bool m_permanentlyDelete {false};
 
         ITextVectorProperty *filterName { nullptr };
         INumberVectorProperty *filterSlot { nullptr };
