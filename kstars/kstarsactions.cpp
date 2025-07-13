@@ -1323,15 +1323,22 @@ void KStars::slotStack()
 {
 #if defined(HAVE_WCSLIB) && defined(HAVE_CFITSIO) && defined(HAVE_OPENCV)
     // JEE TEST
-    static bool flip = false;
-    if (flip)
-        createFITSViewer(flip);
+    if (Options::liveStackerOwnProcess())
+    {
+        qint64 pid;
+        QString currentExecutablePath = QCoreApplication::applicationFilePath();
+        QStringList args = { "--live-stacker" };
+        qCDebug(KSTARS) << "Starting Live Stacker process:" << currentExecutablePath << args;
+        if (QProcess::startDetached(currentExecutablePath, args, "", &pid))
+            qCDebug(KSTARS) << "Started Live Stacker process:" << currentExecutablePath << args << "pid=" << pid;
+        else
+            qCDebug(KSTARS) << "Failed to start Live Stacker process:" << currentExecutablePath << args;
+    }
     else
     {
-        auto fv = createFITSViewer(flip);
+        auto fv = createFITSViewer();
         fv->stack();
     }
-    flip = !flip;
 #endif
 }
 

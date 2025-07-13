@@ -45,7 +45,8 @@ QList<KLocalizedString> FITSViewer::filterTypes = {ki18n("Auto Stretch"), ki18n(
                                                    ki18n("Flip Vertical")
                                                   };
 
-FITSViewer::FITSViewer(QWidget *parent, Mode mode) : KXmlGuiWindow(parent)
+FITSViewer::FITSViewer(QWidget *parent, Mode mode) : KXmlGuiWindow(parent), m_Mode(mode)
+
 {
 #ifdef Q_OS_MACOS
     if (Options::independentWindowFITS())
@@ -399,6 +400,11 @@ void FITSViewer::closeEvent(QCloseEvent * /*event*/)
     }
 
     emit terminated();
+
+    // JEE TEST
+    if (m_Mode == Mode::LiveStacking)
+        qApp->quit();
+    // JEE END TEST
 }
 
 void FITSViewer::hideEvent(QHideEvent * /*event*/)

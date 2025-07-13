@@ -188,6 +188,7 @@ class FITSViewer : public KXmlGuiWindow
         static bool m_BlinkBusy;
 
         // Live Stacking
+        Mode m_Mode { Mode::Full };
         bool m_StackBusy { false };
         void createLiveStackingOnly();
 

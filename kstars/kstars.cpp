@@ -678,18 +678,8 @@ void KStars::updateTime(const bool automaticDSTchange)
 }
 
 #ifdef HAVE_CFITSIO
-const QSharedPointer<FITSViewer> &KStars::createFITSViewer(const bool forceCreate)
+const QSharedPointer<FITSViewer> &KStars::createFITSViewer()
 {
-    // JEE TEST
-    if (forceCreate)
-    {
-        QString currentExecutablePath = QCoreApplication::applicationFilePath();
-        QStringList args = { "--live-stacker" };
-        qDebug() << "Starting Live Stacker process:" << currentExecutablePath << args;
-        QProcess::startDetached(currentExecutablePath, args);
-        return QSharedPointer<FITSViewer>();
-    }
-    // JEE END TEST
     if (Options::singleWindowCapturedFITS())
         return KStars::Instance()->genericFITSViewer();
     else
