@@ -10,6 +10,7 @@
 #include "Options.h"
 #include <QRegularExpression>
 #include <QUuid>
+#include <QStringList>
 
 SolverUtils::SolverUtils(const SSolver::Parameters &parameters, double timeoutSeconds,
                          SSolver::ProcessType type) :
