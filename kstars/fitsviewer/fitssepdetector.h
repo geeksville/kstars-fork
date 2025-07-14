@@ -16,6 +16,7 @@
 #ifdef HAVE_STELLARSOLVER
 #include "ekos/auxiliary/stellarsolverprofileeditor.h"
 #include <stellarsolver.h>
+#undef Const
 #else
 #include <cstring>
 #include "sep/sep.h"
