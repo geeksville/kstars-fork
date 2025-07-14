@@ -23,6 +23,7 @@
 #include <KLocalizedString>
 #include <QFileDialog>
 #include <QtDBus/QDBusReply>
+#include "kstarsdata.h"
 
 namespace Ekos
 {
@@ -59,15 +60,6 @@ FramingAssistantUI::FramingAssistantUI(): QDialog(KStars::Instance()), ui(new Ui
     setCompletionConditionArg(tiles->completionConditionArg());
 
     ui->groupEdit->setText(tiles->group());
-    if (m_CompletionCondition == "FinishSequence")
-        ui->sequenceCompletionR->setChecked(true);
-    else if (m_CompletionCondition == "FinishRepeat")
-    {
-        ui->repeatCompletionR->setChecked(true);
-        ui->repeatsSpin->setValue(m_CompletionConditionArg.toInt());
-    }
-    else if (m_CompletionCondition == "FinishLoop")
-        ui->loopCompletionR->setChecked(true);
 
     if (tiles->operationMode() == MosaicTiles::MODE_OPERATION)
     {
@@ -1070,6 +1062,14 @@ void FramingAssistantUI::setCompletionCondition(const QString &value)
         return;
 
     m_CompletionCondition = value;
+
+    if (m_CompletionCondition == "FinishSequence")
+        ui->sequenceCompletionR->setChecked(true);
+    else if (m_CompletionCondition == "FinishRepeat")
+        ui->repeatCompletionR->setChecked(true);
+    else if (m_CompletionCondition == "FinishLoop")
+        ui->loopCompletionR->setChecked(true);
+
     emit completionConditionChanged(m_CompletionCondition);
 }
 
@@ -1079,7 +1079,22 @@ void FramingAssistantUI::setCompletionConditionArg(const QString &value)
         return;
 
     m_CompletionConditionArg = value;
+
+    if (m_CompletionCondition == "FinishRepeat")
+        ui->repeatsSpin->setValue(m_CompletionConditionArg.toInt());
+
     emit completionConditionArgChanged(m_CompletionConditionArg);
+}
+
+void FramingAssistantUI::setCenter(double ra0, double dec0)
+{
+    m_CenterPoint.setRA0(ra0 / 15.0);
+    m_CenterPoint.setDec0(dec0);
+
+    m_CenterPoint.updateCoordsNow(KStarsData::Instance()->updateNum());
+    ui->raBox->show(m_CenterPoint.ra0());
+    ui->decBox->show(m_CenterPoint.dec0());
+    m_DebounceTimer->start();
 }
 
 }
