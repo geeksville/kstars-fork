@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stellarsolver.h>
+#undef Const
 
 #include <QObject>
 #include <QString>
