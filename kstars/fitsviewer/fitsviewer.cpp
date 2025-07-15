@@ -135,6 +135,16 @@ FITSViewer::FITSViewer(QWidget *parent, Mode mode) : KXmlGuiWindow(parent), m_Mo
     action->setText(i18n("Open/Blink Directory"));
     connect(action, &QAction::triggered, this, &FITSViewer::blink);
 
+#if defined(HAVE_CFITSIO) && defined(HAVE_WCSLIB) && defined(HAVE_OPENCV)
+    if (m_Mode == Mode::LiveStacking)
+    {
+        action = actionCollection()->addAction("live_stacker");
+        actionCollection()->setDefaultShortcut(action, QKeySequence(Qt::CTRL | Qt::Key_K | Qt::SHIFT));
+        action->setText(i18n("Live Stacker..."));
+        connect(action, &QAction::triggered, this, &FITSViewer::stack);
+    }
+#endif
+
     saveFileAction = KStandardAction::save(this, &FITSViewer::saveFile, actionCollection());
     saveFileAction->setIcon(QIcon::fromTheme("document-save"));
 

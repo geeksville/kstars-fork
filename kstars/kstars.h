@@ -133,6 +133,12 @@ class KStars : public KXmlGuiWindow
         static KStars *createInstance(bool doSplash, bool clockrunning = true, const QString &startDateString = QString(),
                                       const bool liveStacker = false);
 
+        /**
+             * @short Launches the Live Stacker in standalone mode.
+             * @return pointer to the instance
+             */
+        static bool launchLiveStackerStandalone();
+
         /** @return a pointer to the instance of this class */
         inline static KStars *Instance()
         {

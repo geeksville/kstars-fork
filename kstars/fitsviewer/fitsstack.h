@@ -174,6 +174,13 @@ class FITSStack : public QObject
             return !m_StackedBuffer || m_StackedBuffer->isEmpty();
         }
 
+        /**
+         * @brief Gets the downscaling factor for the passed downscale
+         * @param downscale
+         * @return downscale factor
+         */
+        int getDownscaleFactor(LiveStackDownscale downscale);
+
         void resetStackedImage();
 
         void setBayerPattern(const QString pattern, const int offsetX, const int offsetY);
@@ -225,13 +232,6 @@ class FITSStack : public QObject
          * @return success (or not)
          */
         bool convertMat(const cv::Mat &input, cv::Mat &output);
-
-        /**
-         * @brief Gets the downscaling factor for the passed downscale
-         * @param downscale
-         * @return downscale factor
-         */
-        int getDownscaleFactor(LiveStackDownscale downscale);
 
         /**
          * @brief Template function to convert planar buffer to cv::Mat (interleaved)

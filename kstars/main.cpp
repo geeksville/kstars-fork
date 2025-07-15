@@ -213,7 +213,6 @@ int main(int argc, char *argv[])
     // JEE TEST
     parser.addOption(QCommandLineOption("live-stacker", i18n("Run Live Stacker standalone mode")));
     aboutData.processCommandLine(&parser);
-    qDebug() << QCoreApplication::arguments();
     // JEE END TEST
     parser.process(app);
     aboutData.processCommandLine(&parser);
@@ -221,42 +220,16 @@ int main(int argc, char *argv[])
     // JEE TEST
     const bool liveStackOnly = parser.isSet("live-stacker");
 
-    if (liveStackOnly)
+    if (parser.isSet("live-stacker"))
     {
-        // Needed so KSPaths and other subsystems behave
-        KLocalizedString::setApplicationDomain("kstars");
-
-        KAboutData aboutData(
-            "kstars", i18n("KStars"), KSTARS_VERSION,
-            i18n("KStars Live Stacker"), KAboutLicense::GPL,
-            i18n("© 2024 KStars Team"));
-        KAboutData::setApplicationData(aboutData);
-
-        // Make sure writable paths are created
-        QDir(KSPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).mkpath(".");
-        QDir(KSPaths::writableLocation(QStandardPaths::AppConfigLocation)).mkpath(".");
-        QDir(KSPaths::writableLocation(QStandardPaths::CacheLocation)).mkpath(".");
-        QDir(KSPaths::writableLocation(QStandardPaths::TempLocation)).mkpath(qAppName());
-
-        // Create global KStarsData instance
-        //KStarsData *data = KStarsData::Create();
-        //QObject::connect(data, SIGNAL(progressText(QString)), data, SLOT(slotConsoleMessage(QString)));
-        //data->initialize();
-
-        // Set up observatory location
-        //data->setLocationFromOptions();
-        //data->colorScheme()->loadFromConfig();
-
-        // Maybe also set a dummy clock
-        //data->clock()->setUTC(KStarsDateTime::currentDateTimeUtc());
-
-        // Launch just the FITSViewer in Live Stacking mode
-        QMessageBox::information(nullptr, "Attach Debugger", "Live Stacker mode is running.");
-        KStars::createInstance(false, false, "", true);  // Live Stacker mode
-        auto viewer = new FITSViewer(nullptr, FITSViewer::Mode::LiveStacking);
-        viewer->show();
+        if (!KStars::launchLiveStackerStandalone())
+        {
+            qCritical() << "Failed to initialize Live Stacker";
+            return 1;
+        }
         return app.exec();
     }
+
     // JEE END TEST
 
     if (parser.isSet("dump"))

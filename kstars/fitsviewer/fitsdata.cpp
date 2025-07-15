@@ -658,11 +658,12 @@ void FITSData::stackSetupWCS()
 
     if (!m_Stack)
     {
-        qCDebug(KSTARS_FITS) << QString("%1 called by no m_Stack").arg(__FUNCTION__);
+        qCDebug(KSTARS_FITS) << QString("%1 called but no m_Stack").arg(__FUNCTION__);
         return;
     }
 
     struct wcsprm * wcsRef = m_Stack->getWCSRef();
+    adjustWCSForDownscaling(wcsRef, m_Stack->getDownscaleFactor(m_Stack->getStackData().downscale));
 
     // Take a deep copy of the WCS state
     m_WCSHandle = new struct wcsprm;
@@ -700,6 +701,27 @@ void FITSData::stackSetupWCS()
     m_CatObjectsSearched = false;
     m_WCSState = Success;
     HasWCS = true;
+}
+
+void FITSData::adjustWCSForDownscaling(wcsprm *wcs, int downscale)
+{
+    if (!wcs || downscale <= 0.0)
+        return;
+
+    // Scale the reference pixel coordinates
+    wcs->crpix[0] /= downscale;
+    wcs->crpix[1] /= downscale;
+
+    // Now CDELT
+    if (wcs->cdelt)
+    {
+        wcs->cdelt[0] *= downscale;
+        wcs->cdelt[1] *= downscale;
+    }
+
+    int status = wcsset(wcs);
+    if (status)
+        qCDebug(KSTARS_FITS) << "wcsset failed with status:" << status;
 }
 #endif // #if !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 
@@ -4055,6 +4077,13 @@ bool FITSData::findSimbadObjectsInImage(SkyPoint searchCenter, double radius)
         emit catalogQueryFailed(i18n("Error querying Simbad"));
         return false;
     }
+
+    // JEE
+    qCDebug(KSTARS_FITS) << "Calling get()";
+    qCDebug(KSTARS_FITS) << "FITSData thread:" << QThread::currentThread();
+    qCDebug(KSTARS_FITS) << "m_NetworkAccessManager thread:" << m_NetworkAccessManager->thread();
+    qCDebug(KSTARS_FITS) << "Main thread:" << qApp->thread();
+    // JEE END
 
     m_CatQueryInProgress = true;
     m_CatQueryTimer.setSingleShot(true);
