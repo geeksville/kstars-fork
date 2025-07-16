@@ -1470,6 +1470,13 @@ bool FITSStack::convertMatToFITS(const cv::Mat &inImage)
             return false;
         }
 
+        // JEE Setup the WCS correctly in FITS header of the image. If there is no downscaling then this
+        // is just the WCS of the reference image. For downscaling the WCS needs adjustment
+        //struct wcsprm * wcs = getWCSRef();
+        //double downscale = static_cast<double>(getDownscaleFactor(m_StackData.downscale));
+        //if (adjustWCSForDownscaling(wcs, downscale))
+        //    writeWCSHeaderToFITS(fptr, wcs);
+
         if (channels == 3)
         {
             // Colour image so firstly add bayer FITS keywords
@@ -1578,6 +1585,65 @@ bool FITSStack::convertMatToFITS(const cv::Mat &inImage)
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
     }
     return false;
+}
+
+bool FITSStack::adjustWCSForDownscaling(wcsprm *wcs, double downscale)
+{
+    if (!wcs || downscale <= 0.0)
+        return false;
+
+    // Scale the reference pixel coordinates
+    wcs->crpix[0] /= downscale;
+    wcs->crpix[1] /= downscale;
+
+    // Now CDELT
+    if (wcs->cdelt)
+    {
+        wcs->cdelt[0] *= downscale;
+        wcs->cdelt[1] *= downscale;
+    }
+
+    int status = wcsset(wcs);
+    if (status)
+    {
+        qCDebug(KSTARS_FITS) << "wcsset failed with status:" << status;
+        return false;
+    }
+    return true;
+}
+
+// JEE tidy up
+bool FITSStack::writeWCSHeaderToFITS(fitsfile *fptr, struct wcsprm *wcs)
+{
+    if (!fptr || !wcs)
+        return false;
+
+    int status = 0;
+    char *headerCards = nullptr;
+    int nkeyrec = 0;
+    int ctrl = WCSHDR_all;
+
+    int result = wcshdo(ctrl, const_cast<wcsprm *>(wcs), &nkeyrec, &headerCards);
+    if (result != 0 || !headerCards)
+    {
+        qWarning("wcshdo() failed to generate WCS header");
+        return false;
+    }
+
+    for (int i = 0; i < nkeyrec; ++i)
+    {
+        char *card = headerCards + (i * 80);
+        if (fits_write_record(fptr, card, &status))
+        {
+            char error_status[FLEN_STATUS];
+            fits_get_errstatus(status, error_status);
+            qWarning("Failed to write WCS card %d: %s", i, error_status);
+            status = 0;
+        }
+    }
+
+    free(headerCards);
+    return true;
 }
 
 // Calculate the SNR of the passed in image.

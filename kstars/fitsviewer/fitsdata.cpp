@@ -663,7 +663,6 @@ void FITSData::stackSetupWCS()
     }
 
     struct wcsprm * wcsRef = m_Stack->getWCSRef();
-    adjustWCSForDownscaling(wcsRef, m_Stack->getDownscaleFactor(m_Stack->getStackData().downscale));
 
     // Take a deep copy of the WCS state
     m_WCSHandle = new struct wcsprm;
@@ -686,9 +685,12 @@ void FITSData::stackSetupWCS()
     double ra = m_WCSHandle->crval[0];
     double dec = m_WCSHandle->crval[1];
 
+    // JEE apply any downscaling factor that the image may have
+    double downscale = static_cast<double>(m_Stack->getDownscaleFactor(m_Stack->getStackData().downscale));
+
     if (m_WCSHandle->cdelt && m_WCSHandle->crota)
     {
-        double pixscale = fabs(m_WCSHandle->cdelt[0]) * 3600.0;
+        double pixscale = fabs(m_WCSHandle->cdelt[0]) * 3600.0 * downscale;
         double orientation = 360.0 - m_WCSHandle->crota[0];
         if (orientation > 360.0)
             orientation -= 360.0;
@@ -701,27 +703,6 @@ void FITSData::stackSetupWCS()
     m_CatObjectsSearched = false;
     m_WCSState = Success;
     HasWCS = true;
-}
-
-void FITSData::adjustWCSForDownscaling(wcsprm *wcs, int downscale)
-{
-    if (!wcs || downscale <= 0.0)
-        return;
-
-    // Scale the reference pixel coordinates
-    wcs->crpix[0] /= downscale;
-    wcs->crpix[1] /= downscale;
-
-    // Now CDELT
-    if (wcs->cdelt)
-    {
-        wcs->cdelt[0] *= downscale;
-        wcs->cdelt[1] *= downscale;
-    }
-
-    int status = wcsset(wcs);
-    if (status)
-        qCDebug(KSTARS_FITS) << "wcsset failed with status:" << status;
 }
 #endif // #if !KSTARS_LITE, HAVE_WCSLIB, HAVE_OPENCV
 

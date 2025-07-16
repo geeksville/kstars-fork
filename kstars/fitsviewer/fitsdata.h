@@ -1038,13 +1038,6 @@ class FITSData : public QObject
         void stackSetupWCS();
 
         /**
-         * @brief Adjust the WCS structure for downscaling
-         * @param wcs is the WCS structure to adjust
-         * @param downscale is the downscale factor
-         */
-        void adjustWCSForDownscaling(struct wcsprm *wcs, int downscale);
-
-        /**
          * @brief Manage the user cancel stack request within FITSData
          */
         void checkCancelStack();

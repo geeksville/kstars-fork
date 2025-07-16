@@ -20,6 +20,8 @@
 #include "opencv2/photo.hpp"
 
 #include <wcs.h>
+#include <fitsio.h>
+
 
 namespace Ekos
 {
@@ -385,6 +387,22 @@ class FITSStack : public QObject
          * @brief Tidy up running stack data, e.g. free heap
          */
         void tidyUpRunningStack();
+
+        /**
+         * @brief Adjust the WCS structure for downscaling
+         * @param wcs is the WCS structure to adjust
+         * @param downscale is the downscale factor
+         * @return success (or not)
+         */
+        bool adjustWCSForDownscaling(struct wcsprm *wcs, double downscale);
+
+        /**
+         * @brief Write the WCS params to fits file
+         * @oparam fptr FITS file pointer
+         * @param wcs is the WCS structure
+         * @param success (or not)
+         */
+        bool writeWCSHeaderToFITS(fitsfile *fptr, struct wcsprm *wcs);
 
         FITSData *m_Data;
         QSharedPointer<SolverUtils> m_Solver;

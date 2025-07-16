@@ -726,9 +726,9 @@ void KStars::updateTime(const bool automaticDSTchange)
 }
 
 #ifdef HAVE_CFITSIO
-const QSharedPointer<FITSViewer> &KStars::createFITSViewer()
+const QSharedPointer<FITSViewer> &KStars::createFITSViewer(const bool forceCreate)
 {
-    if (Options::singleWindowCapturedFITS())
+    if (Options::singleWindowCapturedFITS() && !forceCreate)
         return KStars::Instance()->genericFITSViewer();
     else
     {

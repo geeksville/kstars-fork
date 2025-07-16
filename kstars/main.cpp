@@ -218,8 +218,6 @@ int main(int argc, char *argv[])
     aboutData.processCommandLine(&parser);
 
     // JEE TEST
-    const bool liveStackOnly = parser.isSet("live-stacker");
-
     if (parser.isSet("live-stacker"))
     {
         if (!KStars::launchLiveStackerStandalone())
