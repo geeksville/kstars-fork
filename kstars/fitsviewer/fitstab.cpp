@@ -1432,9 +1432,9 @@ QString FITSTab::getStackTitle() const
     if (!m_StackStarted && !m_CurrentStackName.isEmpty())
         title = m_CurrentStackName;
     else if (m_StackStarted && m_CurrentStackName.isEmpty())
-        title = QString("(%1) Watching %2").arg(m_StackSubsProcessed).arg(m_liveStackDir);
+        title = i18n("(%1) Watching %2", m_StackSubsProcessed, m_liveStackDir);
     else if (m_StackStarted && !m_CurrentStackName.isEmpty())
-        title = QString("(%1) %2").arg(m_StackSubsProcessed).arg(m_CurrentStackName);
+        title = i18n("(%1) %2", m_StackSubsProcessed, m_CurrentStackName);
     return title;
 }
 

@@ -382,8 +382,8 @@ bool FITSViewer::eventFilter(QObject *watched, QEvent *event)
 
                 // Pop up a text input dialog
                 bool ok;
-                QString newText = QInputDialog::getText(this, tr("Change Tab Title"),
-                                                        tr("New title for tab '%1':").arg(currentTabText),
+                QString newText = QInputDialog::getText(this, i18n("Change Tab Title"),
+                                                        i18n("New title for tab '%1':", currentTabText),
                                                         QLineEdit::Normal,
                                                         currentTabText, &ok);
                 if (ok && !newText.isEmpty() && tabIndex < m_Tabs.size())
