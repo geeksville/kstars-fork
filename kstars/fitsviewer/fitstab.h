@@ -99,12 +99,22 @@ class FITSTab : public QWidget
          */
         void initStack(const QString &dir, FITSMode mode = FITS_LIVESTACKING, FITSScale filter = FITS_NONE);
 
-        void setStackName(const QString &name)
+        void setTabName(const QString &name)
         {
-            m_CurrentStackName = name;
+            m_TabName = name;
+        }
+        /**
+         * @brief Gets the name of this tab, which may be set by the user.
+         */
+        QString getTabName()
+        {
+            return m_TabName;
         }
 
-        QString getStackTitle() const;
+        /**
+         * @brief Like tabName, but may include the number of subs stacked in this tab.
+         */
+        QString getTabTitle() const;
 
         bool saveImage(const QString &filename);
 
@@ -289,7 +299,7 @@ class FITSTab : public QWidget
         bool m_StackExtracted { false };
         QString m_liveStackDir;
         QString m_CurrentStackDir;
-        QString m_CurrentStackName;
+        QString m_TabName;
         bool m_StackStarted { false };
         int m_StackSubsTotal { 0 };
         int m_StackSubsProcessed { 0 };

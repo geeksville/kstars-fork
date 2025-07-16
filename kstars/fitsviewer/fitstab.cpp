@@ -1299,6 +1299,8 @@ void FITSTab::liveStack()
     if (text == "Start")
     {
         m_StackStarted = true;
+        if (getTabName().isEmpty())
+            setTabName(i18n("Watching %1", m_liveStackDir));
         // Start the stack process
         m_LiveStackingUI.StartB->setText("Cancel");
         m_LiveStackingUI.ReprocessB->setEnabled(false);
@@ -1426,15 +1428,17 @@ void FITSTab::stackUpdateStats(const bool ok, const int sub, const int total, co
                                       2));
 }
 
-QString FITSTab::getStackTitle() const
+QString FITSTab::getTabTitle() const
 {
-    QString title = "Stack";
-    if (!m_StackStarted && !m_CurrentStackName.isEmpty())
-        title = m_CurrentStackName;
-    else if (m_StackStarted && m_CurrentStackName.isEmpty())
+    QString title = (m_View && (m_View->getMode() == FITS_LIVESTACKING)) ? "Stack" : "Image";
+    if (!m_StackStarted && !m_TabName.isEmpty())
+        title = m_TabName;
+    else if (m_StackStarted && m_TabName.isEmpty())
+        // This won't happen as when m_StackStarted is set to true, it also sets m_TabName.
+        // See liveStack().
         title = i18n("(%1) Watching %2", m_StackSubsProcessed, m_liveStackDir);
-    else if (m_StackStarted && !m_CurrentStackName.isEmpty())
-        title = i18n("(%1) %2", m_StackSubsProcessed, m_CurrentStackName);
+    else if (m_StackStarted && !m_TabName.isEmpty())
+        title = i18n("(%1) %2", m_StackSubsProcessed, m_TabName);
     return title;
 }
 

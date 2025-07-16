@@ -376,21 +376,22 @@ bool FITSViewer::eventFilter(QObject *watched, QEvent *event)
         {
             // Get the index of the tab that was clicked at the mouse event's position
             int tabIndex = fitsTabWidget->tabBar()->tabAt(mouseEvent->pos());
-            if (tabIndex != -1)   // -1 means no tab was clicked at that position
+            if (tabIndex >= 0 && tabIndex < m_Tabs.size())   // -1 means no tab was at the clicked position
             {
-                QString currentTabText = fitsTabWidget->tabText(tabIndex);
+                auto tab = m_Tabs[tabIndex];
+                QString currentTabText = tab->getTabName();
+                if (currentTabText.isEmpty())
+                    currentTabText = fitsTabWidget->tabText(tabIndex);
 
                 // Pop up a text input dialog
                 bool ok;
                 QString newText = QInputDialog::getText(this, i18n("Change Tab Title"),
                                                         i18n("New title for tab '%1':", currentTabText),
-                                                        QLineEdit::Normal,
-                                                        currentTabText, &ok);
-                if (ok && !newText.isEmpty() && tabIndex < m_Tabs.size())
+                                                        QLineEdit::Normal, currentTabText, &ok);
+                if (ok && !newText.isEmpty())
                 {
-                    auto tab = m_Tabs[tabIndex];
-                    tab->setStackName(newText);
-                    fitsTabWidget->setTabText(tabIndex, tab->getStackTitle());
+                    tab->setTabName(newText);
+                    fitsTabWidget->setTabText(tabIndex, tab->getTabTitle());
                 }
                 // Return true to indicate that we have handled this event
                 // This prevents the QTabBar from processing the right-click further (e.g., context menu).
@@ -1130,7 +1131,7 @@ void FITSViewer::stack()
         if (tab)
         {
             tab->disconnect(this);
-            addFITSCommon(tab, imageName, FITS_LIVESTACKING, tab->getStackTitle());
+            addFITSCommon(tab, imageName, FITS_LIVESTACKING, tab->getTabTitle());
             fitsID++;
         }
         m_StackBusy = false;
@@ -1171,7 +1172,7 @@ void FITSViewer::restack(const QString dir, const int tabUID)
             connect(tab->getView().get(), &FITSView::actionUpdated, this, &FITSViewer::updateAction);
             connect(tab->getView().get(), &FITSView::wcsToggled, this, &FITSViewer::updateWCSFunctions);
             connect(tab->getView().get(), &FITSView::starProfileWindowClosed, this, &FITSViewer::starProfileButtonOff);
-            updateFITSCommon(tab, imageName, tab->getStackTitle());
+            updateFITSCommon(tab, imageName, tab->getTabTitle());
             updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);
         }
     });
