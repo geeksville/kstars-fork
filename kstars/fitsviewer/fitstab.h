@@ -99,6 +99,13 @@ class FITSTab : public QWidget
          */
         void initStack(const QString &dir, FITSMode mode = FITS_LIVESTACKING, FITSScale filter = FITS_NONE);
 
+        void setStackName(const QString &name)
+        {
+            m_CurrentStackName = name;
+        }
+
+        QString getStackTitle() const;
+
         bool saveImage(const QString &filename);
 
         inline QUndoStack *getUndoStack()
@@ -282,6 +289,8 @@ class FITSTab : public QWidget
         bool m_StackExtracted { false };
         QString m_liveStackDir;
         QString m_CurrentStackDir;
+        QString m_CurrentStackName;
+        bool m_StackStarted { false };
         int m_StackSubsTotal { 0 };
         int m_StackSubsProcessed { 0 };
         int m_StackSubsFailed { 0 };

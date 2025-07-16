@@ -1038,7 +1038,7 @@ void FITSTab::selectLiveStackAlignSub()
 {
     QString selectedFilter;
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Alignment Sub"),
-                                                    m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+                   m_liveStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     if (!file.isNull())
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
@@ -1052,7 +1052,7 @@ void FITSTab::selectLiveStackMasterDark()
 {
     QString selectedFilter;
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Dark"),
-                                                m_CurrentStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+                   m_CurrentStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     if (!file.isNull())
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
@@ -1066,7 +1066,7 @@ void FITSTab::selectLiveStackMasterFlat()
 {
     QString selectedFilter;
     QString file = QFileDialog::getOpenFileName(this, i18nc("@title:window", "Select Master Flat"),
-                                                m_CurrentStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
+                   m_CurrentStackDir, "FITS (*.fits *.fits.gz *.fit);;XISF (*.xisf)", &selectedFilter);
     if (!file.isNull())
     {
         QUrl sequenceURL = QUrl::fromLocalFile(file);
@@ -1298,6 +1298,7 @@ void FITSTab::liveStack()
     QString text = m_LiveStackingUI.StartB->text().remove('&');
     if (text == "Start")
     {
+        m_StackStarted = true;
         // Start the stack process
         m_LiveStackingUI.StartB->setText("Cancel");
         m_LiveStackingUI.ReprocessB->setEnabled(false);
@@ -1331,7 +1332,7 @@ void FITSTab::plateSolveSub(const double ra, const double dec, const double pixS
                             const int healpix, const LiveStackFrameWeighting &weighting)
 {
     connect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, this, [this, ra, dec, pixScale, index, healpix]
-                                (double medianHFR, int numStars)
+            (double medianHFR, int numStars)
     {
         disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorSuccess, nullptr, nullptr);
         disconnect(m_PlateSolve.get(), &PlateSolve::subExtractorFailed, nullptr, nullptr);
@@ -1413,13 +1414,28 @@ void FITSTab::alignMasterChosen(const QString &alignMaster)
     m_LiveStackingUI.AlignMaster->setText(alignMaster);
 }
 
-void FITSTab::stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR, const double maxSNR)
+void FITSTab::stackUpdateStats(const bool ok, const int sub, const int total, const double meanSNR, const double minSNR,
+                               const double maxSNR)
 {
     Q_UNUSED(sub);
     m_StackSubsTotal = total;
     (ok) ? m_StackSubsProcessed++ : m_StackSubsFailed++;
-    m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2 / %3").arg(m_StackSubsProcessed).arg(m_StackSubsFailed).arg(m_StackSubsTotal));
-    m_LiveStackingUI.SubsSNR->setText(QString("%1 / %2 / %3").arg(meanSNR, 0, 'f', 2).arg(minSNR, 0, 'f', 2).arg(maxSNR, 0, 'f', 2));
+    m_LiveStackingUI.SubsProcessed->setText(QString("%1 / %2 / %3").arg(m_StackSubsProcessed).arg(m_StackSubsFailed).arg(
+            m_StackSubsTotal));
+    m_LiveStackingUI.SubsSNR->setText(QString("%1 / %2 / %3").arg(meanSNR, 0, 'f', 2).arg(minSNR, 0, 'f', 2).arg(maxSNR, 0, 'f',
+                                      2));
+}
+
+QString FITSTab::getStackTitle() const
+{
+    QString title = "Stack";
+    if (!m_StackStarted && !m_CurrentStackName.isEmpty())
+        title = m_CurrentStackName;
+    else if (m_StackStarted && m_CurrentStackName.isEmpty())
+        title = QString("(%1) Watching %2").arg(m_StackSubsProcessed).arg(m_liveStackDir);
+    else if (m_StackStarted && !m_CurrentStackName.isEmpty())
+        title = QString("(%1) %2").arg(m_StackSubsProcessed).arg(m_CurrentStackName);
+    return title;
 }
 
 void FITSTab::updateStackSNR(const double SNR)
