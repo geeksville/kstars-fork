@@ -3180,6 +3180,13 @@ double FITSData::getEccentricity()
     return eccentricity;
 }
 
+// Pass a star extraction abort request along to the extraction process
+void FITSData::abortStarDetection()
+{
+    if (m_StarDetector)
+        m_StarDetector->abort();
+}
+
 void FITSData::applyFilter(FITSScale type, uint8_t * image, QVector<double> * min, QVector<double> * max)
 {
     if (type == FITS_NONE)
