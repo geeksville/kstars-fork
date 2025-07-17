@@ -686,7 +686,7 @@ void FITSData::stackSetupWCS()
     double dec = m_WCSHandle->crval[1];
 
     // JEE apply any downscaling factor that the image may have
-    double downscale = static_cast<double>(m_Stack->getDownscaleFactor(m_Stack->getStackData().downscale));
+    double downscale = m_Stack->getDownscaleFactor();
 
     if (m_WCSHandle->cdelt && m_WCSHandle->crota)
     {
@@ -1886,7 +1886,7 @@ bool FITSData::saveImage(const QString &newFilename)
         const char *comment = m_HeaderRecords[i].comment.toLatin1().constBegin();
         QVariant value = m_HeaderRecords[i].value;
 
-        // JEE Handle common WCS numeric keywords explicitly to ensure they are saved correctly
+        // Handle common WCS numeric keywords explicitly to ensure they are saved correctly
         if (key == "CRPIX1" || key == "CRPIX2" ||
             key == "CRVAL1" || key == "CRVAL2" ||
             key == "CDELT1" || key == "CDELT2" ||
@@ -1897,7 +1897,6 @@ bool FITSData::saveImage(const QString &newFilename)
         }
         else
         {
-        // END JEE
            switch (value.type())
            {
                case QVariant::Int:
@@ -3651,9 +3650,6 @@ bool FITSData::loadWCS()
             return false;
         }
         header_str = QByteArray(header);
-        // JEE
-        qCDebug(KSTARS_FITS) << header_str.data();
-
         fits_free_memory(header, &status);
     }
     else
@@ -4081,13 +4077,6 @@ bool FITSData::findSimbadObjectsInImage(SkyPoint searchCenter, double radius)
         emit catalogQueryFailed(i18n("Error querying Simbad"));
         return false;
     }
-
-    // JEE
-    qCDebug(KSTARS_FITS) << "Calling get()";
-    qCDebug(KSTARS_FITS) << "FITSData thread:" << QThread::currentThread();
-    qCDebug(KSTARS_FITS) << "m_NetworkAccessManager thread:" << m_NetworkAccessManager->thread();
-    qCDebug(KSTARS_FITS) << "Main thread:" << qApp->thread();
-    // JEE END
 
     m_CatQueryInProgress = true;
     m_CatQueryTimer.setSingleShot(true);
@@ -5927,11 +5916,6 @@ void FITSData::updateWCSHeaderData(const double orientation, const double ra, co
     updateRecordValue("CRVAL1", ra, "CRVAL1", stack);
     updateRecordValue("CRVAL2", dec, "CRVAL2", stack);
 
-    // JEE
-    //updateRecordValue("RADECSYS", "'FK5'", "RADECSYS", stack);
-    //updateRecordValue("CTYPE1", "'RA---TAN'", "CTYPE1", stack);
-    //updateRecordValue("CTYPE2", "'DEC--TAN'", "CTYPE2", stack);
-    // END JEE
     updateRecordValue("RADECSYS", "FK5", "RADECSYS", stack);
     updateRecordValue("CTYPE1", "RA---TAN", "CTYPE1", stack);
     updateRecordValue("CTYPE2", "DEC--TAN", "CTYPE2", stack);

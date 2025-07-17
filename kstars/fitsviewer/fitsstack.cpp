@@ -108,7 +108,7 @@ bool FITSStack::addSub(void * imageBuffer, const int cvType, const int width, co
             return false;
         }
 
-        // Convert Mat
+        // Convert Mat to float and downscale if required
         cv::Mat newImage;
         if (!convertMat(image, newImage))
             return false;
@@ -188,8 +188,7 @@ void FITSStack::addMaster(const bool dark, void * imageBuffer, const int width, 
             return;
         }
 
-        // Take a deep copy of the passed in image. Note this ensures the Mat is contiguous
-        // Convert Mat
+        // Convert Mat to float and downscale if required
         cv::Mat imageClone;
         if (!convertMat(image, imageClone))
             return;
@@ -263,17 +262,18 @@ bool FITSStack::convertMat(const cv::Mat &input, cv::Mat &output)
         if (m_StackData.downscale != LS_DOWNSCALE_NONE)
         {
             // Downscale image (if required). Less data = faster...
-            int downscaleFactor = getDownscaleFactor(m_StackData.downscale);
+            double downscaleFactor = getDownscaleFactor();
 
             cv::Mat downsizedImage;
             int newWidth = output.cols / downscaleFactor;
             int newHeight = output.rows / downscaleFactor;
             cv::resize(output, downsizedImage, cv::Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
             output = downsizedImage;
-            FITSImage::Statistic statistics = m_Data->getStatistics();
-            statistics.width = newWidth;
-            statistics.height = newHeight;
-            m_Data->restoreStatistics(statistics);
+            // JEE to sort out
+            //FITSImage::Statistic statistics = m_Data->getStatistics();
+            //statistics.width = newWidth;
+            //statistics.height = newHeight;
+            //m_Data->restoreStatistics(statistics);
         }
         return true;
     }
@@ -285,15 +285,15 @@ bool FITSStack::convertMat(const cv::Mat &input, cv::Mat &output)
     }
 }
 
-int FITSStack::getDownscaleFactor(LiveStackDownscale downscale)
+double FITSStack::getDownscaleFactor()
 {
-    int factor = 1;
-    if (downscale == LS_DOWNSCALE_2X)
-        factor = 2;
-    else if (downscale == LS_DOWNSCALE_3X)
-        factor = 3;
-    else if (downscale == LS_DOWNSCALE_4X)
-        factor = 4;
+    double factor = 1.0;
+    if (m_StackData.downscale == LS_DOWNSCALE_2X)
+        factor = 2.0;
+    else if (m_StackData.downscale == LS_DOWNSCALE_3X)
+        factor = 3.0;
+    else if (m_StackData.downscale == LS_DOWNSCALE_4X)
+        factor = 4.0;
     return factor;
 }
 
@@ -590,8 +590,7 @@ bool FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::M
         // If we are downscaling the image we need to adjust the warp matrix which is calculated from the un-downscaled images
         if (m_StackData.downscale != LS_DOWNSCALE_NONE)
         {
-            int downscale = getDownscaleFactor(m_StackData.downscale);
-            double scale = 1.0 / static_cast<double>(downscale);
+            double scale = 1.0 / getDownscaleFactor();
             cv::Mat S = (cv::Mat_<double>(3,3) <<
                          scale, 0,     0,
                          0,     scale, 0,
@@ -1469,13 +1468,6 @@ bool FITSStack::convertMatToFITS(const cv::Mat &inImage)
             return false;
         }
 
-        // JEE Setup the WCS correctly in FITS header of the image. If there is no downscaling then this
-        // is just the WCS of the reference image. For downscaling the WCS needs adjustment
-        //struct wcsprm * wcs = getWCSRef();
-        //double downscale = static_cast<double>(getDownscaleFactor(m_StackData.downscale));
-        //if (adjustWCSForDownscaling(wcs, downscale))
-        //    writeWCSHeaderToFITS(fptr, wcs);
-
         if (channels == 3)
         {
             // Colour image so firstly add bayer FITS keywords
@@ -1584,66 +1576,6 @@ bool FITSStack::convertMatToFITS(const cv::Mat &inImage)
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
     }
     return false;
-}
-
-// JEE Tidy up
-bool FITSStack::adjustWCSForDownscaling(wcsprm *wcs, double downscale)
-{
-    if (!wcs || downscale <= 0.0)
-        return false;
-
-    // Scale the reference pixel coordinates
-    wcs->crpix[0] /= downscale;
-    wcs->crpix[1] /= downscale;
-
-    // Now CDELT
-    if (wcs->cdelt)
-    {
-        wcs->cdelt[0] *= downscale;
-        wcs->cdelt[1] *= downscale;
-    }
-
-    int status = wcsset(wcs);
-    if (status)
-    {
-        qCDebug(KSTARS_FITS) << "wcsset failed with status:" << status;
-        return false;
-    }
-    return true;
-}
-
-// JEE tidy up
-bool FITSStack::writeWCSHeaderToFITS(fitsfile *fptr, struct wcsprm *wcs)
-{
-    if (!fptr || !wcs)
-        return false;
-
-    int status = 0;
-    char *headerCards = nullptr;
-    int nkeyrec = 0;
-    int ctrl = WCSHDR_all;
-
-    int result = wcshdo(ctrl, const_cast<wcsprm *>(wcs), &nkeyrec, &headerCards);
-    if (result != 0 || !headerCards)
-    {
-        qWarning("wcshdo() failed to generate WCS header");
-        return false;
-    }
-
-    for (int i = 0; i < nkeyrec; ++i)
-    {
-        char *card = headerCards + (i * 80);
-        if (fits_write_record(fptr, card, &status))
-        {
-            char error_status[FLEN_STATUS];
-            fits_get_errstatus(status, error_status);
-            qWarning("Failed to write WCS card %d: %s", i, error_status);
-            status = 0;
-        }
-    }
-
-    free(headerCards);
-    return true;
 }
 
 // Calculate the SNR of the passed in image.
