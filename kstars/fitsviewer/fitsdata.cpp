@@ -1886,28 +1886,41 @@ bool FITSData::saveImage(const QString &newFilename)
         const char *comment = m_HeaderRecords[i].comment.toLatin1().constBegin();
         QVariant value = m_HeaderRecords[i].value;
 
-        switch (value.type())
+        // JEE Handle common WCS numeric keywords explicitly to ensure they are saved correctly
+        if (key == "CRPIX1" || key == "CRPIX2" ||
+            key == "CRVAL1" || key == "CRVAL2" ||
+            key == "CDELT1" || key == "CDELT2" ||
+            key == "CROTA1" || key == "CROTA2")
         {
-            case QVariant::Int:
-            {
-                int number = value.toInt();
-                fits_write_key(fptr, TINT, key.toLatin1().constData(), &number, comment, &status);
-            }
-            break;
+            double number = value.toDouble();
+            fits_write_key(fptr, TDOUBLE, key.toLatin1().constData(), &number, comment, &status);
+        }
+        else
+        {
+        // END JEE
+           switch (value.type())
+           {
+               case QVariant::Int:
+               {
+                   int number = value.toInt();
+                   fits_write_key(fptr, TINT, key.toLatin1().constData(), &number, comment, &status);
+               }
+               break;
 
-            case QVariant::Double:
-            {
-                double number = value.toDouble();
-                fits_write_key(fptr, TDOUBLE, key.toLatin1().constData(), &number, comment, &status);
-            }
-            break;
+               case QVariant::Double:
+               {
+                    double number = value.toDouble();
+                    fits_write_key(fptr, TDOUBLE, key.toLatin1().constData(), &number, comment, &status);
+                }
+                break;
 
-            case QVariant::String:
-            default:
-            {
-                char valueBuffer[256] = {0};
-                strncpy(valueBuffer, value.toString().toLatin1().constData(), 256 - 1);
-                fits_write_key(fptr, TSTRING, key.toLatin1().constData(), valueBuffer, comment, &status);
+                case QVariant::String:
+                default:
+                {
+                    char valueBuffer[256] = {0};
+                    strncpy(valueBuffer, value.toString().toLatin1().constData(), 256 - 1);
+                    fits_write_key(fptr, TSTRING, key.toLatin1().constData(), valueBuffer, comment, &status);
+                }
             }
         }
     }
@@ -3631,6 +3644,9 @@ bool FITSData::loadWCS()
             return false;
         }
         header_str = QByteArray(header);
+        // JEE
+        qCDebug(KSTARS_FITS) << header_str.data();
+
         fits_free_memory(header, &status);
     }
     else
@@ -5838,7 +5854,7 @@ void FITSData::injectWCS(double orientation, double ra, double dec, double pixsc
         fits_update_key(fptr, TINT, "EQUINOX", &epoch, "Equinox", &status);
 
         fits_update_key(fptr, TDOUBLE, "CRVAL1", &ra, "CRVAL1", &status);
-        fits_update_key(fptr, TDOUBLE, "CRVAL2", &dec, "CRVAL1", &status);
+        fits_update_key(fptr, TDOUBLE, "CRVAL2", &dec, "CRVAL2", &status);
 
         char radecsys[8] = "FK5";
         char ctype1[16]  = "RA---TAN";
@@ -5904,9 +5920,14 @@ void FITSData::updateWCSHeaderData(const double orientation, const double ra, co
     updateRecordValue("CRVAL1", ra, "CRVAL1", stack);
     updateRecordValue("CRVAL2", dec, "CRVAL2", stack);
 
-    updateRecordValue("RADECSYS", "'FK5'", "RADECSYS", stack);
-    updateRecordValue("CTYPE1", "'RA---TAN'", "CTYPE1", stack);
-    updateRecordValue("CTYPE2", "'DEC--TAN'", "CTYPE2", stack);
+    // JEE
+    //updateRecordValue("RADECSYS", "'FK5'", "RADECSYS", stack);
+    //updateRecordValue("CTYPE1", "'RA---TAN'", "CTYPE1", stack);
+    //updateRecordValue("CTYPE2", "'DEC--TAN'", "CTYPE2", stack);
+    // END JEE
+    updateRecordValue("RADECSYS", "FK5", "RADECSYS", stack);
+    updateRecordValue("CTYPE1", "RA---TAN", "CTYPE1", stack);
+    updateRecordValue("CTYPE2", "DEC--TAN", "CTYPE2", stack);
 
     auto width = stack ? getStackStatistics().width : m_Statistics.width;
     auto height = stack ? getStackStatistics().height : m_Statistics.height;

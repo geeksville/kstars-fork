@@ -275,6 +275,10 @@ bool FITSStack::convertMat(const cv::Mat &input, cv::Mat &output)
             int newHeight = output.rows / downscaleFactor;
             cv::resize(output, downsizedImage, cv::Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
             output = downsizedImage;
+            FITSImage::Statistic statistics = m_Data->getStatistics();
+            statistics.width = newWidth;
+            statistics.height = newHeight;
+            m_Data->restoreStatistics(statistics);
         }
         return true;
     }
@@ -602,8 +606,8 @@ bool FITSStack::calcWarpMatrix(struct wcsprm * wcs1, struct wcsprm * wcs2, cv::M
             warp = S * warp * S_inv;
         }
         // Uncomment to display warp matrix - useless for debugging alignment issues
-        //cv::Ptr<cv::Formatter> fmt = cv::Formatter::get(cv::Formatter::FMT_DEFAULT);
-        //std::cout << fmt->format(warp) << std::endl;
+        cv::Ptr<cv::Formatter> fmt = cv::Formatter::get(cv::Formatter::FMT_DEFAULT);
+        std::cout << fmt->format(warp) << std::endl;
         return true;
     }
     catch (const cv::Exception &ex)
@@ -1587,6 +1591,7 @@ bool FITSStack::convertMatToFITS(const cv::Mat &inImage)
     return false;
 }
 
+// JEE Tidy up
 bool FITSStack::adjustWCSForDownscaling(wcsprm *wcs, double downscale)
 {
     if (!wcs || downscale <= 0.0)
