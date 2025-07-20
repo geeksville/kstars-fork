@@ -1908,8 +1908,8 @@ void Focus::capture(double settleTime)
         {
             // Change the filter. When done this will signal to update the focusFilter combo
             // Apply filter change policy if in Autofocus; otherwise apply change and offsets
-            // Note that Autofocus doesn't need the change policy if Adapt Start Pos takes care of this
-            FilterManager::FilterPolicy policy = (inAutoFocus && m_OpsFocusSettings->focusAdaptStart->isChecked()) ?
+            // Note that Autofocus doesn't need the change policy as Adapt Start Pos takes care of this
+            FilterManager::FilterPolicy policy = (inAutoFocus) ?
                                                  static_cast<FilterManager::FilterPolicy>(FilterManager::CHANGE_POLICY) :
                                                  static_cast<FilterManager::FilterPolicy>(FilterManager::CHANGE_POLICY | FilterManager::OFFSET_POLICY);
             m_FilterManager->setFilterPosition(targetPosition, policy);
