@@ -55,7 +55,6 @@ class FITSViewer : public KXmlGuiWindow
         Q_OBJECT
 
     public:
-        // JEE TEST
         enum class Mode
         {
             Full,
@@ -63,7 +62,6 @@ class FITSViewer : public KXmlGuiWindow
         };
 
         explicit FITSViewer(QWidget *parent = nullptr, Mode mode = Mode::Full);
-        // JEE END TEST
         /** Constructor. */
         explicit FITSViewer(QWidget *parent);
         ~FITSViewer() override;

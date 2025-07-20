@@ -662,7 +662,12 @@ void FITSData::stackSetupWCS()
         return;
     }
 
-    struct wcsprm * wcsRef = m_Stack->getWCSRef();
+    const struct wcsprm * wcsRef = m_Stack->getWCSStackImage();
+    if (!wcsRef)
+    {
+        qCDebug(KSTARS_FITS) << QString("%1 stack returned nullptr to image WCS").arg(__FUNCTION__);
+        return;
+    }
 
     // Take a deep copy of the WCS state
     m_WCSHandle = new struct wcsprm;
@@ -672,32 +677,37 @@ void FITSData::stackSetupWCS()
     {
         qCDebug(KSTARS_FITS) << QString("%1 wcssub error processing %1 %2").arg(__FUNCTION__).arg(status)
                                             .arg(wcs_errmsg[status]);
+        delete m_WCSHandle;
+        m_WCSHandle = nullptr;
         return;
     }
     if ((status = wcsset(m_WCSHandle)) != 0)
     {
         qCDebug(KSTARS_FITS) << QString("%1 wcsset error processing %1 %2").arg(__FUNCTION__).arg(status)
                                             .arg(wcs_errmsg[status]);
+        wcsvfree(&m_nwcs, &m_WCSHandle);
+        m_nwcs = 0;
+        m_WCSHandle = nullptr;
         return;
     }
 
-    // Setup headers based on the solution
-    double ra = m_WCSHandle->crval[0];
-    double dec = m_WCSHandle->crval[1];
+    // Keep header consistent with changes to WCS structure - needed if we save the image
+    updateRecordValue("EQUINOX", m_WCSHandle->equinox, "EQUINOX");
+    updateRecordValue("CRVAL1", m_WCSHandle->crval[0], "CRVAL1");
+    updateRecordValue("CRVAL2", m_WCSHandle->crval[1], "CRVAL2");
 
-    // JEE apply any downscaling factor that the image may have
-    double downscale = m_Stack->getDownscaleFactor();
+    updateRecordValue("RADECSYS", QString(m_WCSHandle->radesys), "RADECSYS");
+    updateRecordValue("CTYPE1", QString(m_WCSHandle->ctype[0]), "CTYPE1");
+    updateRecordValue("CTYPE2", QString(m_WCSHandle->ctype[1]), "CTYPE2");
 
-    if (m_WCSHandle->cdelt && m_WCSHandle->crota)
-    {
-        double pixscale = fabs(m_WCSHandle->cdelt[0]) * 3600.0 * downscale;
-        double orientation = 360.0 - m_WCSHandle->crota[0];
-        if (orientation > 360.0)
-            orientation -= 360.0;
-        bool eastToTheRight = (m_WCSHandle->cdelt[0] > 0.0);
+    updateRecordValue("CRPIX1", m_WCSHandle->crpix[0], "CRPIX1");
+    updateRecordValue("CRPIX2", m_WCSHandle->crpix[1], "CRPIX2");
 
-        injectWCS(orientation, ra, dec, pixscale, eastToTheRight);
-    }
+    updateRecordValue("CDELT1", m_WCSHandle->cdelt[0], "CDELT1");
+    updateRecordValue("CDELT2", m_WCSHandle->cdelt[1], "CDELT2");
+
+    updateRecordValue("CROTA1", m_WCSHandle->crota[0], "CROTA1");
+    updateRecordValue("CROTA2", m_WCSHandle->crota[1], "CROTA2");
 
     m_ObjectsSearched = false;
     m_CatObjectsSearched = false;
@@ -1204,20 +1214,34 @@ bool FITSData::stackLoadWCS()
     }
 
     // Get the FITS header in a format to do WCS processing...
+    // We hold m_StackHeaderRecords with strings without quotes because when writing a FITS
+    // header for example, CFITSIO quotes strings automatically. However, here the WCS function
+    // wcspih expects strings to be quoted else it fails silently so we must add quotes
     int status = 0, nreject = 0, nkeyrec = 1;
     QByteArray header_str;
+    static const QSet<QString> wcsKeysNeedingQuotes = { "CTYPE1", "CTYPE2", "RADECSYS" };
 
-    for(auto &fitsKeyword : m_StackHeaderRecords)
+    for (auto &fitsKeyword : m_StackHeaderRecords)
     {
         QByteArray rec;
         rec.append(fitsKeyword.key.leftJustified(8, ' ').toLatin1());
         rec.append("= ");
-        rec.append(fitsKeyword.value.toByteArray());
+
+        QString valueStr = fitsKeyword.value.toString();
+        if (wcsKeysNeedingQuotes.contains(fitsKeyword.key))
+        {
+            // Quote only if not already quoted
+            if (!valueStr.startsWith('\'') || !valueStr.endsWith('\''))
+                valueStr = '\'' + valueStr + '\'';
+        }
+
+        rec.append(valueStr.toLatin1());
         rec.append(" / ");
         rec.append(fitsKeyword.comment.toLatin1());
         header_str.append(rec.leftJustified(80, ' ', true));
         nkeyrec++;
     }
+
     header_str.append(QByteArray("END").leftJustified(80));
 
     // Do the WCS processing...
@@ -4199,7 +4223,7 @@ void FITSData::simbadResponseReady(QNetworkReply * simbadReply)
     int dataRow = -1;
     for (int i = 0; i < replyLines.size(); i++)
     {
-        // JEE qCDebug(KSTARS_FITS) << "Line" << i << replyLines[i];
+        // qCDebug(KSTARS_FITS) << "Line" << i << replyLines[i];
         if (i == 0 && replyLines[i].contains("No astronomical object found : "))
             // No objects in the reply so we can just ignore the rest of the data
             break;

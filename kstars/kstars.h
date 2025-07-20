@@ -18,6 +18,7 @@
 #ifdef HAVE_CFITSIO
 #include <QPointer>
 #endif
+#include <QProcess>
 
 // forward declaration is enough. We only need pointers
 class QActionGroup;
@@ -980,4 +981,7 @@ class KStars : public KXmlGuiWindow
         OpsXplanet *opsxplanet { nullptr };
 
         friend class TestArtificialHorizon;
+
+        // Live stacker
+        QList<QProcess *> m_liveStackerProcesses;
 };

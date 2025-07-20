@@ -363,7 +363,6 @@ FITSViewer::FITSViewer(QWidget *parent, Mode mode) : KXmlGuiWindow(parent), m_Mo
     else
         resize(INITIAL_W, INITIAL_H);
 
-    // JEE TEST
     if (m_Mode == Mode::LiveStacking)
         stack();
 }
@@ -448,10 +447,8 @@ void FITSViewer::closeEvent(QCloseEvent * /*event*/)
 
     emit terminated();
 
-    // JEE TEST
     if (m_Mode == Mode::LiveStacking)
         qApp->quit();
-    // JEE END TEST
 }
 
 void FITSViewer::hideEvent(QHideEvent * /*event*/)

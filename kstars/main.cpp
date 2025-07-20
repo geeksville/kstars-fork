@@ -19,9 +19,7 @@
 #include "kstars.h"
 #include "skymap.h"
 #endif
-// JEE TEST
 #include "fitsviewer/fitsviewer.h"
-// JEE END TEST
 
 #if !defined(KSTARS_LITE)
 #include <KAboutData>
@@ -210,14 +208,10 @@ int main(int argc, char *argv[])
     parser.addPositionalArgument(QStringLiteral("urls"), i18n("FITS file(s) to open."),
                                  QStringLiteral("[urls...]"));
 
-    // JEE TEST
     parser.addOption(QCommandLineOption("live-stacker", i18n("Run Live Stacker standalone mode")));
     aboutData.processCommandLine(&parser);
-    // JEE END TEST
     parser.process(app);
-    aboutData.processCommandLine(&parser);
 
-    // JEE TEST
     if (parser.isSet("live-stacker"))
     {
         if (!KStars::launchLiveStackerStandalone())
@@ -227,8 +221,6 @@ int main(int argc, char *argv[])
         }
         return app.exec();
     }
-
-    // JEE END TEST
 
     if (parser.isSet("dump"))
     {

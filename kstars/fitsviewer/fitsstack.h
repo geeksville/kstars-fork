@@ -120,6 +120,15 @@ class FITSStack : public QObject
         struct wcsprm * getWCSRef();
 
         /**
+         * @brief Get the WCS data structure for stacked image
+         * @return wcsprm pointer
+         */
+        const struct wcsprm * getWCSStackImage() const
+        {
+            return m_WCSStackImage;
+        }
+
+        /**
          * @brief Get whether a stacking operation is in progress
          * @return stack in progress
          */
@@ -326,6 +335,12 @@ class FITSStack : public QObject
         cv::Mat stacknSubsSigmaClipping(const QVector<float> &weights);
 
         /**
+         * @brief Store the WCS for the stack image based on the WCS for the master alignment sub
+         * @param wcs is the master alignment sub WCS
+         */
+        void setWCSStackImage(const struct wcsprm *masterWCS);
+
+        /**
          * @brief Post process the passed in stack
          * @param Image to process
          * @return Processed image
@@ -439,6 +454,9 @@ class FITSStack : public QObject
         cv::Mat m_StackedImage32F;
         QVector<cv::Mat> m_SigmaClip32FC4;
         QSharedPointer<QByteArray> m_StackedBuffer { nullptr };
+
+        // Stack Image
+        struct wcsprm * m_WCSStackImage { nullptr };
 
         double m_StackSNR { 0.0 };
         float m_Width { 0.0f };

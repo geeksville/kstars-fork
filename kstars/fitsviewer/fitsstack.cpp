@@ -27,6 +27,11 @@ FITSStack::~FITSStack()
 {
     tidyUpInitalStack(nullptr);
     tidyUpRunningStack();
+    if (m_WCSStackImage)
+    {
+        wcsfree(m_WCSStackImage);
+        m_WCSStackImage = nullptr;
+    }
 }
 
 void FITSStack::setStackInProgress(bool inProgress)
@@ -269,11 +274,6 @@ bool FITSStack::convertMat(const cv::Mat &input, cv::Mat &output)
             int newHeight = output.rows / downscaleFactor;
             cv::resize(output, downsizedImage, cv::Size(newWidth, newHeight), 0, 0, cv::INTER_AREA);
             output = downsizedImage;
-            // JEE to sort out
-            //FITSImage::Statistic statistics = m_Data->getStatistics();
-            //statistics.width = newWidth;
-            //statistics.height = newHeight;
-            //m_Data->restoreStatistics(statistics);
         }
         return true;
     }
@@ -435,9 +435,10 @@ bool FITSStack::stack()
 
             if (m_InitialStackRef < 0)
             {
-                // First image is the reference to which others are aligned
+                // First image ise reference  thto which others are aligned
                 m_InitialStackRef = i;
                 m_StackImageData[i].isAligned = true;
+                setWCSStackImage(m_StackImageData[i].wcsprm);
             }
             else if (!m_StackImageData[i].isAligned)
             {
@@ -1071,6 +1072,54 @@ cv::Mat FITSStack::stacknSubsSigmaClipping(const QVector<float> &weights)
         QString s1 = ex.what();
         qCDebug(KSTARS_FITS) << QString("openCV exception %1 called from %2").arg(s1).arg(__FUNCTION__);
         return m_StackedImage32F;
+    }
+}
+
+void FITSStack::setWCSStackImage(const struct wcsprm *wcs)
+{
+    if (!wcs)
+        return;
+
+    if (m_WCSStackImage != nullptr)
+    {
+        wcsfree(m_WCSStackImage);
+        delete m_WCSStackImage;
+        m_WCSStackImage = nullptr;
+    }
+
+    m_WCSStackImage = new struct wcsprm;
+    m_WCSStackImage->flag = -1;
+
+    // Deep copy the original WCS structure
+    int status = 0;
+    if ((status = wcssub(1, wcs, 0x0, 0x0, m_WCSStackImage)) != 0)
+    {
+        qCDebug(KSTARS_FITS) << QString("%1 wcssub error processing %2").arg(__FUNCTION__).arg(status)
+                                    .arg(wcs_errmsg[status]);
+        delete m_WCSStackImage;
+        m_WCSStackImage = nullptr;
+        return;
+    }
+
+    // If the stacked image is downscaled, adjust CRPIX and CDELT
+    if (m_StackData.downscale != LS_DOWNSCALE_NONE)
+    {
+        double downscale = getDownscaleFactor();
+
+        m_WCSStackImage->cdelt[0] *= downscale;
+        m_WCSStackImage->cdelt[1] *= downscale;
+
+        m_WCSStackImage->crpix[0] /= downscale;
+        m_WCSStackImage->crpix[1] /= downscale;
+    }
+
+    if ((status = wcsset(m_WCSStackImage)) != 0)
+    {
+        qCDebug(KSTARS_FITS) << QString("%1 wcsset error processing %2").arg(__FUNCTION__).arg(status)
+                                            .arg(wcs_errmsg[status]);
+        delete m_WCSStackImage;
+        m_WCSStackImage = nullptr;
+        return;
     }
 }
 
