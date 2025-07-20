@@ -203,14 +203,14 @@ int main(int argc, char *argv[])
     parser.addOption(QCommandLineOption("height", i18n("Height of sky image."), "value"));
     parser.addOption(QCommandLineOption("date", i18n("Date and time."), "string"));
     parser.addOption(QCommandLineOption("paused", i18n("Start with clock paused.")));
+    parser.addOption(QCommandLineOption("live-stacker", i18n("Run Live Stacker standalone mode")));
 
     // urls to open
     parser.addPositionalArgument(QStringLiteral("urls"), i18n("FITS file(s) to open."),
                                  QStringLiteral("[urls...]"));
 
-    parser.addOption(QCommandLineOption("live-stacker", i18n("Run Live Stacker standalone mode")));
-    aboutData.processCommandLine(&parser);
     parser.process(app);
+    aboutData.processCommandLine(&parser);
 
     if (parser.isSet("live-stacker"))
     {
