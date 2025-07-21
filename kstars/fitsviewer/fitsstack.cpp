@@ -10,14 +10,9 @@
 #include "fitsdata.h"
 #include <fits_debug.h>
 #include "fitscommon.h"
-#include "ekos/auxiliary/stellarsolverprofile.h"
-#include "ekos/auxiliary/stellarsolverprofileeditor.h"
 #include "ekos/auxiliary/solverutils.h"
-#include "auxiliary/kspaths.h"
 #include "kstars.h"
-#include "Options.h"
 #include "../auxiliary/robuststatistics.h"
-#include "../auxiliary/gslhelpers.h"
 
 #include <wcshdr.h>
 #include <fitsio.h>
@@ -61,7 +56,7 @@ void FITSStack::setupNextSub()
 {
     StackImageData imageData;
     imageData.image = cv::Mat();
-    imageData.status = IN_PROGRESS;
+    imageData.status = PLATESOLVE_IN_PROGRESS;
     imageData.isCalibrated = false;
     imageData.isAligned = false;
     imageData.wcsprm = nullptr;
@@ -1107,17 +1102,20 @@ cv::Mat FITSStack::postProcessImage(const cv::Mat &image32F)
         }
 
         if (image.empty())
-            // Convert from 32F to 16U as following functions require 16U.
         {
-            // First, find the range of the float data
+            // Convert from 32F to 16U as following functions require 16U.
+            // Subs could have values out of range - due to processing
+            // Darks won't be out of range so preserve photometry by not scaling
             double minVal, maxVal;
             cv::minMaxLoc(image32F, &minVal, &maxVal);
 
-            // Then scale to use full 16-bit range
-            double scale = 65535.0 / maxVal;
-            image32F.convertTo(image, CV_16U, scale);
-
-            //image32F.convertTo(image, CV_MAKETYPE(CV_16U, 1));
+            if (maxVal <= 65535.0)
+                image32F.convertTo(image, CV_16U);
+            else
+            {
+                double scale = 65535.0 / maxVal;
+                image32F.convertTo(image, CV_16U, scale);
+            }
         }
 
         cv::Mat sharpenedImage;

@@ -99,7 +99,7 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File chooser dialog for Maater Flat&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File chooser dialog for Master Flat&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string/>
@@ -178,7 +178,7 @@
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File chooser dialog for Maater Dark&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File chooser dialog for Master Dark&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string/>
@@ -845,7 +845,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Kernal:</string>
+         <string>Kernel:</string>
         </property>
         <property name="buddy">
          <cstring>SharpenKernal</cstring>
@@ -1130,7 +1130,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>Number of subs sucessfully processed / failed / total</string>
+         <string>Number of subs successfully processed / failed / total</string>
         </property>
         <property name="text">
          <string>0 / 0 / 0</string>
@@ -1266,7 +1266,7 @@
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Starts watching Stack Directory for new files and stacks any FITS files already there.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Starts watching the Stack Directory and runs stacking.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Start</string>

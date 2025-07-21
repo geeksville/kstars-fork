@@ -203,10 +203,10 @@ class FITSStack : public QObject
         void stackChanged();
 
     public slots:
-    private:
+    private:      
         typedef enum
         {
-            IN_PROGRESS,
+            PLATESOLVE_IN_PROGRESS,
             PLATESOLVE_FAILED,
             CALIBRATION_FAILED,
             ALIGNMENT_FAILED,

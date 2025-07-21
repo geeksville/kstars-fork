@@ -25,6 +25,8 @@ class Edge
         {
             x = y = val = HFR = -1;
         }
+        virtual Edge* clone() const { return new Edge(*this); }
+
         float x {0};
         float y {0};
         int val {0};
@@ -42,6 +44,7 @@ class BahtinovEdge : public Edge
         virtual ~BahtinovEdge() = default;
         QVector<QLineF> line;
         QPointF offset;
+        Edge* clone() const override { return new BahtinovEdge(*this); }
 };
 
 class FITSStarDetector : public QObject
@@ -79,6 +82,10 @@ class FITSStarDetector : public QObject
          * @return The detector as a chain to call the overridden findSources.
          */
         //void configure(QStandardItemModel const &settings);
+
+        /** @brief Abort an in-flight star detection
+         */
+        virtual void abort() {};
 
     protected:
         FITSData *m_ImageData {nullptr};

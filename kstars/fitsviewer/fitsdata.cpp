@@ -526,7 +526,6 @@ void FITSData::stackFITSLoaded()
     }
 
     bool plateSolving = (m_Stack->getStackData().alignMethod == LS_ALIGNMENT_PLATE_SOLVE);
-
     switch (action)
     {
         case stackFITSDark:
@@ -3175,6 +3174,13 @@ double FITSData::getEccentricity()
     const float eccentricity = sqrt(medianEllipticity * (2 - medianEllipticity));
     cacheEccentricity = eccentricity;
     return eccentricity;
+}
+
+// Pass a star extraction abort request along to the extraction process
+void FITSData::abortStarDetection()
+{
+    if (m_StarDetector)
+        m_StarDetector->abort();
 }
 
 void FITSData::applyFilter(FITSScale type, uint8_t * image, QVector<double> * min, QVector<double> * max)

@@ -71,6 +71,8 @@ FITSViewer::FITSViewer(QWidget *parent) : KXmlGuiWindow(parent)
     setWindowIcon(QIcon::fromTheme("kstars_fitsviewer"));
 
     setCentralWidget(fitsTabWidget);
+    QTabBar *tabBar = fitsTabWidget->tabBar();
+    tabBar->installEventFilter(this);
 
     connect(fitsTabWidget, &QTabWidget::currentChanged, this, &FITSViewer::tabFocusUpdated);
     connect(fitsTabWidget, &QTabWidget::tabCloseRequested, this, &FITSViewer::closeTab);
@@ -365,6 +367,44 @@ FITSViewer::~FITSViewer()
 {
 }
 
+bool FITSViewer::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == fitsTabWidget->tabBar() && event->type() == QEvent::MouseButtonPress)
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if (mouseEvent->button() == Qt::RightButton)
+        {
+            // Get the index of the tab that was clicked at the mouse event's position
+            int tabIndex = fitsTabWidget->tabBar()->tabAt(mouseEvent->pos());
+            if (tabIndex >= 0 && tabIndex < m_Tabs.size())   // -1 means no tab was at the clicked position
+            {
+                auto tab = m_Tabs[tabIndex];
+                QString currentTabText = tab->getTabName();
+                if (currentTabText.isEmpty())
+                    currentTabText = fitsTabWidget->tabText(tabIndex);
+
+                // Pop up a text input dialog
+                bool ok;
+                QString newText = QInputDialog::getText(this, i18n("Change Tab Title"),
+                                                        i18n("New title for tab '%1':", currentTabText),
+                                                        QLineEdit::Normal, currentTabText, &ok);
+                if (ok && !newText.isEmpty())
+                {
+                    tab->setTabName(newText);
+                    fitsTabWidget->setTabText(tabIndex, tab->getTabTitle());
+                }
+                // Return true to indicate that we have handled this event
+                // This prevents the QTabBar from processing the right-click further (e.g., context menu).
+                return true;
+            }
+        }
+    }
+
+    // For all other events, or if we didn't handle the right-click,
+    // let the base class's eventFilter (or the watched object itself) process the event.
+    return KXmlGuiWindow::eventFilter(watched, event);
+}
+
 void FITSViewer::closeEvent(QCloseEvent * /*event*/)
 {
     KStars *ks = KStars::Instance();
@@ -486,6 +526,9 @@ bool FITSViewer::addFITSCommon(const QPointer<FITSTab> &tab, const QUrl &imageNa
         case FITS_LIVESTACKING:
         case FITS_CALIBRATE:
             fitsTabWidget->addTab(tab, previewText.isEmpty() ? imageName.fileName() : previewText);
+            tabIndex = fitsTabWidget->indexOf(tab);
+            if (tabIndex != -1)
+                fitsTabWidget->setTabToolTip(tabIndex, i18n("Right click to change tab title."));
             break;
 
         case FITS_FOCUS:
@@ -927,31 +970,35 @@ void FITSViewer::blink()
     QPointer<FITSTab> tab(new FITSTab(this));
 
     int tabIndex = m_Tabs.size();
-    if (allImages.size() > 1)
+    if (allImages.size() > 0)
     {
         m_Tabs.push_back(tab);
         tab->initBlink(allImages);
-        tab->setBlinkUpto(1);
+        tab->setBlinkUpto(0);
     }
     QString tabName = QString("%1/%2 %3")
                       .arg(1).arg(allImages.size()).arg(QFileInfo(allImages[0]).fileName());
-    connect(tab, &FITSTab::failed, this, [ this ](const QString & errorMessage)
+    connect(tab, &FITSTab::failed, this, [ this, tab ](const QString & errorMessage)
     {
         Q_UNUSED(errorMessage);
-        QObject::sender()->disconnect(this);
+        if (tab)
+            tab->disconnect(this);
         QApplication::restoreOverrideCursor();
         led.setColor(Qt::red);
         m_BlinkBusy = false;
-    }, Qt::UniqueConnection);
+    });
 
-    connect(tab, &FITSTab::loaded, this, [ = ]()
+    connect(tab, &FITSTab::loaded, this, [ this, tab, imageName, tabIndex, tabName ]()
     {
-        QObject::sender()->disconnect(this);
-        addFITSCommon(m_Tabs.last(), imageName, FITS_NORMAL, "");
-        //fitsTabWidget->tabBar()->setTabTextColor(tabIndex, Qt::red);
-        fitsTabWidget->setTabText(tabIndex, tabName);
+        if (tab)
+        {
+            tab->disconnect(this);
+            addFITSCommon(m_Tabs.last(), imageName, FITS_NORMAL, "");
+            //fitsTabWidget->tabBar()->setTabTextColor(tabIndex, Qt::red);
+            fitsTabWidget->setTabText(tabIndex, tabName);
+        }
         m_BlinkBusy = false;
-    }, Qt::UniqueConnection);
+    });
 
     actionCollection()->action("next_blink")->setEnabled(allImages.size() > 1);
     actionCollection()->action("previous_blink")->setEnabled(allImages.size() > 1);
@@ -990,22 +1037,26 @@ void FITSViewer::changeBlink(bool increment)
     QString tabName = QString("%1/%2 %3")
                       .arg(blinkIndex + 1).arg(filenames.size()).arg(QFileInfo(nextFilename).fileName());
     tab->disconnect(this);
-    connect(tab, &FITSTab::failed, this, [ this, nextFilename ](const QString & errorMessage)
+    connect(tab, &FITSTab::failed, this, [ this, tab, nextFilename ](const QString & errorMessage)
     {
         Q_UNUSED(errorMessage);
-        QObject::sender()->disconnect(this);
+        if (tab)
+            tab->disconnect(this);
         QApplication::restoreOverrideCursor();
         led.setColor(Qt::red);
         m_BlinkBusy = false;
-    }, Qt::UniqueConnection);
+    });
 
-    connect(tab, &FITSTab::loaded, this, [ = ]()
+    connect(tab, &FITSTab::loaded, this, [ this, tab, nextFilename, tabIndex, tabName ]()
     {
-        QObject::sender()->disconnect(this);
-        updateFITSCommon(tab, QUrl::fromLocalFile(nextFilename));
-        fitsTabWidget->setTabText(tabIndex, tabName);
+        if (tab)
+        {
+            tab->disconnect(this);
+            updateFITSCommon(tab, QUrl::fromLocalFile(nextFilename));
+            fitsTabWidget->setTabText(tabIndex, tabName);
+        }
         m_BlinkBusy = false;
-    }, Qt::UniqueConnection);
+    });
 
     tab->setBlinkUpto(blinkIndex);
     tab->loadFile(QUrl::fromLocalFile(nextFilename), FITS_NORMAL, FITS_NONE);
@@ -1066,22 +1117,25 @@ void FITSViewer::stack()
     QPointer<FITSTab> tab(new FITSTab(this));
 
     m_Tabs.push_back(tab);
-    QString tabName = QString("Stack");
-    connect(tab, &FITSTab::failed, this, [ this ](const QString & errorMessage)
+    connect(tab, &FITSTab::failed, this, [ this, tab ](const QString & errorMessage)
     {
         Q_UNUSED(errorMessage);
-        QObject::sender()->disconnect(this);
+        if (tab)
+            tab->disconnect(this);
         led.setColor(Qt::red);
         m_StackBusy = false;
-    }, Qt::UniqueConnection);
+    });
 
-    connect(tab, &FITSTab::loaded, this, [ = ]()
+    connect(tab, &FITSTab::loaded, this, [ this, tab, imageName ]()
     {
-        QObject::sender()->disconnect(this);
-        addFITSCommon(tab, imageName, FITS_LIVESTACKING, tabName);
-        fitsID++;
+        if (tab)
+        {
+            tab->disconnect(this);
+            addFITSCommon(tab, imageName, FITS_LIVESTACKING, tab->getTabTitle());
+            fitsID++;
+        }
         m_StackBusy = false;
-    }, Qt::UniqueConnection);
+    });
 
     tab->initStack(topDir, FITS_LIVESTACKING, FITS_NONE);
 }
@@ -1094,30 +1148,34 @@ void FITSViewer::restack(const QString dir, const int tabUID)
 
     led.setColor(Qt::yellow);
     updateStatusBar(i18n("Stacking..."), FITS_MESSAGE);
-    QString tabName = i18n("Watching %1", dir);
-    connect(tab, &FITSTab::failed, this, [ this ](const QString & errorMessage)
+    connect(tab, &FITSTab::failed, this, [ this, tab ](const QString & errorMessage)
     {
         Q_UNUSED(errorMessage);
-        QObject::sender()->disconnect(this);
-        led.setColor(Qt::red);
-        updateStatusBar(i18n("Stacking Failed"), FITS_MESSAGE);
-    }, Qt::UniqueConnection);
+        if (tab)
+        {
+            tab->disconnect(this);
+            led.setColor(Qt::red);
+            updateStatusBar(i18n("Stacking Failed"), FITS_MESSAGE);
+        }
+    });
 
-    connect(tab, &FITSTab::loaded, this, [ = ]()
+    connect(tab, &FITSTab::loaded, this, [ this, tab, imageName ]()
     {
         // There doesn't seem to be a way in a lambda to just disconnect the loaded signal which if not
         // disconnected results in fitsviewer crashing. So disconnect all and reset the other signals
-        QObject::sender()->disconnect(this);
-        connect(tab, &FITSTab::newStatus, this, &FITSViewer::updateStatusBar);
-        connect(tab, &FITSTab::changeStatus, this, &FITSViewer::updateTabStatus);
-        connect(tab, &FITSTab::debayerToggled, this, &FITSViewer::setDebayerAction);
-        connect(tab->getView().get(), &FITSView::actionUpdated, this, &FITSViewer::updateAction);
-        connect(tab->getView().get(), &FITSView::wcsToggled, this, &FITSViewer::updateWCSFunctions);
-        connect(tab->getView().get(), &FITSView::starProfileWindowClosed, this, &FITSViewer::starProfileButtonOff);
-        updateFITSCommon(tab, imageName, tabName);
-
-        updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);
-    }, Qt::UniqueConnection);
+        if (tab)
+        {
+            tab->disconnect(this);
+            connect(tab, &FITSTab::newStatus, this, &FITSViewer::updateStatusBar);
+            connect(tab, &FITSTab::changeStatus, this, &FITSViewer::updateTabStatus);
+            connect(tab, &FITSTab::debayerToggled, this, &FITSViewer::setDebayerAction);
+            connect(tab->getView().get(), &FITSView::actionUpdated, this, &FITSViewer::updateAction);
+            connect(tab->getView().get(), &FITSView::wcsToggled, this, &FITSViewer::updateWCSFunctions);
+            connect(tab->getView().get(), &FITSView::starProfileWindowClosed, this, &FITSViewer::starProfileButtonOff);
+            updateFITSCommon(tab, imageName, tab->getTabTitle());
+            updateStatusBar(i18n("Stacking Complete"), FITS_MESSAGE);
+        }
+    });
 }
 
 void FITSViewer::saveFile()
