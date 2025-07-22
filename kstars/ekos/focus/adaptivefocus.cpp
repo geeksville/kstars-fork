@@ -353,6 +353,9 @@ int AdaptiveFocus::adaptStartPosition(int currentPosition, QString &AFfilter)
         offsetText = i18n(offset > 0 ? "Moving %1 offset outward" : "Moving %1 offset inward", std::abs(offset));
 
         staticPosition += offset;
+
+        // switch to the lock filter
+        AFfilter = lockFilter;
     }
 
     // In these cases, we use the static values:
@@ -365,14 +368,10 @@ int AdaptiveFocus::adaptStartPosition(int currentPosition, QString &AFfilter)
         return staticPosition;
     }
 
-    // switch to the lock filter, if it is set
-    if (!(m_focus->inBuildOffsets || lockFilter == NULL_FILTER || lockFilter == AFfilter))
-        AFfilter = lockFilter;
-
     // Start with the last AF run result for the active filter
     int lastPos;
     double lastTemp, lastAlt;
-    // Unable to get the last AF run information for the filter so just use the currentPosition or no sensible lastPos
+    // Unable to get the last AF run information for the filter so just use the staticPosition or no sensible lastPos
     if(!m_focus->m_FilterManager->getFilterAbsoluteFocusDetails(AFfilter, lastPos, lastTemp, lastAlt) || lastPos <= 0)
     {
         if (staticPosition != currentPosition)
@@ -389,7 +388,7 @@ int AdaptiveFocus::adaptStartPosition(int currentPosition, QString &AFfilter)
     int maxTravelLimit = qMin(m_focus->absMotionMax, currentPosition + m_focus->m_OpsFocusMechanics->focusMaxTravel->value());
     if (lastPos < minTravelLimit || lastPos > maxTravelLimit)
     {
-        // Looks like there is a potentially dodgy lastPos so just use currentPosition
+        // Looks like there is a potentially dodgy lastPos so just use staticPosition
         m_focus->appendLogText(i18n("Adaptive start point, last AF solution outside Max Travel, ignoring"));
         if (staticPosition != currentPosition)
             m_focus->appendLogText(offsetText);
@@ -445,7 +444,7 @@ int AdaptiveFocus::adaptStartPosition(int currentPosition, QString &AFfilter)
         // No need to check minimum movement
         m_focus->appendLogText(i18n("Adaptive start point [%1] excessive move disallowed", filterText));
         qCDebug(KSTARS_EKOS_FOCUS) << "Adaptive start point: " << filterText
-                                   << " startPosition: " << currentPosition
+                                   << " startPosition: " << staticPosition
                                    << "offset; " << offsetText
                                    << " Last filter position: " << lastPos
                                    << " Temp delta: " << tempDelta << " Temp ticks: " << ticksTemp
