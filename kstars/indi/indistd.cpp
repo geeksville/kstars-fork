@@ -89,7 +89,7 @@ GenericDevice::GenericDevice(DeviceInfo &idv, ClientManager *cm, QObject *parent
     });
 
     m_ReadyTimer = new QTimer(this);
-    m_ReadyTimer->setInterval(250);
+    m_ReadyTimer->setInterval(1000);
     m_ReadyTimer->setSingleShot(true);
     connect(m_ReadyTimer, &QTimer::timeout, this, &GenericDevice::handleTimeout, Qt::UniqueConnection);
 

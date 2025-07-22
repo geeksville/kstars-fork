@@ -34,10 +34,11 @@ void Scheduler::loadGlobalSettings()
     {
         key = oneWidget->objectName();
         value = Options::self()->property(key.toLatin1());
-        if (value.isValid() && oneWidget->count() > 0)
+        if (value.isValid())
         {
             oneWidget->setCurrentText(value.toString());
-            settings[key] = value;
+            if (oneWidget->currentIndex() >= 0 ) // set model only if viewer ok
+                settings[key] = value;
         }
         else
             qCDebug(KSTARS_EKOS_SCHEDULER) << "Option" << key << "not found!";
@@ -387,9 +388,9 @@ bool Scheduler::syncControl(const QVariantMap &settings, const QString &key, QWi
     // ONLY FOR STRINGS, not INDEX
     else if ((pComboBox = qobject_cast<QComboBox *>(widget)))
     {
-        const QString value = settings[key].toString();
-        pComboBox->setCurrentText(value);
-        return true;
+        pComboBox->setCurrentText(settings[key].toString());
+        if ( pComboBox->currentIndex() >= 0 )
+            return true;
     }
     else if ((pLineEdit = qobject_cast<QLineEdit *>(widget)))
     {

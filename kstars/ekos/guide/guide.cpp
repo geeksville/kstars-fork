@@ -201,7 +201,6 @@ Guide::Guide() : QWidget()
 
     loadGlobalSettings();
     connectSettings();
-
     setupOpticalTrainManager();
 }
 
@@ -1766,7 +1765,6 @@ void Guide::updateCCDBin(int index)
 
     targetChip->setBinning(index + 1, index + 1);
     guideBinIndex = index;
-
     QVariantMap settings      = frameSettings[targetChip];
     settings["binx"]          = index + 1;
     settings["biny"]          = index + 1;
@@ -1781,15 +1779,16 @@ void Guide::updateProperty(INDI::Property prop)
     if (m_Camera == nullptr || (prop.getDeviceName() != m_Camera->getDeviceName()) || guiderType != GUIDE_INTERNAL)
         return;
 
+    ISD::CameraChip *targetChip = m_Camera->getChip(useGuideHead ? ISD::CameraChip::GUIDE_CCD : ISD::CameraChip::PRIMARY_CCD);
+    CCDBinType binType = targetChip->getBinning();
     if ((prop.isNameMatch("CCD_BINNING") && useGuideHead == false) ||
             (prop.isNameMatch("GUIDER_BINNING") && useGuideHead))
     {
-        auto nvp = prop.getNumber();
-        auto value = nvp->at(0)->getValue();
-        if (guideBinIndex > (value - 1)) // INDI driver reports not supported binning
+        IPState BinningState =prop.getNumber()->getState();
+        if (BinningState == IPS_ALERT) // INDI driver reports not supported binning
         {
             appendLogText(i18n("%1x%1 guide binning is not supported.", guideBinIndex + 1));
-            guideBinning->setCurrentIndex( value - 1 );
+            guideBinning->setCurrentIndex(binType);
             updateSetting("guideBinning", guideBinning->currentText());
         }
         else
@@ -3185,40 +3184,11 @@ void Guide::setAllSettings(const QVariantMap &settings)
     // performing the changes.
     disconnectSettings();
 
+    // Find all widgets
     for (auto &name : settings.keys())
-    {
-        // Combo
-        auto comboBox = findChild<QComboBox*>(name);
-        if (comboBox)
-        {
-            syncControl(settings, name, comboBox);
-            continue;
-        }
-
-        // Double spinbox
-        auto doubleSpinBox = findChild<QDoubleSpinBox*>(name);
-        if (doubleSpinBox)
-        {
-            syncControl(settings, name, doubleSpinBox);
-            continue;
-        }
-
-        // spinbox
-        auto spinBox = findChild<QSpinBox*>(name);
-        if (spinBox)
-        {
-            syncControl(settings, name, spinBox);
-            continue;
-        }
-
-        // checkbox
-        auto checkbox = findChild<QCheckBox*>(name);
-        if (checkbox)
-        {
-            syncControl(settings, name, checkbox);
-            continue;
-        }
-    }
+        if (!syncControl(settings, name, findChild<QWidget*>(name)))
+            qCWarning(KSTARS_EKOS_GUIDE) << "Could not set optical train guide parameter ["
+                                               << name << "]";
 
     // Sync to options
     for (auto &key : settings.keys())
@@ -3244,7 +3214,7 @@ void Guide::setAllSettings(const QVariantMap &settings)
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////
-bool Guide::syncControl(const QVariantMap &settings, const QString &key, QWidget * widget)
+bool Guide::syncControl(const QVariantMap &settings, const QString &key, QWidget *widget)
 {
     QSpinBox *pSB = nullptr;
     QDoubleSpinBox *pDSB = nullptr;
@@ -3288,11 +3258,10 @@ bool Guide::syncControl(const QVariantMap &settings, const QString &key, QWidget
     // ONLY FOR STRINGS, not INDEX
     else if ((pComboBox = qobject_cast<QComboBox *>(widget)))
     {
-        const QString value = settings[key].toString();
-        pComboBox->setCurrentText(value);
-        return true;
+        pComboBox->setCurrentText(settings[key].toString());
+        if ( pComboBox->currentIndex() >= 0 )
+            return true;
     }
-
     return false;
 };
 
@@ -3374,22 +3343,24 @@ void Guide::refreshOpticalTrain()
         auto ao = OpticalTrainManager::Instance()->getAdaptiveOptics(name);
         setAdaptiveOptics(ao);
 
-        // Load train settings
-        OpticalTrainSettings::Instance()->setOpticalTrainID(id);
-        auto settings = OpticalTrainSettings::Instance()->getOneSetting(OpticalTrainSettings::Guide);
-        if (settings.isValid())
+        // Load train settings if camera is ready (cf. guideBinning)
+        if (camera)
         {
-            auto map = settings.toJsonObject().toVariantMap();
-            if (map != m_Settings)
+            OpticalTrainSettings::Instance()->setOpticalTrainID(id);
+            auto settings = OpticalTrainSettings::Instance()->getOneSetting(OpticalTrainSettings::Guide);
+            if (settings.isValid())
             {
-                m_Settings.clear();
-                setAllSettings(map);
+                auto map = settings.toJsonObject().toVariantMap();
+                if (map != m_Settings)
+                {
+                    m_Settings.clear();
+                    setAllSettings(map);
+                }
             }
         }
         else
             m_Settings = m_GlobalSettings;
     }
-
     opticalTrainCombo->blockSignals(false);
 }
 
@@ -3407,10 +3378,11 @@ void Guide::loadGlobalSettings()
 
         key = oneWidget->objectName();
         value = Options::self()->property(key.toLatin1());
-        if (value.isValid() && oneWidget->count() > 0)
+        if (value.isValid())
         {
             oneWidget->setCurrentText(value.toString());
-            settings[key] = value;
+            if (oneWidget->currentIndex() >= 0) // Set model only if viewer ok
+                settings[key] = value;
         }
     }
 

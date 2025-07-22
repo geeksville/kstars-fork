@@ -1688,10 +1688,11 @@ void DarkLibrary::loadGlobalSettings()
 
         key = oneWidget->objectName();
         value = Options::self()->property(key.toLatin1());
-        if (value.isValid() && oneWidget->count() > 0)
+        if (value.isValid())
         {
             oneWidget->setCurrentText(value.toString());
-            settings[key] = value;
+            if (oneWidget->currentIndex() >= 0) // Set model only if viewer ok
+                settings[key] = value;
         }
     }
 
@@ -1826,48 +1827,10 @@ void DarkLibrary::setAllSettings(const QVariantMap &settings)
     // performing the changes.
     disconnectSettings();
 
+    // Find all widgets
     for (auto &name : settings.keys())
-    {
-        // Combo
-        auto comboBox = findChild<QComboBox*>(name);
-        if (comboBox)
-        {
-            syncControl(settings, name, comboBox);
-            continue;
-        }
-
-        // Double spinbox
-        auto doubleSpinBox = findChild<QDoubleSpinBox*>(name);
-        if (doubleSpinBox)
-        {
-            syncControl(settings, name, doubleSpinBox);
-            continue;
-        }
-
-        // spinbox
-        auto spinBox = findChild<QSpinBox*>(name);
-        if (spinBox)
-        {
-            syncControl(settings, name, spinBox);
-            continue;
-        }
-
-        // checkbox
-        auto checkbox = findChild<QCheckBox*>(name);
-        if (checkbox)
-        {
-            syncControl(settings, name, checkbox);
-            continue;
-        }
-
-        // Radio button
-        auto radioButton = findChild<QRadioButton*>(name);
-        if (radioButton)
-        {
-            syncControl(settings, name, radioButton);
-            continue;
-        }
-    }
+        if (!syncControl(settings, name, findChild<QWidget*>(name)))
+            emit newLog(i18n("Could not set optical train darklibrary parameter [%1]", name));
 
     // Sync to options
     for (auto &key : settings.keys())
@@ -1900,7 +1863,7 @@ void DarkLibrary::setOpticalTrain(const QString &value, bool enabled)
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////
-bool DarkLibrary::syncControl(const QVariantMap &settings, const QString &key, QWidget * widget)
+bool DarkLibrary::syncControl(const QVariantMap &settings, const QString &key, QWidget *widget)
 {
     QSpinBox *pSB = nullptr;
     QDoubleSpinBox *pDSB = nullptr;
@@ -1937,9 +1900,9 @@ bool DarkLibrary::syncControl(const QVariantMap &settings, const QString &key, Q
     // ONLY FOR STRINGS, not INDEX
     else if ((pComboBox = qobject_cast<QComboBox *>(widget)))
     {
-        const QString value = settings[key].toString();
-        pComboBox->setCurrentText(value);
-        return true;
+        pComboBox->setCurrentText(settings[key].toString());
+        if ( pComboBox->currentIndex() >= 0 )
+            return true;
     }
     else if ((pRadioButton = qobject_cast<QRadioButton *>(widget)))
     {
