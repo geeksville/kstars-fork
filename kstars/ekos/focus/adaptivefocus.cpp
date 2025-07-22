@@ -346,13 +346,13 @@ int AdaptiveFocus::adaptStartPosition(int currentPosition, QString &AFfilter)
     {
         // filter change necessary
         filterText = AFfilter + " locked to " + lockFilter;
-        // use filter offsets
-        const int offset =
-            m_focus->m_FilterManager->getFilterOffset(lockFilter) - m_focus->m_FilterManager->getFilterOffset(AFfilter);
+        // retrieve the filter offset, the difference between the AFfilter offset minus lockFilter offset
+        const int offsetDelta = getAdaptiveFilterOffset(AFfilter, lockFilter);
 
-        offsetText = i18n(offset > 0 ? "Moving %1 offset outward" : "Moving %1 offset inward", std::abs(offset));
+        offsetText = i18n(offsetDelta < 0 ? "Moving %1 offset outward" : "Moving %1 offset inward", std::abs(offsetDelta));
 
-        staticPosition += offset;
+        // reduce the position by the offset delta
+        staticPosition -= offsetDelta;
 
         // switch to the lock filter
         AFfilter = lockFilter;
