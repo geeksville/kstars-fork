@@ -1144,7 +1144,7 @@ void FITSViewer::stack()
 }
 
 // Called when a stacking operation is in motion...
-void FITSViewer::restack(const QString dir, const int tabUID)
+void FITSViewer::restack(const int tabUID)
 {
     auto tab = fitsMap.value(tabUID);
     const QUrl imageName;
