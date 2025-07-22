@@ -974,7 +974,7 @@ void FITSTab::saveSettings()
     Options::setFitsLSSharpenKernal(m_LiveStackingUI.SharpenKernal->value());
     Options::setFitsLSSharpenSigma(m_LiveStackingUI.SharpenSigma->value());
     // Write the options to disk
-    KSharedConfig::openConfig()->sync();
+    Options::self()->save();
     qCDebug(KSTARS_FITS) << "Live Stacker settings saved";
 }
 

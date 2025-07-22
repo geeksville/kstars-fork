@@ -1101,6 +1101,9 @@ void FITSViewer::stack()
         return;
     m_StackBusy = true;
 
+    // JEE
+    setWindowTitle(i18nc("@title:window", "KStars Live Stacker (BETA)"));
+
     QString topDir = QDir::homePath();
     QString filePath = lastURL.path();
     if (filePath.isEmpty())
