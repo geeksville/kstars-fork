@@ -669,24 +669,41 @@ bool FITSStack::stackSubs(const bool initial, float &totalWeight, cv::Mat &stack
         {
             // Add the pixels weighted per sub based on user setting. Then divide by the total weight
             // If its an initial stack then just use the subs, if not then include the existing partial stack
+            int start;
             if (initial)
             {
-                totalWeight = 0.0;
-                stack = cv::Mat::zeros(m_StackImageData[0].image.rows, m_StackImageData[0].image.cols, m_CVType);
+                totalWeight = weights[0];
+                // JEE
+                //stack = cv::Mat::zeros(m_StackImageData[0].image.rows, m_StackImageData[0].image.cols, m_CVType);
+                stack = m_StackImageData[0].image;
+                start = 1;
             }
             else
             {
                 totalWeight = m_RunningStackImageData.totalWeight;
                 stack = m_StackedImage32F * totalWeight;
+                start = 0;
             }
 
-            for (int sub = 0; sub < m_StackImageData.size(); sub++)
+            cv::Mat temp;
+            for (int sub = start; sub < m_StackImageData.size(); sub++)
             {
-                stack += m_StackImageData[sub].image * weights[sub];
+                // JEE TEST
+                if (m_StackData.weighting == LS_STACKING_EQUAL)
+                    // No need to multiply by 1 for equal weighting
+                    cv::add(stack, m_StackImageData[sub].image, stack);
+                else
+                {
+                    cv::multiply(m_StackImageData[sub].image, weights[sub], temp, 1.0, m_CVType);
+                    cv::add(stack, temp, stack);
+                }
+                //stack += m_StackImageData[sub].image * weights[sub];
                 totalWeight += weights[sub];
             }
-            stack /= totalWeight;
+            cv::multiply(stack, 1.0 / totalWeight, stack, 1.0, m_CVType);
+            //stack /= totalWeight;
         }
+        qCDebug(KSTARS_FITS) << "Stacking complete";
         return true;
     }
     catch (const cv::Exception &ex)
