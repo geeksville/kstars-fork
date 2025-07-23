@@ -10,6 +10,7 @@
 #include "ui_opsalign.h"
 #include "parameters.h"
 
+#include <cmath>
 #include <QWidget>
 
 class KConfigDialog;
@@ -28,14 +29,11 @@ class OpsAlign : public QWidget, public Ui::OpsAlign
 
         typedef enum { ROTATOR_ANGLE = 0, POSITION_ANGLE = 1 } FlipPriority;
         void setFlipPolicy(FlipPriority Priority);
+        void setDerotation(bool toggled);
+        void setAltAzMode(const bool AltAz);
 
     public slots:
         void reloadOptionsProfiles();
-
-    protected:
-
-    private slots:
-        void slotApply();
 
     signals:
         void settingsUpdated();
@@ -44,6 +42,6 @@ class OpsAlign : public QWidget, public Ui::OpsAlign
     private:
         QList<SSolver::Parameters> optionsList;
         KConfigDialog *m_ConfigDialog { nullptr };
-        Align *alignModule { nullptr };
+        Align *m_AlignModule { nullptr };
 };
 }

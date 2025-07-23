@@ -585,12 +585,13 @@ class Align : public QWidget, public Ui::Align
              */
         void executeGOTO();
 
+        void processPAHStage(int stage);
+
+    public slots:
         /**
          * @brief refreshAlignOptions is called when settings are updated in OpsAlign.
          */
         void refreshAlignOptions();
-
-        void processPAHStage(int stage);
 
     signals:
         void newLog(const QString &text);

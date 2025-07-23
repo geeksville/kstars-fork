@@ -21,6 +21,11 @@
 #include "ekos/auxiliary/rotatorutils.h"
 #include "ksnotification.h"
 
+#include "indi/clientmanager.h"
+#include "indi/driverinfo.h"
+#include "ksutils.h"
+#include "skymap.h"
+
 namespace Ekos
 {
 
@@ -28,8 +33,7 @@ namespace Ekos
 void CaptureDeviceAdaptor::connectDome(SequenceJobState *state)
 {
     if (state == nullptr)
-        return;
-
+        return;    
     connect(state, &SequenceJobState::setDomeParked, this, &CaptureDeviceAdaptor::setDomeParked);
     connect(this, &CaptureDeviceAdaptor::domeStatusChanged, state, &SequenceJobState::domeStatusChanged);
 }
@@ -74,10 +78,6 @@ void CaptureDeviceAdaptor::disconnectDevices(SequenceJobState *state)
     disconnectDome(state);
     disconnectDustCap(state);
 }
-
-
-
-
 
 void CaptureDeviceAdaptor::connectDustCap(SequenceJobState *state)
 {
@@ -283,7 +283,32 @@ void CaptureDeviceAdaptor::readRotatorAngle()
         emit newRotatorAngle(m_ActiveRotator->absoluteAngle(), m_ActiveRotator->absoluteAngleState());
 }
 
+void CaptureDeviceAdaptor::setSimCameraRotation(double Angle)
+{
+    auto test = m_ActiveCamera->getNumber("SIMULATOR_SETTINGS");
+    if (test)
+    {
+        auto rotation = test.findWidgetByName("SIM_ROTATION");
+        if (rotation)
+        {
+            auto clientManager = m_ActiveCamera->getDriverInfo()->getClientManager();
+            // parallactic angle (negative PA) to full circle CW
+            Angle = KSUtils::range360(Angle);
+            rotation->setValue(Angle);
+            clientManager->sendNewNumber(test);
+        }
+    }
+}
 
+/*void CaptureDeviceAdaptor::setRotatorPA(double Angle)
+{
+    // set new rotator PA here (PA = -Angle)
+    double PositionAngle = -Angle;
+    double RotatorAngle = getRotatorAngle();
+    double OffsetAngle = RotatorUtils::Instance()->calcOffsetAngle(RotatorAngle, PositionAngle);
+    RotatorUtils::Instance()->updateOffset(OffsetAngle);
+    emit CaptureDeviceAdaptor::newPA(PositionAngle);
+}*/
 
 void CaptureDeviceAdaptor::setActiveCamera(ISD::Camera *device)
 {
@@ -323,6 +348,10 @@ void CaptureDeviceAdaptor::setActiveCamera(ISD::Camera *device)
 
     // communicate new camera
     emit newCamera(device == nullptr ? "" : device->getDeviceName());
+
+    // adjustments for ALTAZ mount
+    connect(SkyMap::Instance(), &SkyMap::setSimCamRotation, this, &CaptureDeviceAdaptor::setSimCameraRotation);
+    connect(SkyMap::Instance(), &SkyMap::adjustRotatorPA, this, &CaptureDeviceAdaptor::adjustRotatorPA);
 }
 
 void CaptureDeviceAdaptor::setFilterWheel(ISD::FilterWheel *device)

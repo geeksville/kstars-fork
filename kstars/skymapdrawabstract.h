@@ -11,6 +11,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QPaintDevice>
+#include "indi/indimount.h"
 
 class SkyMap;
 class SkyQPainter;
@@ -131,6 +132,12 @@ class SkyMapDrawAbstract
              */
         static void setDrawLock(bool state);
 
+        /**
+             *@short Set mount / set dome. This sets the active mount/dome device
+             */
+        void setMount(ISD::Mount *MountDevice);
+        void setDome(ISD::Dome *DomeDevice);
+
         // *********************** PURE VIRTUAL METHODS ******************* //
         // NOTE: The following methods differ between GL and QPainter backends
         //       Thus, they are pure virtual and must be implemented by the subclass
@@ -159,9 +166,14 @@ class SkyMapDrawAbstract
 
         /** Calculate FPS and dump result to stderr using qDebug */
         //void calculateFPS();
+
     private:
         // int m_framecount;     // To count FPS
         //QTime m_fpstime;
+        ISD::Dome *m_Dome {nullptr};
+        ISD::Mount *m_Mount {nullptr};
+        double m_SensorParallacticAngle { 0 };
+        double m_MountParallacticAngle { 0 };
 };
 
 #endif

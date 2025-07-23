@@ -28,8 +28,12 @@ public:
     void   initRotator(const QString &train, const QSharedPointer<Ekos::CaptureDeviceAdaptor> CaptureDA, ISD::Rotator *device);
     void   updateRotator(double RAngle);
     void   updateGauge(double Angle);
-    void   updateGaugeZeroPos(ISD::Mount::PierSide Pierside);
+    void   updateZeroPos(ISD::Mount::PierSide Pierside);
+    void   adjustPA(double DeltaAngle, bool adjustFOV);
+    // void   updateParallacticAngle(const double DeltaAngle, const double BaseAngle);
     void   updateFlipPolicy(const bool FlipRotationAllowed);
+    void   updateDerotation(const bool toggled);
+    void   updateAltAzMode(const bool AltAz);
     /* remove enforceJobPA
     // bool   isRotationEnforced() { return enforceJobPA->isChecked(); }
     // void   setRotationEnforced(bool enabled) { enforceJobPA->setChecked(enabled); }
@@ -38,6 +42,7 @@ public:
     void   setCameraPA(double Angle) { CameraPA->setValue(Angle); }
     void   setPAOffset(double value) { CameraOffset->setValue(value);}
     void   refresh(double PAngle);
+    void   derotateCamera(const double DeltaAngle, const double BaseAngle);
 
 private:
     // Capture adaptor instance to access functions
@@ -45,10 +50,14 @@ private:
     // Rotator Device
     ISD::Rotator *m_Rotator = {nullptr};
     void   setFlipPolicy(const int index);
+    void   setDerotation(bool toggled);
     void   showAlignOptions();
     void   activateRotator(double Angle);
     void   commitRotatorDirection(bool Reverse);
     void   syncFOV(double PA);
+
+    QCPPolarAxisAngular *m_AngularAxis;
+    QVector<QString> m_textTicker;
 
 signals:
     void   newLog(const QString &text);

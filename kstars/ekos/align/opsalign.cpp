@@ -13,6 +13,7 @@
 #include "ksnotification.h"
 #include "Options.h"
 #include "kspaths.h"
+#include "ekos/auxiliary/rotatorutils.h"
 #include "ekos/auxiliary/stellarsolverprofile.h"
 
 #include <KConfigDialog>
@@ -25,7 +26,7 @@ OpsAlign::OpsAlign(Align *parent) : QWidget(KStars::Instance())
 {
     setupUi(this);
 
-    alignModule = parent;
+    m_AlignModule = parent;
 
     //Get a pointer to the KConfigDialog
     m_ConfigDialog = KConfigDialog::exists("alignsettings");
@@ -39,9 +40,17 @@ OpsAlign::OpsAlign(Align *parent) : QWidget(KStars::Instance())
 
     reloadOptionsProfiles();   
 
-    connect(m_ConfigDialog->button(QDialogButtonBox::Apply), SIGNAL(clicked()), SLOT(slotApply()));
-    connect(m_ConfigDialog->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), SLOT(slotApply()));
-    connect(m_ConfigDialog->button(QDialogButtonBox::Ok), SIGNAL(clicked()), SLOT(slotApply()));
+    connect(m_ConfigDialog->button(QDialogButtonBox::Apply), SIGNAL(clicked()), SIGNAL(settingsUpdated()));
+    connect(m_ConfigDialog->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), SIGNAL(settingsUpdated()));
+    connect(m_ConfigDialog->button(QDialogButtonBox::Ok), SIGNAL(clicked()), SIGNAL(settingsUpdated()));
+    connect(estimateThreshold, &QPushButton::clicked, this, [this]
+    {
+        double MaxAngle = 0;
+        MaxAngle = RotatorUtils::Instance()->calcDerotationThreshold();
+        if (MaxAngle > 0)
+            kcfg_AstrometryDerotationThreshold->setValue(MaxAngle);
+    });
+
 }
 
 void OpsAlign::setFlipPolicy(const Ekos::OpsAlign::FlipPriority Priority)
@@ -52,6 +61,36 @@ void OpsAlign::setFlipPolicy(const Ekos::OpsAlign::FlipPriority Priority)
         FlipRotationNotAllowed->setChecked(true);
     OpsAlign::update();
     emit m_ConfigDialog->button(QDialogButtonBox::Apply)->click();
+}
+
+void OpsAlign::setDerotation(bool toggled)
+{
+    if (toggled)
+        kcfg_AstrometryUseDerotation->setChecked(true);
+    else
+        kcfg_AstrometryUseDerotation->setChecked(false);
+    OpsAlign::update();
+    emit m_ConfigDialog->button(QDialogButtonBox::Apply)->click();
+}
+
+void OpsAlign::setAltAzMode(const bool AltAz)
+{
+    if (AltAz)
+    {
+        EQmount->setDisabled(true);
+        EQmount->setHidden(true);
+        ALTAZmount->setDisabled(false);
+        ALTAZmount->setHidden(false);
+    }
+    else
+    {
+        EQmount->setDisabled(false);
+        EQmount->setHidden(false);
+        ALTAZmount->setDisabled(true);
+        ALTAZmount->setHidden(true);
+    }
+    OpsAlign::update();
+    // emit m_ConfigDialog->button(QDialogButtonBox::Apply)->click();
 }
 
 void OpsAlign::reloadOptionsProfiles()
@@ -75,10 +114,5 @@ void OpsAlign::reloadOptionsProfiles()
     }
     else
         kcfg_SolveOptionsProfile->setCurrentIndex(Options::solveOptionsProfile());
-}
-
-void OpsAlign::slotApply()
-{
-    emit settingsUpdated();
 }
 }

@@ -22,6 +22,7 @@
 #include <indicom.h>
 #include <basedevice.h>
 #include <cmath>
+#include "kstarsdata.h"
 
 RotatorUtils * RotatorUtils::m_Instance = nullptr;
 
@@ -48,7 +49,9 @@ void RotatorUtils::initRotatorUtils(const QString &train)
 {
     m_Offset = Options::pAOffset();
     m_Mount = Ekos::OpticalTrainManager::Instance()->getMount(train);
-
+    m_Camera = Ekos::OpticalTrainManager::Instance()->getCamera(train);
+    KStarsData::Instance()->geo()->lat()->SinCos(m_SinLatitude, m_CosLatitude);
+    m_TanLatitude = m_SinLatitude / m_CosLatitude;
     if (m_Mount)
     {
         connect(m_Mount, &ISD::Mount::pierSideChanged, this, [this] (ISD::Mount::PierSide Side)
@@ -56,7 +59,77 @@ void RotatorUtils::initRotatorUtils(const QString &train)
             m_flippedMount = (Side != m_CalPierside);
             emit changedPierside(Side);
         });
+        connect(m_Mount, &ISD::Mount::newCoords, this, [this] (const SkyPoint &Position,
+                                                               ISD::Mount::PierSide PierSide,
+                                                               const dms &HourAngle)
+        {
+            Q_UNUSED(PierSide);   
+            if (Options::useAltAz() && Options::astrometryUseDerotation())
+            {
+                m_Position = Position;
+                m_HourAngle = HourAngle;
+
+                double PARA = calcParallacticAngle(Position, HourAngle);
+                double DeltaPARA = PARA - m_BaseParallacticAngle;
+
+                if (fabs(DeltaPARA) > Options::astrometryDerotationThreshold()/60)
+                {
+                    emit adjustParallacticAngle(-(DeltaPARA), m_BaseParallacticAngle);
+                    // setAltAZTrackrate(Position);
+                    setBaseParallacticAngle();
+                }
+            }
+        });
     }
+}
+
+/*void RotatorUtils::setAltAZTrackrate(const SkyPoint &Position)
+{
+    double sinAz, cosAz = 0;
+    double sinAlt, cosAlt = 0;
+    Position.az().SinCos(sinAz, cosAz);
+    Position.alt().SinCos(sinAlt, cosAlt);
+    m_Mount->setCustomTrackRate(15.041067 * (m_SinLatitude - ((cosAz * sinAlt * m_CosLatitude) / cosAlt)),
+                                15.041067 * sinAz * m_CosLatitude);
+}*/
+
+void RotatorUtils::setBaseParallacticAngle()
+{
+    m_BaseParallacticAngle = calcParallacticAngle(m_Position, m_HourAngle);
+}
+
+double RotatorUtils::getBaseParallacticAngle()
+{
+    return m_BaseParallacticAngle;
+}
+
+double RotatorUtils::calcParallacticAngle(const SkyPoint &Position, const dms &HourAngle)
+{
+    double sinDEC, cosDEC = 0;
+    double sinHA, cosHA = 0;
+    m_Mount->blockSignals(true);
+    HourAngle.SinCos(sinHA, cosHA);
+    Position.dec().SinCos(sinDEC, cosDEC);
+    m_Mount->blockSignals(false);
+    double PARA = std::atan2(sinHA, (m_TanLatitude * cosDEC - sinDEC * cosHA)) / dms::DegToRad;  // in degrees
+    return PARA;
+}
+
+double RotatorUtils::calcDerotationThreshold()
+{
+    double MaxAngle = -1;
+    double CameraPixelWidth { -1 };
+    double CameraPixelHeight { -1 };
+    uint16_t CameraWidth { 0 };
+    uint16_t CameraHeight { 0 };
+    uint8_t bit_depth = 8;
+    auto targetChip = m_Camera->getChip(ISD::CameraChip::PRIMARY_CCD);
+    if (targetChip)
+    {
+        targetChip->getImageInfo(CameraWidth, CameraHeight, CameraPixelWidth, CameraPixelHeight, bit_depth);
+        MaxAngle = 3.33 / ((sqrt((CameraWidth * CameraWidth) + (CameraHeight * CameraHeight))) * dms::DegToRad) * 60;
+    }
+    return MaxAngle;
 }
 
 double RotatorUtils::calcRotatorAngle(double PositionAngle)

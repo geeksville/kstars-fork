@@ -156,6 +156,8 @@ public:
         // Camera commands
         //////////////////////////////////////////////////////////////////////
 
+        void setSimCameraRotation(double Angle);
+
         /**
          * @brief Set the CCD target temperature
          * @param temp
@@ -296,6 +298,10 @@ signals:
          * @brief Update for the rotator's angle
          */
         void newRotatorAngle(double value, IPState state);
+        /**
+         * @brief Adjust the rotator's position angle
+         */
+        void adjustRotatorPA(double Angle, bool adjustFOV);
         /**
          * @brief Update for the rotator reverse status
          */

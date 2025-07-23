@@ -82,6 +82,8 @@
 #include "fitsviewer/opsfits.h"
 #ifdef HAVE_INDI
 #include "ekos/manager.h"
+#include "ekos/align/align.h"
+#include "ekos/align/opsalign.h"
 #include "ekos/scheduler/framingassistantui.h"
 #include "ekos/scheduler/scheduler.h"
 #include "ekos/scheduler/schedulermodulestate.h"
@@ -1778,9 +1780,12 @@ void KStars::slotSetZoom()
 
 void KStars::slotCoordSys()
 {
+    // Use view as switch for equatorial/horizontal mount and update align options window
+    Ekos::Align *Align = Ekos::Manager::Instance()->alignModule();
     if (Options::useAltAz())
     {
         Options::setUseAltAz(false);
+        Align->refreshAlignOptions();
         if (Options::useRefraction())
         {
             if (map()->focusObject()) //simply update focus to focusObject's position
@@ -1807,6 +1812,7 @@ void KStars::slotCoordSys()
     else
     {
         Options::setUseAltAz(true);
+        Align->refreshAlignOptions();
         if (Options::useRefraction())
         {
             // FIXME: Changed focus()->alt() to be unrefracted by convention; is this still necessary? -- asimha 2020/07/05
