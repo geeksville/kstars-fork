@@ -297,6 +297,8 @@ class Align : public QWidget, public Ui::Align
         void setupSolutionTable();
         void setupOptions();
 
+        void newTargetName(const QString &name);
+
         /**
              * @brief Sync the telescope to the solved alignment coordinate.
              */

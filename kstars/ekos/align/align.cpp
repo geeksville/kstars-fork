@@ -3487,6 +3487,11 @@ void Align::setAstrometryDevice(const QSharedPointer<ISD::GenericDevice> &device
     }
 }
 
+void Align::newTargetName(const QString &name)
+{
+    name.isEmpty() ? targetNameT->setText("Target") : targetNameT->setText(name);
+}
+
 void Align::refreshAlignOptions()
 {
     solverFOV->setImageDisplay(Options::astrometrySolverWCS());
