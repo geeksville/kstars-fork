@@ -98,6 +98,12 @@ QString SchedulerJob::jobStartupConditionString(StartupCondition condition) cons
             return "ASAP";
         case START_AT:
             return QString("AT %1").arg(getStartAtTime().toString("MM/dd hh:mm"));
+        case START_DAILY:
+            return QString("DAILY %1").arg(getStartAtTime().time().toString("hh:mm"));
+        case START_TWILIGHT:
+            return "AT TWILIGHT";
+        case START_SUNSET:
+            return "AT SUNSET";
     }
     return QString("????");
 }
@@ -986,13 +992,58 @@ QDateTime SchedulerJob::getNextPossibleStartTime(const QDateTime &when, int incr
     // We do not consider job state here. It is the responsibility of the caller
     // to filter for that, if desired.
 
-    if (!runningJob && START_AT == getFileStartupCondition())
+    if (!runningJob)
     {
-        int secondsFromNow = ltWhen.secsTo(getStartAtTime());
-        if (secondsFromNow < -500)
-            // We missed it.
-            return QDateTime();
-        ltWhen = secondsFromNow > 0 ? getStartAtTime() : ltWhen;
+        switch (getFileStartupCondition())
+        {
+            case START_AT:
+            {
+                int secondsFromNow = ltWhen.secsTo(getStartAtTime());
+                if (secondsFromNow < -500)
+                    // We missed it.
+                    return QDateTime();
+                ltWhen = secondsFromNow > 0 ? getStartAtTime() : ltWhen;
+                break;
+            }
+            case START_DAILY:
+            {
+                // Calculate the next occurrence of the daily time
+                QTime dailyTime = getStartAtTime().time();
+                QDateTime nextDaily = QDateTime(ltWhen.date(), dailyTime);
+                if (nextDaily <= ltWhen)
+                    nextDaily = nextDaily.addDays(1);
+                ltWhen = nextDaily;
+                break;
+            }
+            case START_TWILIGHT:
+            {
+                // Calculate next twilight (dusk) time
+                QDateTime dawn, dusk;
+                SchedulerModuleState::calculateDawnDusk(ltWhen, dawn, dusk);
+                ltWhen = dusk;
+                break;
+            }
+            case START_SUNSET:
+            {
+                // Calculate next sunset time
+                KStarsDateTime midnight = KStarsDateTime(ltWhen.date().addDays(1), QTime(0, 1), Qt::LocalTime);
+                KSAlmanac almanac(midnight, SchedulerModuleState::getGeo());
+                QDateTime sunset = SchedulerModuleState::getGeo()->UTtoLT(midnight.addSecs(almanac.getSunSet() * 24.0 * 3600.0));
+                if (sunset <= ltWhen)
+                {
+                    // Try next day
+                    midnight = KStarsDateTime(ltWhen.date().addDays(2), QTime(0, 1), Qt::LocalTime);
+                    almanac = KSAlmanac(midnight, SchedulerModuleState::getGeo());
+                    sunset = SchedulerModuleState::getGeo()->UTtoLT(midnight.addSecs(almanac.getSunSet() * 24.0 * 3600.0));
+                }
+                ltWhen = sunset;
+                break;
+            }
+            case START_ASAP:
+            default:
+                // No special handling needed for ASAP
+                break;
+        }
     }
 
     // Can't start if we're past the finish time.
@@ -1032,16 +1083,27 @@ QDateTime SchedulerJob::getNextEndTime(const QDateTime &start, int increment, QS
     // We do not consider job state here. It is the responsibility of the caller
     // to filter for that, if desired.
 
-    if (START_AT == getFileStartupCondition())
+    switch (getFileStartupCondition())
     {
-        if (getStartAtTime().secsTo(ltStart) < -120)
+        case START_AT:
+        case START_DAILY:
+        case START_TWILIGHT:
+        case START_SUNSET:
         {
-            // if the file startup time is in the future, then end now.
-            // This case probably wouldn't happen in the running code.
-            if (reason) *reason = "before start-at time";
-            return QDateTime();
+            if (getStartAtTime().secsTo(ltStart) < -120)
+            {
+                // if the file startup time is in the future, then end now.
+                // This case probably wouldn't happen in the running code.
+                if (reason) *reason = "before start-at time";
+                return QDateTime();
+            }
+            // otherwise, test from now.
+            break;
         }
-        // otherwise, test from now.
+        case START_ASAP:
+        default:
+            // No special handling needed for ASAP
+            break;
     }
 
     // Can't start if we're past the finish time.

@@ -72,7 +72,10 @@ typedef enum
 typedef enum
 {
     START_ASAP = 0,
-    START_AT   = 2
+    START_AT   = 2,
+    START_DAILY = 3,
+    START_TWILIGHT = 4,
+    START_SUNSET = 5
 } StartupCondition;
 
 /** @brief Conditions under which a SchedulerJob may complete. */

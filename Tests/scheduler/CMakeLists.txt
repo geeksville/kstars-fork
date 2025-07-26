@@ -9,6 +9,10 @@ ADD_CUSTOM_COMMAND( TARGET testschedulerunit POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/9filters.esq
             ${CMAKE_CURRENT_BINARY_DIR}/9filters.esq)
+ADD_CUSTOM_COMMAND( TARGET testschedulerunit POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/new_startup_conditions_test.esl
+            ${CMAKE_CURRENT_BINARY_DIR}/new_startup_conditions_test.esl)
 ADD_TEST( NAME SchedulerunitTest COMMAND testschedulerunit )
 SET_TESTS_PROPERTIES( SchedulerunitTest PROPERTIES LABELS "stable" TIMEOUT 600)
 

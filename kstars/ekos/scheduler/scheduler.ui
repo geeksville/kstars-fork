@@ -1550,7 +1550,7 @@ font-weight:bold;
          <number>3</number>
         </property>
         <item>
-         <layout class="QGridLayout" name="gridLayout" rowstretch="1,1" columnstretch="2,1">
+         <layout class="QGridLayout" name="gridLayout" rowstretch="1,1,1,1,1" columnstretch="2,1">
           <property name="spacing">
            <number>3</number>
           </property>
@@ -1605,6 +1605,76 @@ font-weight:bold;
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">startupButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="dailyConditionR">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Start the job at the same time every day</string>
+            </property>
+            <property name="text">
+             <string>Daily at:</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">startupButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QTimeEdit" name="dailyTimeEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="displayFormat">
+             <string>hh:mm</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QRadioButton" name="twilightConditionR">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Start the job at astronomical twilight (when the sun is at -18° altitude)</string>
+            </property>
+            <property name="text">
+             <string>At Twilight</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">startupButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QRadioButton" name="sunsetConditionR">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Start the job at sunset</string>
+            </property>
+            <property name="text">
+             <string>At Sunset</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">startupButtonGroup</string>

@@ -89,6 +89,21 @@ SchedulerJob *SchedulerUtils::createJob(XMLEle *root, SchedulerJob *leadJob)
                     startupTime = QDateTime::fromString(findXMLAttValu(subEP, "value"), Qt::ISODate);
                     // Todo sterne-jaeger 2024-01-01: setting time spec from KStars necessary?
                 }
+                else if (!strcmp("Daily", pcdataXMLEle(subEP)))
+                {
+                    startup = START_DAILY;
+                    startupTime = QDateTime::fromString(findXMLAttValu(subEP, "value"), Qt::ISODate);
+                }
+                else if (!strcmp("Twilight", pcdataXMLEle(subEP)))
+                {
+                    startup = START_TWILIGHT;
+                    startupTime = QDateTime::fromString(findXMLAttValu(subEP, "value"), Qt::ISODate);
+                }
+                else if (!strcmp("Sunset", pcdataXMLEle(subEP)))
+                {
+                    startup = START_SUNSET;
+                    startupTime = QDateTime::fromString(findXMLAttValu(subEP, "value"), Qt::ISODate);
+                }
             }
         }
         else if (!strcmp(tagXMLEle(ep), "Constraints"))

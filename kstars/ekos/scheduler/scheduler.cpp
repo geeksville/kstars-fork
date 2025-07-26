@@ -36,6 +36,7 @@
 #include "ekos/auxiliary/solverutils.h"
 #include "ekos/auxiliary/stellarsolverprofile.h"
 #include "ksalmanac.h"
+#include "kstarsdatetime.h"
 
 #include <KConfigDialog>
 #include <KActionCollection>
@@ -899,8 +900,34 @@ bool Scheduler::fillJobFromUI(SchedulerJob *job)
     // Get several job values depending on the state of the UI.
 
     StartupCondition startCondition = START_AT;
+    QDateTime startupTime = startupTimeEdit->dateTime();
+    
     if (asapConditionR->isChecked())
         startCondition = START_ASAP;
+    else if (dailyConditionR->isChecked())
+    {
+        startCondition = START_DAILY;
+        // Set the time to today's date with the selected time
+        QDate today = QDate::currentDate();
+        startupTime = QDateTime(today, dailyTimeEdit->time());
+    }
+    else if (twilightConditionR->isChecked())
+    {
+        startCondition = START_TWILIGHT;
+        // Calculate next twilight time
+        QDateTime dawn, dusk;
+        SchedulerModuleState::calculateDawnDusk(QDateTime::currentDateTime(), dawn, dusk);
+        startupTime = dusk; // Use dusk as the start time for twilight
+    }
+    else if (sunsetConditionR->isChecked())
+    {
+        startCondition = START_SUNSET;
+        // Calculate next sunset time
+        KStarsDateTime midnight = KStarsDateTime(QDate::currentDate().addDays(1), QTime(0, 1), Qt::LocalTime);
+        KSAlmanac almanac(midnight, SchedulerModuleState::getGeo());
+        QDateTime sunset = SchedulerModuleState::getGeo()->UTtoLT(midnight.addSecs(almanac.getSunSet() * 24.0 * 3600.0));
+        startupTime = sunset;
+    }
 
     CompletionCondition stopCondition = FINISH_AT;
     if (schedulerCompleteSequences->isChecked())
@@ -931,7 +958,7 @@ bool Scheduler::fillJobFromUI(SchedulerJob *job)
                              KStarsData::Instance()->ut().djd(),
                              positionAngleSpin->value(), sequenceURL, fitsURL,
 
-                             startCondition, startupTimeEdit->dateTime(),
+                             startCondition, startupTime,
                              stopCondition, schedulerUntilValue->dateTime(), schedulerRepeatSequencesLimit->value(),
 
                              altConstraint,
@@ -1101,6 +1128,19 @@ void Scheduler::syncGUIToJob(SchedulerJob *job)
         case START_AT:
             startupTimeConditionR->setChecked(true);
             startupTimeEdit->setDateTime(job->getStartupTime());
+            break;
+
+        case START_DAILY:
+            dailyConditionR->setChecked(true);
+            dailyTimeEdit->setTime(job->getStartupTime().time());
+            break;
+
+        case START_TWILIGHT:
+            twilightConditionR->setChecked(true);
+            break;
+
+        case START_SUNSET:
+            sunsetConditionR->setChecked(true);
             break;
     }
 

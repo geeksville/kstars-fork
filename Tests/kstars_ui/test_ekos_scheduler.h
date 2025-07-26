@@ -76,6 +76,7 @@ private slots:
 
     void testScheduleManipulation_data();
     void testScheduleManipulation();
+    void testNewStartupConditions();
 };
 
 #endif // HAVE_INDI
