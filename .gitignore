@@ -67,8 +67,8 @@ kstars/Options.cpp
 kstars/Options.h
 kstars/htmesh/config-htmesh.h
 kstars/kstars
-kstars/*.moc_parameters
-kstars/*.moc
+**/*.moc_parameters
+**/*.moc
 kstars/qrc_kstars.cpp
 kstars/data/kstars.qrc.depends
 Tests/auxiliary/testcachingdms
@@ -76,15 +76,32 @@ Tests/auxiliary/testcsvparser
 Tests/auxiliary/testdms
 Tests/auxiliary/testfwparser
 Tests/skyobjects/test_skypoint
+Tests/kstars_ui/test_ekos_debug.*
+Tests/kstars_ui/__
+Tests/kstars_ui/mock*
+Tests/kstars_ui/.PHDGuidingV2_mf
+Tests/kstars_ui/1x1s_Lum.esq
+Tests/kstars_ui/1x1s_RGBLumRGB.esq
+Tests/kstars_ui/qrc_kstars.cpp
+Tests/polaralign/ngc4535-autofocus1.fits
 doc/index.cache.bz2
 
 # Generated source/header files
 kstars/Options.kcfgc
 kstars/*adaptor.cpp
 kstars/*adaptor.h
+kstars/ecos_*
+kstars/kstarslib_export.h
+datahandlers/*_debug.*
+kstars/*_debug.*
+prefix.sh
+test_nodump.cc
 unitybuild_*.cpp
 /compile_commands.json
 .clangd
 .cache
 .idea
 /cmake-build*
+locale
+**autogen
+bin
