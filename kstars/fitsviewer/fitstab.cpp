@@ -915,7 +915,7 @@ void FITSTab::initLiveStacking()
             {
                 m_LiveStackingUI.ReprocessB->setEnabled(false);
                 m_LiveStackingUI.StartB->setEnabled(false);
-                viewer->restack(m_liveStackDir, getUID());
+                viewer->restack(getUID());
                 m_View->redoPostProcessStack(getPPSettings());
             }
         }
@@ -974,7 +974,7 @@ void FITSTab::saveSettings()
     Options::setFitsLSSharpenKernal(m_LiveStackingUI.SharpenKernal->value());
     Options::setFitsLSSharpenSigma(m_LiveStackingUI.SharpenSigma->value());
     // Write the options to disk
-    KSharedConfig::openConfig()->sync();
+    Options::self()->save();
     qCDebug(KSTARS_FITS) << "Live Stacker settings saved";
 }
 
@@ -1313,7 +1313,7 @@ void FITSTab::liveStack()
         m_LiveStackingUI.SubsProcessed->setText("0 / 0 / 0");
         m_LiveStackingUI.SubsSNR->setText("0 / 0 / 0");
         m_LiveStackingUI.ImageSNR->setText("0");
-        viewer->restack(m_liveStackDir, getUID());
+        viewer->restack(getUID());
         m_View->loadStack(m_liveStackDir, getAllSettings());
     }
     else if (text == QString("Cancel"))
@@ -1408,7 +1408,7 @@ void FITSTab::stackInProgress()
 {
     m_LiveStackingUI.StartB->setEnabled(false);
     m_LiveStackingUI.ReprocessB->setEnabled(false);
-    viewer->restack(m_liveStackDir, getUID());
+    viewer->restack(getUID());
 }
 
 void FITSTab::alignMasterChosen(const QString &alignMaster)
